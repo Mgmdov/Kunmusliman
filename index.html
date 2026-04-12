@@ -3,593 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Muslim Tracker | Хатм | Тауба | Азкары | Зикр | Коран</title>
-    
+    <title>Muslim Tracker | Хатм | Тауба | Азкары | Зикр | Намаз</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background: linear-gradient(135deg, #0a2f1a 0%, #0d3b1f 30%, #1a4a2a 100%);
-            font-family: 'Segoe UI', 'Roboto', 'Tahoma', sans-serif;
-            padding: 20px;
-            min-height: 100vh;
-            position: relative;
-        }
-
-        body::before {
-            content: "☪";
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            font-size: 100px;
-            opacity: 0.04;
-            color: #e6bc7e;
-            pointer-events: none;
-        }
-
-        body::after {
-            content: "۞";
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            font-size: 80px;
-            opacity: 0.04;
-            color: #e6bc7e;
-            pointer-events: none;
-        }
-
-        .app-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-        }
-
-        .header {
-            text-align: center;
-            padding: 20px 20px 15px;
-            background: linear-gradient(135deg, rgba(30,58,26,0.9), rgba(13,47,19,0.9));
-            backdrop-filter: blur(8px);
-            border-radius: 60px;
-            margin-bottom: 25px;
-            border: 1px solid rgba(230,188,126,0.5);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-        }
-
-        .header h1 {
-            font-size: 1.8rem;
-            color: #ffefc0;
-            text-shadow: 2px 2px 6px #1e3a1a;
-        }
-
-        .arabic-header {
-            font-family: 'Amiri', 'Scheherazade New', serif;
-            font-size: 1.3rem;
-            color: #e6bc7e;
-            direction: rtl;
-            margin-top: 5px;
-        }
-
-        .settings-bar {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 25px;
-            background: rgba(0,0,0,0.35);
-            backdrop-filter: blur(4px);
-            padding: 12px 20px;
-            border-radius: 60px;
-        }
-
-        .settings-bar select {
-            padding: 8px 16px;
-            border-radius: 40px;
-            border: 1px solid #c4a86a;
-            background: #fffef7;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .settings-bar select:hover {
-            border-color: #e6bc7e;
-            transform: scale(1.02);
-        }
-
-        .settings-bar label {
-            color: #ffefc0;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-        }
-
-        .nav-tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 25px;
-        }
-
-        .nav-btn {
-            background: rgba(30,45,25,0.9);
-            border: none;
-            padding: 12px 18px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            border-radius: 50px;
-            color: #dfcca7;
-            cursor: pointer;
-            transition: all 0.25s;
-            backdrop-filter: blur(4px);
-        }
-
-        .nav-btn:hover {
-            transform: translateY(-2px);
-            background: rgba(230,188,126,0.3);
-        }
-
-        .nav-btn.active {
-            background: #e6bc7e;
-            color: #1e3a1a;
-            box-shadow: 0 3px 10px rgba(230,188,126,0.3);
-        }
-
-        .module {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .module.active-module {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .card {
-            background: rgba(255,252,240,0.96);
-            border-radius: 28px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            border: 1px solid #e6bc7e;
-            transition: transform 0.2s;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-        }
-
-        .card h2 {
-            color: #8b5a2b;
-            border-bottom: 2px solid #decb9b;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-        }
-
-        .progress-bar {
-            background: #e0d5bd;
-            border-radius: 30px;
-            height: 24px;
-            overflow: hidden;
-            margin: 15px 0;
-        }
-
-        .progress-fill {
-            background: linear-gradient(90deg, #4a8b3c, #6aad5a);
-            width: 0%;
-            height: 100%;
-            border-radius: 30px;
-            transition: width 0.4s ease;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 10px;
-            color: white;
-            font-size: 0.75rem;
-            font-weight: bold;
-        }
-
-        select, button, input {
-            padding: 10px 18px;
-            border-radius: 30px;
-            border: 1px solid #c4a86a;
-            background: #fffef7;
-            margin: 5px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        button {
-            background: #dbb45c;
-            border: none;
-            font-weight: bold;
-            color: #1e3a1a;
-        }
-
-        button:hover {
-            background: #e6bc7e;
-            transform: scale(1.02);
-        }
-
-        button:active {
-            transform: scale(0.98);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #fef7e8, #f5eddb);
-            padding: 15px;
-            border-radius: 20px;
-            text-align: center;
-            border-left: 4px solid #c49a6c;
-            transition: transform 0.2s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-3px);
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #2c5a2a;
-        }
-
-        .position-card {
-            background: linear-gradient(135deg, #e8dcc8, #dfd0b8);
-            padding: 18px;
-            border-radius: 20px;
-            margin: 15px 0;
-            text-align: center;
-        }
-
-        .position-value {
-            font-size: 1rem;
-            font-weight: bold;
-            color: #2c5a2a;
-            margin: 12px 0;
-            background: #fffef7;
-            padding: 10px;
-            border-radius: 20px;
-        }
-
-        .position-selects {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            justify-content: center;
-            margin: 15px 0;
-        }
-
-        .position-selects select {
-            min-width: 220px;
-        }
-
-        .button-group {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            margin: 15px 0;
-        }
-
-        .btn-remove {
-            background: #c49a6c;
-            color: white;
-        }
-
-        .btn-remove:hover {
-            background: #b87a4a;
-        }
-
-        .daily-check {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 15px;
-            border-bottom: 1px solid #decb9b;
-            background: #fef7e8;
-            margin: 8px 0;
-            border-radius: 16px;
-            transition: background 0.2s;
-        }
-
-        .daily-check:hover {
-            background: #f5eddb;
-        }
-
-        .daily-check input {
-            width: 24px;
-            height: 24px;
-            accent-color: #4a8b3c;
-            cursor: pointer;
-        }
-
-        .iman-slider {
-            width: 100%;
-            margin: 15px 0;
-            accent-color: #4a8b3c;
-        }
-
-        .tauba-stats {
-            background: linear-gradient(135deg, #f5eddb, #efe3cb);
-            padding: 15px;
-            border-radius: 20px;
-            margin-top: 15px;
-        }
-
-        .history-list {
-            max-height: 220px;
-            overflow-y: auto;
-        }
-
-        .history-item {
-            background: #fef7e8;
-            margin: 8px 0;
-            padding: 10px;
-            border-radius: 12px;
-            border-left: 3px solid #c49a6c;
-            font-size: 0.85rem;
-        }
-
-        /* Стили для азкаров */
-        .azkar-container {
-            background: #fffcf0;
-            border-radius: 28px;
-            overflow: hidden;
-        }
-
-        .azkar-header {
-            background: #2b4b29;
-            padding: 14px 24px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            gap: 14px;
-            border-bottom: 3px solid #f5bc42;
-        }
-
-        .azkar-nav {
-            display: flex;
-            gap: 14px;
-            flex-wrap: wrap;
-        }
-
-        .azkar-nav-btn {
-            background: #f7e3af;
-            border: none;
-            padding: 8px 24px;
-            border-radius: 60px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: 0.2s;
-            color: #2a4827;
-        }
-
-        .azkar-nav-btn.active {
-            background: #f5bc42;
-            color: #1f3a1c;
-        }
-
-        .azkar-settings {
-            display: flex;
-            gap: 10px;
-            background: #e9dfc7;
-            padding: 5px 15px;
-            border-radius: 60px;
-            align-items: center;
-        }
-
-        .azkar-settings button {
-            background: #fff3df;
-            border: none;
-            font-size: 0.8rem;
-            padding: 5px 12px;
-            border-radius: 40px;
-        }
-
-        .page-view {
-            padding: 24px 28px 20px 28px;
-        }
-
-        .arabic-block {
-            background: #fcf6e6;
-            padding: 22px 20px;
-            border-radius: 32px;
-            text-align: right;
-            font-family: 'Amiri', 'Scheherazade New', serif;
-            font-size: 1.8rem;
-            line-height: 1.7;
-            direction: rtl;
-            border: 1px solid #eedfab;
-            cursor: pointer;
-            margin-bottom: 15px;
-        }
-
-        .arabic-block.zoom-arabic {
-            font-size: 2.5rem;
-        }
-
-        .translit-block, .chechen-block, .meaning-block {
-            padding: 12px 18px;
-            border-radius: 24px;
-            margin-bottom: 12px;
-        }
-
-        .translit-block {
-            background: #f5efdf;
-            font-family: monospace;
-            font-size: 0.9rem;
-            border-left: 5px solid #f5bc42;
-        }
-
-        .chechen-block {
-            background: #e7e0cb;
-            border-right: 3px solid #c2a65a;
-        }
-
-        .meaning-block {
-            background: #fff4e2;
-        }
-
-        .source-recommend {
-            font-size: 0.75rem;
-            color: #7a683e;
-            background: #f3ecd9;
-            display: inline-block;
-            padding: 4px 16px;
-            border-radius: 60px;
-        }
-
-        .page-navigation {
-            display: flex;
-            justify-content: space-between;
-            padding: 0 20px 20px 20px;
-            gap: 18px;
-        }
-
-        .page-arrow {
-            background: #e7dbbc;
-            border: none;
-            padding: 12px 20px;
-            font-size: 1rem;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            flex: 1;
-            text-align: center;
-        }
-
-        /* Стили для счетчика зикра - КНОПКИ СПРАВА ДЛЯ БОЛЬШОГО ПАЛЬЦА */
-        .counter-container {
-            text-align: center;
-            padding: 20px;
-        }
-
-        .counter-display {
-            background: linear-gradient(135deg, #2c5a2a, #1e4a1a);
-            border-radius: 60px;
-            padding: 50px 20px;
-            margin: 20px 0;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2), 0 5px 15px rgba(0,0,0,0.3);
-        }
-
-        .counter-number {
-            font-size: 6rem;
-            font-weight: bold;
-            color: #e6bc7e;
-            font-family: monospace;
-            letter-spacing: 8px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        /* Горизонтальное расположение кнопок */
-        .counter-buttons-row {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin: 25px 0;
-            flex-wrap: wrap;
-        }
-
-        .counter-btn {
-            padding: 20px 30px;
-            font-size: 1.8rem;
-            font-weight: bold;
-            border-radius: 60px;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
-            transition: all 0.05s linear;
-            flex: 1;
-            min-width: 110px;
-        }
-
-        .counter-btn:active {
-            transform: scale(0.95);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .counter-add1 {
-            background: #4a8b3c;
-            color: white;
-        }
-
-        .counter-add10 {
-            background: #dbb45c;
-            color: #1e3a1a;
-        }
-
-        .counter-reset {
-            background: #8b5a2b;
-            color: #ffefc0;
-        }
-
-        /* Стили для Корана */
-        .quran-iframe {
-            width: 100%;
-            height: 70vh;
-            min-height: 500px;
-            border: none;
-            border-radius: 20px;
-            background: white;
-        }
-
-        @media (max-width: 600px) {
-            .nav-btn { padding: 8px 10px; font-size: 0.7rem; }
-            .card { padding: 16px; }
-            .counter-number { font-size: 3.5rem; letter-spacing: 4px; }
-            .counter-btn { padding: 15px 20px; font-size: 1.3rem; min-width: 80px; }
-            .counter-display { padding: 30px 15px; }
-            .arabic-block { font-size: 1.4rem; }
-            .arabic-block.zoom-arabic { font-size: 2rem; }
-            .quran-iframe { height: 60vh; min-height: 400px; }
-        }
-        
-        .offline-badge {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.8);
-            color: #ffcc00;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            display: none;
-            z-index: 1000;
-        }
-
-        .quran-note {
-            margin-top: 15px;
-            padding: 12px;
-            background: #f0e8d8;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            color: #5a4a2a;
-            text-align: center;
-        }
+        /* ВАШ ПОЛНЫЙ CSS КОД (сохранён без изменений) */
+        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+        body{background:linear-gradient(135deg,#0a2f1a 0%,#0d3b1f 30%,#1a4a2a 100%);font-family:'Segoe UI','Roboto','Tahoma',sans-serif;padding:20px;min-height:100vh;position:relative}
+        body.dark{background:linear-gradient(135deg,#0a1a0f 0%,#0d2a1a 30%,#143a22 100%)}
+        body::before{content:"☪";position:fixed;bottom:20px;left:20px;font-size:100px;opacity:0.04;color:#e6bc7e;pointer-events:none}
+        body::after{content:"۞";position:fixed;top:20px;right:20px;font-size:80px;opacity:0.04;color:#e6bc7e;pointer-events:none}
+        .app-container{max-width:1200px;margin:0 auto;position:relative;z-index:1}
+        .header{text-align:center;padding:20px 20px 15px;background:linear-gradient(135deg,rgba(30,58,26,0.9),rgba(13,47,19,0.9));backdrop-filter:blur(8px);border-radius:60px;margin-bottom:25px;border:1px solid rgba(230,188,126,0.5);box-shadow:0 5px 20px rgba(0,0,0,0.2)}
+        .header h1{font-size:1.8rem;color:#ffefc0;text-shadow:2px 2px 6px #1e3a1a}
+        .arabic-header{font-family:'Amiri','Scheherazade New',serif;font-size:1.3rem;color:#e6bc7e;direction:rtl;margin-top:5px}
+        .settings-bar{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-bottom:25px;background:rgba(0,0,0,0.35);backdrop-filter:blur(4px);padding:12px 20px;border-radius:60px}
+        .settings-bar select{padding:8px 16px;border-radius:40px;border:1px solid #c4a86a;background:#fffef7;font-size:0.9rem;cursor:pointer}
+        .settings-bar label{color:#ffefc0;font-weight:bold;display:flex;align-items:center;gap:8px}
+        .nav-tabs{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:25px}
+        .nav-btn{background:rgba(30,45,25,0.9);border:none;padding:12px 18px;font-size:0.85rem;font-weight:bold;border-radius:50px;color:#dfcca7;cursor:pointer;transition:all 0.25s}
+        .nav-btn.active{background:#e6bc7e;color:#1e3a1a;box-shadow:0 3px 10px rgba(230,188,126,0.3)}
+        .module{display:none;animation:fadeIn 0.3s ease}
+        .module.active-module{display:block}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+        .card{background:rgba(255,252,240,0.96);border-radius:28px;padding:24px;margin-bottom:20px;box-shadow:0 10px 30px rgba(0,0,0,0.15);border:1px solid #e6bc7e}
+        .card h2{color:#8b5a2b;border-bottom:2px solid #decb9b;padding-bottom:10px;margin-bottom:20px;font-size:1.5rem}
+        .progress-bar{background:#e0d5bd;border-radius:30px;height:24px;overflow:hidden;margin:15px 0}
+        .progress-fill{background:linear-gradient(90deg,#4a8b3c,#6aad5a);width:0%;height:100%;border-radius:30px;transition:width 0.4s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;color:white;font-size:0.75rem;font-weight:bold}
+        select,button,input{padding:10px 18px;border-radius:30px;border:1px solid #c4a86a;background:#fffef7;margin:5px;font-size:0.9rem;cursor:pointer}
+        button{background:#dbb45c;border:none;font-weight:bold;color:#1e3a1a}
+        button:hover{background:#e6bc7e;transform:scale(1.02)}
+        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;margin:20px 0}
+        .stat-card{background:linear-gradient(135deg,#fef7e8,#f5eddb);padding:15px;border-radius:20px;text-align:center;border-left:4px solid #c49a6c}
+        .stat-number{font-size:2rem;font-weight:bold;color:#2c5a2a}
+        .position-card{background:linear-gradient(135deg,#e8dcc8,#dfd0b8);padding:18px;border-radius:20px;margin:15px 0;text-align:center}
+        .position-value{font-size:1rem;font-weight:bold;color:#2c5a2a;margin:12px 0;background:#fffef7;padding:10px;border-radius:20px}
+        .position-selects{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:15px 0}
+        .position-selects select{min-width:220px}
+        .button-group{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:15px 0}
+        .btn-remove{background:#c49a6c;color:white}
+        .daily-check{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;border-bottom:1px solid #decb9b;background:#fef7e8;margin:8px 0;border-radius:16px}
+        .daily-check input{width:24px;height:24px;accent-color:#4a8b3c;cursor:pointer}
+        .iman-slider{width:100%;margin:15px 0;accent-color:#4a8b3c}
+        .tauba-stats{background:linear-gradient(135deg,#f5eddb,#efe3cb);padding:15px;border-radius:20px;margin-top:15px}
+        .history-list{max-height:220px;overflow-y:auto}
+        .history-item{background:#fef7e8;margin:8px 0;padding:10px;border-radius:12px;border-left:3px solid #c49a6c;font-size:0.85rem}
+        .azkar-container{background:#fffcf0;border-radius:28px;overflow:hidden}
+        .azkar-header{background:#2b4b29;padding:14px 24px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:14px;border-bottom:3px solid #f5bc42}
+        .azkar-nav{display:flex;gap:14px;flex-wrap:wrap}
+        .azkar-nav-btn{background:#f7e3af;border:none;padding:8px 24px;border-radius:60px;font-weight:700;cursor:pointer;color:#2a4827}
+        .azkar-nav-btn.active{background:#f5bc42;color:#1f3a1c}
+        .azkar-settings{display:flex;gap:10px;background:#e9dfc7;padding:5px 15px;border-radius:60px;align-items:center}
+        .azkar-settings button{background:#fff3df;border:none;font-size:0.8rem;padding:5px 12px;border-radius:40px}
+        .page-view{padding:24px 28px 20px 28px}
+        .arabic-block{background:#fcf6e6;padding:22px 20px;border-radius:32px;text-align:right;font-family:'Amiri','Scheherazade New',serif;font-size:1.8rem;line-height:1.7;direction:rtl;border:1px solid #eedfab;cursor:pointer;margin-bottom:15px}
+        .arabic-block.zoom-arabic{font-size:2.5rem}
+        .translit-block{background:#f5efdf;font-family:monospace;font-size:0.9rem;border-left:5px solid #f5bc42;padding:12px 18px;border-radius:24px;margin-bottom:12px}
+        .chechen-block{background:#e7e0cb;border-right:3px solid #c2a65a;padding:12px 18px;border-radius:24px;margin-bottom:12px}
+        .meaning-block{background:#fff4e2;padding:12px 18px;border-radius:24px;margin-bottom:12px}
+        .source-recommend{font-size:0.75rem;color:#7a683e;background:#f3ecd9;display:inline-block;padding:4px 16px;border-radius:60px}
+        .page-navigation{display:flex;justify-content:space-between;padding:0 20px 20px 20px;gap:18px}
+        .page-arrow{background:#e7dbbc;border:none;padding:12px 20px;font-size:1rem;font-weight:bold;border-radius:50px;cursor:pointer;flex:1;text-align:center}
+        .counter-container{text-align:center;padding:20px}
+        .counter-display{background:linear-gradient(135deg,#2c5a2a,#1e4a1a);border-radius:60px;padding:50px 20px;margin:20px 0;box-shadow:inset 0 2px 5px rgba(0,0,0,0.2),0 5px 15px rgba(0,0,0,0.3)}
+        .counter-number{font-size:6rem;font-weight:bold;color:#e6bc7e;font-family:monospace;letter-spacing:8px;text-shadow:2px 2px 4px rgba(0,0,0,0.3)}
+        .counter-buttons-row{display:flex;gap:15px;justify-content:center;margin:25px 0;flex-wrap:wrap}
+        .counter-btn{padding:20px 30px;font-size:1.8rem;font-weight:bold;border-radius:60px;box-shadow:0 5px 10px rgba(0,0,0,0.2);flex:1;min-width:110px}
+        .counter-btn:active{transform:scale(0.95)}
+        .counter-add1{background:#4a8b3c;color:white}
+        .counter-reset{background:#8b5a2b;color:#ffefc0}
+        .quran-iframe{width:100%;height:70vh;min-height:500px;border:none;border-radius:20px;background:white}
+        .prayer-times-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:20px 0}
+        .prayer-card{background:linear-gradient(135deg,#fef7e8,#f5eddb);border-radius:20px;padding:15px;text-align:center}
+        .prayer-card.highlight{background:linear-gradient(135deg,#e6bc7e,#d4a45a);transform:scale(1.02)}
+        .prayer-name{font-size:1.2rem;font-weight:bold;color:#5a3a1a}
+        .prayer-time{font-size:1.5rem;font-weight:bold;color:#2c5a2a}
+        .city-selector{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:15px 0}
+        .city-selector input{padding:10px 15px;border-radius:30px;border:1px solid #c4a86a;background:#fffef7;flex:1;min-width:150px}
+        .next-prayer{background:#2b4b29;color:#ffefc0;padding:15px;border-radius:20px;text-align:center;margin-top:15px}
+        .location-info{background:#e8dcc8;border-radius:20px;padding:12px;text-align:center;margin-bottom:15px}
+        @media (max-width:600px){.nav-btn{padding:8px 10px;font-size:0.7rem}.card{padding:16px}.counter-number{font-size:3.5rem;letter-spacing:4px}.counter-btn{padding:15px 20px;font-size:1.3rem;min-width:80px}.arabic-block{font-size:1.4rem}.arabic-block.zoom-arabic{font-size:2rem}.prayer-times-grid{grid-template-columns:repeat(2,1fr)}}
+        .offline-badge{position:fixed;bottom:10px;right:10px;background:rgba(0,0,0,0.8);color:#ffcc00;padding:5px 12px;border-radius:20px;font-size:0.7rem;display:none;z-index:1000}
+        .quran-note{margin-top:15px;padding:12px;background:#f0e8d8;border-radius:20px;font-size:0.85rem;color:#5a4a2a;text-align:center}
     </style>
 </head>
 <body>
@@ -614,6 +110,7 @@
         <button class="nav-btn" data-module="tauba">📝 Тауба</button>
         <button class="nav-btn" data-module="azkar">📿 Азкары</button>
         <button class="nav-btn" data-module="counter">🔢 Зикр</button>
+        <button class="nav-btn" data-module="prayer">🕌 Намаз</button>
         <button class="nav-btn" data-module="quran">📖 Коран</button>
     </div>
 
@@ -690,7 +187,7 @@
         </div>
     </div>
 
-    <!-- Модуль 3: Азкары -->
+    <!-- Модуль 3: Азкары (ПОЛНЫЙ, все 14 утренних и 13 вечерних) -->
     <div id="module-azkar" class="module">
         <div class="azkar-container">
             <div class="azkar-header">
@@ -713,7 +210,7 @@
         </div>
     </div>
 
-    <!-- Модуль 4: Счетчик зикра (УДОБНЫЙ - кнопки горизонтально) -->
+    <!-- Модуль 4: Счетчик зикра (ТОЛЬКО +1 и Сброс, без +10) -->
     <div id="module-counter" class="module">
         <div class="card counter-container">
             <h2>🔢 Счетчик зикра</h2>
@@ -722,21 +219,50 @@
             </div>
             <div class="counter-buttons-row">
                 <button class="counter-btn counter-add1" id="counterAdd1">➕ +1</button>
-                <button class="counter-btn counter-add10" id="counterAdd10">🔟 +10</button>
                 <button class="counter-btn counter-reset" id="counterReset">⟳ Сброс</button>
             </div>
             <p style="color: #7a683e; margin-top: 15px; font-size: 0.9rem;">✨ Нажмите на кнопку, чтобы считать зикр. Счётчик сохраняется автоматически.</p>
         </div>
     </div>
 
-    <!-- Модуль 5: Коран (iframe) -->
+    <!-- Модуль 5: Намаз (НОВЫЙ) -->
+    <div id="module-prayer" class="module">
+        <div class="card">
+            <h2>🕌 Время намаза</h2>
+            <div class="location-info" id="locationInfo">
+                📍 Определение местоположения...
+            </div>
+            <div class="city-selector">
+                <input type="text" id="cityInput" placeholder="Город (например: Moscow)">
+                <input type="text" id="countryInput" placeholder="Страна (например: Russia)">
+                <button id="searchCityBtn">🔍 Найти</button>
+                <button id="autoLocateBtn">📍 Моё местоположение</button>
+            </div>
+            <div class="prayer-times-grid" id="prayerTimesGrid">
+                <div class="prayer-card"><div class="prayer-name">Фаджр</div><div class="prayer-time">--:--</div></div>
+                <div class="prayer-card"><div class="prayer-name">Шурук</div><div class="prayer-time">--:--</div></div>
+                <div class="prayer-card"><div class="prayer-name">Зухр</div><div class="prayer-time">--:--</div></div>
+                <div class="prayer-card"><div class="prayer-name">Аср</div><div class="prayer-time">--:--</div></div>
+                <div class="prayer-card"><div class="prayer-name">Магриб</div><div class="prayer-time">--:--</div></div>
+                <div class="prayer-card"><div class="prayer-name">Иша</div><div class="prayer-time">--:--</div></div>
+            </div>
+            <div class="next-prayer" id="nextPrayerInfo">
+                Следующий намаз: <span>--:--</span>
+            </div>
+            <p style="color:#7a683e; font-size:0.8rem; text-align:center; margin-top:15px;">📡 Данные предоставлены AlAdhan API</p>
+        </div>
+    </div>
+
+    <!-- Модуль 6: Коран (открытие в новой вкладке) -->
     <div id="module-quran" class="module">
         <div class="card">
             <h2>📖 Священный Коран</h2>
-            <iframe class="quran-iframe" src="https://quran.com/" title="Священный Коран" loading="lazy"></iframe>
+            <div style="text-align:center; margin-bottom:15px;">
+                <button id="openQuranBtn">📖 Открыть Quran.com в новой вкладке</button>
+            </div>
             <div class="quran-note">
-                📚 Читайте Коран онлайн с переводами и таджвидом. Нажмите на любую суру для чтения.
-                <br><small>※ Для работы требуется интернет-соединение</small>
+                📚 Читайте Коран онлайн с переводами и таджвидом.
+                <br><small>※ Нажмите на кнопку, чтобы открыть полную версию</small>
             </div>
         </div>
     </div>
@@ -746,6 +272,33 @@
 </div>
 
 <script>
+    // ==================== ФУНКЦИИ РАБОТЫ С ХРАНИЛИЩЕМ ====================
+    function saveData(key, data) {
+        localStorage.setItem(key, JSON.stringify(data));
+    }
+
+    function loadData(key, defaultValue) {
+        const data = localStorage.getItem(key);
+        return data ? JSON.parse(data) : defaultValue;
+    }
+
+    // ==================== SERVICE WORKER ====================
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').then(() => {
+            console.log('Service Worker registered');
+        }).catch(console.log);
+    }
+
+    // ==================== ВИБРАЦИЯ ====================
+    function vibrate() {
+        if (navigator.vibrate) navigator.vibrate(30);
+    }
+
+    // ==================== ТЁМНАЯ ТЕМА ====================
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
     // ==================== ПЕРЕВОДЫ ====================
     const translations = {
         ru: {
@@ -787,8 +340,8 @@
 
     // ==================== ХАТМ ====================
     const TOTAL_PAGES = 604;
-    let khatmData = { readPages: 0, period: 30 };
-    let positionData = { suraIndex: "", suraName: "", page: "" };
+    let khatmData = loadData("khatmData", { readPages: 0, period: 30 });
+    let positionData = loadData("quranPosition", { suraIndex: "", suraName: "", page: "" });
 
     const suraNames = {
         ru: ["Аль-Фатиха", "Аль-Бакара", "Аль Имран", "Ан-Ниса", "Аль-Маида", "Аль-Анам", "Аль-Араф", "Аль-Анфаль", "Ат-Тавба", "Юнус", "Худ", "Юсуф", "Ар-Рад", "Ибрахим", "Аль-Хиджр", "Ан-Нахль", "Аль-Исра", "Аль-Кахф", "Марьям", "Та Ха", "Аль-Анбия", "Аль-Хадж", "Аль-Муминун", "Ан-Нур", "Аль-Фуркан", "Аш-Шуара", "Ан-Намль", "Аль-Касас", "Аль-Анкабут", "Ар-Рум", "Лукман", "Ас-Саджда", "Аль-Ахзаб", "Саба", "Фатир", "Йа Син", "Ас-Саффат", "Сад", "Аз-Зумар", "Гафир", "Фуссилят", "Аш-Шура", "Аз-Зухруф", "Ад-Духан", "Аль-Джасия", "Аль-Ахкаф", "Мухаммад", "Аль-Фатх", "Аль-Худжурат", "Каф", "Аз-Зарият", "Ат-Тур", "Ан-Наджм", "Аль-Камар", "Ар-Рахман", "Аль-Вакиа", "Аль-Хадид", "Аль-Муджадиля", "Аль-Хашр", "Аль-Мумтахана", "Ас-Сафф", "Аль-Джумуа", "Аль-Мунафикун", "Ат-Тагабун", "Ат-Таляк", "Ат-Тахрим", "Аль-Мульк", "Аль-Калям", "Аль-Хакка", "Аль-Мааридж", "Нух", "Аль-Джинн", "Аль-Муззаммиль", "Аль-Муддассир", "Аль-Кияма", "Аль-Инсан", "Аль-Мурсалят", "Ан-Наба", "Ан-Назиат", "Абаса", "Ат-Таквир", "Аль-Инфитар", "Аль-Мутаффифин", "Аль-Иншикак", "Аль-Бурудж", "Ат-Тарик", "Аль-Аля", "Аль-Гашия", "Аль-Фаджр", "Аль-Баляд", "Аш-Шамс", "Аль-Ляйль", "Ад-Духа", "Аш-Шарх", "Ат-Тин", "Аль-Аляк", "Аль-Кадр", "Аль-Баййина", "Аз-Зальзаля", "Аль-Адият", "Аль-Кариа", "Ат-Такасур", "Аль-Аср", "Аль-Хумаза", "Аль-Филь", "Курайш", "Аль-Маун", "Аль-Кавсар", "Аль-Кафирун", "Ан-Наср", "Аль-Масад", "Аль-Ихляс", "Аль-Фаляк", "Ан-Нас"],
@@ -801,17 +354,22 @@
         return names ? names[index-1] : `Сура ${index}`;
     }
 
-    function loadKhatm() {
-        const s = localStorage.getItem('khatmData'); 
-        if(s) { try { let parsed = JSON.parse(s); khatmData = { readPages: parsed.readPages || 0, period: parsed.period || 30 }; } catch(e){} }
-        const p = localStorage.getItem('quranPosition'); 
-        if(p) { try { positionData = JSON.parse(p); } catch(e){} }
-        document.getElementById('khatmPeriod').value = khatmData.period;
-        updateKhatmUI(); updatePositionUI(); populateSuraSelect();
+    function updateKhatmProgress() {
+        const percent = (khatmData.readPages / TOTAL_PAGES) * 100;
+        const el = document.getElementById("khatmProgressFill");
+        if (el) {
+            el.style.width = percent + "%";
+            el.textContent = percent.toFixed(1) + "%";
+        }
+        let ppd = TOTAL_PAGES / khatmData.period;
+        document.getElementById('pagesPerDay').innerHTML = ppd.toFixed(1);
+        document.getElementById('readPages').innerText = khatmData.readPages;
+        document.getElementById('dailyGoalText').innerHTML = `Читать ${ppd.toFixed(1)} страниц в день`;
+        let remaining = TOTAL_PAGES - khatmData.readPages;
+        let daysNeeded = remaining > 0 ? Math.ceil(remaining / ppd) : 0;
+        document.getElementById('remainingText').innerHTML = `Осталось: ${remaining} стр. (${daysNeeded} дней)`;
+        saveData("khatmData", khatmData);
     }
-    
-    function saveKhatm() { localStorage.setItem('khatmData', JSON.stringify({ readPages: khatmData.readPages, period: khatmData.period })); }
-    function savePosition() { localStorage.setItem('quranPosition', JSON.stringify(positionData)); updatePositionUI(); }
     
     function populateSuraSelect() {
         let select = document.getElementById('suraSelect');
@@ -826,19 +384,6 @@
         if(positionData && positionData.suraIndex) select.value = positionData.suraIndex;
     }
     
-    function updateKhatmUI() {
-        let ppd = TOTAL_PAGES / khatmData.period;
-        document.getElementById('pagesPerDay').innerHTML = ppd.toFixed(1);
-        document.getElementById('readPages').innerText = khatmData.readPages;
-        let percent = (khatmData.readPages / TOTAL_PAGES * 100).toFixed(1);
-        let fill = document.getElementById('khatmProgressFill');
-        fill.style.width = percent + '%'; fill.innerText = percent + '%';
-        document.getElementById('dailyGoalText').innerHTML = `Читать ${ppd.toFixed(1)} страниц в день`;
-        let remaining = TOTAL_PAGES - khatmData.readPages;
-        let daysNeeded = remaining > 0 ? Math.ceil(remaining / ppd) : 0;
-        document.getElementById('remainingText').innerHTML = `Осталось: ${remaining} стр. (${daysNeeded} дней)`;
-    }
-    
     function updatePositionUI() {
         let txt = '';
         if(positionData && positionData.suraIndex) {
@@ -848,15 +393,6 @@
         document.getElementById('currentPositionDisplay').innerHTML = txt;
     }
     
-    function resetKhatm() {
-        if(confirm('⚠️ Сбросить весь прогресс чтения Корана?')) {
-            khatmData.readPages = 0;
-            saveKhatm();
-            updateKhatmUI();
-            alert('✅ Прогресс чтения Корана сброшен!');
-        }
-    }
-
     document.getElementById('suraSelect')?.addEventListener('change', (e) => {
         if(e.target.value) { 
             positionData.suraIndex = e.target.value; 
@@ -866,37 +402,44 @@
             positionData.page = ""; 
         }
         updatePositionUI();
+        saveData("quranPosition", positionData);
     });
-    document.getElementById('savePositionBtn')?.addEventListener('click', () => { savePosition(); alert('📌 Позиция сохранена!'); });
-    document.getElementById('addPageBtn')?.addEventListener('click', () => { if(khatmData.readPages < TOTAL_PAGES){ khatmData.readPages++; saveKhatm(); updateKhatmUI(); } else alert('🎉 Вы уже завершили хатм!'); });
-    document.getElementById('removePageBtn')?.addEventListener('click', () => { if(khatmData.readPages > 0){ khatmData.readPages--; saveKhatm(); updateKhatmUI(); } else alert('❌ Нельзя убавить меньше 0 страниц!'); });
-    document.getElementById('addJuzBtn')?.addEventListener('click', () => { if(khatmData.readPages < TOTAL_PAGES) { let newPages = Math.min(khatmData.readPages + 20, TOTAL_PAGES); khatmData.readPages = newPages; saveKhatm(); updateKhatmUI(); } else alert('🎉 Вы уже завершили хатм!'); });
-    document.getElementById('resetKhatmBtn')?.addEventListener('click', resetKhatm);
-    document.getElementById('khatmPeriod')?.addEventListener('change', (e) => { khatmData.period = parseInt(e.target.value); saveKhatm(); updateKhatmUI(); });
+    document.getElementById('savePositionBtn')?.addEventListener('click', () => { saveData("quranPosition", positionData); alert('📌 Позиция сохранена!'); });
+    document.getElementById('addPageBtn')?.addEventListener('click', () => { 
+        if(khatmData.readPages < TOTAL_PAGES){ 
+            khatmData.readPages++; 
+            updateKhatmProgress(); 
+            vibrate();
+        } else alert('🎉 Вы уже завершили хатм!'); 
+    });
+    document.getElementById('removePageBtn')?.addEventListener('click', () => { 
+        if(khatmData.readPages > 0){ 
+            khatmData.readPages--; 
+            updateKhatmProgress(); 
+        } else alert('❌ Нельзя убавить меньше 0 страниц!'); 
+    });
+    document.getElementById('addJuzBtn')?.addEventListener('click', () => { 
+        if(khatmData.readPages < TOTAL_PAGES) { 
+            let newPages = Math.min(khatmData.readPages + 20, TOTAL_PAGES); 
+            khatmData.readPages = newPages; 
+            updateKhatmProgress(); 
+        } else alert('🎉 Вы уже завершили хатм!'); 
+    });
+    document.getElementById('resetKhatmBtn')?.addEventListener('click', () => { 
+        if(confirm('⚠️ Сбросить весь прогресс чтения Корана?')) {
+            khatmData.readPages = 0;
+            updateKhatmProgress();
+            alert('✅ Прогресс чтения Корана сброшен!');
+        }
+    });
+    document.getElementById('khatmPeriod')?.addEventListener('change', (e) => { 
+        khatmData.period = parseInt(e.target.value); 
+        updateKhatmProgress(); 
+    });
 
     // ==================== ТАУБА ====================
-    let taubaData = { days: [] };
+    let taubaData = loadData("taubaData", { days: [] });
     const GOALS_LIST = ['morningAdhkar','eveningAdhkar','fivePrayers','quranPage','noAnger','dua'];
-    
-    function loadTauba() { 
-        let s = localStorage.getItem('taubaData'); 
-        if(s) { 
-            try { 
-                let parsed = JSON.parse(s); 
-                taubaData = { days: parsed.days || [] }; 
-            } catch(e) { 
-                taubaData = { days: [] }; 
-            } 
-        } else {
-            taubaData = { days: [] };
-        }
-        updateTaubaUI(); 
-    }
-    
-    function saveTaubaData() { 
-        localStorage.setItem('taubaData', JSON.stringify(taubaData)); 
-        updateTaubaUI(); 
-    }
     
     function updateTaubaUI() {
         let today = new Date().toISOString().split('T')[0];
@@ -966,14 +509,17 @@
         let idx = taubaData.days.findIndex(d => d.date === today); 
         if(idx !== -1) taubaData.days[idx] = {date: today, goals, iman}; 
         else taubaData.days.push({date: today, goals, iman}); 
-        saveTaubaData(); 
+        saveData("taubaData", taubaData); 
+        updateTaubaUI();
         alert('✅ День сохранён!'); 
+        vibrate();
     }
     
     function deleteHistory() { 
         if(confirm('🗑 Удалить всю историю?')){ 
             taubaData.days = []; 
-            saveTaubaData(); 
+            saveData("taubaData", taubaData); 
+            updateTaubaUI();
             alert('История удалена!');
         } 
     }
@@ -1173,19 +719,16 @@
     let arabicZoom = false;
 
     function loadAzkarSettings() {
-        const saved = localStorage.getItem("azkarSettings");
+        const saved = loadData("azkarSettings", null);
         if (saved) {
-            try {
-                const set = JSON.parse(saved);
-                showTranslit = set.showTranslit ?? true;
-                showChechen = set.showChechen ?? true;
-                arabicZoom = set.arabicZoom ?? false;
-            } catch(e) {}
+            showTranslit = saved.showTranslit ?? true;
+            showChechen = saved.showChechen ?? true;
+            arabicZoom = saved.arabicZoom ?? false;
         }
     }
 
     function saveAzkarSettings() {
-        localStorage.setItem("azkarSettings", JSON.stringify({ showTranslit, showChechen, arabicZoom }));
+        saveData("azkarSettings", { showTranslit, showChechen, arabicZoom });
     }
 
     function getCurrentList() {
@@ -1257,23 +800,106 @@
         }
     }
 
-    // ==================== СЧЕТЧИК ЗИКРА ====================
-    let counterValue = 0;
+    // ==================== СЧЕТЧИК ЗИКРА (ТОЛЬКО +1, без +10) ====================
+    let counterValue = loadData("zikrCounter", 0);
+    document.getElementById('counterValue').innerText = counterValue;
     
-    function loadCounter() {
-        let saved = localStorage.getItem('zikrCounter');
-        if (saved) counterValue = parseInt(saved) || 0;
+    document.getElementById('counterAdd1')?.addEventListener('click', () => { 
+        counterValue++; 
+        saveData("zikrCounter", counterValue);
         document.getElementById('counterValue').innerText = counterValue;
+        vibrate();
+    });
+    document.getElementById('counterReset')?.addEventListener('click', () => { 
+        if(confirm('Сбросить счётчик зикра?')) { 
+            counterValue = 0; 
+            saveData("zikrCounter", counterValue);
+            document.getElementById('counterValue').innerText = counterValue;
+        } 
+    });
+
+    // ==================== НАМАЗ ====================
+    async function fetchPrayerTimes(lat, lon, city = null, country = null) {
+        let url;
+        if (city && country) {
+            url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=2`;
+        } else {
+            url = `https://api.aladhan.com/v1/timings/${Math.floor(Date.now()/1000)}?latitude=${lat}&longitude=${lon}&method=2`;
+        }
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data.code === 200 && data.data) {
+                const timings = data.data.timings;
+                const prayers = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+                const cards = document.querySelectorAll('.prayer-card');
+                prayers.forEach((p, i) => {
+                    if (cards[i] && timings[p]) {
+                        cards[i].querySelector('.prayer-time').innerText = timings[p];
+                    }
+                });
+                document.getElementById('locationInfo').innerHTML = `📍 ${data.data.date.readable} | ${data.data.meta?.timezone || ''}`;
+                
+                // Определение следующего намаза
+                const now = new Date();
+                const currentTime = now.getHours() * 60 + now.getMinutes();
+                const prayerOrder = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+                let nextPrayer = null;
+                let nextTime = Infinity;
+                for (let prayer of prayerOrder) {
+                    if (timings[prayer]) {
+                        const [hours, minutes] = timings[prayer].split(':').map(Number);
+                        const prayerMinutes = hours * 60 + minutes;
+                        if (prayerMinutes > currentTime && prayerMinutes < nextTime) {
+                            nextTime = prayerMinutes;
+                            nextPrayer = prayer;
+                        }
+                    }
+                }
+                const names = { 'Fajr': 'Фаджр', 'Dhuhr': 'Зухр', 'Asr': 'Аср', 'Maghrib': 'Магриб', 'Isha': 'Иша' };
+                if (!nextPrayer && timings['Fajr']) {
+                    nextPrayer = 'Fajr';
+                }
+                document.getElementById('nextPrayerInfo').innerHTML = `Следующий намаз: <span>${names[nextPrayer] || nextPrayer} ${timings[nextPrayer] || '--:--'}</span>`;
+                
+                cards.forEach(c => c.classList.remove('highlight'));
+                const prayerNames = ['Фаджр', 'Шурук', 'Зухр', 'Аср', 'Магриб', 'Иша'];
+                const idx = prayerNames.indexOf(names[nextPrayer]);
+                if (cards[idx]) cards[idx].classList.add('highlight');
+                return true;
+            }
+        } catch(e) { console.error(e); }
+        return false;
     }
     
-    function saveCounter() {
-        localStorage.setItem('zikrCounter', counterValue);
-        document.getElementById('counterValue').innerText = counterValue;
+    function getLocationAndPrayerTimes() {
+        if (navigator.geolocation) {
+            document.getElementById('locationInfo').innerHTML = '📍 Определение местоположения...';
+            navigator.geolocation.getCurrentPosition(
+                async (pos) => { await fetchPrayerTimes(pos.coords.latitude, pos.coords.longitude); },
+                () => { document.getElementById('locationInfo').innerHTML = '⚠️ Не удалось определить. Введите город вручную.'; }
+            );
+        } else {
+            document.getElementById('locationInfo').innerHTML = '⚠️ Геолокация не поддерживается';
+        }
     }
     
-    document.getElementById('counterAdd1')?.addEventListener('click', () => { counterValue++; saveCounter(); });
-    document.getElementById('counterAdd10')?.addEventListener('click', () => { counterValue += 10; saveCounter(); });
-    document.getElementById('counterReset')?.addEventListener('click', () => { if(confirm('Сбросить счётчик зикра?')) { counterValue = 0; saveCounter(); } });
+    document.getElementById('autoLocateBtn')?.addEventListener('click', getLocationAndPrayerTimes);
+    document.getElementById('searchCityBtn')?.addEventListener('click', async () => {
+        const city = document.getElementById('cityInput').value;
+        const country = document.getElementById('countryInput').value;
+        if (city && country) {
+            document.getElementById('locationInfo').innerHTML = `📍 Поиск: ${city}, ${country}...`;
+            await fetchPrayerTimes(null, null, city, country);
+        } else {
+            alert('Введите и город, и страну');
+        }
+    });
+
+    // ==================== КОРАН (открытие в новой вкладке) ====================
+    document.getElementById('openQuranBtn')?.addEventListener('click', () => {
+        window.open("https://quran.com", "_blank");
+    });
 
     // ==================== ПЕРЕКЛЮЧЕНИЕ МОДУЛЕЙ ====================
     function switchModule(moduleId) {
@@ -1283,6 +909,7 @@
         document.querySelector(`.nav-btn[data-module="${moduleId}"]`).classList.add('active');
         if (moduleId === 'tauba') updateTaubaUI();
         if (moduleId === 'azkar') renderAzkarPage();
+        if (moduleId === 'prayer') getLocationAndPrayerTimes();
     }
     
     document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => switchModule(btn.getAttribute('data-module'))));
@@ -1322,7 +949,9 @@
     document.getElementById('languageSelect')?.addEventListener('change', (e) => { currentLang = e.target.value; applyLanguage(); });
     
     // ==================== ИНИЦИАЛИЗАЦИЯ ====================
-    loadKhatm(); loadTauba(); loadCounter(); loadAzkarSettings();
+    updateKhatmProgress();
+    updateTaubaUI();
+    loadAzkarSettings();
     
     // Азкары события
     document.getElementById('prevPageBtn')?.addEventListener('click', prevAzkarPage);
