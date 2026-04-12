@@ -2,7 +2,7 @@
   "name": "Muslim Tracker",
   "short_name": "MuslimApp",
   "description": "Хатм, Тауба, Азкары, Зикр, Намаз - всё в одном приложении",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "theme_color": "#0a2f1a",
   "background_color": "#0a2f1a",
