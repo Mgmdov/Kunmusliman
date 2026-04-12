@@ -1,8 +1,8 @@
-const CACHE_NAME = 'muslim-tracker-v1';
+const CACHE_NAME = 'muslim-tracker-v2';  // версию тоже обновил
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json'
+  './',                    // относительный путь
+  './index.html',
+  './manifest.json'
 ];
 
 self.addEventListener('install', event => {
@@ -10,6 +10,7 @@ self.addEventListener('install', event => {
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
   );
+  self.skipWaiting();      // сразу активируем новый SW
 });
 
 self.addEventListener('fetch', event => {
@@ -28,4 +29,5 @@ self.addEventListener('activate', event => {
       );
     })
   );
+  self.clients.claim();    // сразу берём под контроль все вкладки
 });
