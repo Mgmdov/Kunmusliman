@@ -267,35 +267,37 @@
             </div>
         </div>
     </div>
-<!-- Модуль 7: Поддержка -->
-<div id="module-support" class="module">
-    <div class="card">
-        <h2>📞 Связь с разработчиком</h2>
-        <div style="text-align:center; padding:20px;">
-            
-            <p style="margin:15px 0 5px;">📧 <strong>Email:</strong></p>
-            <a href="mailto:magomadov1195volk@gmail.com" style="color:#2c5a2a; font-size:1.1rem; word-break:break-all; text-decoration:none; background:#f0e8d8; padding:8px 16px; border-radius:30px; display:inline-block;">
-                magomadov1195volk@gmail.com
-            </a>
-            
-            <p style="margin:25px 0 5px;">📞 <strong>Телефон / WhatsApp:</strong></p>
-            <a href="tel:+796358990090" style="color:#2c5a2a; font-size:1.2rem; text-decoration:none; background:#f0e8d8; padding:8px 20px; border-radius:30px; display:inline-block; margin:5px;">
-                📱 +7 (963) 589-00-90
-            </a>
-            
-            <p style="margin:20px 0 5px;">💬 <strong>Написать в WhatsApp:</strong></p>
-            <a href="https://wa.me/796358990090" target="_blank" style="background:#25D366; color:white; padding:12px 25px; border-radius:50px; text-decoration:none; display:inline-block; font-weight:bold;">
-                📲 Открыть WhatsApp
-            </a>
-            
-            <hr style="margin:25px 0; border-color:#decb9b;">
-            
-            <p style="color:#7a683e; font-size:0.85rem;">
-                🤲 Буду рад вашим отзывам, дуа и предложениям!
-            </p>
+
+    <!-- Модуль 7: Поддержка -->
+    <div id="module-support" class="module">
+        <div class="card">
+            <h2>📞 Связь с разработчиком</h2>
+            <div style="text-align:center; padding:20px;">
+                
+                <p style="margin:15px 0 5px;">📧 <strong>Email:</strong></p>
+                <a href="mailto:magomadov1195volk@gmail.com" style="color:#2c5a2a; font-size:1.1rem; word-break:break-all; text-decoration:none; background:#f0e8d8; padding:8px 16px; border-radius:30px; display:inline-block;">
+                    magomadov1195volk@gmail.com
+                </a>
+                
+                <p style="margin:25px 0 5px;">📞 <strong>Телефон / WhatsApp:</strong></p>
+                <a href="tel:+796358990090" style="color:#2c5a2a; font-size:1.2rem; text-decoration:none; background:#f0e8d8; padding:8px 20px; border-radius:30px; display:inline-block; margin:5px;">
+                    📱 +7 (963) 589-00-90
+                </a>
+                
+                <p style="margin:20px 0 5px;">💬 <strong>Написать в WhatsApp:</strong></p>
+                <a href="https://wa.me/796358990090" target="_blank" style="background:#25D366; color:white; padding:12px 25px; border-radius:50px; text-decoration:none; display:inline-block; font-weight:bold;">
+                    📲 Открыть WhatsApp
+                </a>
+                
+                <hr style="margin:25px 0; border-color:#decb9b;">
+                
+                <p style="color:#7a683e; font-size:0.85rem;">
+                    🤲 Буду рад вашим отзывам, дуа и предложениям!
+                </p>
+            </div>
         </div>
     </div>
-</div>
+
     <div style="text-align:center; margin-top:15px; padding:10px; color:#b8a87c; font-size:0.85rem;">🤲 Да примет Аллах</div>
     <div class="offline-badge" id="offlineBadge">📡 Офлайн режим</div>
 </div>
@@ -1007,28 +1009,6 @@
     setTimeout(() => { updateImanFromGoalsHandler(); }, 100);
     applyLanguage();
     changeSection('morning');
-    // Принудительная регистрация Service Worker
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/mgmdov.github.io/sw.js')
-            .then(reg => {
-                console.log('SW зарегистрирован:', reg);
-                // Проверка, что SW активирован
-                if (reg.active) {
-                    console.log('SW активен');
-                }
-            })
-            .catch(err => {
-                console.error('SW регистрация ошибка:', err);
-                // Показываем ошибку на странице для диагностики
-                const errorDiv = document.createElement('div');
-                errorDiv.style.cssText = 'position:fixed; bottom:0; left:0; right:0; background:red; color:white; padding:10px; z-index:9999; font-size:12px;';
-                errorDiv.innerHTML = `SW Error: ${err.message}`;
-                document.body.appendChild(errorDiv);
-                setTimeout(() => errorDiv.remove(), 5000);
-            });
-    });
-}
 </script>
 </body>
 </html>
