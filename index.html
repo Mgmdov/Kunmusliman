@@ -179,7 +179,12 @@ button{background:#dbb45c;border:none;font-weight:bold;color:#1e3a1a}
 <div id="module-stars" class="module">
 <div class="card"><h2>⭐ Звёзды и ежедневные задания</h2>
 <div class="star-count" id="starCountDisplay">⭐ 0 звёзд</div>
-<div class="rank-card" id="rankCard"><div class="rank-title" id="rankTitle">Новичок</div><div class="rank-stars" id="rankStars">⭐</div><div id="rankDesc"></div></div>
+<div class="rank-card" id="rankCard">
+    <div class="rank-title" id="rankTitle">Новичок</div>
+    <div class="rank-stars" id="rankStars">⭐</div>
+    <div id="rankDesc"></div>
+    <button id="showGoldCardsBtn" style="margin-top: 15px; background: #d4af37; color: #1e3a1a; border: none; padding: 8px 15px; border-radius: 30px; cursor: pointer; font-weight: bold;">📜 Мои золотые карточки сподвижников</button>
+</div>
 <div class="daily-tasks-grid" id="dailyTasksGrid"></div>
 <button id="claimDailyRewardBtn" class="claim-btn disabled">🌟 Забрать звезду (выполните все задания)</button>
 </div></div>
@@ -655,15 +660,57 @@ document.getElementById("toggleRuTranslit")?.addEventListener("click",()=>{
 });
 
 // ========== ФУНКЦИИ ЗВЁЗД ==========
+
 function updateStarsUI(){
     document.getElementById("starCountDisplay").innerHTML = `⭐ ${starsData.totalStars} звёзд`;
     let cr = RANKS[0];
+    let nextRank = null;
     for(let i=RANKS.length-1; i>=0; i--){
-        if(starsData.totalStars >= RANKS[i].stars){ cr = RANKS[i]; break; }
+        if(starsData.totalStars >= RANKS[i].stars){ 
+            cr = RANKS[i]; 
+            if(i+1 < RANKS.length) nextRank = RANKS[i+1];
+            break; 
+        }
     }
     document.getElementById("rankTitle").innerHTML = cr.title;
     document.getElementById("rankStars").innerHTML = cr.starsIcon;
     document.getElementById("rankDesc").innerHTML = `📖 ${cr.sahabi}`;
+    
+    // ===== ПРОГРЕСС ДО СЛЕДУЮЩЕГО РАНГА =====
+    let progressHtml = '';
+    if(nextRank){
+        let needed = nextRank.stars - starsData.totalStars;
+        let percent = (starsData.totalStars / nextRank.stars) * 100;
+        progressHtml = `
+            <div style="margin-top: 15px; background: #e0d5bd; border-radius: 30px; height: 12px; overflow: hidden;">
+                <div style="width: ${Math.min(100, percent)}%; background: #d4af37; height: 100%; border-radius: 30px;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.8rem;">
+                <span>⭐ ${starsData.totalStars}</span>
+                <span>🎯 До ранга «${nextRank.title}»: ${needed} ⭐</span>
+                <span>🏆 ${nextRank.stars}</span>
+            </div>
+        `;
+    } else {
+        progressHtml = `
+            <div style="margin-top: 15px; text-align: center; color: #d4af37;">
+                🎉 Ты достиг максимального ранга! 🎉<br>
+                Всего звёзд: ${starsData.totalStars} / 1000
+            </div>
+        `;
+    }
+    
+    let rankCard = document.getElementById("rankCard");
+    if(rankCard){
+        let oldProgress = document.getElementById("rankProgress");
+        if(oldProgress) oldProgress.remove();
+        let progressDiv = document.createElement('div');
+        progressDiv.id = "rankProgress";
+        progressDiv.innerHTML = progressHtml;
+        rankCard.appendChild(progressDiv);
+    }
+    // ===== КОНЕЦ =====
+    
     if(!starsData.unlockedRanks.includes(cr.stars) && starsData.totalStars >= cr.stars && cr.stars > 0){
         starsData.unlockedRanks.push(cr.stars);
         saveData("starsData",starsData);
@@ -769,6 +816,47 @@ checkDailyTasks();
 renderAzkar();
 
 setInterval(()=>{ updateAutoAchievements(); checkDailyTasks(); }, 5000);
+// ========== ПОКАЗ ЗОЛОТЫХ КАРТОЧЕК (СПОДВИЖНИКИ) ==========
+function showGoldCards() {
+    let unlockedRanks = starsData.unlockedRanks.map(s => RANKS.find(r => r.stars === s)).filter(r => r);
+    if(unlockedRanks.length === 0) {
+        alert("⭐ У тебя пока нет открытых рангов. Выполняй ежедневные задания и получай звёзды!");
+        return;
+    }
+    
+    let modalHtml = `
+        <div style="max-height: 60vh; overflow-y: auto; padding: 5px;">
+            <h3 style="color: #d4af37; text-align: center;">🏆 Золотая коллекция сподвижников 🏆</h3>
+            <p style="text-align: center; font-size: 0.8rem; color: #7a683e;">Ты открыл ${unlockedRanks.length} из ${RANKS.length} рангов</p>
+    `;
+    
+    unlockedRanks.forEach(rank => {
+        modalHtml += `
+            <div style="background: linear-gradient(135deg, #fef7e8, #f5eddb); border-radius: 20px; padding: 15px; margin: 15px 0; border-left: 5px solid #d4af37;">
+                <div style="font-size: 1.5rem;">${rank.starsIcon} ${rank.title}</div>
+                <div style="font-weight: bold; color: #2c5a2a; margin: 8px 0;">📖 ${rank.sahabi}</div>
+                <div style="font-size: 0.85rem; color: #7a683e; line-height: 1.4;">${rank.story}</div>
+                <div style="margin-top: 8px; font-size: 0.7rem; color: #d4af37;">⭐ ${rank.stars} звёзд</div>
+            </div>
+        `;
+    });
+    
+    modalHtml += `</div><button id="closeGoldModal" style="margin-top: 15px; width: 100%; padding: 10px; background: #c49a6c; border: none; border-radius: 30px; cursor: pointer;">Закрыть</button>`;
+    
+    let modal = document.createElement('div');
+    modal.id = "goldModal";
+    modal.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:2000;display:flex;justify-content:center;align-items:center;padding:20px;";
+    let content = document.createElement('div');
+    content.style.cssText = "background:#fffcf0;border-radius:30px;max-width:500px;width:100%;max-height:80vh;overflow-y:auto;padding:25px;position:relative;border:2px solid #e6bc7e;";
+    content.innerHTML = modalHtml;
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+    
+    document.getElementById("closeGoldModal")?.addEventListener("click", () => modal.remove());
+}
+
+document.getElementById("showGoldCardsBtn")?.addEventListener("click", showGoldCards);
+
 </script>
 </body>
 </html>
