@@ -4,88 +4,672 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>Muslim Tracker | Хатм | Тауба | Азкары | Зикр | Намаз</title>
+    
+    <!-- ========== PWA ДЛЯ iOS (ШАГ 3) ========== -->
+    <link rel="manifest" href="data:application/manifest+json,{
+        \"name\":\"Muslim Tracker\",
+        \"short_name\":\"MuslimTracker\",
+        \"start_url\":\"/\",
+        \"display\":\"standalone\",
+        \"theme_color\":\"#1a4a2a\",
+        \"background_color\":\"#0a2f1a\",
+        \"icons\":[{
+            \"src\":\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231a4a2a'/%3E%3Ctext x='50' y='75' font-size='70' text-anchor='middle' fill='%23e6bc7e'%3E🕌%3C/text%3E%3C/svg%3E\",
+            \"sizes\":\"any\",
+            \"type\":\"image/svg+xml\"
+        }]
+    }">
+    
+    <!-- Иконка для iOS (встроенная эмодзи, без отдельного файла) -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231a4a2a'/%3E%3Ctext x='50' y='75' font-size='70' text-anchor='middle' fill='%23e6bc7e'%3E🕌%3C/text%3E%3C/svg%3E">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-title" content="Muslim Tracker">
+    <meta name="theme-color" content="#1a4a2a">
+    
     <style>
-        /* ВАШ ПОЛНЫЙ CSS КОД (сохранён без изменений) */
-        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-        body{background:linear-gradient(135deg,#0a2f1a 0%,#0d3b1f 30%,#1a4a2a 100%);font-family:'Segoe UI','Roboto','Tahoma',sans-serif;padding:20px;min-height:100vh;position:relative}
-        body.dark{background:linear-gradient(135deg,#0a1a0f 0%,#0d2a1a 30%,#143a22 100%)}
-        body::before{content:"☪";position:fixed;bottom:20px;left:20px;font-size:100px;opacity:0.04;color:#e6bc7e;pointer-events:none}
-        body::after{content:"۞";position:fixed;top:20px;right:20px;font-size:80px;opacity:0.04;color:#e6bc7e;pointer-events:none}
-        .app-container{max-width:1200px;margin:0 auto;position:relative;z-index:1}
-        .header{text-align:center;padding:20px 20px 15px;background:linear-gradient(135deg,rgba(30,58,26,0.9),rgba(13,47,19,0.9));backdrop-filter:blur(8px);border-radius:60px;margin-bottom:25px;border:1px solid rgba(230,188,126,0.5);box-shadow:0 5px 20px rgba(0,0,0,0.2)}
-        .header h1{font-size:1.8rem;color:#ffefc0;text-shadow:2px 2px 6px #1e3a1a}
-        .arabic-header{font-family:'Amiri','Scheherazade New',serif;font-size:1.3rem;color:#e6bc7e;direction:rtl;margin-top:5px}
-        .settings-bar{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-bottom:25px;background:rgba(0,0,0,0.35);backdrop-filter:blur(4px);padding:12px 20px;border-radius:60px}
-        .settings-bar select{padding:8px 16px;border-radius:40px;border:1px solid #c4a86a;background:#fffef7;font-size:0.9rem;cursor:pointer}
-        .settings-bar label{color:#ffefc0;font-weight:bold;display:flex;align-items:center;gap:8px}
-        .nav-tabs{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:25px}
-        .nav-btn{background:rgba(30,45,25,0.9);border:none;padding:12px 18px;font-size:0.85rem;font-weight:bold;border-radius:50px;color:#dfcca7;cursor:pointer;transition:all 0.25s}
-        .nav-btn.active{background:#e6bc7e;color:#1e3a1a;box-shadow:0 3px 10px rgba(230,188,126,0.3)}
-        .module{display:none;animation:fadeIn 0.3s ease}
-        .module.active-module{display:block}
-        @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-        .card{background:rgba(255,252,240,0.96);border-radius:28px;padding:24px;margin-bottom:20px;box-shadow:0 10px 30px rgba(0,0,0,0.15);border:1px solid #e6bc7e}
-        .card h2{color:#8b5a2b;border-bottom:2px solid #decb9b;padding-bottom:10px;margin-bottom:20px;font-size:1.5rem}
-        .progress-bar{background:#e0d5bd;border-radius:30px;height:24px;overflow:hidden;margin:15px 0}
-        .progress-fill{background:linear-gradient(90deg,#4a8b3c,#6aad5a);width:0%;height:100%;border-radius:30px;transition:width 0.4s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;color:white;font-size:0.75rem;font-weight:bold}
-        select,button,input{padding:10px 18px;border-radius:30px;border:1px solid #c4a86a;background:#fffef7;margin:5px;font-size:0.9rem;cursor:pointer}
-        button{background:#dbb45c;border:none;font-weight:bold;color:#1e3a1a}
-        button:hover{background:#e6bc7e;transform:scale(1.02)}
-        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;margin:20px 0}
-        .stat-card{background:linear-gradient(135deg,#fef7e8,#f5eddb);padding:15px;border-radius:20px;text-align:center;border-left:4px solid #c49a6c}
-        .stat-number{font-size:2rem;font-weight:bold;color:#2c5a2a}
-        .position-card{background:linear-gradient(135deg,#e8dcc8,#dfd0b8);padding:18px;border-radius:20px;margin:15px 0;text-align:center}
-        .position-value{font-size:1rem;font-weight:bold;color:#2c5a2a;margin:12px 0;background:#fffef7;padding:10px;border-radius:20px}
-        .position-selects{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:15px 0}
-        .position-selects select{min-width:220px}
-        .button-group{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:15px 0}
-        .btn-remove{background:#c49a6c;color:white}
-        .daily-check{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;border-bottom:1px solid #decb9b;background:#fef7e8;margin:8px 0;border-radius:16px}
-        .daily-check input{width:24px;height:24px;accent-color:#4a8b3c;cursor:pointer}
-        .iman-slider{width:100%;margin:15px 0;accent-color:#4a8b3c}
-        .tauba-stats{background:linear-gradient(135deg,#f5eddb,#efe3cb);padding:15px;border-radius:20px;margin-top:15px}
-        .history-list{max-height:220px;overflow-y:auto}
-        .history-item{background:#fef7e8;margin:8px 0;padding:10px;border-radius:12px;border-left:3px solid #c49a6c;font-size:0.85rem}
-        .azkar-container{background:#fffcf0;border-radius:28px;overflow:hidden}
-        .azkar-header{background:#2b4b29;padding:14px 24px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:14px;border-bottom:3px solid #f5bc42}
-        .azkar-nav{display:flex;gap:14px;flex-wrap:wrap}
-        .azkar-nav-btn{background:#f7e3af;border:none;padding:8px 24px;border-radius:60px;font-weight:700;cursor:pointer;color:#2a4827}
-        .azkar-nav-btn.active{background:#f5bc42;color:#1f3a1c}
-        .azkar-settings{display:flex;gap:10px;background:#e9dfc7;padding:5px 15px;border-radius:60px;align-items:center}
-        .azkar-settings button{background:#fff3df;border:none;font-size:0.8rem;padding:5px 12px;border-radius:40px}
-        .page-view{padding:24px 28px 20px 28px}
-        .arabic-block{background:#fcf6e6;padding:22px 20px;border-radius:32px;text-align:right;font-family:'Amiri','Scheherazade New',serif;font-size:1.8rem;line-height:1.7;direction:rtl;border:1px solid #eedfab;cursor:pointer;margin-bottom:15px}
-        .arabic-block.zoom-arabic{font-size:2.5rem}
-        .translit-block{background:#f5efdf;font-family:monospace;font-size:0.9rem;border-left:5px solid #f5bc42;padding:12px 18px;border-radius:24px;margin-bottom:12px}
-        .chechen-block{background:#e7e0cb;border-right:3px solid #c2a65a;padding:12px 18px;border-radius:24px;margin-bottom:12px}
-        .meaning-block{background:#fff4e2;padding:12px 18px;border-radius:24px;margin-bottom:12px}
-        .source-recommend{font-size:0.75rem;color:#7a683e;background:#f3ecd9;display:inline-block;padding:4px 16px;border-radius:60px}
-        .page-navigation{display:flex;justify-content:space-between;padding:0 20px 20px 20px;gap:18px}
-        .page-arrow{background:#e7dbbc;border:none;padding:12px 20px;font-size:1rem;font-weight:bold;border-radius:50px;cursor:pointer;flex:1;text-align:center}
-        .counter-container{text-align:center;padding:20px}
-        .counter-display{background:linear-gradient(135deg,#2c5a2a,#1e4a1a);border-radius:60px;padding:50px 20px;margin:20px 0;box-shadow:inset 0 2px 5px rgba(0,0,0,0.2),0 5px 15px rgba(0,0,0,0.3)}
-        .counter-number{font-size:6rem;font-weight:bold;color:#e6bc7e;font-family:monospace;letter-spacing:8px;text-shadow:2px 2px 4px rgba(0,0,0,0.3)}
-        .counter-buttons-row{display:flex;gap:15px;justify-content:center;margin:25px 0;flex-wrap:wrap}
-        .counter-btn{padding:20px 30px;font-size:1.8rem;font-weight:bold;border-radius:60px;box-shadow:0 5px 10px rgba(0,0,0,0.2);flex:1;min-width:110px}
-        .counter-btn:active{transform:scale(0.95)}
-        .counter-add1{background:#4a8b3c;color:white}
-        .counter-reset{background:#8b5a2b;color:#ffefc0}
-        .quran-iframe{width:100%;height:70vh;min-height:500px;border:none;border-radius:20px;background:white}
-        .prayer-times-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:20px 0}
-        .prayer-card{background:linear-gradient(135deg,#fef7e8,#f5eddb);border-radius:20px;padding:15px;text-align:center}
-        .prayer-card.highlight{background:linear-gradient(135deg,#e6bc7e,#d4a45a);transform:scale(1.02)}
-        .prayer-name{font-size:1.2rem;font-weight:bold;color:#5a3a1a}
-        .prayer-time{font-size:1.5rem;font-weight:bold;color:#2c5a2a}
-        .city-selector{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:15px 0}
-        .city-selector input{padding:10px 15px;border-radius:30px;border:1px solid #c4a86a;background:#fffef7;flex:1;min-width:150px}
-        .next-prayer{background:#2b4b29;color:#ffefc0;padding:15px;border-radius:20px;text-align:center;margin-top:15px}
-        .location-info{background:#e8dcc8;border-radius:20px;padding:12px;text-align:center;margin-bottom:15px}
-        @media (max-width:600px){.nav-btn{padding:8px 10px;font-size:0.7rem}.card{padding:16px}.counter-number{font-size:3.5rem;letter-spacing:4px}.counter-btn{padding:15px 20px;font-size:1.3rem;min-width:80px}.arabic-block{font-size:1.4rem}.arabic-block.zoom-arabic{font-size:2rem}.prayer-times-grid{grid-template-columns:repeat(2,1fr)}}
-        .offline-badge{position:fixed;bottom:10px;right:10px;background:rgba(0,0,0,0.8);color:#ffcc00;padding:5px 12px;border-radius:20px;font-size:0.7rem;display:none;z-index:1000}
-        .quran-note{margin-top:15px;padding:12px;background:#f0e8d8;border-radius:20px;font-size:0.85rem;color:#5a4a2a;text-align:center}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a2f1a 0%, #0d3b1f 30%, #1a4a2a 100%);
+            font-family: 'Segoe UI', 'Roboto', 'Tahoma', sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        body.dark {
+            background: linear-gradient(135deg, #0a1a0f 0%, #0d2a1a 30%, #143a22 100%);
+        }
+        
+        body::before {
+            content: "☪";
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            font-size: 100px;
+            opacity: 0.04;
+            color: #e6bc7e;
+            pointer-events: none;
+        }
+        
+        body::after {
+            content: "۞";
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 80px;
+            opacity: 0.04;
+            color: #e6bc7e;
+            pointer-events: none;
+        }
+        
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 20px 20px 15px;
+            background: linear-gradient(135deg, rgba(30, 58, 26, 0.9), rgba(13, 47, 19, 0.9));
+            backdrop-filter: blur(8px);
+            border-radius: 60px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(230, 188, 126, 0.5);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            color: #ffefc0;
+            text-shadow: 2px 2px 6px #1e3a1a;
+        }
+        
+        .arabic-header {
+            font-family: 'Amiri', 'Scheherazade New', serif;
+            font-size: 1.3rem;
+            color: #e6bc7e;
+            direction: rtl;
+            margin-top: 5px;
+        }
+        
+        .settings-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 25px;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(4px);
+            padding: 12px 20px;
+            border-radius: 60px;
+        }
+        
+        .settings-bar select {
+            padding: 8px 16px;
+            border-radius: 40px;
+            border: 1px solid #c4a86a;
+            background: #fffef7;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        .settings-bar label {
+            color: #ffefc0;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+        
+        .nav-btn {
+            background: rgba(30, 45, 25, 0.9);
+            border: none;
+            padding: 12px 18px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            border-radius: 50px;
+            color: #dfcca7;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        
+        .nav-btn.active {
+            background: #e6bc7e;
+            color: #1e3a1a;
+            box-shadow: 0 3px 10px rgba(230, 188, 126, 0.3);
+        }
+        
+        .module {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .module.active-module {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .card {
+            background: rgba(255, 252, 240, 0.96);
+            border-radius: 28px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border: 1px solid #e6bc7e;
+        }
+        
+        .card h2 {
+            color: #8b5a2b;
+            border-bottom: 2px solid #decb9b;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .progress-bar {
+            background: #e0d5bd;
+            border-radius: 30px;
+            height: 24px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #4a8b3c, #6aad5a);
+            width: 0%;
+            height: 100%;
+            border-radius: 30px;
+            transition: width 0.4s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        
+        select, button, input {
+            padding: 10px 18px;
+            border-radius: 30px;
+            border: 1px solid #c4a86a;
+            background: #fffef7;
+            margin: 5px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        button {
+            background: #dbb45c;
+            border: none;
+            font-weight: bold;
+            color: #1e3a1a;
+        }
+        
+        button:hover {
+            background: #e6bc7e;
+            transform: scale(1.02);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #fef7e8, #f5eddb);
+            padding: 15px;
+            border-radius: 20px;
+            text-align: center;
+            border-left: 4px solid #c49a6c;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c5a2a;
+        }
+        
+        .position-card {
+            background: linear-gradient(135deg, #e8dcc8, #dfd0b8);
+            padding: 18px;
+            border-radius: 20px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .position-value {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #2c5a2a;
+            margin: 12px 0;
+            background: #fffef7;
+            padding: 10px;
+            border-radius: 20px;
+        }
+        
+        .position-selects {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+        
+        .position-selects select {
+            min-width: 220px;
+        }
+        
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .btn-remove {
+            background: #c49a6c;
+            color: white;
+        }
+        
+        .daily-check {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #decb9b;
+            background: #fef7e8;
+            margin: 8px 0;
+            border-radius: 16px;
+        }
+        
+        .daily-check input {
+            width: 24px;
+            height: 24px;
+            accent-color: #4a8b3c;
+            cursor: pointer;
+        }
+        
+        .iman-slider {
+            width: 100%;
+            margin: 15px 0;
+            accent-color: #4a8b3c;
+        }
+        
+        .tauba-stats {
+            background: linear-gradient(135deg, #f5eddb, #efe3cb);
+            padding: 15px;
+            border-radius: 20px;
+            margin-top: 15px;
+        }
+        
+        .history-list {
+            max-height: 220px;
+            overflow-y: auto;
+        }
+        
+        .history-item {
+            background: #fef7e8;
+            margin: 8px 0;
+            padding: 10px;
+            border-radius: 12px;
+            border-left: 3px solid #c49a6c;
+            font-size: 0.85rem;
+        }
+        
+        .azkar-container {
+            background: #fffcf0;
+            border-radius: 28px;
+            overflow: hidden;
+        }
+        
+        .azkar-header {
+            background: #2b4b29;
+            padding: 14px 24px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            border-bottom: 3px solid #f5bc42;
+        }
+        
+        .azkar-nav {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        
+        .azkar-nav-btn {
+            background: #f7e3af;
+            border: none;
+            padding: 8px 24px;
+            border-radius: 60px;
+            font-weight: 700;
+            cursor: pointer;
+            color: #2a4827;
+        }
+        
+        .azkar-nav-btn.active {
+            background: #f5bc42;
+            color: #1f3a1c;
+        }
+        
+        .azkar-settings {
+            display: flex;
+            gap: 10px;
+            background: #e9dfc7;
+            padding: 5px 15px;
+            border-radius: 60px;
+            align-items: center;
+        }
+        
+        .azkar-settings button {
+            background: #fff3df;
+            border: none;
+            font-size: 0.8rem;
+            padding: 5px 12px;
+            border-radius: 40px;
+        }
+        
+        .page-view {
+            padding: 24px 28px 20px 28px;
+        }
+        
+        .arabic-block {
+            background: #fcf6e6;
+            padding: 22px 20px;
+            border-radius: 32px;
+            text-align: right;
+            font-family: 'Amiri', 'Scheherazade New', serif;
+            font-size: 1.8rem;
+            line-height: 1.7;
+            direction: rtl;
+            border: 1px solid #eedfab;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        
+        .arabic-block.zoom-arabic {
+            font-size: 2.5rem;
+        }
+        
+        .translit-block {
+            background: #f5efdf;
+            font-family: monospace;
+            font-size: 0.9rem;
+            border-left: 5px solid #f5bc42;
+            padding: 12px 18px;
+            border-radius: 24px;
+            margin-bottom: 12px;
+        }
+        
+        .chechen-block {
+            background: #e7e0cb;
+            border-right: 3px solid #c2a65a;
+            padding: 12px 18px;
+            border-radius: 24px;
+            margin-bottom: 12px;
+        }
+        
+        .meaning-block {
+            background: #fff4e2;
+            padding: 12px 18px;
+            border-radius: 24px;
+            margin-bottom: 12px;
+        }
+        
+        .source-recommend {
+            font-size: 0.75rem;
+            color: #7a683e;
+            background: #f3ecd9;
+            display: inline-block;
+            padding: 4px 16px;
+            border-radius: 60px;
+        }
+        
+        .page-navigation {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px 20px 20px;
+            gap: 18px;
+        }
+        
+        .page-arrow {
+            background: #e7dbbc;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .counter-container {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .counter-display {
+            background: linear-gradient(135deg, #2c5a2a, #1e4a1a);
+            border-radius: 60px;
+            padding: 50px 20px;
+            margin: 20px 0;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .counter-number {
+            font-size: 6rem;
+            font-weight: bold;
+            color: #e6bc7e;
+            font-family: monospace;
+            letter-spacing: 8px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .counter-buttons-row {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+        
+        .counter-btn {
+            padding: 20px 30px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            border-radius: 60px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            flex: 1;
+            min-width: 110px;
+        }
+        
+        .counter-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .counter-add1 {
+            background: #4a8b3c;
+            color: white;
+        }
+        
+        .counter-reset {
+            background: #8b5a2b;
+            color: #ffefc0;
+        }
+        
+        .quran-iframe {
+            width: 100%;
+            height: 70vh;
+            min-height: 500px;
+            border: none;
+            border-radius: 20px;
+            background: white;
+        }
+        
+        .prayer-times-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+        
+        .prayer-card {
+            background: linear-gradient(135deg, #fef7e8, #f5eddb);
+            border-radius: 20px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .prayer-card.highlight {
+            background: linear-gradient(135deg, #e6bc7e, #d4a45a);
+            transform: scale(1.02);
+        }
+        
+        .prayer-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #5a3a1a;
+        }
+        
+        .prayer-time {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c5a2a;
+        }
+        
+        .city-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+        
+        .city-selector input {
+            padding: 10px 15px;
+            border-radius: 30px;
+            border: 1px solid #c4a86a;
+            background: #fffef7;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .next-prayer {
+            background: #2b4b29;
+            color: #ffefc0;
+            padding: 15px;
+            border-radius: 20px;
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .location-info {
+            background: #e8dcc8;
+            border-radius: 20px;
+            padding: 12px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        @media (max-width: 600px) {
+            .nav-btn {
+                padding: 8px 10px;
+                font-size: 0.7rem;
+            }
+            .card {
+                padding: 16px;
+            }
+            .counter-number {
+                font-size: 3.5rem;
+                letter-spacing: 4px;
+            }
+            .counter-btn {
+                padding: 15px 20px;
+                font-size: 1.3rem;
+                min-width: 80px;
+            }
+            .arabic-block {
+                font-size: 1.4rem;
+            }
+            .arabic-block.zoom-arabic {
+                font-size: 2rem;
+            }
+            .prayer-times-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .offline-badge {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #ffcc00;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            display: none;
+            z-index: 1000;
+        }
+        
+        .quran-note {
+            margin-top: 15px;
+            padding: 12px;
+            background: #f0e8d8;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #5a4a2a;
+            text-align: center;
+        }
+        
+        .install-instruction {
+            background: #e6bc7e20;
+            border: 2px dashed #e6bc7e;
+            border-radius: 20px;
+            padding: 15px;
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        .install-instruction p {
+            margin: 8px 0;
+            color: #2c5a2a;
+        }
     </style>
 </head>
 <body>
@@ -128,8 +712,10 @@
                 <button id="savePositionBtn">💾 Сохранить позицию</button>
             </div>
             <select id="khatmPeriod">
-                <option value="7">За 7 дней</option><option value="10">За 10 дней</option>
-                <option value="30" selected>За 30 дней</option><option value="60">За 60 дней</option>
+                <option value="7">За 7 дней</option>
+                <option value="10">За 10 дней</option>
+                <option value="30" selected>За 30 дней</option>
+                <option value="60">За 60 дней</option>
             </select>
             <div class="stats-grid">
                 <div class="stat-card"><div id="totalPagesLabel">📄 Всего страниц</div><div class="stat-number" id="totalPages">604</div></div>
@@ -188,7 +774,7 @@
         </div>
     </div>
 
-    <!-- Модуль 3: Азкары (ПОЛНЫЙ, все 14 утренних и 13 вечерних) -->
+    <!-- Модуль 3: Азкары -->
     <div id="module-azkar" class="module">
         <div class="azkar-container">
             <div class="azkar-header">
@@ -211,7 +797,7 @@
         </div>
     </div>
 
-    <!-- Модуль 4: Счетчик зикра (ТОЛЬКО +1 и Сброс, без +10) -->
+    <!-- Модуль 4: Счетчик зикра -->
     <div id="module-counter" class="module">
         <div class="card counter-container">
             <h2>🔢 Счетчик зикра</h2>
@@ -226,7 +812,7 @@
         </div>
     </div>
 
-    <!-- Модуль 5: Намаз (НОВЫЙ) -->
+    <!-- Модуль 5: Намаз -->
     <div id="module-prayer" class="module">
         <div class="card">
             <h2>🕌 Время намаза</h2>
@@ -254,7 +840,7 @@
         </div>
     </div>
 
-    <!-- Модуль 6: Коран (открытие в новой вкладке) -->
+    <!-- Модуль 6: Коран -->
     <div id="module-quran" class="module">
         <div class="card">
             <h2>📖 Священный Коран</h2>
@@ -273,7 +859,6 @@
         <div class="card">
             <h2>📞 Связь с разработчиком</h2>
             <div style="text-align:center; padding:20px;">
-                
                 <p style="margin:15px 0 5px;">📧 <strong>Email:</strong></p>
                 <a href="mailto:magomadov1195volk@gmail.com" style="color:#2c5a2a; font-size:1.1rem; word-break:break-all; text-decoration:none; background:#f0e8d8; padding:8px 16px; border-radius:30px; display:inline-block;">
                     magomadov1195volk@gmail.com
@@ -300,6 +885,14 @@
 
     <div style="text-align:center; margin-top:15px; padding:10px; color:#b8a87c; font-size:0.85rem;">🤲 Да примет Аллах</div>
     <div class="offline-badge" id="offlineBadge">📡 Офлайн режим</div>
+    
+    <!-- Инструкция по установке (будет видна только на iOS до установки) -->
+    <div class="install-instruction" id="installInstruction" style="display:none;">
+        <p>📱 <strong>Как добавить на рабочий стол (iOS):</strong></p>
+        <p>1. Нажмите кнопку <strong>📤 Поделиться</strong> внизу экрана</p>
+        <p>2. Прокрутите вниз и выберите <strong>«На экран "Домой"»</strong></p>
+        <p>3. Нажмите <strong>«Добавить»</strong></p>
+    </div>
 </div>
 
 <script>
@@ -313,11 +906,12 @@
         return data ? JSON.parse(data) : defaultValue;
     }
 
-    // ==================== SERVICE WORKER ====================
+    // ==================== SERVICE WORKER (минимальный) ====================
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').then(() => {
-            console.log('Service Worker registered');
-        }).catch(console.log);
+        // Пытаемся зарегистрировать sw.js, но если его нет — не страшно
+        navigator.serviceWorker.register('sw.js').catch(() => {
+            console.log('Service Worker не зарегистрирован, но это не критично');
+        });
     }
 
     // ==================== ВИБРАЦИЯ ====================
@@ -328,6 +922,14 @@
     // ==================== ТЁМНАЯ ТЕМА ====================
     if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
         document.body.classList.add('dark');
+    }
+
+    // Показываем инструкцию по установке на iOS (если не установлено)
+    if (navigator.userAgent.includes('iPhone') || navigator.userAgent.includes('iPad')) {
+        // Проверяем, не открыто ли уже как PWA
+        if (!window.matchMedia('(display-mode: standalone)').matches) {
+            document.getElementById('installInstruction').style.display = 'block';
+        }
     }
 
     // ==================== ПЕРЕВОДЫ ====================
@@ -831,7 +1433,7 @@
         }
     }
 
-    // ==================== СЧЕТЧИК ЗИКРА (ТОЛЬКО +1, без +10) ====================
+    // ==================== СЧЕТЧИК ЗИКРА ====================
     let counterValue = loadData("zikrCounter", 0);
     document.getElementById('counterValue').innerText = counterValue;
     
@@ -871,7 +1473,6 @@
                 });
                 document.getElementById('locationInfo').innerHTML = `📍 ${data.data.date.readable} | ${data.data.meta?.timezone || ''}`;
                 
-                // Определение следующего намаза
                 const now = new Date();
                 const currentTime = now.getHours() * 60 + now.getMinutes();
                 const prayerOrder = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
@@ -927,7 +1528,7 @@
         }
     });
 
-    // ==================== КОРАН (открытие в новой вкладке) ====================
+    // ==================== КОРАН ====================
     document.getElementById('openQuranBtn')?.addEventListener('click', () => {
         window.open("https://quran.com", "_blank");
     });
