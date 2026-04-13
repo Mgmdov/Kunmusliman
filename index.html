@@ -3,13 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-<title>Muslim Tracker | Хатм | Тауба | Азкары | Зикр | Намаз | Дуа | Достижения</title>
-<link rel="manifest" href="data:application/manifest+json,{"name":"Muslim Tracker","short_name":"MuslimTracker","start_url":"/","display":"standalone","theme_color":"#1a4a2a","background_color":"#0a2f1a","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231a4a2a'/%3E%3Ctext x='50' y='75' font-size='70' text-anchor='middle' fill='%23e6bc7e'%3E🕌%3C/text%3E%3C/svg%3E","sizes":"any","type":"image/svg+xml"}]}">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231a4a2a'/%3E%3Ctext x='50' y='75' font-size='70' text-anchor='middle' fill='%23e6bc7e'%3E🕌%3C/text%3E%3C/svg%3E">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Muslim Tracker">
-<meta name="theme-color" content="#1a4a2a">
+<title>Muslim Tracker | Хатм | Тауба | Азкары | Зикр | Намаз | Достижения | Звёзды</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{background:linear-gradient(135deg,#0a2f1a,#0d3b1f,#1a4a2a);font-family:'Segoe UI',sans-serif;padding:20px;min-height:100vh}
@@ -37,15 +31,8 @@ button{background:#dbb45c;border:none;font-weight:bold;color:#1e3a1a}
 .daily-check{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;background:#fef7e8;margin:8px 0;border-radius:16px;cursor:pointer}
 .daily-check input{width:24px;height:24px;accent-color:#4a8b3c;cursor:pointer}
 .iman-slider{width:100%;margin:15px 0;accent-color:#4a8b3c}
-.counter-display{background:linear-gradient(135deg,#2c5a2a,#1e4a1a);border-radius:60px;padding:30px 20px;margin:20px 0;text-align:center}
-.counter-number{font-size:6rem;font-weight:bold;color:#e6bc7e;font-family:monospace}
-.counter-buttons-row{display:flex;gap:15px;justify-content:center;flex-wrap:wrap}
-.counter-btn{padding:20px 30px;font-size:1.8rem;font-weight:bold;border-radius:60px;min-width:110px}
-.counter-add1{background:#4a8b3c;color:white}
-.counter-reset{background:#8b5a2b;color:#ffefc0}
 .prayer-times-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:20px 0}
 .prayer-card{background:linear-gradient(135deg,#fef7e8,#f5eddb);border-radius:20px;padding:15px;text-align:center}
-.prayer-card.highlight{background:linear-gradient(135deg,#e6bc7e,#d4a45a)}
 .prayer-name{font-weight:bold;color:#5a3a1a}
 .prayer-time{font-size:1.5rem;font-weight:bold;color:#2c5a2a}
 .city-selector{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:15px 0}
@@ -64,41 +51,57 @@ button{background:#dbb45c;border:none;font-weight:bold;color:#1e3a1a}
 .achievement-progress-fill{background:#4a8b3c;width:0%;height:100%}
 .achievement-status{margin-left:65px;margin-top:8px;font-size:0.7rem}
 .complete-btn{background:#4a8b3c;color:white;padding:5px 12px;font-size:0.7rem;margin:0;border-radius:20px}
-.collection-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:15px;margin-top:20px}
+.collection-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:15px;margin-top:20px}
 .collection-item{background:linear-gradient(135deg,#f5dca8,#e6bc7e);border-radius:20px;padding:15px;text-align:center;cursor:pointer;border:1px solid #d4af37;box-shadow:0 0 8px rgba(212,175,55,0.5)}
-.collection-item:hover{transform:scale(1.05)}
+.collection-item:hover{transform:scale(1.02)}
 .collection-icon{font-size:2.5rem}
 .collection-title{font-weight:bold;color:#2c5a2a;margin-top:8px}
 .gold-text{color:#d4af37;text-shadow:0 0 2px #8b5a2b}
-.azkar-item{background:#fcf6e6;border-radius:20px;padding:20px;margin-bottom:15px;text-align:right;position:relative}
+.azkar-card{background:#fcf6e6;border-radius:20px;padding:20px;margin-bottom:15px;position:relative}
 .azkar-arabic{font-family:'Amiri',serif;font-size:1.5rem;direction:rtl;margin-bottom:10px;line-height:1.6;transition:font-size 0.3s}
 .azkar-arabic.zoomed{font-size:2.2rem}
 .zoom-btn{position:absolute;top:10px;right:10px;background:#e6bc7e;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer}
-.azkar-translit{font-family:monospace;margin-top:10px;text-align:left;font-size:0.85rem;color:#7a683e}
+.azkar-translit{font-family:monospace;margin-top:10px;text-align:left;font-size:0.85rem;color:#7a683e;white-space:pre-wrap}
 .azkar-chechen{margin-top:8px;text-align:left;font-size:0.85rem;color:#2c5a2a;background:#efe3cb;padding:8px;border-radius:12px}
 .azkar-translation{margin-top:8px;text-align:left;color:#3a2a1a}
 .azkar-source{font-size:0.7rem;color:#c49a6c;margin-top:8px;text-align:left}
+.azkar-checkbox-wrapper{display:flex;justify-content:flex-start;margin-bottom:10px;gap:15px;align-items:center}
+.azkar-checkbox-wrapper label{display:flex;align-items:center;gap:8px;font-size:0.85rem;color:#2c5a2a;cursor:pointer}
+.azkar-checkbox-wrapper input{width:20px;height:20px;margin:0;cursor:pointer;accent-color:#4a8b3c}
+.azkar-switch{display:flex;gap:10px;margin-bottom:20px}
+.azkar-switch-btn{flex:1;padding:12px;border-radius:30px;background:#e8dcc8;border:none;font-weight:bold;cursor:pointer}
+.azkar-switch-btn.active{background:#e6bc7e;color:#1e3a1a}
+.azkar-controls{display:flex;gap:10px;margin-bottom:15px;flex-wrap:wrap}
+.azkar-controls button{background:#e8dcc8;padding:8px 15px}
 .zikr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;margin-top:20px}
 .zikr-card{background:linear-gradient(135deg,#fef7e8,#f5eddb);border-radius:20px;padding:15px;text-align:center}
 .zikr-arabic{font-family:'Amiri',serif;font-size:1.5rem;direction:rtl;margin-bottom:5px}
 .zikr-translit{font-size:0.8rem;color:#7a683e;margin-bottom:5px}
-.zikr-translation{font-size:0.8rem;color:#2c5a2a;margin-bottom:10px;font-weight:bold}
 .zikr-value{font-size:1.8rem;font-weight:bold;color:#2c5a2a;margin:10px 0}
 .zikr-buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .zikr-btn{padding:8px 15px;font-size:0.9rem;margin:0}
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;justify-content:center;align-items:center;padding:20px}
 .modal-content{background:#fffcf0;border-radius:30px;max-width:500px;width:100%;max-height:80vh;overflow-y:auto;padding:25px;position:relative;border:2px solid #e6bc7e}
-.confirm-dialog{text-align:center}
-.warning-icon{font-size:3rem;margin-bottom:15px}
-.confirm-buttons{display:flex;gap:15px;justify-content:center;margin-top:20px}
-.confirm-yes{background:#4a8b3c;color:white}
-.confirm-no{background:#c49a6c;color:white}
-.azkar-switch{display:flex;gap:10px;margin-bottom:20px}
-.azkar-switch-btn{flex:1;padding:12px;border-radius:30px;background:#e8dcc8;border:none;font-weight:bold;cursor:pointer}
-.azkar-switch-btn.active{background:#e6bc7e;color:#1e3a1a}
+.star-count{font-size:2rem;font-weight:bold;color:#d4af37;text-align:center;margin:15px 0}
+.rank-card{background:linear-gradient(135deg,#2a6e3f,#1d5a34);border-radius:20px;padding:20px;margin:15px 0;text-align:center;color:#ffefc0}
+.rank-title{font-size:1.5rem;font-weight:bold}
+.rank-stars{font-size:2rem;letter-spacing:5px}
+.daily-tasks-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:15px;margin:20px 0}
+.task-card{background:linear-gradient(135deg,#fef7e8,#f5eddb);border-radius:20px;padding:15px;display:flex;align-items:center;justify-content:space-between}
+.task-card.completed{background:linear-gradient(135deg,#d4e8ca,#c0dfb0)}
+.task-title{font-weight:bold;color:#2c5a2a}
+.claim-btn{background:#d4af37;color:#1e3a1a;padding:12px 25px;font-size:1.1rem;margin-top:15px;width:100%;border-radius:50px}
+.claim-btn.disabled{opacity:0.5;cursor:not-allowed}
 .sura-page-select{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin-top:15px}
 .sura-page-select input{width:100px}
-@media (max-width:600px){.nav-btn{padding:8px 10px;font-size:0.7rem}.counter-number{font-size:3.5rem}}
+.rules-container{max-width:800px;margin:0 auto;background:#fef7e8;border-radius:32px;padding:24px}
+.rule-table{width:100%;border-collapse:collapse;margin:15px 0;background:white;border-radius:20px;overflow:hidden}
+.rule-table th,.rule-table td{padding:12px 15px;border-bottom:1px solid #e2cfaa;text-align:left}
+.rule-table th{background:#dba642;color:white}
+.example{font-family:'Courier New',monospace;font-weight:bold;color:#1f5e36}
+.note{background:#eef3e9;padding:15px;border-radius:20px;margin:15px 0;border-left:5px solid #dba642}
+.hide-ru .azkar-translit{display:none}
+@media (max-width:600px){.nav-btn{padding:8px 10px;font-size:0.7rem}}
 </style>
 </head>
 <body>
@@ -111,8 +114,8 @@ button{background:#dbb45c;border:none;font-weight:bold;color:#1e3a1a}
 <button class="nav-btn" data-module="counter">🔢 Зикр</button>
 <button class="nav-btn" data-module="prayer">🕌 Намаз</button>
 <button class="nav-btn" data-module="hadith">📜 Хадис дня</button>
-<button class="nav-btn" data-module="dua">🤲 Дуа</button>
 <button class="nav-btn" data-module="achievements">🏆 Достижения</button>
+<button class="nav-btn" data-module="stars">⭐ Звёзды</button>
 <button class="nav-btn" data-module="collection">📚 Коллекция</button>
 <button class="nav-btn" data-module="support">📞 Поддержка</button>
 </div>
@@ -121,7 +124,7 @@ button{background:#dbb45c;border:none;font-weight:bold;color:#1e3a1a}
 <div id="module-khatm" class="module active-module">
 <div class="card"><h2>📖 Хатм уль-Куран</h2>
 <div class="position-card"><h4>📌 Моя текущая позиция</h4><div class="position-value" id="currentPositionDisplay">Сура: — | Страница: —</div>
-<select id="suraSelect"><option value="">-- Выберите суру --</option></select>
+<select id="suraSelect"></select>
 <div class="sura-page-select"><input type="number" id="pageInput" placeholder="Номер страницы" min="1" max="604"><button id="setPageBtn">📌 Установить страницу</button></div>
 <button id="savePositionBtn">💾 Сохранить позицию</button></div>
 <select id="khatmPeriod"><option value="7">За 7 дней</option><option value="10">За 10 дней</option><option value="30" selected>За 30 дней</option><option value="60">За 60 дней</option></select>
@@ -141,10 +144,21 @@ button{background:#dbb45c;border:none;font-weight:bold;color:#1e3a1a}
 
 <!-- Азкары -->
 <div id="module-azkar" class="module">
-<div class="card"><h2>📿 Азкары</h2>
-<div class="azkar-switch"><button id="morningSwitchBtn" class="azkar-switch-btn active">☀️ Утренние (14)</button><button id="eveningSwitchBtn" class="azkar-switch-btn">🌙 Вечерние (13)</button></div>
-<div id="azkarContent"></div></div></div>
-
+<div class="card"><h2>📿 Азкары утра и вечера</h2>
+<div class="azkar-controls"><button id="toggleArabicSize">🔤 Увеличить арабский</button><button id="toggleRuTranslit">🇷🇺 Скрыть транскрипцию</button></div>
+<div class="azkar-switch"><button id="morningSwitchBtn" class="azkar-switch-btn active">☀️ Утренние (14)</button><button id="eveningSwitchBtn" class="azkar-switch-btn">🌙 Вечерние (13)</button><button id="rulesSwitchBtn" class="azkar-switch-btn">📖 Правила</button></div>
+<div id="azkarContent"></div>
+<div id="rulesContent" style="display:none"><div class="rules-container"><h2>📚 Правила чтения транскрипции</h2><div class="note"><strong>❗ Символы:</strong> т̲ (твёрдый т), х̲ (твёрдый х), хь̲ (горловой х), г̲ (картавое г), с̅ (межзубный с), з̅ (межзубный з), 1 (айн)</div><table class="rule-table"><thead><tr><th>Символ</th><th>Арабская буква</th><th>Как читать</th></tr></thead><tbody>
+<tr><td class="example">т̲</td><td>ط</td><td>Твёрдый «т» с напряжением языка</td></tr>
+<tr><td class="example">х̲</td><td>خ</td><td>Твёрдый «х» с придыханием</td></tr>
+<tr><td class="example">хь̲</td><td>ح</td><td>Глубокий «х» из горла</td></tr>
+<tr><td class="example">г̲</td><td>غ</td><td>Картавое «г» как французское r</td></tr>
+<tr><td class="example">с̅</td><td>ث</td><td>Межзубный «с» (язык между зубами)</td></tr>
+<tr><td class="example">з̅</td><td>ذ</td><td>Межзубный «з» (как англ. "the")</td></tr>
+<tr><td class="example">1</td><td>ع</td><td>Айн — гортанная смычка</td></tr>
+</tbody></table>
+<div class="note"><strong>Ударения:</strong> знак ́ над гласной — ударный слог. <strong>Долгие гласные:</strong> а́, у́, и́ — тянутся дольше.</div></div></div>
+</div></div>
 <!-- Зикр -->
 <div id="module-counter" class="module"><div class="card"><h2>🔢 Счётчики зикра</h2><div class="zikr-grid" id="zikrGrid"></div></div></div>
 
@@ -158,14 +172,20 @@ button{background:#dbb45c;border:none;font-weight:bold;color:#1e3a1a}
 <!-- Хадис дня -->
 <div id="module-hadith" class="module"><div class="card"><h2>📜 Хадис дня</h2><div style="background:linear-gradient(135deg,#f5eddb,#efe3cb);border-radius:20px;padding:25px;text-align:center"><div style="font-size:1.8rem;font-family:'Amiri',serif;direction:rtl;color:#2c5a2a" id="hadithArabic">جاري التحميل...</div><div style="font-size:1rem;margin:20px 0;line-height:1.6;color:#3a2a1a" id="hadithText">Загрузка хадиса...</div><div style="font-size:0.85rem;color:#7a683e" id="hadithSource"></div></div><button id="refreshHadithBtn" style="margin-top:20px;width:100%">🔄 Обновить хадис</button></div></div>
 
-<!-- Дуа онлайн -->
-<div id="module-dua" class="module"><div class="card"><h2>🤲 Дуа на все случаи жизни</h2><div style="text-align:center;padding:20px"><p style="margin-bottom:20px">📖 Сборник дуа из Корана и Сунны</p><a href="https://dua.ru" target="_blank" style="display:inline-block;background:#4a8b3c;color:white;padding:15px 30px;border-radius:50px;text-decoration:none;font-weight:bold;margin:10px">📚 Открыть сборник дуа</a><a href="https://azan-kompas.ru/dua/" target="_blank" style="display:inline-block;background:#dbb45c;color:#1e3a1a;padding:15px 30px;border-radius:50px;text-decoration:none;font-weight:bold;margin:10px">🤲 Дуа на каждый день</a><a href="https://islam.global/dua" target="_blank" style="display:inline-block;background:#e6bc7e;color:#1e3a1a;padding:15px 30px;border-radius:50px;text-decoration:none;font-weight:bold;margin:10px">📖 Islam.global Дуа</a><p style="margin-top:20px;color:#7a683e;font-size:0.8rem">📡 Нажмите на любую ссылку, чтобы открыть сборник дуа в новой вкладке</p></div></div></div>
-
 <!-- Достижения -->
 <div id="module-achievements" class="module"><div class="card"><h2>🏆 Достижения</h2><div id="achievementsList"></div></div></div>
 
+<!-- Звёзды -->
+<div id="module-stars" class="module">
+<div class="card"><h2>⭐ Звёзды и ежедневные задания</h2>
+<div class="star-count" id="starCountDisplay">⭐ 0 звёзд</div>
+<div class="rank-card" id="rankCard"><div class="rank-title" id="rankTitle">Новичок</div><div class="rank-stars" id="rankStars">⭐</div><div id="rankDesc"></div></div>
+<div class="daily-tasks-grid" id="dailyTasksGrid"></div>
+<button id="claimDailyRewardBtn" class="claim-btn disabled">🌟 Забрать звезду (выполните все задания)</button>
+</div></div>
+
 <!-- Коллекция -->
-<div id="module-collection" class="module"><div class="card"><h2 class="gold-text">📚 Моя коллекция ✨</h2><p style="color:#7a683e;margin-bottom:15px">🏅 Достижения, которые ты открыл, сияют золотом</p><div id="collectionGrid" class="collection-grid"></div><div id="emptyCollection" style="text-align:center;padding:40px;color:#7a683e;display:none">🏆 Пока нет открытых достижений</div></div></div>
+<div id="module-collection" class="module"><div class="card"><h2 class="gold-text">📚 Моя коллекция ✨</h2><p style="color:#7a683e;margin-bottom:15px">🏅 Достижения и звёзды, которые ты открыл</p><div id="collectionGrid" class="collection-grid"></div><div id="emptyCollection" style="text-align:center;padding:40px;color:#7a683e;display:none">🏆 Пока нет открытых достижений</div></div></div>
 
 <!-- Поддержка -->
 <div id="module-support" class="module"><div class="card"><h2>📞 Связь с разработчиком</h2><div style="text-align:center;padding:20px"><p>📧 <strong>Email:</strong></p><a href="mailto:magomadov1195volk@gmail.com" style="color:#2c5a2a">magomadov1195volk@gmail.com</a><p style="margin-top:20px">📞 <strong>WhatsApp:</strong></p><a href="https://wa.me/79635890090" target="_blank" style="background:#25D366;color:white;padding:12px 25px;border-radius:50px;text-decoration:none;display:inline-block">📲 Написать в WhatsApp</a></div></div></div>
@@ -180,63 +200,305 @@ function saveData(k,d){localStorage.setItem(k,JSON.stringify(d));}
 function loadData(k,d){const a=localStorage.getItem(k);return a?JSON.parse(a):d;}
 function vibrate(){if(navigator.vibrate)navigator.vibrate(30);}
 
+// ========== ВСЕ 114 СУР ДЛЯ ХАТМА ==========
 const SURA_NAMES_RU=["Аль-Фатиха","Аль-Бакара","Аль Имран","Ан-Ниса","Аль-Маида","Аль-Анам","Аль-Араф","Аль-Анфаль","Ат-Тавба","Юнус","Худ","Юсуф","Ар-Рад","Ибрахим","Аль-Хиджр","Ан-Нахль","Аль-Исра","Аль-Кахф","Марьям","Та Ха","Аль-Анбия","Аль-Хадж","Аль-Муминун","Ан-Нур","Аль-Фуркан","Аш-Шуара","Ан-Намль","Аль-Касас","Аль-Анкабут","Ар-Рум","Лукман","Ас-Саджда","Аль-Ахзаб","Саба","Фатир","Йа Син","Ас-Саффат","Сад","Аз-Зумар","Гафир","Фуссилят","Аш-Шура","Аз-Зухруф","Ад-Духан","Аль-Джасия","Аль-Ахкаф","Мухаммад","Аль-Фатх","Аль-Худжурат","Каф","Аз-Зарият","Ат-Тур","Ан-Наджм","Аль-Камар","Ар-Рахман","Аль-Вакиа","Аль-Хадид","Аль-Муджадиля","Аль-Хашр","Аль-Мумтахана","Ас-Сафф","Аль-Джумуа","Аль-Мунафикун","Ат-Тагабун","Ат-Таляк","Ат-Тахрим","Аль-Мульк","Аль-Калям","Аль-Хакка","Аль-Мааридж","Нух","Аль-Джинн","Аль-Муззаммиль","Аль-Муддассир","Аль-Кияма","Аль-Инсан","Аль-Мурсалят","Ан-Наба","Ан-Назиат","Абаса","Ат-Таквир","Аль-Инфитар","Аль-Мутаффифин","Аль-Иншикак","Аль-Бурудж","Ат-Тарик","Аль-Аля","Аль-Гашия","Аль-Фаджр","Аль-Баляд","Аш-Шамс","Аль-Ляйль","Ад-Духа","Аш-Шарх","Ат-Тин","Аль-Аляк","Аль-Кадр","Аль-Баййина","Аз-Зальзаля","Аль-Адият","Аль-Кариа","Ат-Такасур","Аль-Аср","Аль-Хумаза","Аль-Филь","Курайш","Аль-Маун","Аль-Кавсар","Аль-Кафирун","Ан-Наср","Аль-Масад","Аль-Ихляс","Аль-Фаляк","Ан-Нас"];
 const TOTAL_PAGES=604;
 let khatmData=loadData("khatmData",{readPages:0,period:30});
 let positionData=loadData("quranPosition",{suraIndex:"",page:""});
-function updateKhatmProgress(){const p=khatmData.readPages/TOTAL_PAGES*100;const el=document.getElementById("khatmProgressFill");if(el){el.style.width=p+"%";el.textContent=p.toFixed(1)+"%";}let ppd=TOTAL_PAGES/khatmData.period;document.getElementById('pagesPerDay').innerHTML=ppd.toFixed(1);document.getElementById('readPages').innerText=khatmData.readPages;document.getElementById('dailyGoalText').innerHTML=`Читать ${ppd.toFixed(1)} страниц в день`;let rem=TOTAL_PAGES-khatmData.readPages;document.getElementById('remainingText').innerHTML=`Осталось: ${rem} стр.`;saveData("khatmData",khatmData);if(typeof updateAutoAchievements==='function')updateAutoAchievements();}
+function updateKhatmProgress(){const p=khatmData.readPages/TOTAL_PAGES*100;const el=document.getElementById("khatmProgressFill");if(el){el.style.width=p+"%";el.textContent=p.toFixed(1)+"%";}let ppd=TOTAL_PAGES/khatmData.period;document.getElementById('pagesPerDay').innerHTML=ppd.toFixed(1);document.getElementById('readPages').innerText=khatmData.readPages;document.getElementById('dailyGoalText').innerHTML=`Читать ${ppd.toFixed(1)} страниц в день`;let rem=TOTAL_PAGES-khatmData.readPages;document.getElementById('remainingText').innerHTML=`Осталось: ${rem} стр.`;saveData("khatmData",khatmData);updateAutoAchievements();checkDailyTasks();}
 function populateSuraSelect(){let s=document.getElementById('suraSelect');if(!s)return;s.innerHTML='<option value="">-- Выберите суру --</option>';for(let i=1;i<=114;i++){let o=document.createElement('option');o.value=i;o.textContent=`${i}. ${SURA_NAMES_RU[i-1]}`;s.appendChild(o);}if(positionData&&positionData.suraIndex)s.value=positionData.suraIndex;}
 function updatePositionUI(){let t='';if(positionData&&positionData.suraIndex&&positionData.suraIndex!==""){t+=`Сура: ${SURA_NAMES_RU[parseInt(positionData.suraIndex)-1]}`;}else{t+='Сура: —';}t+=(positionData&&positionData.page)?` | Страница: ${positionData.page}`:' | Страница: —';document.getElementById('currentPositionDisplay').innerHTML=t;}
 document.getElementById('suraSelect')?.addEventListener('change',(e)=>{if(e.target.value&&e.target.value!==""){positionData.suraIndex=e.target.value;positionData.page=Math.floor((parseInt(e.target.value)/114)*604)+1;}else{positionData.suraIndex="";positionData.page="";}updatePositionUI();saveData("quranPosition",positionData);});
 document.getElementById('setPageBtn')?.addEventListener('click',()=>{let p=parseInt(document.getElementById('pageInput').value);if(p>=1&&p<=604){positionData.page=p;let suraNum=Math.ceil(p/604*114);positionData.suraIndex=suraNum.toString();updatePositionUI();saveData("quranPosition",positionData);document.getElementById('suraSelect').value=suraNum;alert(`📌 Установлена страница ${p}, сура ${suraNum}`);}else alert('Введите число от 1 до 604');});
 document.getElementById('savePositionBtn')?.addEventListener('click',()=>{saveData("quranPosition",positionData);alert('📌 Позиция сохранена!');});
-document.getElementById('addPageBtn')?.addEventListener('click',()=>{if(khatmData.readPages<TOTAL_PAGES){khatmData.readPages++;updateKhatmProgress();vibrate();}else alert('🎉 Вы уже завершили хатм!');});
-document.getElementById('removePageBtn')?.addEventListener('click',()=>{if(khatmData.readPages>0){khatmData.readPages--;updateKhatmProgress();}else alert('❌ Нельзя убавить меньше 0 страниц!');});
-document.getElementById('addJuzBtn')?.addEventListener('click',()=>{if(khatmData.readPages<TOTAL_PAGES){khatmData.readPages=Math.min(khatmData.readPages+20,TOTAL_PAGES);updateKhatmProgress();}else alert('🎉 Вы уже завершили хатм!');});
+document.getElementById('addPageBtn')?.addEventListener('click',()=>{if(khatmData.readPages<TOTAL_PAGES){khatmData.readPages++;updateKhatmProgress();vibrate();checkDailyTasks();}else alert('🎉 Вы уже завершили хатм!');});
+document.getElementById('removePageBtn')?.addEventListener('click',()=>{if(khatmData.readPages>0){khatmData.readPages--;updateKhatmProgress();checkDailyTasks();}else alert('❌ Нельзя убавить меньше 0 страниц!');});
+document.getElementById('addJuzBtn')?.addEventListener('click',()=>{if(khatmData.readPages<TOTAL_PAGES){khatmData.readPages=Math.min(khatmData.readPages+20,TOTAL_PAGES);updateKhatmProgress();checkDailyTasks();}else alert('🎉 Вы уже завершили хатм!');});
 document.getElementById('resetKhatmBtn')?.addEventListener('click',()=>{if(confirm('Сбросить прогресс?')){khatmData.readPages=0;updateKhatmProgress();alert('✅ Прогресс сброшен!');}});
 document.getElementById('khatmPeriod')?.addEventListener('change',(e)=>{khatmData.period=parseInt(e.target.value);updateKhatmProgress();});
 
+// ========== ТАУБА ==========
 let taubaData=loadData("taubaData",{days:[]});
-function updateTaubaUI(){let today=new Date().toISOString().split('T')[0];let te=taubaData.days.find(d=>d.date===today);if(te){document.querySelectorAll('.goal-check').forEach(cb=>{cb.checked=te.goals[cb.dataset.goal]||false;});document.getElementById('imanSlider').value=te.iman;document.getElementById('imanValue').innerText=te.iman+'%';}else{document.querySelectorAll('.goal-check').forEach(cb=>cb.checked=false);document.getElementById('imanSlider').value=50;document.getElementById('imanValue').innerText='50%';}let tg=0;for(let d of taubaData.days)tg+=Object.values(d.goals).filter(v=>v).length;document.getElementById('totalGoalsCompleted').innerText=tg;document.getElementById('totalDaysTracked').innerText=taubaData.days.length;let streak=0,cd=new Date();cd.setHours(0,0,0,0);let sorted=[...taubaData.days].sort((a,b)=>new Date(b.date)-new Date(a.date));for(let i=0;i<sorted.length;i++){let dd=new Date(sorted[i].date);dd.setHours(0,0,0,0);let diff=Math.floor((cd-dd)/86400000);if(diff===streak)streak++;else break;}document.getElementById('streakDays').innerText=streak;let ti=taubaData.days.reduce((s,d)=>s+d.iman,0);document.getElementById('avgIman').innerText=taubaData.days.length?(ti/taubaData.days.length).toFixed(0):0;if(typeof updateAutoAchievements==='function')updateAutoAchievements();}
+function updateTaubaUI(){let today=new Date().toISOString().split('T')[0];let te=taubaData.days.find(d=>d.date===today);if(te){document.querySelectorAll('.goal-check').forEach(cb=>{cb.checked=te.goals[cb.dataset.goal]||false;});document.getElementById('imanSlider').value=te.iman;document.getElementById('imanValue').innerText=te.iman+'%';}else{document.querySelectorAll('.goal-check').forEach(cb=>cb.checked=false);document.getElementById('imanSlider').value=50;document.getElementById('imanValue').innerText='50%';}let tg=0;for(let d of taubaData.days)tg+=Object.values(d.goals).filter(v=>v).length;document.getElementById('totalGoalsCompleted').innerText=tg;document.getElementById('totalDaysTracked').innerText=taubaData.days.length;let streak=0,cd=new Date();cd.setHours(0,0,0,0);let sorted=[...taubaData.days].sort((a,b)=>new Date(b.date)-new Date(a.date));for(let i=0;i<sorted.length;i++){let dd=new Date(sorted[i].date);dd.setHours(0,0,0,0);let diff=Math.floor((cd-dd)/86400000);if(diff===streak)streak++;else break;}document.getElementById('streakDays').innerText=streak;let ti=taubaData.days.reduce((s,d)=>s+d.iman,0);document.getElementById('avgIman').innerText=taubaData.days.length?(ti/taubaData.days.length).toFixed(0):0;updateAutoAchievements();checkDailyTasks();}
 function updateImanFromGoals(){let checked=document.querySelectorAll('.goal-check:checked').length;let newIman=Math.round((checked/6)*100);document.getElementById('imanSlider').value=newIman;document.getElementById('imanValue').innerText=newIman+'%';}
-document.querySelectorAll('.goal-check').forEach(cb=>{cb.addEventListener('change',()=>{updateImanFromGoals();});});
-document.getElementById('saveTaubaDayBtn')?.addEventListener('click',()=>{let today=new Date().toISOString().split('T')[0];let iman=parseInt(document.getElementById('imanSlider').value);let goals={};document.querySelectorAll('.goal-check').forEach(cb=>{goals[cb.dataset.goal]=cb.checked;});let idx=taubaData.days.findIndex(d=>d.date===today);if(idx!==-1)taubaData.days[idx]={date:today,goals,iman};else taubaData.days.push({date:today,goals,iman});saveData("taubaData",taubaData);updateTaubaUI();alert('✅ День сохранён!');if(typeof updateAutoAchievements==='function')updateAutoAchievements();});
+document.querySelectorAll('.goal-check').forEach(cb=>{cb.addEventListener('change',()=>{updateImanFromGoals();checkDailyTasks();});});
+document.getElementById('saveTaubaDayBtn')?.addEventListener('click',()=>{let today=new Date().toISOString().split('T')[0];let iman=parseInt(document.getElementById('imanSlider').value);let goals={};document.querySelectorAll('.goal-check').forEach(cb=>{goals[cb.dataset.goal]=cb.checked;});let idx=taubaData.days.findIndex(d=>d.date===today);if(idx!==-1)taubaData.days[idx]={date:today,goals,iman};else taubaData.days.push({date:today,goals,iman});saveData("taubaData",taubaData);updateTaubaUI();alert('✅ День сохранён!');checkDailyTasks();updateAutoAchievements();});
 document.getElementById('imanSlider')?.addEventListener('input',(e)=>document.getElementById('imanValue').innerText=e.target.value+'%');
 
+// ========== ЗИКР ==========
 let zikrCounters=loadData("zikrCounters",{subhanallah:0,alhamdulillah:0,allahuakbar:0,astaghfirullah:0,lailahaillallah:0,subhanallah_wabihamdihi:0,subhanallah_alazim:0});
-function updateZikrDisplay(){const g=document.getElementById('zikrGrid');if(!g)return;g.innerHTML=`<div class="zikr-card"><div class="zikr-arabic">سُبْحَانَ اللَّهِ</div><div class="zikr-translit">Субханаллах</div><div class="zikr-translation">Пречист Аллах</div><div class="zikr-value">${zikrCounters.subhanallah}</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="subhanallah" data-inc="1">+1</button><button class="zikr-btn" data-zikr="subhanallah" data-inc="10">+10</button><button class="zikr-btn" data-zikr="subhanallah" data-inc="100">+100</button><button class="zikr-btn" data-zikr="subhanallah" data-reset="true">Сброс</button></div></div><div class="zikr-card"><div class="zikr-arabic">الْحَمْدُ لِلَّهِ</div><div class="zikr-translit">Альхамдулиллах</div><div class="zikr-translation">Хвала Аллаху</div><div class="zikr-value">${zikrCounters.alhamdulillah}</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="alhamdulillah" data-inc="1">+1</button><button class="zikr-btn" data-zikr="alhamdulillah" data-inc="10">+10</button><button class="zikr-btn" data-zikr="alhamdulillah" data-inc="100">+100</button><button class="zikr-btn" data-zikr="alhamdulillah" data-reset="true">Сброс</button></div></div><div class="zikr-card"><div class="zikr-arabic">اللَّهُ أَكْبَرُ</div><div class="zikr-translit">Аллаху Акбар</div><div class="zikr-translation">Аллах Велик</div><div class="zikr-value">${zikrCounters.allahuakbar}</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="allahuakbar" data-inc="1">+1</button><button class="zikr-btn" data-zikr="allahuakbar" data-inc="10">+10</button><button class="zikr-btn" data-zikr="allahuakbar" data-inc="100">+100</button><button class="zikr-btn" data-zikr="allahuakbar" data-reset="true">Сброс</button></div></div><div class="zikr-card"><div class="zikr-arabic">أَسْتَغْفِرُ اللَّهَ</div><div class="zikr-translit">Астагфируллах</div><div class="zikr-translation">Прошу прощения у Аллаха</div><div class="zikr-value">${zikrCounters.astaghfirullah}</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="astaghfirullah" data-inc="1">+1</button><button class="zikr-btn" data-zikr="astaghfirullah" data-inc="10">+10</button><button class="zikr-btn" data-zikr="astaghfirullah" data-inc="100">+100</button><button class="zikr-btn" data-zikr="astaghfirullah" data-reset="true">Сброс</button></div></div><div class="zikr-card"><div class="zikr-arabic">لَا إِلَهَ إِلَّا اللَّهُ</div><div class="zikr-translit">Ля иляха илляллах</div><div class="zikr-translation">Нет бога, кроме Аллаха</div><div class="zikr-value">${zikrCounters.lailahaillallah}</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="lailahaillallah" data-inc="1">+1</button><button class="zikr-btn" data-zikr="lailahaillallah" data-inc="10">+10</button><button class="zikr-btn" data-zikr="lailahaillallah" data-inc="100">+100</button><button class="zikr-btn" data-zikr="lailahaillallah" data-reset="true">Сброс</button></div></div><div class="zikr-card"><div class="zikr-arabic">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ</div><div class="zikr-translit">Субханаллах ва бихамдихи</div><div class="zikr-translation">Пречист Аллах и хвала Ему</div><div class="zikr-value">${zikrCounters.subhanallah_wabihamdihi}</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="subhanallah_wabihamdihi" data-inc="1">+1</button><button class="zikr-btn" data-zikr="subhanallah_wabihamdihi" data-inc="10">+10</button><button class="zikr-btn" data-zikr="subhanallah_wabihamdihi" data-inc="100">+100</button><button class="zikr-btn" data-zikr="subhanallah_wabihamdihi" data-reset="true">Сброс</button></div></div><div class="zikr-card"><div class="zikr-arabic">سُبْحَانَ اللَّهِ الْعَظِيمِ</div><div class="zikr-translit">Субханаллах аль-азым</div><div class="zikr-translation">Пречист Великий Аллах</div><div class="zikr-value">${zikrCounters.subhanallah_alazim}</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="subhanallah_alazim" data-inc="1">+1</button><button class="zikr-btn" data-zikr="subhanallah_alazim" data-inc="10">+10</button><button class="zikr-btn" data-zikr="subhanallah_alazim" data-inc="100">+100</button><button class="zikr-btn" data-zikr="subhanallah_alazim" data-reset="true">Сброс</button></div></div>`;document.querySelectorAll('.zikr-btn').forEach(btn=>{btn.addEventListener('click',()=>{const z=btn.dataset.zikr;if(btn.dataset.reset){zikrCounters[z]=0;}else{zikrCounters[z]+=parseInt(btn.dataset.inc);}saveData("zikrCounters",zikrCounters);updateZikrDisplay();if(typeof updateAutoAchievements==='function')updateAutoAchievements();vibrate();});});}
+function getTotalZikr(){return Object.values(zikrCounters).reduce((a,b)=>a+b,0);}
+function updateZikrDisplay(){const g=document.getElementById('zikrGrid');if(!g)return;g.innerHTML=`<div class="zikr-card"><div class="zikr-arabic">سُبْحَانَ اللَّهِ</div><div class="zikr-value">${zikrCounters.subhanallah}</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="subhanallah" data-inc="1">+1</button><button class="zikr-btn" data-zikr="subhanallah" data-inc="10">+10</button><button class="zikr-btn" data-zikr="subhanallah" data-inc="100">+100</button><button class="zikr-btn" data-zikr="subhanallah" data-reset="true">Сброс</button></div></div><div class="zikr-card"><div class="zikr-arabic">الْحَمْدُ لِلَّهِ</div><div class="zikr-value">${zikrCounters.alhamdulillah}</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="alhamdulillah" data-inc="1">+1</button><button class="zikr-btn" data-zikr="alhamdulillah" data-inc="10">+10</button><button class="zikr-btn" data-zikr="alhamdulillah" data-inc="100">+100</button><button class="zikr-btn" data-zikr="alhamdulillah" data-reset="true">Сброс</button></div></div><div class="zikr-card"><div class="zikr-arabic">اللَّهُ أَكْبَرُ</div><div class="zikr-value">${zikrCounters.allahuakbar}</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="allahuakbar" data-inc="1">+1</button><button class="zikr-btn" data-zikr="allahuakbar" data-inc="10">+10</button><button class="zikr-btn" data-zikr="allahuakbar" data-inc="100">+100</button><button class="zikr-btn" data-zikr="allahuakbar" data-reset="true">Сброс</button></div></div><div class="zikr-card"><div class="zikr-arabic">أَسْتَغْفِرُ اللَّهَ</div><div class="zikr-value">${zikrCounters.astaghfirullah}</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="astaghfirullah" data-inc="1">+1</button><button class="zikr-btn" data-zikr="astaghfirullah" data-inc="10">+10</button><button class="zikr-btn" data-zikr="astaghfirullah" data-inc="100">+100</button><button class="zikr-btn" data-zikr="astaghfirullah" data-reset="true">Сброс</button></div></div><div class="zikr-card"><div class="zikr-arabic">لَا إِلَهَ إِلَّا اللَّهُ</div><div class="zikr-value">${zikrCounters.lailahaillallah}</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="lailahaillallah" data-inc="1">+1</button><button class="zikr-btn" data-zikr="lailahaillallah" data-inc="10">+10</button><button class="zikr-btn" data-zikr="lailahaillallah" data-inc="100">+100</button><button class="zikr-btn" data-zikr="lailahaillallah" data-reset="true">Сброс</button></div></div><div class="zikr-card"><div class="zikr-arabic">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ</div><div class="zikr-value">${zikrCounters.subhanallah_wabihamdihi}</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="subhanallah_wabihamdihi" data-inc="1">+1</button><button class="zikr-btn" data-zikr="subhanallah_wabihamdihi" data-inc="10">+10</button><button class="zikr-btn" data-zikr="subhanallah_wabihamdihi" data-inc="100">+100</button><button class="zikr-btn" data-zikr="subhanallah_wabihamdihi" data-reset="true">Сброс</button></div></div><div class="zikr-card"><div class="zikr-arabic">سُبْحَانَ اللَّهِ الْعَظِيمِ</div><div class="zikr-value">${zikrCounters.subhanallah_alazim}</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="subhanallah_alazim" data-inc="1">+1</button><button class="zikr-btn" data-zikr="subhanallah_alazim" data-inc="10">+10</button><button class="zikr-btn" data-zikr="subhanallah_alazim" data-inc="100">+100</button><button class="zikr-btn" data-zikr="subhanallah_alazim" data-reset="true">Сброс</button></div></div>`;document.querySelectorAll('.zikr-btn').forEach(btn=>{btn.addEventListener('click',()=>{const z=btn.dataset.zikr;if(btn.dataset.reset){zikrCounters[z]=0;}else{zikrCounters[z]+=parseInt(btn.dataset.inc);}saveData("zikrCounters",zikrCounters);updateZikrDisplay();updateAutoAchievements();checkDailyTasks();vibrate();});});}
 updateZikrDisplay();
+// ========== ФУНКЦИЯ ПОДСТАНОВКИ ПОДЧЁРКИВАНИЙ ==========
+function applyMarks(text){if(!text)return"";return text.replace(/\[u\]([^\[\]]+?)\[\/u\]/g,function(m,l){return l+'\u0332';}).replace(/\[o\]([^\[\]]+?)\[\/o\]/g,function(m,l){return l+'\u0305';});}
 
-const MORNING_AZKAR_FULL=[{id:"m1",name:"Сура «аль-Ихляс»",arabic:"بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ\nقُلْ هُوَ اللَّهُ أَحَدٌ * اللَّهُ الصَّمَدُ * لَمْ يَلِدْ وَلَمْ يُولَدْ * وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ",translit:"БисмиЛляхир-рахманир-рахим. Куль хувал-Лаху ахад. Аллаху с-самад. Лям ялид ва лям юляд. Ва лям якуль-ляху куфуван ахад.",chechen:"Аллах1ан ц1арца, Къинхетам беш, Къинхетам бийр болуш волчу. Ахьа д1ала: Иза Аллах1 ву, Ша цхьаъ ву. Аллах1 массо а Шега хьашт хуьлуш верг ву. Цхьа а ца вина Цунна, цхьанна а вина вац Иза. Вац Цуьнца нислуш цхьа а.",translation:"Скажи: «Он — Аллах Единый, Аллах Самодостаточный. Он не родил и не был рождён, и нет никого равного Ему»",source:"Коран, 112 сура",recommended:"3 раза"},{id:"m2",name:"Сура «аль-Фаляк»",arabic:"بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ الْفَلَقِ * مِن شَرِّ مَا خَلَقَ * وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ * وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ * وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ",translit:"Куль а'узу бираббиль-фаляк. Мин шарри ма халак. Ва мин шарри гасикин иза вакаб. Ва мин шаррин-наффасати филь-укад. Ва мин шарри хасидин иза хасад.",chechen:"Аллах1ан ц1арца, Къинхетам беш, Къинхетам бийр болуш волчу. Ахьа ала: Со ларло сатасаран Делаца. Цо кхоьллинчу х1уманийн вонах. Боданан вонах, цу буьйсана 1алам д1ахьулдича. Шедаш беш, оцу т1е х1уп олучу зударийн вонах. Хьаг1 лелочун вонах, цо хьаг1 йича.",translation:"Скажи: «Прибегаю к защите Господа рассвета от зла того, что Он сотворил, от зла мрака, когда он наступает, от зла колдуний, дующих на узлы, от зла завистника, когда он завидует»",source:"Коран, 113 сура",recommended:"3 раза"},{id:"m3",name:"Сура «ан-Нас»",arabic:"بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ النَّاسِ * مَلِكِ النَّاسِ * إِلَهِ النَّاسِ * مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ * الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ * مِنَ الْجِنَّةِ وَالنَّاسِ",translit:"Куль а'узу бираббин-нас. Маликин-нас. Иляхин-нас. Мин шарриль-васвасиль-ханнас. Аллязи ювасвису фи судурин-нас. Миналь-джиннати ван-нас.",chechen:"Аллах1ан ц1арца, Къинхетам беш, Къинхетам бийр болуш волчу. Ахьа ала: Со ларло адамаш Кхоьллина, Кхобуш, Кхиош волчунца. Адамийн Паччахьца. Адамаша либадат дан хьакь долуш волчу Делаца. Васвасалла кхуьссучу, Делан ц1е яьккхича доцучу шайт1анан вонах. Адамийн дегнашка васвасалла кхуьссуш долчу. Жинех а, нахах а.",translation:"Скажи: «Прибегаю к защите Господа людей, Царя людей, Бога людей, от зла искусителя, исчезающего при поминании Аллаха, который наущает в груди людей, от джинов и людей»",source:"Коран, 114 сура",recommended:"3 раза"},{id:"m4",name:"Саййидуль истигфар",arabic:"اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ ، خَلَقْتَني وَأَنَا عَبْدُكَ ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَىَّ وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ",translit:"Аллахумма, Анта Рабби, ля иляха илля Ант, халактани ва ана абдука, ва ана аля ахдика ва вадика мастатату. Аузу бика мин шарри ма санату. Абуу ляка би-ниматика аляййа, ва абуу бизанби, фагфир ли, фа-иннаху ля йагфируз-зунуба илля Ант.",chechen:"Йа Аллах1, Хьо со кхоьллинчу Дела ву, цхьа дела вац шена либадат дан хьакъ долуш Хьо воцург, со кхоьллина Ахь, со Хьан лай ву, Хьан члагонна т1ехь ву со, сайн ницкъ мел кхочу. Хьоьца ларло со айса динчу къинойн вонах, Ахь суна ни1мат дина хилар бакъдо ас, сайн къинош даре до ас. Суна гечде Ахь, къиношна гечдеш верг Хьо бен вац.",translation:"О Аллах, Ты — Господь мой, и нет бога, кроме Тебя, Ты создал меня, а я — Твой раб... Прости же меня, ибо, поистине, никто не прощает грехов, кроме Тебя.",source:"аль-Бухари (6306)",recommended:"1 раз"},{id:"m5",name:"Субханаллах ва бихамдихи",arabic:"سُبْحَانَ اللَّهِ وَبِحَمْدِهِ عَدَدَ خَلْقِهِ ، وَرِضَا نَفْسِهِ ، وَزِنَةَ عَرْشِهِ ، وَمِدَادَ كَلِمَاتِهِ",translit:"Субхана-Ллахи ва бихамдихи, адада халькихи, ва рида нафсихи, ва зината аршихи, ва мидада калиматихи.",chechen:"Ц1ена ву Аллах1, Цунна хастам барца: Шен халкъ мел ду, Иза реза хиллалц, Цуьнан 1аршан доза мел ду, Цуьнан мел долу дешнаш д1аяздина шекъанца Цунна хастам бар яздаллал!",translation:"Пречист Аллах и хвала Ему столько раз, сколько существует Его творений, и столько раз, сколько будет Ему угодно, и столько, сколько весят Его трон и Его чернила для записи слов Его.",source:"Муслим (2726)",recommended:"3 раза"},{id:"m6",name:"Хасбияллах",arabic:"حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ",translit:"Хасбия-Ллаху, ля иляха илля хува, алейхи таваккальту, ва хува Раббуль-аршиль-азым.",chechen:"Аллах1 кхачаме ву суна, цхьа а дела вац шена либадат дан хьакь долуш Иза воцург, Цунна Цхьанна т1е болх биллина ас, доккха деза 1арш Кхоьллина, Карахь долу Дела ву Иза.",translation:"Достаточно мне Аллаха, нет бога, кроме Него, на Него я уповаю, и Он — Господь великого Трона.",source:"Ан-Насаи",recommended:"7 раз"},{id:"m7",name:"Бисмиллахиллязи ля йадурру",arabic:"بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ",translit:"Бисми-Лляхиллязи ля йадурру маа-смихи шайун филь-арды ва ля фис-самаи, ва хувас-Самиуль-Алим.",chechen:"Аллах1ан ц1арца ларло со, стиглахь а, латта т1ехь а Цуьнан ц1арца цхьана а х1умано зен ца деш волчу. Иза Хезаш ву, Хууш ву.",translation:"С именем Аллаха, с именем Которого ничто не причинит вреда ни на земле, ни на небе, ведь Он — Слышащий, Знающий.",source:"Ахмад, ат-Тирмизи",recommended:"3 раза"},{id:"m8",name:"Аллахумма бика асбахна",arabic:"اللَّهُمَّ بِكَ أَصْبَحْنَا وَبِكَ أَمْسَيْنَا ، وَبِكَ نَحْيَا وَبِكَ نَمُوتُ وَإِلَيْكَ النُّشُورُ",translit:"Аллахумма, бика асбахна, ва бика амсайна, ва бика нахья, ва бика намуту, ва иляйкан-нушур.",chechen:"Йа Аллах1, (Хьан къинхетамца) 1уьйренга девли тхо, (Хьан къинхетамца) суьйренга довлу тхо. Хьо ву са луш верг а, и са д1аоьцург а. Хьо ву тхо дендийриг къематдийнахь тхоьгара жоп деха.",translation:"О Аллах, благодаря Тебе мы дожили до утра, и благодаря Тебе мы дожили до вечера, Ты даёшь нам жизнь, и Ты лишаешь нас её, и к Тебе воскрешение.",source:"Ат-Тирмизи (3391)",recommended:"1 раз"},{id:"m9",name:"Я Хаййу Я Кайюм",arabic:"يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ ، أَصْلِحْ لِي شَأْنِي كُلَّهُ وَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ",translit:"Я Хайю, я Кайюм, би-рахматика астагис. Аслих ли ша'ни кулляху, ва ля такильни иля нафси тарфата айн.",chechen:"Х1ай даима Дийнаверг, х1ай массо а х1ума Латтошверг, Хьан къинхетамца орца доьху ас, нисде Ахь сан мел долу г1уллакхаш, б1аьргнег1ар тухучу юкъана а сайн дег1ах тешна ма вита Ахь со.",translation:"О Живой, о Вечносущий, обращаюсь за защитой к милосердию Твоему, приведи в порядок все мои дела и не доверяй меня душе моей ни на мгновение.",source:"Аль-Хаким, Аз-Захаби",recommended:"1 раз"},{id:"m10",name:"Асбахна аля фитратиль ислам",arabic:"أَصْبَحْنَا عَلَى فِطْرَةِ الْإِسْلَامِ ، وَعَلَى كَلِمَةِ الْإِخْلَاصِ ، وَعَلَى دِينِ نَبِيِّنَا مُحَمَّدٍ وَعَلَى مِلَّةِ أَبِينَا إِبْرَاهِيمَ حَنِيفًا مُسْلِمًا وَمَا كَانَ مِنَ الْمُشْرِكِينَ",translit:"Асбахна аля фитратиль-ислам, ва аля калиматиль-ихляс, ва аля дини набийина Мухаммад, ва аля милляти абина Ибрахим, ханифан муслиман, ва ма кана миналь-мушрикин.",chechen:"Вай сахуьлунга девлла бусалба а долуш, бакъдолу дош а олуш, вайн Пайхамаран Мухьаммадан дин лелош, вайн ден Ибрах1иман ц1еначу дин т1ехь долуш, иза мушрик нахах хилла вац.",translation:"Мы дожили до утра в лоне ислама согласно слову искренности, исповедуя религию нашего пророка Мухаммада и религию нашего отца Ибрахима, который был ханифом, мусульманином, и не был из многобожников.",source:"Ахмад, Ибн Сунни",recommended:"1 раз"},{id:"m11",name:"Аллахумма галимуль гайби",arabic:"اللَّهُمَّ عَالِمَ الْغَيْبِ وَالشَّهَادَةِ ، فَاطِرَ السَّمَاوَاتِ وَالْأَرْضِ ، رَبَّ كُلِّ شَيْءٍ وَمَلِيكَهُ ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا أَنْتَ ، أَعُوذُ بِكَ مِنْ شَرِّ نَفْسِي وَمِنْ شَرِّ الشَّيْطَانِ وَشِرْكِهِ",translit:"Аллахумма, алималь-гайби ваш-шахада, фатырас-самавати валь-ард, Рабба кулли шайин ва Маликаху, ашхаду алля иляха илля Ант, аузу бика мин шарри нафси, ва мин шарриш-шайтани ва ширкихи.",chechen:"Йа Аллах1, гушдерг а, къайлахъдерг а Хуушверг, стигланаш а, латта а Кхоьллинарг, массо а х1уманан Дела, иза дерриге а Карахь долуш волу, ас тоьшалла до: кхин дела цахиларца Хьо воцург, Хьоьца ларло со сайн дег1ан вонах а, шайт1анан вонах а, цуьнан ширках а.",translation:"О Аллах, Знающий сокрытое и явное, Творец небес и земли, Господь и Владыка всего, свидетельствую, что нет бога, кроме Тебя, прибегаю к Тебе от зла души своей и от зла и многобожия шайтана.",source:"Ат-Тирмизи (3392)",recommended:"1 раз"},{id:"m12",name:"Аллахумма инни ас'алюкаль афва",arabic:"اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي الدُّنْيَا وَالْآخِرَةِ ، اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي دِينِي وَدُنْيَايَ وَأَهْلِي وَمَالِي ، اللَّهُمَّ اسْتُرْ عَوْرَاتِي وَآمِنْ رَوْعَاتِي ، اللَّهُمَّ احْفَظْنِي مِنْ بَيْنِ يَدَيَّ وَمِنْ خَلْفِي وَعَنْ يَمِينِي وَعَنْ شِمَالِي وَمِنْ فَوْقِي ، وَأَعُوذُ بِعَظَمَتِكَ أَنْ أُغْتَالَ مِنْ تَحْتِي",translit:"Аллахумма, инни ас'алюкаль-афва валь-афията фид-дунья валь-ахира. Аллахумма, инни ас'алюкаль-афва валь-афията фи дини ва дуньяйа ва ахли ва мали. Аллахуммастур аурати ва амин рав'ати. Аллахуммахфазни мин байни ядаййа ва мин хальфи ва ан ямини ва ан шимали ва мин фавки. Ва аузу би-азаматика ан угталя мин тахти.",chechen:"Йа Аллах1, Хьоьга доьху ас гечдар а, маьрша хилар а х1окху дуьнен чохь а, кхана къематдийнахь а. Хьоьга доьху ас дика хьал сайн динехь а, сайн дуьненан г1уллакхашкахь а, сайн доьзалехь а, сайн рицкъанехь а. Сан дег1аца долу вон х1ума къайладаккха Ахь. Со кхоьруш долу х1ума маьрша де Ахь суна. Ларве со хьалхашкара, т1ехьашкара, аьтту аг1ор а, аьрру аг1ор а, лакхара а. Хьан возаллица ларло со к1елхьара бог1учу, со вен йиш йолчу тешнабехках а.",translation:"О Аллах, поистине, я прошу Тебя о прощении и благополучии в этом мире и в мире ином. О Аллах, поистине, я прошу Тебя о прощении и благополучии в моей религии, в моей мирской жизни, в моей семье и в моём имуществе. О Аллах, сокрой мои недостатки и успокой мои страхи. О Аллах, защити меня спереди и сзади, справа и слева, и сверху. И прибегаю к Твоему величию от того, чтобы быть убитым снизу.",source:"Абу Дауд (5074)",recommended:"1 раз"},{id:"m13",name:"Асбахна ва асбахаль мульк",arabic:"أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",translit:"Асбахна ва асбахаль-мульку ли-Ллях, валь-хамду ли-Ллях, ля иляха илля-Ллаху вахдаху ля шарика ляху, ляхуль-мульку ва ляхуль-хамду ва хува аля кулли шайин кадир.",chechen:"Вай маьрша сахуьлунга девли, ерриг мулк а 1уьйренга яьлла Аллах1ан карахь йолуш, хастам бу Аллах1ана, кхин Дела вац шена либадат дан хьакъ долуш, Цхьа Аллах1 воцург...",translation:"Мы дожили до утра, и этим утром владычество принадлежит Аллаху, и хвала Аллаху, нет бога, кроме одного лишь Аллаха, у которого нет сотоварища, Ему принадлежит владычество, Ему хвала, и Он всё может.",source:"Муслим (2723)",recommended:"1 раз"},{id:"m14",name:"Ля иляха илляллах (10 раз)",arabic:"لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",translit:"Ля иляха илля-Ллаху вахдаху ля шарика ляху, ляхуль-мульку ва ляхуль-хамду ва хува аля кулли шайин кадир.",chechen:"Кхин Дела вац Цхьа Аллах1 воцург, Цхьаъ ву Иза, Шеца накъост воцуш, Цуьнан карахь ю мулк, Цунна бу хастам, массо а х1уманна ницкъ кхочуш ву Иза.",translation:"Нет бога, кроме одного лишь Аллаха, у которого нет сотоварища, Ему принадлежит владычество, Ему хвала, и Он всё может.",source:"Ан-Насаи",recommended:"10 раз"}];
-const EVENING_AZKAR_FULL=[{id:"e1",name:"Сура «аль-Ихляс»",arabic:"بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ\nقُلْ هُوَ اللَّهُ أَحَدٌ * اللَّهُ الصَّمَدُ * لَمْ يَلِدْ وَلَمْ يُولَدْ * وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ",translit:"БисмиЛляхир-рахманир-рахим. Куль хувал-Лаху ахад. Аллаху с-самад. Лям ялид ва лям юляд. Ва лям якуль-ляху куфуван ахад.",chechen:"Аллах1ан ц1арца, Къинхетам беш, Къинхетам бийр болуш волчу. Ахьа д1ала: Иза Аллах1 ву, Ша цхьаъ ву. Аллах1 массо а Шега хьашт хуьлуш верг ву. Цхьа а ца вина Цунна, цхьанна а вина вац Иза. Вац Цуьнца нислуш цхьа а.",translation:"Скажи: «Он — Аллах Единый, Аллах Самодостаточный. Он не родил и не был рождён, и нет никого равного Ему»",source:"Коран, 112 сура",recommended:"3 раза"},{id:"e2",name:"Сура «аль-Фаляк»",arabic:"بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ الْفَلَقِ * مِن شَرِّ مَا خَلَقَ * وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ * وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ * وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ",translit:"Куль а'узу бираббиль-фаляк. Мин шарри ма халак. Ва мин шарри гасикин иза вакаб. Ва мин шаррин-наффасати филь-укад. Ва мин шарри хасидин иза хасад.",chechen:"Аллах1ан ц1арца, Къинхетам беш, Къинхетам бийр болуш волчу. Ахьа ала: Со ларло сатасаран Делаца. Цо кхоьллинчу х1уманийн вонах. Боданан вонах. Шедаш беш, оцу т1е х1уп олучу зударийн вонах. Хьаг1 лелочун вонах, цо хьаг1 йича.",translation:"Скажи: «Прибегаю к защите Господа рассвета от зла того, что Он сотворил, от зла мрака, когда он наступает, от зла колдуний, дующих на узлы, от зла завистника, когда он завидует»",source:"Коран, 113 сура",recommended:"3 раза"},{id:"e3",name:"Сура «ан-Нас»",arabic:"بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ النَّاسِ * مَلِكِ النَّاسِ * إِلَهِ النَّاسِ * مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ * الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ * مِنَ الْجِنَّةِ وَالنَّاسِ",translit:"Куль а'узу бираббин-нас. Маликин-нас. Иляхин-нас. Мин шарриль-васвасиль-ханнас. Аллязи ювасвису фи судурин-нас. Миналь-джиннати ван-нас.",chechen:"Аллах1ан ц1арца, Къинхетам беш, Къинхетам бийр болуш волчу. Ахьа ала: Со ларло адамаш Кхоьллина, Кхобуш, Кхиош волчунца. Адамийн Паччахьца. Адамаша либадат дан хьакь долуш волчу Делаца. Васвасалла кхуьссучу, Делан ц1е яьккхича доцучу шайт1анан вонах. Адамийн дегнашка васвасалла кхуьссуш долчу. Жинех а, нахах а.",translation:"Скажи: «Прибегаю к защите Господа людей, Царя людей, Бога людей, от зла искусителя, исчезающего при поминании Аллаха, который наущает в груди людей, от джинов и людей»",source:"Коран, 114 сура",recommended:"3 раза"},{id:"e4",name:"Аузу бикалиматиллахит таммат",arabic:"أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ",translit:"А'узу би-калимати-Лляхит-таммати мин шарри ма халак.",chechen:"Аллах1ан дешнашца ларло со, Цо кхоьллинчу х1уманийн вонах а.",translation:"Прибегаю к совершенным словам Аллаха от зла того, что Он сотворил.",source:"Ахмад, ат-Тирмизи",recommended:"3 раза"},{id:"e5",name:"Хасбияллах",arabic:"حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ",translit:"Хасбия-Ллаху, ля иляха илля хува, алейхи таваккальту, ва хува Раббуль-аршиль-азым.",chechen:"Аллах1 кхачаме ву суна, цхьа а дела вац шена либадат дан хьакь долуш Иза воцург, Цунна Цхьанна т1е болх биллина ас, доккха деза 1арш Кхоьллина, Карахь долу Дела ву Иза.",translation:"Достаточно мне Аллаха, нет бога, кроме Него, на Него я уповаю, и Он — Господь великого Трона.",source:"Ан-Насаи",recommended:"7 раз"},{id:"e6",name:"Бисмиллахиллязи ля йадурру",arabic:"بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ",translit:"Бисми-Лляхиллязи ля йадурру маа-смихи шайун филь-арды ва ля фис-самаи, ва хувас-Самиуль-Алим.",chechen:"Аллах1ан ц1арца ларло со, стиглахь а, латта т1ехь а Цуьнан ц1арца цхьана а х1умано зен ца деш волчу. Иза Хезаш ву, Хууш ву.",translation:"С именем Аллаха, с именем Которого ничто не причинит вреда ни на земле, ни на небе, ведь Он — Слышащий, Знающий.",source:"Ахмад, ат-Тирмизи",recommended:"3 раза"},{id:"e7",name:"Радиту биллахи раббан",arabic:"رَضِيتُ بِاللَّهِ رَبَّا وَبِالْإِسْلَامِ دِينًا وَبِمُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ نَبِيًّا",translit:"Радиту би-Лляхи Раббан, ва биль-ислами динан, ва би-Мухаммадин салла-Ллаху алейхи ва салляма набийян.",chechen:"Со реза хили Аллах1 со Кхоьллина Дела хиларна а, Ислам сайн дин хиларна а, Мухьаммад Пайхамар хиларна а!",translation:"Доволен я Аллахом как Господом, Исламом как религией и Мухаммадом, да благословит его Аллах и да приветствует, как Пророком.",source:"Ибн Сунни, Ахмад",recommended:"3 раза"},{id:"e8",name:"Аллахумма бика амсайна",arabic:"اللَّهُمَّ بِكَ أَمْسَيْنَا وَبِكَ أَصْبَحْنَا ، وَبِكَ نَحْيَا وَبِكَ نَمُوتُ وَإِلَيْكَ الْمَصِيرُ",translit:"Аллахумма, бика амсайна, ва бика асбахна, ва бика нахья, ва бика намуту, ва иляйкаль-масир.",chechen:"Йа Аллах1, (Хьан къинхетамца) суьйренга девли тхо, (Хьан къинхетамца) 1уьйренга довлу тхо. Хьо ву са луш верг а, и са д1аоьцург а. Хьо ву тхо дендийриг къематдийнахь тхоьгара жоп деха.",translation:"О Аллах, благодаря Тебе мы дожили до вечера и благодаря Тебе мы дожили до утра, Ты даёшь нам жизнь, и Ты лишаешь нас её, и к Тебе возвращение.",source:"Ат-Тирмизи",recommended:"1 раз"},{id:"e9",name:"Я Хаййу Я Кайюм",arabic:"يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ ، أَصْلِحْ لِي شَأْنِي كُلَّهُ وَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ",translit:"Я Хайю, я Кайюм, би-рахматика астагис. Аслих ли ша'ни кулляху, ва ля такильни иля нафси тарфата айн.",chechen:"Х1ай даима Дийнаверг, х1ай массо а х1ума Латтошверг, Хьан къинхетамца орца доьху ас, нисде Ахь сан мел долу г1уллакхаш, б1аьргнег1ар тухучу юкъана а сайн дег1ах тешна ма вита Ахь со.",translation:"О Живой, о Вечносущий, обращаюсь за защитой к милосердию Твоему, приведи в порядок все мои дела и не доверяй меня душе моей ни на мгновение.",source:"Аль-Хаким, Аз-Захаби",recommended:"1 раз"},{id:"e10",name:"Аллахумма галимуль гайби",arabic:"اللَّهُمَّ عَالِمَ الْغَيْبِ وَالشَّهَادَةِ ، فَاطِرَ السَّمَاوَاتِ وَالْأَرْضِ ، رَبَّ كُلِّ شَيْءٍ وَمَلِيكَهُ ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا أَنْتَ ، أَعُوذُ بِكَ مِنْ شَرِّ نَفْسِي وَمِنْ شَرِّ الشَّيْطَانِ وَشِرْكِهِ",translit:"Аллахумма, алималь-гайби ваш-шахада, фатырас-самавати валь-ард, Рабба кулли шайин ва Маликаху, ашхаду алля иляха илля Ант, аузу бика мин шарри нафси, ва мин шарриш-шайтани ва ширкихи.",chechen:"Йа Аллах1, гушдерг а, къайлахъдерг а Хуушверг... ас тоьшалла до: кхин дела цахиларца Хьо воцург, Хьоьца ларло со сайн дег1ан вонах а, шайт1анан вонах а...",translation:"О Аллах, Знающий сокрытое и явное, Творец небес и земли, Господь и Владыка всего, свидетельствую, что нет бога, кроме Тебя, прибегаю к Тебе от зла души своей, от зла и многобожия шайтана...",source:"Ат-Тирмизи (3392)",recommended:"1 раз"},{id:"e11",name:"Аллахумма инни ас'алюкаль афва",arabic:"اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي الدُّنْيَا وَالْآخِرَةِ ، اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي دِينِي وَدُنْيَايَ وَأَهْلِي وَمَالِي",translit:"Аллахумма, инни ас'алюкаль-афва валь-афията фид-дунья валь-ахира. Аллахумма, инни ас'алюкаль-афва валь-афията фи дини ва дуньяйа ва ахли ва мали.",chechen:"Йа Аллах1, Хьоьга доьху ас гечдар а, маьрша хилар а... Ларве со хьалхашкара, т1ехьашкара, аьтту аг1ор а, аьрру аг1ор а, лакхара а...",translation:"О Аллах, поистине, я прошу Тебя о прощении и благополучии в этом мире и в мире ином. О Аллах, поистине, я прошу Тебя о прощении и благополучии в моей религии, в моей мирской жизни, в моей семье и в моём имуществе.",source:"Абу Дауд (5074)",recommended:"1 раз"},{id:"e12",name:"Амсайна ва амсаль мульк",arabic:"أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",translit:"Амсайна ва амсаль-мульку ли-Ллях, валь-хамду ли-Ллях, ля иляха илля-Ллаху вахдаху ля шарика ляху, ляхуль-мульку ва ляхуль-хамду ва хува аля кулли шайин кадир.",chechen:"Вай маьрша суьйренга девли, ерриг мулк а суьйренга яьлла Аллах1ан карахь йолуш...",translation:"Мы дожили до вечера, и этим вечером владычество принадлежит Аллаху, и хвала Аллаху, нет бога, кроме одного лишь Аллаха, у которого нет сотоварища, Ему принадлежит владычество, Ему хвала, и Он всё может.",source:"Муслим (2723)",recommended:"1 раз"},{id:"e13",name:"Ля иляха илляллах (10 раз)",arabic:"لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",translit:"Ля иляха илля-Ллаху вахдаху ля шарика ляху, ляхуль-мульку ва ляхуль-хамду ва хува аля кулли шайин кадир.",chechen:"Кхин Дела вац Цхьа Аллах1 воцург...",translation:"Нет бога, кроме одного лишь Аллаха, у которого нет сотоварища, Ему принадлежит владычество, Ему хвала, и Он всё может.",source:"Муслим (2692)",recommended:"10 раз"}];
-let currentAzkarList=MORNING_AZKAR_FULL;
-let zoomStates={};
-function renderAzkar(){let html=currentAzkarList.map((a,idx)=>`<div class="azkar-item"><button class="zoom-btn" data-idx="${idx}">🔍</button><div class="azkar-arabic ${zoomStates[idx]?'zoomed':''}" id="arabic-${idx}">${a.arabic}</div><div class="azkar-translit">🔊 Транскрипция:<br>${a.translit}</div><div class="azkar-chechen">🇨🇿 Нохчийн:<br>${a.chechen}</div><div class="azkar-translation">📖 Смысл:<br>${a.translation}</div><div class="azkar-source">📚 ${a.source} | 🕌 ${a.recommended}</div></div>`).join('');document.getElementById('azkarContent').innerHTML=html;document.querySelectorAll('.zoom-btn').forEach(btn=>{btn.addEventListener('click',(e)=>{e.stopPropagation();const idx=parseInt(btn.dataset.idx);zoomStates[idx]=!zoomStates[idx];const ad=document.getElementById(`arabic-${idx}`);if(ad){if(zoomStates[idx])ad.classList.add('zoomed');else ad.classList.remove('zoomed');}});});}
-document.getElementById('morningSwitchBtn')?.addEventListener('click',()=>{currentAzkarList=MORNING_AZKAR_FULL;renderAzkar();document.getElementById('morningSwitchBtn').classList.add('active');document.getElementById('eveningSwitchBtn').classList.remove('active');});
-document.getElementById('eveningSwitchBtn')?.addEventListener('click',()=>{currentAzkarList=EVENING_AZKAR_FULL;renderAzkar();document.getElementById('eveningSwitchBtn').classList.add('active');document.getElementById('morningSwitchBtn').classList.remove('active');});
-renderAzkar();
+// ===== УТРЕННИЕ АЗКАРЫ (14 ПОЗИЦИЙ) =====
+const MORNING_AZKAR_FULL = [
+{
+id:"m1",
+name:"Сура «аль-Ихляс»",
+arabic:"بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ\nقُلْ هُوَ اللَّهُ أَحَدٌ * اللَّهُ الصَّمَدُ * لَمْ يَلِدْ وَلَمْ يُولَدْ * وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ",
+translit_raw:"БисмиЛля́[u]х1[/u]ир-ро[u]хь[/u]ма́нир-ро[u]хь[/u]и́м. Къуль [u]х1[/u]увалло́[u]х1[/u]у а[u]хь[/u]ад. Алло́[u]х1[/u]ус-сомад. Льам йалид ва льам йу́льад. Вальам йа куль-льа[u]х1[/u]у куфуван а[u]хь[/u]ад.",
+translation:"Скажи: «Он — Аллах Единый, Аллах Самодостаточный. Он не родил и не был рождён, и нет никого равного Ему»",
+source:"Коран, 112 сура",
+recommended:"3 раза"
+},
+{
+id:"m2",
+name:"Сура «аль-Фаляк»",
+arabic:"بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ الْفَلَقِ * مِن شَرِّ مَا خَلَقَ * وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ * وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ * وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ",
+translit_raw:"БисмиЛля́[u]х1[/u]ир-ро[u]хь[/u]ма́нир-ро[u]хь[/u]и́м. Къуль а1у́зу бироббиль-фалякъ. Мин шарри ма́ [u]х[/u]ольакъ. Ва мин шарри [u]г1[/u]о́сикъин иза́ вакъаб. Ва мин шаррин-наффа́са́[u]т[/u]и филь-1укъад. Ва мин шарри [u]хь[/u]а́сидин иза [u]хь[/u]асад.",
+translation:"Скажи: «Прибегаю к защите Господа рассвета от зла того, что Он сотворил, от зла мрака, когда он наступает, от зла колдуний, дующих на узлы, от зла завистника, когда он завидует»",
+source:"Коран, 113 сура",
+recommended:"3 раза"
+},
+{
+id:"m3",
+name:"Сура «ан-Нас»",
+arabic:"بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ النَّاسِ * مَلِكِ النَّاسِ * إِلَهِ النَّاسِ * مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ * الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ * مِنَ الْجِنَّةِ وَالنَّاسِ",
+translit_raw:"БисмиЛля́[u]х1[/u]ир-ро[u]хь[/u]ма́нир-ро[u]хь[/u]и́м. Къуль а1у́зу бироббинна́с. Маликинна́с. Ильа́[u]х1[/u]инна́с. Мин шарриль-васва́силь-[u]х[/u]онна́с. Алльази́ йувасвису фи́ суду́ринна́с. Миналь-джинна[u]т[/u]и ванна́с.",
+translation:"Скажи: «Прибегаю к защите Господа людей, Царя людей, Бога людей, от зла искусителя, исчезающего при поминании Аллаха, который наущает в груди людей, от джинов и людей»",
+source:"Коран, 114 сура",
+recommended:"3 раза"
+},
+{
+id:"m4",
+name:"Саййидуль истигфар",
+arabic:"اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ ، خَلَقْتَني وَأَنَا عَبْدُكَ ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَىَّ وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ",
+translit_raw:"Алло́[u]х1[/u]умма Ан[u]т[/u]а робби́,льа ильа́[u]х1[/u]а илла́ ан[u]т[/u]а, [u]х[/u]ольакъо[u]т[/u]ани́, ва ана 1абдука, ва ана 1ала́ 1а[u]х1[/u]дика ва ва1дика мас[u]т[/u]а[u]т1[/u]о1[u]т[/u]у. А1узу бика мин шарри ма́ сона1[u]т[/u]у, абу́у лака бини1ма[u]т[/u]ика 1альаййа, ва абу́у бизанби́ фа[u]г1[/u]фир ли́, фаинна[u]х1[/u]у́ льа́ я[u]г1[/u]фируззуну́ба илла́ ан[u]т[/u]а.",
+translation:"О Аллах, Ты — Господь мой, и нет бога, кроме Тебя, Ты создал меня, а я — Твой раб. Я верен своему обещанию и covenant с Тобой, насколько могу. Прибегаю к Тебе от зла того, что я сделал. Признаю милость Твою ко мне и признаю свой грех. Прости меня, ибо никто не прощает грехов, кроме Тебя.",
+source:"аль-Бухари (6306)",
+recommended:"1 раз"
+},
+{
+id:"m5",
+name:"Субханаллах ва бихамдихи",
+arabic:"سُبْحَانَ اللَّهِ وَبِحَمْدِهِ عَدَدَ خَلْقِهِ ، وَرِضَا نَفْسِهِ ، وَزِنَةَ عَرْشِهِ ، وَمِدَادَ كَلِمَاتِهِ",
+translit_raw:"Суб[u]хь[/u]а́наЛло́[u]х1[/u]и ва би[u]хь[/u]амди[u]х1[/u]и 1адада [u]х[/u]олкъи[u]х1[/u]и, ва ридо́ нафси[u]х1[/u]и, ва зина[u]т[/u]а 1арши[u]х1[/u]и, ва мида́да калима́[u]т[/u]и[u]х1[/u].",
+translation:"Пречист Аллах и хвала Ему столько раз, сколько существует Его творений, и столько раз, сколько будет Ему угодно, и столько, сколько весят Его трон и Его чернила для записи слов Его.",
+source:"Муслим (2726)",
+recommended:"3 раза"
+},
+{
+id:"m6",
+name:"Хасбияллах",
+arabic:"حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ",
+translit_raw:"[u]Хь[/u]асбийаЛло́[u]х1[/u]у льа́ ильа́[u]х1[/u]а илла́ [u]х1[/u]ува 1алай[u]х1[/u]и [u]т[/u]аваккаль[u]т[/u]у ва[u]х1[/u]ува роббуль-1аршиль-1азы́м.",
+translation:"Достаточно мне Аллаха, нет бога, кроме Него, на Него я уповаю, и Он — Господь великого Трона.",
+source:"Ан-Насаи",
+recommended:"7 раз"
+},
+{
+id:"m7",
+name:"Бисмиллахиллязи ля йадурру",
+arabic:"بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ",
+translit_raw:"БисмиЛла́[u]х1[/u]илльази́ льа́ йадурру ма1асми[u]х1[/u]и шай-ун филь-ард ва льа́ фис-сама́и ва[u]х1[/u]увас-сами́1уль-1али́м.",
+translation:"С именем Аллаха, с именем Которого ничто не причинит вреда ни на земле, ни на небе, ведь Он — Слышащий, Знающий.",
+source:"Ахмад, ат-Тирмизи",
+recommended:"3 раза"
+},
+{
+id:"m8",
+name:"Аллахумма бика асбахна",
+arabic:"اللَّهُمَّ بِكَ أَصْبَحْنَا وَبِكَ أَمْسَيْنَا ، وَبِكَ نَحْيَا وَبِكَ نَمُوتُ وَإِلَيْكَ النُّشُورُ",
+translit_raw:"Алло́[u]х1[/u]умма бика асба[u]хь[/u]на́, вабика амсайна́, вабика на[u]хь[/u]йа́, вабика наму́[u]т[/u]у, ва илайкан-нушу́р.",
+translation:"О Аллах, благодаря Тебе мы дожили до утра, и благодаря Тебе мы дожили до вечера, Ты даёшь нам жизнь, и Ты лишаешь нас её, и к Тебе воскрешение.",
+source:"Ат-Тирмизи (3391)",
+recommended:"1 раз"
+},
+{
+id:"m9",
+name:"Я Хаййу Я Кайюм",
+arabic:"يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ ، أَصْلِحْ لِي شَأْنِي كُلَّهُ وَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ",
+translit_raw:"Йа́ [u]хь[/u]аййу йа къоййу́му биро[u]хь[/u]ма[u]т[/u]ика аста[u]г1[/u]и́су, асли[u]хь[/u] ли́ шаъни́ кулла[u]х1[/u]у вала́ [u]т[/u]акилни́ ильа́ нафси́ [u]т1[/u]орфа[u]т[/u]а 1ай́н.",
+translation:"О Живой, о Вечносущий, обращаюсь за защитой к милосердию Твоему, приведи в порядок все мои дела и не доверяй меня душе моей ни на мгновение.",
+source:"Аль-Хаким, Аз-Захаби",
+recommended:"1 раз"
+},
+{
+id:"m10",
+name:"Асбахна аля фитратиль ислам",
+arabic:"أَصْبَحْنَا عَلَى فِطْرَةِ الْإِسْلَامِ ، وَعَلَى كَلِمَةِ الْإِخْلَاصِ ، وَعَلَى دِينِ نَبِيِّنَا مُحَمَّدٍ وَعَلَى مِلَّةِ أَبِينَا إِبْرَاهِيمَ حَنِيفًا مُسْلِمًا وَمَا كَانَ مِنَ الْمُشْرِكِينَ",
+translit_raw:"Асба[u]хь[/u]на́ 1альа́ фи[u]т1[/u]оро[u]т[/u]иль-исльа́ми, ва 1альа́ калима[u]т[/u]иль-и[u]х[/u]льа́сы, ва 1альа́ ди́ни набиййина́ Му[u]хь[/u]аммад, ва 1альа́ милла[u]т[/u]и аби́на́ Ибро́[u]х1[/u]и́ма [u]хь[/u]ани́фан муслиман вама́ ка́на миналь мушрики́н.",
+translation:"Мы встретили утро на исламском Fitrah, на слове искренности, на религии нашего пророка Мухаммада и на религии нашего отца Ибрахима, который был ханифом, мусульманином, и не был из многобожников.",
+source:"Ахмад, Ибн Сунни",
+recommended:"1 раз"
+},
+{
+id:"m11",
+name:"Аллахумма галимуль гайби",
+arabic:"اللَّهُمَّ عَالِمَ الْغَيْبِ وَالشَّهَادَةِ ، فَاطِرَ السَّمَاوَاتِ وَالْأَرْضِ ، رَبَّ كُلِّ شَيْءٍ وَمَلِيكَهُ ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا أَنْتَ ، أَعُوذُ بِكَ مِنْ شَرِّ نَفْسِي وَمِنْ شَرِّ الشَّيْطَانِ وَشِرْكِهِ",
+translit_raw:"Алло́[u]х1[/u]умма 1а́лималь[u]г1[/u]ойби вашша-[u]х1[/u]а́да[u]х1[/u], фа[u]т1[/u]ырассамава́[u]т[/u]и валь-ард, робба кулли шай-ин ва мали́ка[u]х1[/u]у, аш[u]х1[/u]аду алльа́ ильа́[u]х1[/u]а илльа́ ан[u]т[/u]а, а1у́зу бика мин шарри нафси́, ва мин шарришшай[u]т1[/u]о́ни ва ширки[u]х1[/u].",
+translation:"О Аллах, Ведающий сокровенное и явное, Творец небес и земли, Господь и Владыка всего, свидетельствую, что нет бога, кроме Тебя, прибегаю к Тебе от зла души своей и от зла и многобожия шайтана.",
+source:"Ат-Тирмизи (3392)",
+recommended:"1 раз"
+},
+{
+id:"m12",
+name:"Аллахумма инни ас'алюкаль афва",
+arabic:"اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي الدُّنْيَا وَالْآخِرَةِ ، اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي دِينِي وَدُنْيَايَ وَأَهْلِي وَمَالِي ، اللَّهُمَّ اسْتُرْ عَوْرَاتِي وَآمِنْ رَوْعَاتِي ، اللَّهُمَّ احْفَظْنِي مِنْ بَيْنِ يَدَيَّ وَمِنْ خَلْفِي وَعَنْ يَمِينِي وَعَنْ شِمَالِي وَمِنْ فَوْقِي ، وَأَعُوذُ بِعَظَمَتِكَ أَنْ أُغْتَالَ مِنْ تَحْتِي",
+translit_raw:"Алло́[u]х1[/u]умма инни́ ас-алукаль-1афва валь-1а́фийа[u]т[/u]а фиддунйа́ валь-а́хиро[u]х1[/u]. Алло́[u]х1[/u]умма инни́ ас-алукаль-1афва валь-1а́фийа[u]т[/u]а фи́ ди́ни́ ва дунйа́йа ва а[u]х1[/u]ли́ ва ма́ли́. Алло́[u]х1[/u]умас[u]т[/u]ур 1авро́[u]т[/u]и́ ва а́мин ров1а́[u]т[/u]и́. Алло́[u]х1[/u]умма[u]хь[/u]фазни́ мим байни йадаййа ва мин [u]х[/u]ольфи́ ва 1ай-йами́ни́ ва 1ан шима́ли́ ва мин фавкъи́ ва а1у́зу би1азама[u]т[/u]ика ан у[u]г1[/u]та́ла мин [u]т[/u]а[u]хь[/u]ти́.",
+translation:"О Аллах, прошу Тебя о прощении и благополучии в этом мире и в мире ином. О Аллах, прошу Тебя о прощении и благополучии в моей религии, в моей мирской жизни, в моей семье и в моём имуществе. О Аллах, сокрой мои недостатки и успокой мои страхи. О Аллах, защити меня спереди и сзади, справа и слева, и сверху. И прибегаю к Твоему величию от того, чтобы быть убитым снизу.",
+source:"Абу Дауд (5074)",
+recommended:"1 раз"
+},
+{
+id:"m13",
+name:"Асбахна ва асбахаль мульк",
+arabic:"أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",
+translit_raw:"Асба[u]хь[/u]на́ ва асба[u]хь[/u]аль-мульку лилльа́[u]х1[/u]и, валь-[u]хь[/u]амду лилльа́[u]х1[/u]и, льа́ ильа́[u]х1[/u]а иллаЛло́[u]х1[/u]у ва[u]хь[/u]да[u]х1[/u]у́ льа́ шари́ка ла[u]х1[/u]у, ла[u]х1[/u]ульмульку ва ла[u]х1[/u]уль-[u]хь[/u]амду ва [u]х1[/u]ува 1альа́ кулли шай-ин къоди́р.",
+translation:"Мы дожили до утра, и этим утром владычество принадлежит Аллаху, и хвала Аллаху, нет бога, кроме одного лишь Аллаха, у которого нет сотоварища, Ему принадлежит владычество, Ему хвала, и Он всё может.",
+source:"Муслим (2723)",
+recommended:"1 раз"
+},
+{
+id:"m14",
+name:"Ля иляха илляллах (10 раз)",
+arabic:"لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",
+translit_raw:"Льа́ ильа́[u]х1[/u]а иллаЛло́[u]х1[/u]у ва[u]хь[/u]да[u]х1[/u]у льа́ шари́ка ла[u]х1[/u]у, ла[u]х1[/u]уль-мульку ва ла[u]х1[/u]уль-[u]хь[/u]амду ва [u]х1[/u]ува 1альа́ кулли шай-ин къоди́р.",
+translation:"Нет бога, кроме одного лишь Аллаха, у которого нет сотоварища, Ему принадлежит владычество, Ему хвала, и Он всё может.",
+source:"Ан-Насаи",
+recommended:"10 раз"
+}
+];
+// ===== ВЕЧЕРНИЕ АЗКАРЫ (13 ПОЗИЦИЙ) =====
+const EVENING_AZKAR_FULL = [
+{
+id:"e1",
+name:"Сура «аль-Ихляс»",
+arabic:"بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ\nقُلْ هُوَ اللَّهُ أَحَدٌ * اللَّهُ الصَّمَدُ * لَمْ يَلِدْ وَلَمْ يُولَدْ * وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ",
+translit_raw:"БисмиЛля́[u]х1[/u]ир-ро[u]хь[/u]ма́нир-ро[u]хь[/u]и́м. Къуль [u]х1[/u]увалло́[u]х1[/u]у а[u]хь[/u]ад. Алло́[u]х1[/u]ус-сомад. Льам йалид ва льам йу́льад. Вальам йа куль-льа[u]х1[/u]у куфуван а[u]хь[/u]ад.",
+translation:"Скажи: «Он — Аллах Единый, Аллах Самодостаточный. Он не родил и не был рождён, и нет никого равного Ему»",
+source:"Коран, 112 сура",
+recommended:"3 раза"
+},
+{
+id:"e2",
+name:"Сура «аль-Фаляк»",
+arabic:"بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ الْفَلَقِ * مِن شَرِّ مَا خَلَقَ * وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ * وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ * وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ",
+translit_raw:"БисмиЛля́[u]х1[/u]ир-ро[u]хь[/u]ма́нир-ро[u]хь[/u]и́м. Къуль а1у́зу бироббиль-фалякъ. Мин шарри ма́ [u]х[/u]ольакъ. Ва мин шарри [u]г1[/u]о́сикъин иза́ вакъаб. Ва мин шаррин-наффа́са́[u]т[/u]и филь-1укъад. Ва мин шарри [u]хь[/u]а́сидин иза [u]хь[/u]асад.",
+translation:"Скажи: «Прибегаю к защите Господа рассвета от зла того, что Он сотворил, от зла мрака, когда он наступает, от зла колдуний, дующих на узлы, от зла завистника, когда он завидует»",
+source:"Коран, 113 сура",
+recommended:"3 раза"
+},
+{
+id:"e3",
+name:"Сура «ан-Нас»",
+arabic:"بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ النَّاسِ * مَلِكِ النَّاسِ * إِلَهِ النَّاسِ * مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ * الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ * مِنَ الْجِنَّةِ وَالنَّاسِ",
+translit_raw:"БисмиЛля́[u]х1[/u]ир-ро[u]хь[/u]ма́нир-ро[u]хь[/u]и́м. Къуль а1у́зу бироббинна́с. Маликинна́с. Ильа́[u]х1[/u]инна́с. Мин шарриль-васва́силь-[u]х[/u]онна́с. Алльази́ йувасвису фи́ суду́ринна́с. Миналь-джинна[u]т[/u]и ванна́с.",
+translation:"Скажи: «Прибегаю к защите Господа людей, Царя людей, Бога людей, от зла искусителя, исчезающего при поминании Аллаха, который наущает в груди людей, от джинов и людей»",
+source:"Коран, 114 сура",
+recommended:"3 раза"
+},
+{
+id:"e4",
+name:"Аузу бикалиматиллахит таммат",
+arabic:"أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ",
+translit_raw:"А1у́зу бикалима́[u]т[/u]илла́[u]х1[/u]и[u]т[/u]-[u]т[/u]амма́[u]т[/u]и мин шарри ма́ [u]х[/u]ольакъ.",
+translation:"Прибегаю к совершенным словам Аллаха от зла того, что Он сотворил.",
+source:"Ахмад, ат-Тирмизи",
+recommended:"3 раза"
+},
+{
+id:"e5",
+name:"Хасбияллах",
+arabic:"حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ",
+translit_raw:"[u]Хь[/u]асбийаЛло́[u]х1[/u]у льа́ ильа́[u]х1[/u]а илла́ [u]х1[/u]ува 1алай[u]х1[/u]и [u]т[/u]аваккаль[u]т[/u]у ва[u]х1[/u]ува роббуль-1аршиль-1азы́м.",
+translation:"Достаточно мне Аллаха, нет бога, кроме Него, на Него я уповаю, и Он — Господь великого Трона.",
+source:"Ан-Насаи",
+recommended:"7 раз"
+},
+{
+id:"e6",
+name:"Бисмиллахиллязи ля йадурру",
+arabic:"بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ",
+translit_raw:"БисмиЛла́[u]х1[/u]илльази́ льа́ йадурру ма1асми[u]х1[/u]и шай-ун филь-ард ва льа́ фис-сама́и ва[u]х1[/u]увас-сами́1уль-1али́м.",
+translation:"С именем Аллаха, с именем Которого ничто не причинит вреда ни на земле, ни на небе, ведь Он — Слышащий, Знающий.",
+source:"Ахмад, ат-Тирмизи",
+recommended:"3 раза"
+},
+{
+id:"e7",
+name:"Радиту биллахи раббан",
+arabic:"رَضِيتُ بِاللَّهِ رَبَّا وَبِالْإِسْلَامِ دِينًا وَبِمُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ نَبِيًّا",
+translit_raw:"Роды́[u]т[/u]у билла́[u]х1[/u]и роббан, ва биль-исльа́ми ди́нан, ва би Му[u]хь[/u]аммадин набиййан.",
+translation:"Доволен я Аллахом как Господом, Исламом как религией и Мухаммадом, да благословит его Аллах и да приветствует, как Пророком.",
+source:"Ибн Сунни, Ахмад",
+recommended:"3 раза"
+},
+{
+id:"e8",
+name:"Аллахумма бика амсайна",
+arabic:"اللَّهُمَّ بِكَ أَمْسَيْنَا وَبِكَ أَصْبَحْنَا ، وَبِكَ نَحْيَا وَبِكَ نَمُوتُ وَإِلَيْكَ الْمَصِيرُ",
+translit_raw:"Алло́[u]х1[/u]умма бика амсайна́, вабика асба[u]хь[/u]на́, вабика на[u]хь[/u]йа́, вабика наму́[u]т[/u]у, ва илайкаль-масы́р.",
+translation:"О Аллах, благодаря Тебе мы дожили до вечера и благодаря Тебе мы дожили до утра, Ты даёшь нам жизнь, и Ты лишаешь нас её, и к Тебе возвращение.",
+source:"Ат-Тирмизи",
+recommended:"1 раз"
+},
+{
+id:"e9",
+name:"Я Хаййу Я Кайюм",
+arabic:"يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ ، أَصْلِحْ لِي شَأْنِي كُلَّهُ وَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ",
+translit_raw:"Йа́ [u]хь[/u]аййу йа къоййу́му биро[u]хь[/u]ма[u]т[/u]ика аста[u]г1[/u]и́су, асли[u]хь[/u] ли́ шаъни́ кулла[u]х1[/u]у вала́ [u]т[/u]акилни́ ильа́ нафси́ [u]т1[/u]орфа[u]т[/u]а 1ай́н.",
+translation:"О Живой, о Вечносущий, обращаюсь за защитой к милосердию Твоему, приведи в порядок все мои дела и не доверяй меня душе моей ни на мгновение.",
+source:"Аль-Хаким, Аз-Захаби",
+recommended:"1 раз"
+},
+{
+id:"e10",
+name:"Аллахумма галимуль гайби",
+arabic:"اللَّهُمَّ عَالِمَ الْغَيْبِ وَالشَّهَادَةِ ، فَاطِرَ السَّمَاوَاتِ وَالْأَرْضِ ، رَبَّ كُلِّ شَيْءٍ وَمَلِيكَهُ ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا أَنْتَ ، أَعُوذُ بِكَ مِنْ شَرِّ نَفْسِي وَمِنْ شَرِّ الشَّيْطَانِ وَشِرْكِهِ",
+translit_raw:"Алло́[u]х1[/u]умма 1а́лималь[u]г1[/u]ойби вашша-[u]х1[/u]а́да[u]х1[/u], фа[u]т1[/u]ырассамава́[u]т[/u]и валь-ард, робба кулли шай-ин ва мали́ка[u]х1[/u]у, аш[u]х1[/u]аду алльа́ ильа́[u]х1[/u]а илльа́ ан[u]т[/u]а, а1у́зу бика мин шарри нафси́, ва мин шарришшай[u]т1[/u]о́ни ва ширки[u]х1[/u].",
+translation:"О Аллах, Ведающий сокровенное и явное, Творец небес и земли, Господь и Владыка всего, свидетельствую, что нет бога, кроме Тебя, прибегаю к Тебе от зла души своей и от зла и многобожия шайтана.",
+source:"Ат-Тирмизи (3392)",
+recommended:"1 раз"
+},
+{
+id:"e11",
+name:"Аллахумма инни ас'алюкаль афва",
+arabic:"اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي الدُّنْيَا وَالْآخِرَةِ ، اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي دِينِي وَدُنْيَايَ وَأَهْلِي وَمَالِي",
+translit_raw:"Алло́[u]х1[/u]умма инни́ ас-алукаль-1афва валь-1а́фийа[u]т[/u]а фиддунйа́ валь-а́хиро[u]х1[/u]. Алло́[u]х1[/u]умма инни́ ас-алукаль-1афва валь-1а́фийа[u]т[/u]а фи́ ди́ни́ ва дунйа́йа ва а[u]х1[/u]ли́ ва ма́ли́.",
+translation:"О Аллах, поистине, я прошу Тебя о прощении и благополучии в этом мире и в мире ином. О Аллах, поистине, я прошу Тебя о прощении и благополучии в моей религии, в моей мирской жизни, в моей семье и в моём имуществе.",
+source:"Абу Дауд (5074)",
+recommended:"1 раз"
+},
+{
+id:"e12",
+name:"Амсайна ва амсаль мульк",
+arabic:"أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",
+translit_raw:"Амсайна́ ва амса́ль-мульку лилльа́[u]х1[/u]и, валь-[u]хь[/u]амду лилльа́[u]х1[/u]и, льа́ ильа́[u]х1[/u]а иллаЛло́[u]х1[/u]у ва[u]хь[/u]да[u]х1[/u]у́ льа́ шари́ка ла[u]х1[/u]у, ла[u]х1[/u]ульмульку ва ла[u]х1[/u]уль-[u]хь[/u]амду ва [u]х1[/u]ува 1альа́ кулли шай-ин къоди́р.",
+translation:"Мы дожили до вечера, и этим вечером владычество принадлежит Аллаху, и хвала Аллаху, нет бога, кроме одного лишь Аллаха, у которого нет сотоварища, Ему принадлежит владычество, Ему хвала, и Он всё может.",
+source:"Муслим (2723)",
+recommended:"1 раз"
+},
+{
+id:"e13",
+name:"Ля иляха илляллах (10 раз)",
+arabic:"لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",
+translit_raw:"Льа́ ильа́[u]х1[/u]а иллаЛло́[u]х1[/u]у ва[u]хь[/u]да[u]х1[/u]у льа́ шари́ка ла[u]х1[/u]у, ла[u]х1[/u]уль-мульку ва ла[u]х1[/u]уль-[u]хь[/u]амду ва [u]х1[/u]ува 1альа́ кулли шай-ин къоди́р.",
+translation:"Нет бога, кроме одного лишь Аллаха, у которого нет сотоварища, Ему принадлежит владычество, Ему хвала, и Он всё может.",
+source:"Муслим (2692)",
+recommended:"10 раз"
+}
+];
+// ========== ПРИМЕНЯЕМ ПОДЧЁРКИВАНИЯ КО ВСЕМ АЗКАРАМ ==========
+for(let a of MORNING_AZKAR_FULL) if(a.translit_raw) a.translit = applyMarks(a.translit_raw);
+for(let a of EVENING_AZKAR_FULL) if(a.translit_raw) a.translit = applyMarks(a.translit_raw);
 
-async function fetchPrayerTimes(lat,lon,city,country){let u=(city&&country)?`https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=2`:`https://api.aladhan.com/v1/timings/${Math.floor(Date.now()/1000)}?latitude=${lat}&longitude=${lon}&method=2`;try{const r=await fetch(u);const d=await r.json();if(d.code===200&&d.data){const t=d.data.timings;const p=['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'];const c=document.querySelectorAll('.prayer-card');p.forEach((p,i)=>{if(c[i]&&t[p])c[i].querySelector('.prayer-time').innerText=t[p];});document.getElementById('locationInfo').innerHTML=`📍 ${d.data.date.readable}`;const now=new Date();const ct=now.getHours()*60+now.getMinutes();const po=['Fajr','Dhuhr','Asr','Maghrib','Isha'];let np=null,nt=Infinity;for(let pr of po){if(t[pr]){let[hh,mm]=t[pr].split(':').map(Number);let pm=hh*60+mm;if(pm>ct&&pm<nt){nt=pm;np=pr;}}}const nm={'Fajr':'Фаджр','Dhuhr':'Зухр','Asr':'Аср','Maghrib':'Магриб','Isha':'Иша'};if(!np&&t['Fajr'])np='Fajr';document.getElementById('nextPrayerInfo').innerHTML=`Следующий намаз: <span>${nm[np]||np} ${t[np]||'--:--'}</span>`;return true;}}catch(e){}return false;}
-function getLocationAndPrayerTimes(){if(navigator.geolocation){document.getElementById('locationInfo').innerHTML='📍 Определение местоположения...';navigator.geolocation.getCurrentPosition(async(pos)=>{await fetchPrayerTimes(pos.coords.latitude,pos.coords.longitude);},()=>{document.getElementById('locationInfo').innerHTML='⚠️ Не удалось определить местоположение';});}else{document.getElementById('locationInfo').innerHTML='⚠️ Геолокация не поддерживается';}}
-document.getElementById('autoLocateBtn')?.addEventListener('click',getLocationAndPrayerTimes);
-document.getElementById('searchCityBtn')?.addEventListener('click',async()=>{const c=document.getElementById('cityInput').value;const co=document.getElementById('countryInput').value;if(c&&co){document.getElementById('locationInfo').innerHTML=`📍 Поиск: ${c}, ${co}...`;await fetchPrayerTimes(null,null,c,co);}else alert('Введите город и страну');});
-
-async function fetchRandomHadith(){try{const r=await fetch('https://dua-data-api.vercel.app/api/fortyNawawi');const h=await r.json();const idx=Math.floor(Math.random()*h.length);const ha=h[idx];document.getElementById('hadithArabic').innerHTML=ha.arabic||'—';document.getElementById('hadithText').innerHTML=ha.translation||ha.translationEn||'—';document.getElementById('hadithSource').innerHTML=`— 📚 ${ha.narrator||ha.source||'Источник'}`;}catch(e){document.getElementById('hadithArabic').innerHTML="إِنَّمَا الْأَعْمَالُ بِالنِّيَّاتِ";document.getElementById('hadithText').innerHTML="Поистине, дела оцениваются по намерениям.";document.getElementById('hadithSource').innerHTML="— 📚 Бухари, Муслим";}}
-document.getElementById('refreshHadithBtn')?.addEventListener('click',fetchRandomHadith);
-fetchRandomHadith();
-
-const ACHIEVEMENTS_LIST=[
-{id:"firstPage",title:"📖 Первая страница",desc:"Прочитать 1 страницу Корана",icon:"📖",xp:50,type:"auto",current:()=>khatmData.readPages,target:1,story:"Первое откровение пришло в пещере Хира"},
-{id:"tenPages",title:"📚 Десять страниц",desc:"Прочитать 10 страниц",icon:"📚",xp:100,type:"auto",current:()=>khatmData.readPages,target:10,story:"Каждая буква Корана — десять наград"},
-{id:"halfJuz",title:"🎯 Полджуза",desc:"Прочитать 20 страниц",icon:"🎯",xp:150,type:"auto",current:()=>khatmData.readPages,target:20,story:"Первый джуз начинается с Аль-Фатихи"},
-{id:"khatmComplete",title:"🏆 Завершивший Хатм",desc:"Прочитать весь Коран (604 стр.)",icon:"🕋",xp:500,type:"auto",current:()=>khatmData.readPages,target:604,story:"Кто прочитал Коран, тому Аллах запишет награду десяти тысяч"},
-{id:"zikr100",title:"📿 Начинающий",desc:"100 зикров",icon:"🔢",xp:50,type:"auto",current:()=>Object.values(zikrCounters).reduce((a,b)=>a+b,0),target:100,story:"Пусть язык всегда будет влажным от поминания Аллаха"},
-{id:"zikr1000",title:"🌟 Усердный",desc:"1000 зикров",icon:"🌟",xp:150,type:"auto",current:()=>Object.values(zikrCounters).reduce((a,b)=>a+b,0),target:1000,story:"Два слова любимы Милостивым: Субханаллах ва бихамдихи"},
-{id:"zikr10000",title:"⚡ Ас-Саббах",desc:"10 000 зикров",icon:"⚡",xp:500,type:"auto",current:()=>Object.values(zikrCounters).reduce((a,b)=>a+b,0),target:10000,story:"Один человек совершал 12 000 зикров ежедневно и вошёл в Рай"},
-{id:"zikr50000",title:"🔥 Стойкий",desc:"50 000 зикров",icon:"🔥",xp:1000,type:"auto",current:()=>Object.values(zikrCounters).reduce((a,b)=>a+b,0),target:50000,story:"Кто много поминает Аллаха, того поминают ангелы"},
-{id:"zikr100000",title:"💪 Мудавим",desc:"100 000 зикров",icon:"💪",xp:2000,type:"auto",current:()=>Object.values(zikrCounters).reduce((a,b)=>a+b,0),target:100000,story:"Постоянство в поминании — ключ к довольству Аллаха"},
-{id:"zikr250000",title:"👑 Элитный",desc:"250 000 зикров",icon:"👑",xp:3500,type:"auto",current:()=>Object.values(zikrCounters).reduce((a,b)=>a+b,0),target:250000,story:"Терпение и усердие вознаграждаются сполна"},
-{id:"zikr500000",title:"🏅 Аз-Закир",desc:"500 000 зикров",icon:"🏅",xp:5000,type:"auto",current:()=>Object.values(zikrCounters).reduce((a,b)=>a+b,0),target:500000,story:"Великая награда ждёт тех, кто поминает Аллаха много"},
+// ========== ДОСТИЖЕНИЯ (ПОЛНЫЕ ДО 1 МЛН) ==========
+const ACHIEVEMENTS_LIST = [
+{id:"firstPage",title:"📖 Первая страница",desc:"1 страница Корана",icon:"📖",xp:50,type:"auto",current:()=>khatmData.readPages,target:1,story:"Первое откровение пришло в пещере Хира"},
+{id:"tenPages",title:"📚 Десять страниц",desc:"10 страниц",icon:"📚",xp:100,type:"auto",current:()=>khatmData.readPages,target:10,story:"Каждая буква Корана — десять наград"},
+{id:"halfJuz",title:"🎯 Полджуза",desc:"20 страниц",icon:"🎯",xp:150,type:"auto",current:()=>khatmData.readPages,target:20,story:"Первый джуз начинается с Аль-Фатихи"},
+{id:"khatmComplete",title:"🏆 Завершивший Хатм",desc:"604 страницы",icon:"🕋",xp:500,type:"auto",current:()=>khatmData.readPages,target:604,story:"Кто прочитал Коран, тому Аллах запишет награду десяти тысяч"},
+{id:"zikr100",title:"📿 Начинающий",desc:"100 зикров",icon:"🔢",xp:50,type:"auto",current:()=>getTotalZikr(),target:100,story:"Пусть язык всегда будет влажным от поминания Аллаха"},
+{id:"zikr1000",title:"🌟 Усердный",desc:"1000 зикров",icon:"🌟",xp:150,type:"auto",current:()=>getTotalZikr(),target:1000,story:"Два слова любимы Милостивым: Субханаллах ва бихамдихи"},
+{id:"zikr10000",title:"⚡ Ас-Саббах",desc:"10 000 зикров",icon:"⚡",xp:500,type:"auto",current:()=>getTotalZikr(),target:10000,story:"Один человек совершал 12 000 зикров ежедневно и вошёл в Рай"},
+{id:"zikr50000",title:"🔥 Стойкий",desc:"50 000 зикров",icon:"🔥",xp:1000,type:"auto",current:()=>getTotalZikr(),target:50000,story:"Кто много поминает Аллаха, того поминают ангелы"},
+{id:"zikr100000",title:"💪 Мудавим",desc:"100 000 зикров",icon:"💪",xp:2000,type:"auto",current:()=>getTotalZikr(),target:100000,story:"Постоянство в поминании — ключ к довольству Аллаха"},
+{id:"zikr250000",title:"👑 Элитный",desc:"250 000 зикров",icon:"👑",xp:3500,type:"auto",current:()=>getTotalZikr(),target:250000,story:"Терпение и усердие вознаграждаются сполна"},
+{id:"zikr500000",title:"🏅 Аз-Закир",desc:"500 000 зикров",icon:"🏅",xp:5000,type:"auto",current:()=>getTotalZikr(),target:500000,story:"Великая награда ждёт тех, кто поминает Аллаха много"},
 {id:"astaghfirullah100",title:"🤲 Астагфирулла 100",desc:"100 раз",icon:"🤲",xp:50,type:"auto",current:()=>zikrCounters.astaghfirullah,target:100,story:"Пророк сам просил прощения более 70 раз в день"},
 {id:"astaghfirullah1000",title:"🤲 Астагфирулла 1000",desc:"1000 раз",icon:"🤲",xp:150,type:"auto",current:()=>zikrCounters.astaghfirullah,target:1000,story:"Кто много просит прощения, Аллах дарует выход из любой трудности"},
 {id:"astaghfirullah1m",title:"🤲 Астагфирулла 1 млн",desc:"1 000 000 раз",icon:"🤲",xp:1000,type:"auto",current:()=>zikrCounters.astaghfirullah,target:1000000,story:"Аллах открывает врата Рая для много просящих прощения"},
@@ -246,37 +508,267 @@ const ACHIEVEMENTS_LIST=[
 {id:"subhanallah_alazim100",title:"📿 Субханаллах аль-азым 100",desc:"100 раз",icon:"📿",xp:50,type:"auto",current:()=>zikrCounters.subhanallah_alazim,target:100,story:"Пречист Великий Аллах"},
 {id:"subhanallah_alazim1000",title:"📿 Субханаллах аль-азым 1000",desc:"1000 раз",icon:"📿",xp:150,type:"auto",current:()=>zikrCounters.subhanallah_alazim,target:1000,story:"Величайшее поминание Величайшего"},
 {id:"subhanallah_alazim1m",title:"📿 Субханаллах аль-азым 1 млн",desc:"1 000 000 раз",icon:"📿",xp:1000,type:"auto",current:()=>zikrCounters.subhanallah_alazim,target:1000000,story:"Пречист Аллах, Великий!"},
-{id:"firstTauba",title:"✅ Первое покаяние",desc:"Записать первый день",icon:"📝",xp:50,type:"auto",current:()=>taubaData.days.length,target:1,story:"Лучшие из грешников — кающиеся"},
+{id:"firstTauba",title:"✅ Первое покаяние",desc:"Записать день",icon:"📝",xp:50,type:"auto",current:()=>taubaData.days.length,target:1,story:"Лучшие из грешников — кающиеся"},
 {id:"weekStreak",title:"🔥 Неделя",desc:"7 дней подряд",icon:"🔥",xp:150,type:"auto",current:()=>{let s=0,cd=new Date();cd.setHours(0,0,0,0);let sorted=[...taubaData.days].sort((a,b)=>new Date(b.date)-new Date(a.date));for(let i=0;i<sorted.length;i++){let dd=new Date(sorted[i].date);dd.setHours(0,0,0,0);if(Math.floor((cd-dd)/86400000)===s)s++;else break;}return s;},target:7,story:"Постоянные дела — самые любимые для Аллаха"},
-{id:"monthStreak",title:"🌙 Месяц",desc:"30 дней подряд",icon:"🌙",xp:300,type:"auto",current:()=>{let s=0,cd=new Date();cd.setHours(0,0,0,0);let sorted=[...taubaData.days].sort((a,b)=>new Date(b.date)-new Date(a.date));for(let i=0;i<sorted.length;i++){let dd=new Date(sorted[i].date);dd.setHours(0,0,0,0);if(Math.floor((cd-dd)/86400000)===s)s++;else break;}return s;},target:30,story:"Войдите в Рай без отчета"},
-{id:"perfectDay",title:"⭐ Идеальный день",desc:"Все 6 целей за день",icon:"⭐",xp:100,type:"auto",current:()=>taubaData.days.filter(d=>Object.values(d.goals).filter(v=>v).length===6).length,target:1,story:"Награда за полный день поклонения"},
-{id:"morningAzkarComplete",title:"☀️ Утренний защитник",desc:"Прочитать утренние азкары",icon:"☀️",xp:50,type:"manual",story:"Ничто не защитит лучше, чем поминание Аллаха утром"},
-{id:"eveningAzkarComplete",title:"🌙 Вечерний страж",desc:"Прочитать вечерние азкары",icon:"🌙",xp:50,type:"manual",story:"Абу Бакр читал эти суры каждую ночь"},
-{id:"fivePrayers",title:"🕌 Столп религии",desc:"Совершить 5 намазов вовремя",icon:"🕌",xp:100,type:"manual",story:"Первое, за что будет спрошен раб — его молитва"}];
+{id:"monthStreak",title:"🌙 Месяц",desc:"30 дней",icon:"🌙",xp:300,type:"auto",current:()=>{let s=0,cd=new Date();cd.setHours(0,0,0,0);let sorted=[...taubaData.days].sort((a,b)=>new Date(b.date)-new Date(a.date));for(let i=0;i<sorted.length;i++){let dd=new Date(sorted[i].date);dd.setHours(0,0,0,0);if(Math.floor((cd-dd)/86400000)===s)s++;else break;}return s;},target:30,story:"Войдите в Рай без отчета"}
+];
 
-let userAchievements=loadData("userAchievements",{unlocked:[],manualCompleted:[]});
-let pendingAchievement=null;
-function updateAutoAchievements(){let newUnlocked=[];for(let ach of ACHIEVEMENTS_LIST){if(userAchievements.unlocked.includes(ach.id))continue;if(ach.type==="auto"){let cur=typeof ach.current==='function'?ach.current():0;if(cur>=ach.target){userAchievements.unlocked.push(ach.id);newUnlocked.push(ach);}}}if(newUnlocked.length>0){saveData("userAchievements",userAchievements);for(let ach of newUnlocked)showAchievementNotification(ach);renderAchievements();renderCollection();}}
-function updateManualAchievement(achId){let ach=ACHIEVEMENTS_LIST.find(a=>a.id===achId);if(!ach)return;if(userAchievements.unlocked.includes(ach.id))return;if(userAchievements.manualCompleted?.includes(ach.id))return;pendingAchievement=ach;document.getElementById('confirmText').innerHTML=`Ты точно выполнил достижение «${ach.title}»?`;document.getElementById('confirmModal').style.display='flex';}
-document.getElementById('confirmYes')?.addEventListener('click',()=>{if(pendingAchievement){if(!userAchievements.manualCompleted)userAchievements.manualCompleted=[];userAchievements.manualCompleted.push(pendingAchievement.id);userAchievements.unlocked.push(pendingAchievement.id);saveData("userAchievements",userAchievements);showAchievementNotification(pendingAchievement);renderAchievements();renderCollection();}document.getElementById('confirmModal').style.display='none';pendingAchievement=null;});
-document.getElementById('confirmNo')?.addEventListener('click',()=>{document.getElementById('confirmModal').style.display='none';pendingAchievement=null;alert('🤲 Будь честен перед Аллахом. Постарайся выполнить это достижение и вернись позже!');});
-function showAchievementNotification(ach){let n=document.createElement('div');n.style.cssText=`position:fixed;bottom:20px;right:20px;background:linear-gradient(135deg,#2b4b29,#1a3a1a);color:#e6bc7e;padding:15px;border-radius:20px;z-index:2000;cursor:pointer;max-width:280px;`;n.innerHTML=`<div style="font-size:2rem;text-align:center">${ach.icon}</div><div style="font-weight:bold;text-align:center">🏆 Новое достижение!</div><div style="text-align:center">${ach.title}</div><div>+${ach.xp} XP</div>`;document.body.appendChild(n);n.onclick=()=>openStory(ach);setTimeout(()=>n.remove(),4000);vibrate();}
-function openStory(ach){document.getElementById('storyIcon').innerHTML=ach.icon;document.getElementById('storyTitle').innerHTML=ach.title;document.getElementById('storyText').innerHTML=ach.story;document.getElementById('storyModal').style.display='flex';}
-function renderAchievements(){const c=document.getElementById('achievementsList');if(!c)return;c.innerHTML=ACHIEVEMENTS_LIST.map(ach=>{let isUnlocked=userAchievements.unlocked.includes(ach.id);let progressPercent=0;let progressText="";if(!isUnlocked&&ach.type==="auto"){let cur=typeof ach.current==='function'?ach.current():0;progressPercent=Math.min(100,(cur/ach.target)*100);progressText=`${cur}/${ach.target}`;}else if(isUnlocked){progressPercent=100;progressText="Выполнено!";}else if(ach.type==="manual"){progressText="Не выполнено";}return `<div class="achievement-card ${isUnlocked?'unlocked':'locked'}"><div class="achievement-header"><div class="achievement-icon">${ach.icon}</div><div class="achievement-title">${ach.title}</div><div class="achievement-xp">+${ach.xp} XP</div></div><div class="achievement-desc">${ach.desc}</div><div class="achievement-progress-bar"><div class="achievement-progress-fill" style="width:${progressPercent}%"></div></div><div class="achievement-status">${isUnlocked?'✅ Открыто':(ach.type==='manual'?`<button class="complete-btn" data-id="${ach.id}">✅ Выполнил</button>`:`📊 Прогресс: ${progressText}`)}</div></div>`;}).join('');document.querySelectorAll('.complete-btn').forEach(btn=>{btn.addEventListener('click',()=>updateManualAchievement(btn.dataset.id));});}
-function renderCollection(){let unlocked=ACHIEVEMENTS_LIST.filter(ach=>userAchievements.unlocked.includes(ach.id));let container=document.getElementById('collectionGrid');let emptyDiv=document.getElementById('emptyCollection');if(unlocked.length===0){if(container)container.style.display='none';if(emptyDiv)emptyDiv.style.display='block';}else{if(container){container.style.display='grid';container.innerHTML=unlocked.map(ach=>`<div class="collection-item" data-id="${ach.id}"><div class="collection-icon">${ach.icon}</div><div class="collection-title gold-text">${ach.title}</div></div>`).join('');}if(emptyDiv)emptyDiv.style.display='none';document.querySelectorAll('.collection-item').forEach(item=>{item.addEventListener('click',()=>{let ach=ACHIEVEMENTS_LIST.find(a=>a.id===item.dataset.id);if(ach)openStory(ach);});});}}
+let userAchievements = loadData("userAchievements",{unlocked:[]});
+function updateAutoAchievements(){let newUnlocked=[];for(let a of ACHIEVEMENTS_LIST){if(userAchievements.unlocked.includes(a.id))continue;if(a.type==="auto"){let cur=typeof a.current==='function'?a.current():0;if(cur>=a.target){userAchievements.unlocked.push(a.id);newUnlocked.push(a);}}}if(newUnlocked.length){saveData("userAchievements",userAchievements);for(let a of newUnlocked)showNotif(a);renderAchievements();renderCollection();}}
+function showNotif(ach){let n=document.createElement('div');n.style.cssText=`position:fixed;bottom:20px;right:20px;background:#2b4b29;color:#e6bc7e;padding:15px;border-radius:20px;z-index:2000`;n.innerHTML=`<div style="font-size:2rem">${ach.icon}</div><div>🏆 ${ach.title}</div><div>+${ach.xp} XP</div>`;document.body.appendChild(n);setTimeout(()=>n.remove(),4000);vibrate();}
+function openStory(ach){document.getElementById('storyIcon').innerHTML=ach.icon;document.getElementById('storyTitle').innerHTML=ach.title;document.getElementById('storyText').innerHTML=ach.story||"История сподвижника";document.getElementById('storyModal').style.display='flex';}
+function renderAchievements(){let c=document.getElementById('achievementsList');c.innerHTML=ACHIEVEMENTS_LIST.map(ach=>{let unlocked=userAchievements.unlocked.includes(ach.id);let prog=!unlocked&&ach.type==="auto"?((typeof ach.current==='function'?ach.current():0)/ach.target*100):(unlocked?100:0);let txt=!unlocked&&ach.type==="auto"?`${typeof ach.current==='function'?ach.current():0}/${ach.target}`:(unlocked?"✅ Открыто":"Не выполнено");return `<div class="achievement-card ${unlocked?'unlocked':'locked'}"><div class="achievement-header"><div class="achievement-icon">${ach.icon}</div><div class="achievement-title">${ach.title}</div><div class="achievement-xp">+${ach.xp} XP</div></div><div class="achievement-desc">${ach.desc}</div><div class="achievement-progress-bar"><div class="achievement-progress-fill" style="width:${prog}%"></div></div><div class="achievement-status">${txt}</div></div>`;}).join('');}
 
-function switchModule(mid){document.querySelectorAll('.module').forEach(m=>m.classList.remove('active-module'));document.getElementById(`module-${mid}`).classList.add('active-module');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));document.querySelector(`.nav-btn[data-module="${mid}"]`).classList.add('active');if(mid==='tauba')updateTaubaUI();if(mid==='prayer')getLocationAndPrayerTimes();if(mid==='hadith')fetchRandomHadith();if(mid==='achievements')renderAchievements();if(mid==='collection')renderCollection();}
-document.querySelectorAll('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>switchModule(btn.getAttribute('data-module'))));
+// ========== ЗВЁЗДЫ И РАНГИ (СПОДВИЖНИКИ) ==========
+let starsData = loadData("starsData",{totalStars:0,lastClaimDate:"",unlockedRanks:[]});
+const RANKS = [
+{stars:1,title:"🌟 Новичок",starsIcon:"⭐",sahabi:"Абу Бакр ас-Сиддик",story:"Первый праведный халиф, ближайший друг пророка ﷺ, который потратил всё своё имущество на путь Аллаха и был назван «ас-Сиддик» (Правдивейший)."},
+{stars:10,title:"🌟🌟 Усердный",starsIcon:"⭐⭐",sahabi:"Умар ибн аль-Хаттаб",story:"Второй праведный халиф. Изначально был противником Ислама, но после принятия стал одним из самых справедливых правителей. Пророк ﷺ сказал: «Если бы после меня был пророк, им был бы Умар»."},
+{stars:25,title:"🌟🌟🌟 Настойчивый",starsIcon:"⭐⭐⭐",sahabi:"Усман ибн Аффан",story:"Третий праведный халиф, известный своей скромностью и щедростью. Его называли «Зу-н-Нурайн» (Обладатель двух светов) за то, что он был женат на двух дочерях пророка."},
+{stars:50,title:"🏅 Преданный",starsIcon:"🏅",sahabi:"Али ибн Абу Талиб",story:"Четвёртый праведный халиф, двоюродный брат и зять пророка ﷺ. Был одним из самых храбрых воинов. Пророк ﷺ сказал о нём: «Я — город знания, а Али — его ворота»."},
+{stars:100,title:"🏅🏅 Постоянный",starsIcon:"🏅🏅",sahabi:"Абдуррахман ибн Ауф",story:"Один из десяти обещанных Рая. Был богатейшим купцом среди сподвижников, но всё своё богатство тратил на путь Аллаха."},
+{stars:150,title:"⭐ Золотой",starsIcon:"⭐",sahabi:"Саад ибн Аби Ваккас",story:"Один из десяти обещанных Рая. Был лучником и воином. Именно он выпустил первую стрелу на пути Аллаха."},
+{stars:200,title:"⭐⭐ Платиновый",starsIcon:"⭐⭐",sahabi:"Абу Убайда ибн аль-Джаррах",story:"Один из десяти обещанных Рая. Пророк ﷺ назвал его «Амином (хранителем) этой уммы»."},
+{stars:300,title:"👑 Бриллиантовый",starsIcon:"👑",sahabi:"Халид ибн Валид",story:"Меч Аллаха. Великий полководец, который не проиграл ни одного сражения. Сначала сражался против мусульман, но после принятия Ислама стал одним из величайших защитников религии."},
+{stars:500,title:"👑👑 Легендарный",starsIcon:"👑👑",sahabi:"Билял ибн Рабах",story:"Первый муэдзин в Исламе. Был рабом, который принял Ислам и подвергался жестоким пыткам. Его положили на раскалённые камни, но он повторял «Ахад, Ахад» (Един, Един). Освобождён Абу Бакром."},
+{stars:1000,title:"🕋 Аль-Фарук",starsIcon:"🕋",sahabi:"Десять обещанных Рая",story:"Абу Бакр, Умар, Усман, Али, Тальха, Зубайр, Абдуррахман ибн Ауф, Саад ибн Аби Ваккас, Саид ибн Зейд, Абу Убайда — десять сподвижников, которым пророк Мухаммад ﷺ при жизни обещал Рай. Они — лучшие примеры для мусульман."}
+];
+// ========== РЕНДЕРИНГ АЗКАРОВ С ГАЛОЧКАМИ ==========
+let currentAzkarList = MORNING_AZKAR_FULL;
+let zoomStates = {};
+let azkarChecks = loadData("azkarChecks",{morning:{},evening:{}});
 
+function getMorningAzkarCompleted(){
+    let total = MORNING_AZKAR_FULL.length;
+    let completed = Object.values(azkarChecks.morning).filter(v=>v).length;
+    return total > 0 && completed === total;
+}
+
+function getEveningAzkarCompleted(){
+    let total = EVENING_AZKAR_FULL.length;
+    let completed = Object.values(azkarChecks.evening).filter(v=>v).length;
+    return total > 0 && completed === total;
+}
+
+function renderAzkar(){
+    let isMorning = (currentAzkarList === MORNING_AZKAR_FULL);
+    let list = currentAzkarList;
+    let time = isMorning ? "morning" : "evening";
+    let html = list.map((a,idx)=>{
+        let checked = azkarChecks[time][idx] ? "checked" : "";
+        return `<div class="azkar-card">
+            <div class="azkar-checkbox-wrapper">
+                <label><input type="checkbox" class="azkar-check" data-time="${time}" data-idx="${idx}" ${checked}> ✅ Выполнено</label>
+            </div>
+            <button class="zoom-btn" data-idx="${idx}">🔍</button>
+            <div class="azkar-arabic ${zoomStates[idx]?'zoomed':''}" id="arabic-${idx}">${a.arabic}</div>
+            <div class="azkar-translit">🔊 Транскрипция:<br>${a.translit || a.translit_raw}</div>
+            <div class="azkar-translation">📖 Смысл:<br>${a.translation}</div>
+            <div class="azkar-source">📚 ${a.source} | 🕌 ${a.recommended}</div>
+        </div>`;
+    }).join('');
+    document.getElementById('azkarContent').innerHTML = html;
+    
+    document.querySelectorAll('.zoom-btn').forEach(btn=>{
+        btn.addEventListener('click',(e)=>{
+            e.stopPropagation();
+            let idx = parseInt(btn.dataset.idx);
+            zoomStates[idx] = !zoomStates[idx];
+            let ad = document.getElementById(`arabic-${idx}`);
+            if(ad){
+                if(zoomStates[idx]) ad.classList.add('zoomed');
+                else ad.classList.remove('zoomed');
+            }
+        });
+    });
+    
+    document.querySelectorAll('.azkar-check').forEach(cb=>{
+        cb.addEventListener('change',()=>{
+            let t = cb.dataset.time;
+            let idx = parseInt(cb.dataset.idx);
+            azkarChecks[t][idx] = cb.checked;
+            saveData("azkarChecks",azkarChecks);
+            checkDailyTasks();
+        });
+    });
+}
+
+// ========== НАВИГАЦИЯ ПО ВКЛАДКАМ ==========
+function switchModule(mid){
+    document.querySelectorAll('.module').forEach(m=>m.classList.remove('active-module'));
+    document.getElementById(`module-${mid}`).classList.add('active-module');
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelector(`.nav-btn[data-module="${mid}"]`).classList.add('active');
+    if(mid === 'tauba') updateTaubaUI();
+    if(mid === 'prayer') getLocationAndPrayerTimes();
+    if(mid === 'hadith') fetchRandomHadith();
+    if(mid === 'achievements') renderAchievements();
+    if(mid === 'stars') { updateStarsUI(); checkDailyTasks(); }
+    if(mid === 'collection') renderCollection();
+    if(mid === 'azkar') renderAzkar();
+}
+
+// ========== ПЕРЕКЛЮЧЕНИЕ УТРЕННИЕ/ВЕЧЕРНИЕ АЗКАРЫ ==========
+document.getElementById('morningSwitchBtn')?.addEventListener('click',()=>{
+    currentAzkarList = MORNING_AZKAR_FULL;
+    renderAzkar();
+    document.getElementById('morningSwitchBtn').classList.add('active');
+    document.getElementById('eveningSwitchBtn').classList.remove('active');
+    document.getElementById('rulesSwitchBtn')?.classList.remove('active');
+    document.getElementById('rulesContent').style.display = 'none';
+    document.getElementById('azkarContent').style.display = 'block';
+});
+document.getElementById('eveningSwitchBtn')?.addEventListener('click',()=>{
+    currentAzkarList = EVENING_AZKAR_FULL;
+    renderAzkar();
+    document.getElementById('eveningSwitchBtn').classList.add('active');
+    document.getElementById('morningSwitchBtn').classList.remove('active');
+    document.getElementById('rulesSwitchBtn')?.classList.remove('active');
+    document.getElementById('rulesContent').style.display = 'none';
+    document.getElementById('azkarContent').style.display = 'block';
+});
+document.getElementById('rulesSwitchBtn')?.addEventListener('click',()=>{
+    document.getElementById('rulesContent').style.display = 'block';
+    document.getElementById('azkarContent').style.display = 'none';
+    document.getElementById('rulesSwitchBtn').classList.add('active');
+    document.getElementById('morningSwitchBtn').classList.remove('active');
+    document.getElementById('eveningSwitchBtn').classList.remove('active');
+});
+
+// ========== УВЕЛИЧЕНИЕ АРАБСКОГО ТЕКСТА ==========
+let arabicLarge = false;
+document.getElementById("toggleArabicSize")?.addEventListener("click",()=>{
+    arabicLarge = !arabicLarge;
+    document.querySelectorAll(".azkar-arabic").forEach(el=>{
+        if(arabicLarge) el.classList.add("zoomed");
+        else el.classList.remove("zoomed");
+    });
+});
+
+// ========== СКРЫТИЕ ТРАНСКРИПЦИИ ==========
+let ruHidden = false;
+document.getElementById("toggleRuTranslit")?.addEventListener("click",()=>{
+    ruHidden = !ruHidden;
+    let container = document.querySelector("#module-azkar .card");
+    if(ruHidden) container.classList.add("hide-ru");
+    else container.classList.remove("hide-ru");
+});
+
+// ========== ФУНКЦИИ ЗВЁЗД ==========
+function updateStarsUI(){
+    document.getElementById("starCountDisplay").innerHTML = `⭐ ${starsData.totalStars} звёзд`;
+    let cr = RANKS[0];
+    for(let i=RANKS.length-1; i>=0; i--){
+        if(starsData.totalStars >= RANKS[i].stars){ cr = RANKS[i]; break; }
+    }
+    document.getElementById("rankTitle").innerHTML = cr.title;
+    document.getElementById("rankStars").innerHTML = cr.starsIcon;
+    document.getElementById("rankDesc").innerHTML = `📖 ${cr.sahabi}`;
+    if(!starsData.unlockedRanks.includes(cr.stars) && starsData.totalStars >= cr.stars && cr.stars > 0){
+        starsData.unlockedRanks.push(cr.stars);
+        saveData("starsData",starsData);
+        renderCollection();
+        showNotif({icon:cr.starsIcon, title:cr.title, xp:cr.stars});
+    }
+}
+
+function checkDailyTasks(){
+    let today = new Date().toISOString().split('T')[0];
+    let morning = getMorningAzkarCompleted();
+    let evening = getEveningAzkarCompleted();
+    let quran = khatmData.readPages > 0;
+    let zikr = getTotalZikr() >= 100;
+    let taubaSaved = taubaData.days.some(d=>d.date === today);
+    let all = morning && evening && quran && zikr && taubaSaved;
+    let btn = document.getElementById("claimDailyRewardBtn");
+    if(all && starsData.lastClaimDate !== today){
+        btn.classList.remove("disabled");
+        btn.disabled = false;
+    } else {
+        btn.classList.add("disabled");
+        btn.disabled = true;
+    }
+    let grid = document.getElementById("dailyTasksGrid");
+    if(grid) grid.innerHTML = `
+        <div class="task-card ${morning?'completed':''}"><span>🌅 Утренние азкары</span><input type="checkbox" ${morning?'checked':''} disabled></div>
+        <div class="task-card ${evening?'completed':''}"><span>🌙 Вечерние азкары</span><input type="checkbox" ${evening?'checked':''} disabled></div>
+        <div class="task-card ${quran?'completed':''}"><span>📖 1+ страница Корана</span><input type="checkbox" ${quran?'checked':''} disabled></div>
+        <div class="task-card ${zikr?'completed':''}"><span>🔢 100+ зикров</span><input type="checkbox" ${zikr?'checked':''} disabled></div>
+        <div class="task-card ${taubaSaved?'completed':''}"><span>📝 Сохранён день Тауба</span><input type="checkbox" ${taubaSaved?'checked':''} disabled></div>
+    `;
+}
+
+function claimDailyReward(){
+    let today = new Date().toISOString().split('T')[0];
+    if(starsData.lastClaimDate === today){
+        alert("⭐ Ты уже получил звезду сегодня!");
+        return;
+    }
+    let morning = getMorningAzkarCompleted();
+    let evening = getEveningAzkarCompleted();
+    let quran = khatmData.readPages > 0;
+    let zikr = getTotalZikr() >= 100;
+    let taubaSaved = taubaData.days.some(d=>d.date === today);
+    if(morning && evening && quran && zikr && taubaSaved){
+        starsData.totalStars++;
+        starsData.lastClaimDate = today;
+        saveData("starsData",starsData);
+        updateStarsUI();
+        renderCollection();
+        alert(`⭐ Получена звезда! Всего: ${starsData.totalStars}`);
+        checkDailyTasks();
+        vibrate();
+    } else {
+        alert("⚠️ Выполни все ежедневные задания!");
+    }
+}
+
+document.getElementById("claimDailyRewardBtn")?.addEventListener("click", claimDailyReward);
+
+function renderCollection(){
+    let unlocked = ACHIEVEMENTS_LIST.filter(a=>userAchievements.unlocked.includes(a.id));
+    let starsColl = starsData.unlockedRanks.map(s=>RANKS.find(r=>r.stars===s)).filter(r=>r);
+    let container = document.getElementById('collectionGrid');
+    if(unlocked.length === 0 && starsColl.length === 0){
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:#7a683e">🏆 Пока нет открытых достижений</div>';
+    } else {
+        let html = starsColl.map(r=>`<div class="collection-item" data-rank="${r.stars}"><div class="collection-icon">${r.starsIcon}</div><div class="collection-title gold-text">${r.title}</div><div class="collection-desc" style="font-size:0.7rem;color:#7a683e">${r.sahabi}</div></div>`).join('');
+        html += unlocked.map(ach=>`<div class="collection-item" data-ach="${ach.id}"><div class="collection-icon">${ach.icon}</div><div class="collection-title gold-text">${ach.title}</div></div>`).join('');
+        container.innerHTML = html;
+        document.querySelectorAll('[data-rank]').forEach(el=>{
+            el.addEventListener('click',()=>{
+                let s = parseInt(el.dataset.rank);
+                let r = RANKS.find(rr=>rr.stars===s);
+                if(r) openStory({icon:r.starsIcon, title:r.title, story:r.story});
+            });
+        });
+        document.querySelectorAll('[data-ach]').forEach(el=>{
+            let ach = ACHIEVEMENTS_LIST.find(a=>a.id===el.dataset.ach);
+            if(ach) el.addEventListener('click',()=>openStory(ach));
+        });
+    }
+}
+
+// ========== НАВИГАЦИЯ ПО КНОПКАМ ==========
+document.querySelectorAll('.nav-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>switchModule(btn.getAttribute('data-module')));
+});
+
+document.getElementById('closeStoryModal')?.addEventListener('click',()=>document.getElementById('storyModal').style.display='none');
+window.onclick=(e)=>{ if(e.target === document.getElementById('storyModal')) document.getElementById('storyModal').style.display='none'; };
+
+// ========== ИНИЦИАЛИЗАЦИЯ ВСЕГО ==========
 populateSuraSelect();
 updatePositionUI();
 updateKhatmProgress();
 updateTaubaUI();
 renderAchievements();
 renderCollection();
-setInterval(()=>{if(typeof updateAutoAchievements==='function')updateAutoAchievements();},5000);
-document.getElementById('closeStoryModal')?.addEventListener('click',()=>document.getElementById('storyModal').style.display='none');
-window.onclick=(e)=>{if(e.target===document.getElementById('storyModal'))document.getElementById('storyModal').style.display='none';};
+updateStarsUI();
+checkDailyTasks();
+renderAzkar();
+
+setInterval(()=>{ updateAutoAchievements(); checkDailyTasks(); }, 5000);
 </script>
 </body>
 </html>
