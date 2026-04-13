@@ -69,38 +69,48 @@
         .city-selector{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:15px 0}
         .city-selector input{flex:1;min-width:150px}
         .next-prayer{background:#2b4b29;color:#ffefc0;padding:15px;border-radius:20px;text-align:center;margin-top:15px}
-        .achievement-card{background:linear-gradient(135deg,#fef7e8,#f5eddb);border-radius:20px;padding:15px;display:flex;align-items:center;gap:15px;margin-bottom:12px;transition:all 0.3s}
-        .achievement-card.locked{opacity:0.5;filter:grayscale(0.3)}
+        .location-info{background:#e8dcc8;border-radius:20px;padding:12px;text-align:center;margin-bottom:15px}
+        
+        /* Стили для достижений */
+        .achievement-card{background:linear-gradient(135deg,#fef7e8,#f5eddb);border-radius:20px;padding:15px;margin-bottom:12px;transition:all 0.3s}
+        .achievement-card.locked{opacity:0.7}
         .achievement-card.unlocked{background:linear-gradient(135deg,#f5dca8,#e6bc7e);border-left:4px solid #d4af37;box-shadow:0 0 10px rgba(212,175,55,0.3)}
-        .achievement-card.unlocked .achievement-icon{animation:bounce 0.5s ease}
-        @keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
-        .achievement-icon{font-size:2.5rem;width:60px;text-align:center}
-        .achievement-info{flex:1}
-        .achievement-title{font-weight:bold;color:#2c5a2a;font-size:1rem}
-        .achievement-desc{font-size:0.75rem;color:#7a683e}
-        .achievement-xp{font-size:0.7rem;color:#c49a6c;margin-top:5px}
-        .achievement-status{width:100px;text-align:right}
-        .complete-btn{background:#4a8b3c;color:white;padding:5px 12px;font-size:0.75rem;margin:0}
+        .achievement-header{display:flex;align-items:center;gap:15px;margin-bottom:10px}
+        .achievement-icon{font-size:2rem;width:50px;text-align:center}
+        .achievement-title{font-weight:bold;color:#2c5a2a;font-size:1rem;flex:1}
+        .achievement-xp{font-size:0.7rem;color:#c49a6c}
+        .achievement-desc{font-size:0.75rem;color:#7a683e;margin-bottom:8px;margin-left:65px}
+        .achievement-progress-bar{background:#e0d5bd;border-radius:20px;height:8px;margin:8px 0 0 65px;overflow:hidden}
+        .achievement-progress-fill{background:#4a8b3c;width:0%;height:100%;border-radius:20px;transition:width 0.3s}
+        .achievement-status{margin-left:65px;margin-top:8px;font-size:0.7rem}
+        .complete-btn{background:#4a8b3c;color:white;padding:5px 12px;font-size:0.7rem;margin:0;border-radius:20px}
         .complete-btn:hover{background:#2c5a2a}
+        
+        /* Коллекция */
         .collection-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:15px;margin-top:20px}
         .collection-item{background:linear-gradient(135deg,#f5dca8,#e6bc7e);border-radius:20px;padding:15px;text-align:center;cursor:pointer;transition:transform 0.3s;border:1px solid #d4af37;box-shadow:0 0 8px rgba(212,175,55,0.5)}
         .collection-item:hover{transform:scale(1.05)}
         .collection-icon{font-size:2.5rem}
         .collection-title{font-weight:bold;color:#2c5a2a;margin-top:8px;font-size:0.85rem}
-        .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;justify-content:center;align-items:center;padding:20px}
-        .modal-content{background:#fffcf0;border-radius:30px;max-width:500px;width:100%;max-height:80vh;overflow-y:auto;padding:25px;position:relative;border:2px solid #e6bc7e}
-        .confirm-dialog{text-align:center}
-        .confirm-dialog .warning-icon{font-size:3rem;margin-bottom:15px}
-        .confirm-buttons{display:flex;gap:15px;justify-content:center;margin-top:20px}
-        .confirm-yes{background:#4a8b3c;color:white}
-        .confirm-no{background:#c49a6c;color:white}
         .gold-text{color:#d4af37;text-shadow:0 0 2px #8b5a2b}
+        
+        /* Азкары */
         .azkar-item{background:#fcf6e6;border-radius:20px;padding:20px;margin-bottom:15px;text-align:right}
-        .azkar-arabic{font-family:'Amiri',serif;font-size:1.5rem;direction:rtl;margin-bottom:10px}
+        .azkar-arabic{font-family:'Amiri',serif;font-size:1.5rem;direction:rtl;margin-bottom:10px;line-height:1.6}
         .azkar-translit{font-family:monospace;margin-top:10px;text-align:left;font-size:0.85rem;color:#7a683e}
         .azkar-translation{margin-top:8px;text-align:left;color:#3a2a1a}
         .azkar-source{font-size:0.7rem;color:#c49a6c;margin-top:8px;text-align:left}
-        @media (max-width:600px){.nav-btn{padding:8px 10px;font-size:0.7rem}.counter-number{font-size:3.5rem}.achievement-status{width:70px}}
+        
+        /* Модальные окна */
+        .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;justify-content:center;align-items:center;padding:20px}
+        .modal-content{background:#fffcf0;border-radius:30px;max-width:500px;width:100%;max-height:80vh;overflow-y:auto;padding:25px;position:relative;border:2px solid #e6bc7e}
+        .confirm-dialog{text-align:center}
+        .warning-icon{font-size:3rem;margin-bottom:15px}
+        .confirm-buttons{display:flex;gap:15px;justify-content:center;margin-top:20px}
+        .confirm-yes{background:#4a8b3c;color:white}
+        .confirm-no{background:#c49a6c;color:white}
+        
+        @media (max-width:600px){.nav-btn{padding:8px 10px;font-size:0.7rem}.counter-number{font-size:3.5rem}}
     </style>
 </head>
 <body>
@@ -189,7 +199,7 @@
                 <button id="saveTaubaDayBtn">💾 Сохранить день</button>
                 <button id="exportHistoryBtn">📤 Экспорт</button>
             </div>
-            <div class="tauba-stats" style="background:linear-gradient(135deg,#f5eddb,#efe3cb);padding:15px;border-radius:20px">
+            <div style="background:linear-gradient(135deg,#f5eddb,#efe3cb);padding:15px;border-radius:20px">
                 <h3>📈 Статистика</h3>
                 <p>✅ Выполнено целей: <strong id="totalGoalsCompleted">0</strong></p>
                 <p>📅 Дней: <strong id="totalDaysTracked">0</strong></p>
@@ -199,7 +209,7 @@
         </div>
     </div>
 
-    <!-- Модуль 3: Азкары (ПОЛНЫЕ) -->
+    <!-- Модуль 3: Азкары -->
     <div id="module-azkar" class="module">
         <div class="card">
             <h2>📿 Азкары (утренние и вечерние)</h2>
@@ -281,7 +291,7 @@
         </div>
     </div>
 
-    <!-- Модуль 9: Моя коллекция -->
+    <!-- Модуль 9: Коллекция -->
     <div id="module-collection" class="module">
         <div class="card">
             <h2 class="gold-text">📚 Моя коллекция ✨</h2>
@@ -324,7 +334,7 @@
 <!-- Модальное окно истории -->
 <div id="storyModal" class="modal">
     <div class="modal-content">
-        <button id="closeStoryModal" style="position:absolute; top:15px; right:15px; background:#c49a6c; width:35px; height:35px; border-radius:50%;">✕</button>
+        <button id="closeStoryModal" style="position:absolute; top:15px; right:15px; background:#c49a6c; width:35px; height:35px; border-radius:50%; border:none; cursor:pointer;">✕</button>
         <div style="text-align:center; margin-bottom:15px;"><span style="font-size:3rem;" id="storyIcon">📖</span></div>
         <h3 style="color:#8b5a2b; text-align:center;" id="storyTitle">История</h3>
         <div style="margin-top:15px; line-height:1.7; color:#3a2a1a;" id="storyText"></div>
@@ -345,6 +355,22 @@
     };
     let currentLang = "ru";
 
+    // ==================== ВСЕ 114 СУР ДЛЯ ХАТМА ====================
+    const SURA_NAMES_RU = [
+        "Аль-Фатиха", "Аль-Бакара", "Аль Имран", "Ан-Ниса", "Аль-Маида", "Аль-Анам", "Аль-Араф", "Аль-Анфаль", "Ат-Тавба", "Юнус",
+        "Худ", "Юсуф", "Ар-Рад", "Ибрахим", "Аль-Хиджр", "Ан-Нахль", "Аль-Исра", "Аль-Кахф", "Марьям", "Та Ха", "Аль-Анбия", "Аль-Хадж",
+        "Аль-Муминун", "Ан-Нур", "Аль-Фуркан", "Аш-Шуара", "Ан-Намль", "Аль-Касас", "Аль-Анкабут", "Ар-Рум", "Лукман", "Ас-Саджда",
+        "Аль-Ахзаб", "Саба", "Фатир", "Йа Син", "Ас-Саффат", "Сад", "Аз-Зумар", "Гафир", "Фуссилят", "Аш-Шура", "Аз-Зухруф", "Ад-Духан",
+        "Аль-Джасия", "Аль-Ахкаф", "Мухаммад", "Аль-Фатх", "Аль-Худжурат", "Каф", "Аз-Зарият", "Ат-Тур", "Ан-Наджм", "Аль-Камар",
+        "Ар-Рахман", "Аль-Вакиа", "Аль-Хадид", "Аль-Муджадиля", "Аль-Хашр", "Аль-Мумтахана", "Ас-Сафф", "Аль-Джумуа", "Аль-Мунафикун",
+        "Ат-Тагабун", "Ат-Таляк", "Ат-Тахрим", "Аль-Мульк", "Аль-Калям", "Аль-Хакка", "Аль-Мааридж", "Нух", "Аль-Джинн", "Аль-Муззаммиль",
+        "Аль-Муддассир", "Аль-Кияма", "Аль-Инсан", "Аль-Мурсалят", "Ан-Наба", "Ан-Назиат", "Абаса", "Ат-Таквир", "Аль-Инфитар",
+        "Аль-Мутаффифин", "Аль-Иншикак", "Аль-Бурудж", "Ат-Тарик", "Аль-Аля", "Аль-Гашия", "Аль-Фаджр", "Аль-Баляд", "Аш-Шамс",
+        "Аль-Ляйль", "Ад-Духа", "Аш-Шарх", "Ат-Тин", "Аль-Аляк", "Аль-Кадр", "Аль-Баййина", "Аз-Зальзаля", "Аль-Адият", "Аль-Кариа",
+        "Ат-Такасур", "Аль-Аср", "Аль-Хумаза", "Аль-Филь", "Курайш", "Аль-Маун", "Аль-Кавсар", "Аль-Кафирун", "Ан-Наср", "Аль-Масад",
+        "Аль-Ихляс", "Аль-Фаляк", "Ан-Нас"
+    ];
+
     // ==================== ХАТМ ====================
     const TOTAL_PAGES = 604;
     let khatmData = loadData("khatmData", { readPages: 0, period: 30 });
@@ -364,10 +390,44 @@
         if (typeof updateAutoAchievements === 'function') updateAutoAchievements();
     }
     
-    document.getElementById('addPageBtn')?.addEventListener('click', () => { if(khatmData.readPages < TOTAL_PAGES){ khatmData.readPages++; updateKhatmProgress(); vibrate(); } });
-    document.getElementById('removePageBtn')?.addEventListener('click', () => { if(khatmData.readPages > 0){ khatmData.readPages--; updateKhatmProgress(); } });
-    document.getElementById('addJuzBtn')?.addEventListener('click', () => { if(khatmData.readPages < TOTAL_PAGES) { khatmData.readPages = Math.min(khatmData.readPages + 20, TOTAL_PAGES); updateKhatmProgress(); } });
-    document.getElementById('resetKhatmBtn')?.addEventListener('click', () => { if(confirm('Сбросить прогресс?')) { khatmData.readPages = 0; updateKhatmProgress(); } });
+    function populateSuraSelect() {
+        let select = document.getElementById('suraSelect');
+        if(!select) return;
+        select.innerHTML = '<option value="">-- Выберите суру --</option>';
+        for(let i=1; i<=114; i++) {
+            let opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = `${i}. ${SURA_NAMES_RU[i-1]}`;
+            select.appendChild(opt);
+        }
+        if(positionData && positionData.suraIndex) select.value = positionData.suraIndex;
+    }
+    
+    function updatePositionUI() {
+        let txt = '';
+        if(positionData && positionData.suraIndex && positionData.suraIndex !== "") {
+            txt += `Сура: ${SURA_NAMES_RU[parseInt(positionData.suraIndex)-1]}`;
+        } else { txt += 'Сура: —'; }
+        txt += (positionData && positionData.page) ? ` | Страница: ${positionData.page}` : ' | Страница: —';
+        document.getElementById('currentPositionDisplay').innerHTML = txt;
+    }
+    
+    document.getElementById('suraSelect')?.addEventListener('change', (e) => {
+        if(e.target.value && e.target.value !== "") {
+            positionData.suraIndex = e.target.value;
+            positionData.page = Math.floor((parseInt(e.target.value)/114)*604)+1;
+        } else {
+            positionData.suraIndex = "";
+            positionData.page = "";
+        }
+        updatePositionUI();
+        saveData("quranPosition", positionData);
+    });
+    document.getElementById('savePositionBtn')?.addEventListener('click', () => { saveData("quranPosition", positionData); alert('📌 Позиция сохранена!'); });
+    document.getElementById('addPageBtn')?.addEventListener('click', () => { if(khatmData.readPages < TOTAL_PAGES){ khatmData.readPages++; updateKhatmProgress(); vibrate(); } else alert('🎉 Вы уже завершили хатм!'); });
+    document.getElementById('removePageBtn')?.addEventListener('click', () => { if(khatmData.readPages > 0){ khatmData.readPages--; updateKhatmProgress(); } else alert('❌ Нельзя убавить меньше 0 страниц!'); });
+    document.getElementById('addJuzBtn')?.addEventListener('click', () => { if(khatmData.readPages < TOTAL_PAGES) { khatmData.readPages = Math.min(khatmData.readPages + 20, TOTAL_PAGES); updateKhatmProgress(); } else alert('🎉 Вы уже завершили хатм!'); });
+    document.getElementById('resetKhatmBtn')?.addEventListener('click', () => { if(confirm('Сбросить прогресс?')) { khatmData.readPages = 0; updateKhatmProgress(); alert('✅ Прогресс сброшен!'); } });
     document.getElementById('khatmPeriod')?.addEventListener('change', (e) => { khatmData.period = parseInt(e.target.value); updateKhatmProgress(); });
 
     // ==================== ТАУБА ====================
@@ -398,27 +458,28 @@
         alert('✅ День сохранён!');
         if (typeof updateAutoAchievements === 'function') updateAutoAchievements();
     });
+    document.getElementById('imanSlider')?.addEventListener('input', (e) => document.getElementById('imanValue').innerText = e.target.value + '%');
 
     // ==================== ЗИКР ====================
     let counterValue = loadData("zikrCounter", 0);
     document.getElementById('counterValue').innerText = counterValue;
     document.getElementById('counterAdd1')?.addEventListener('click', () => { counterValue++; saveData("zikrCounter", counterValue); document.getElementById('counterValue').innerText = counterValue; vibrate(); if (typeof updateAutoAchievements === 'function') updateAutoAchievements(); });
-    document.getElementById('counterReset')?.addEventListener('click', () => { if(confirm('Сбросить?')) { counterValue = 0; saveData("zikrCounter", counterValue); document.getElementById('counterValue').innerText = counterValue; if (typeof updateAutoAchievements === 'function') updateAutoAchievements(); } });
+    document.getElementById('counterReset')?.addEventListener('click', () => { if(confirm('Сбросить счётчик зикра?')) { counterValue = 0; saveData("zikrCounter", counterValue); document.getElementById('counterValue').innerText = counterValue; if (typeof updateAutoAchievements === 'function') updateAutoAchievements(); } });
 
-    // ==================== ПОЛНЫЕ АЗКАРЫ (14 утренних) ====================
+    // ==================== ПОЛНЫЕ УТРЕННИЕ АЗКАРЫ (14) ====================
     const MORNING_AZKAR_FULL = [
         { id: "m1", name: "Сура «аль-Ихляс»", arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ\nقُلْ هُوَ اللَّهُ أَحَدٌ * اللَّهُ الصَّمَدُ * لَمْ يَلِدْ وَلَمْ يُولَدْ * وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ", translit: "БисмиЛляхир-рахманир-рахим. Куль хувал-Лаху ахад. Аллаху с-самад. Лям ялид ва лям юляд. Ва лям якуль-ляху куфуван ахад.", translation: "Скажи: «Он — Аллах Единый, Аллах Самодостаточный. Он не родил и не был рождён, и нет никого равного Ему»", source: "Коран, 112 сура", recommended: "3 раза" },
         { id: "m2", name: "Сура «аль-Фаляк»", arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ الْفَلَقِ * مِن شَرِّ مَا خَلَقَ * وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ * وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ * وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ", translit: "Куль а'узу бираббиль-фаляк. Мин шарри ма халак. Ва мин шарри гасикин иза вакаб. Ва мин шаррин-наффасати филь-укад. Ва мин шарри хасидин иза хасад.", translation: "Скажи: «Прибегаю к защите Господа рассвета от зла того, что Он сотворил, от зла мрака, когда он наступает, от зла колдуний, дующих на узлы, от зла завистника, когда он завидует»", source: "Коран, 113 сура", recommended: "3 раза" },
         { id: "m3", name: "Сура «ан-Нас»", arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ النَّاسِ * مَلِكِ النَّاسِ * إِلَهِ النَّاسِ * مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ * الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ * مِنَ الْجِنَّةِ وَالنَّاسِ", translit: "Куль а'узу бираббин-нас. Маликин-нас. Иляхин-нас. Мин шарриль-васвасиль-ханнас. Аллязи ювасвису фи судурин-нас. Миналь-джиннати ван-нас.", translation: "Скажи: «Прибегаю к защите Господа людей, Царя людей, Бога людей, от зла искусителя, исчезающего при поминании Аллаха, который наущает в груди людей, от джинов и людей»", source: "Коран, 114 сура", recommended: "3 раза" },
-        { id: "m4", name: "Саййидуль истигфар", arabic: "اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ ، خَلَقْتَني وَأَنَا عَبْدُكَ ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَىَّ وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ", translit: "Аллахумма, Анта Рабби, ля иляха илля Ант, халактани ва ана абдука, ва ана аля ахдика ва вадика мастатату. Аузу бика мин шарри ма санату. Абуу ляка би-ниматика аляййа, ва абуу бизанби, фагфир ли, фа-иннаху ля йагфируз-зунуба илля Ант.", translation: "О Аллах, Ты — Господь мой, и нет бога, кроме Тебя, Ты создал меня, а я — Твой раб. Я верен своему обещанию и обязательству перед Тобой, насколько могу. Прибегаю к Тебе от зла того, что я совершил. Признаю милость Твою, оказанную мне, и признаю свой грех. Прости же меня, ибо, поистине, никто не прощает грехов, кроме Тебя.", source: "аль-Бухари (6306)", recommended: "1 раз" },
+        { id: "m4", name: "Саййидуль истигфар", arabic: "اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ ، خَلَقْتَني وَأَنَا عَبْدُكَ ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَىَّ وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ", translit: "Аллахумма, Анта Рабби, ля иляха илля Ант, халактани ва ана абдука, ва ана аля ахдика ва вадика мастатату. Аузу бика мин шарри ма санату. Абуу ляка би-ниматика аляййа, ва абуу бизанби, фагфир ли, фа-иннаху ля йагфируз-зунуба илля Ант.", translation: "О Аллах, Ты — Господь мой, и нет бога, кроме Тебя, Ты создал меня, а я — Твой раб... Прости же меня, ибо, поистине, никто не прощает грехов, кроме Тебя.", source: "аль-Бухари (6306)", recommended: "1 раз" },
         { id: "m5", name: "Субханаллах ва бихамдихи", arabic: "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ عَدَدَ خَلْقِهِ ، وَرِضَا نَفْسِهِ ، وَزِنَةَ عَرْشِهِ ، وَمِدَادَ كَلِمَاتِهِ", translit: "Субхана-Ллахи ва бихамдихи, адада халькихи, ва рида нафсихи, ва зината аршихи, ва мидада калиматихи.", translation: "Пречист Аллах и хвала Ему столько раз, сколько существует Его творений, и столько раз, сколько будет Ему угодно, и столько, сколько весят Его трон и Его чернила для записи слов Его.", source: "Муслим (2726)", recommended: "3 раза" },
         { id: "m6", name: "Хасбияллах", arabic: "حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ", translit: "Хасбия-Ллаху, ля иляха илля хува, алейхи таваккальту, ва хува Раббуль-аршиль-азым.", translation: "Достаточно мне Аллаха, нет бога, кроме Него, на Него я уповаю, и Он — Господь великого Трона.", source: "Ан-Насаи", recommended: "7 раз" },
         { id: "m7", name: "Бисмиллахиллязи ля йадурру", arabic: "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ", translit: "Бисми-Лляхиллязи ля йадурру маа-смихи шайун филь-арды ва ля фис-самаи, ва хувас-Самиуль-Алим.", translation: "С именем Аллаха, с именем Которого ничто не причинит вреда ни на земле, ни на небе, ведь Он — Слышащий, Знающий.", source: "Ахмад, ат-Тирмизи", recommended: "3 раза" },
         { id: "m8", name: "Аллахумма бика асбахна", arabic: "اللَّهُمَّ بِكَ أَصْبَحْنَا وَبِكَ أَمْسَيْنَا ، وَبِكَ نَحْيَا وَبِكَ نَمُوتُ وَإِلَيْكَ النُّشُورُ", translit: "Аллахумма, бика асбахна, ва бика амсайна, ва бика нахья, ва бика намуту, ва иляйкан-нушур.", translation: "О Аллах, благодаря Тебе мы дожили до утра, и благодаря Тебе мы дожили до вечера, Ты даёшь нам жизнь, и Ты лишаешь нас её, и к Тебе воскрешение.", source: "Ат-Тирмизи (3391)", recommended: "1 раз" },
         { id: "m9", name: "Я Хаййу Я Кайюм", arabic: "يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ ، أَصْلِحْ لِي شَأْنِي كُلَّهُ وَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ", translit: "Я Хайю, я Кайюм, би-рахматика астагис. Аслих ли ша'ни кулляху, ва ля такильни иля нафси тарфата айн.", translation: "О Живой, о Вечносущий, обращаюсь за защитой к милосердию Твоему, приведи в порядок все мои дела и не доверяй меня душе моей ни на мгновение.", source: "Аль-Хаким, Аз-Захаби", recommended: "1 раз" },
         { id: "m10", name: "Асбахна аля фитратиль ислам", arabic: "أَصْبَحْنَا عَلَى فِطْرَةِ الْإِسْلَامِ ، وَعَلَى كَلِمَةِ الْإِخْلَاصِ ، وَعَلَى دِينِ نَبِيِّنَا مُحَمَّدٍ وَعَلَى مِلَّةِ أَبِينَا إِبْرَاهِيمَ حَنِيفًا مُسْلِمًا وَمَا كَانَ مِنَ الْمُشْرِكِينَ", translit: "Асбахна аля фитратиль-ислам, ва аля калиматиль-ихляс, ва аля дини набийина Мухаммад, ва аля милляти абина Ибрахим, ханифан муслиман, ва ма кана миналь-мушрикин.", translation: "Мы дожили до утра в лоне ислама согласно слову искренности, исповедуя религию нашего пророка Мухаммада и религию нашего отца Ибрахима, который был ханифом, мусульманином, и не был из многобожников.", source: "Ахмад, Ибн Сунни", recommended: "1 раз" },
-        { id: "m11", name: "Аллахумма галимуль гайби", arabic: "اللَّهُمَّ عَالِمَ الْغَيْبِ وَالشَّهَادَةِ ، فَاطِرَ السَّمَاوَاتِ وَالْأَرْضِ ، رَبَّ كُلِّ شَيْءٍ وَمَلِيكَهُ ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا أَنْتَ ، أَعُوذُ بِكَ مِنْ شَرِّ نَفْسِي وَمِنْ شَرِّ الشَّيْطَانِ وَشِرْكِهِ", translit: "Аллахумма, алималь-гайби ваш-шахада, фатырас-самавати валь-ард, Рабба кулли шайин ва Маликаху, ашхаду алля иляха илля Ант, аузу бика мин шарри нафси, ва мин шарриш-шайтани ва ширкихи.", translation: "О Аллах, Знающий сокрытое и явное, Творец небес и земли, Господь и Владыка всего, свидетельствую, что нет бога, кроме Тебя, прибегаю к Тебе от зла души своей и от зла и многобожия шайтана.", source: "Ат-Тирмизи (3392), Абу Дауд (5067)", recommended: "1 раз" },
-        { id: "m12", name: "Аллахумма инни ас'алюкаль афва", arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي الدُّنْيَا وَالْآخِرَةِ ، اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي دِينِي وَدُنْيَايَ وَأَهْلِي وَمَالِي ، اللَّهُمَّ اسْتُرْ عَوْرَاتِي وَآمِنْ رَوْعَاتِي ، اللَّهُمَّ احْفَظْنِي مِنْ بَيْنِ يَدَيَّ وَمِنْ خَلْفِي وَعَنْ يَمِينِي وَعَنْ شِمَالِي وَمِنْ فَوْقِي ، وَأَعُوذُ بِعَظَمَتِكَ أَنْ أُغْتَالَ مِنْ تَحْتِي", translit: "Аллахумма, инни ас'алюкаль-афва валь-афията фид-дунья валь-ахира. Аллахумма, инни ас'алюкаль-афва валь-афията фи дини ва дуньяйа ва ахли ва мали. Аллахуммастур аурати ва амин рав'ати. Аллахуммахфазни мин байни ядаййа ва мин хальфи ва ан ямини ва ан шимали ва мин фавки. Ва аузу би-азаматика ан угталя мин тахти.", translation: "О Аллах, поистине, я прошу Тебя о прощении и благополучии в этом мире и в мире ином. О Аллах, поистине, я прошу Тебя о прощении и благополучии в моей религии, в моей мирской жизни, в моей семье и в моём имуществе. О Аллах, сокрой мои недостатки и успокой мои страхи. О Аллах, защити меня спереди и сзади, справа и слева, и сверху. И прибегаю к Твоему величию от того, чтобы быть убитым снизу.", source: "Абу Дауд (5074), Ибн Маджах (3871)", recommended: "1 раз" },
+        { id: "m11", name: "Аллахумма галимуль гайби", arabic: "اللَّهُمَّ عَالِمَ الْغَيْبِ وَالشَّهَادَةِ ، فَاطِرَ السَّمَاوَاتِ وَالْأَرْضِ ، رَبَّ كُلِّ شَيْءٍ وَمَلِيكَهُ ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا أَنْتَ ، أَعُوذُ بِكَ مِنْ شَرِّ نَفْسِي وَمِنْ شَرِّ الشَّيْطَانِ وَشِرْكِهِ", translit: "Аллахумма, алималь-гайби ваш-шахада, фатырас-самавати валь-ард, Рабба кулли шайин ва Маликаху, ашхаду алля иляха илля Ант, аузу бика мин шарри нафси, ва мин шарриш-шайтани ва ширкихи.", translation: "О Аллах, Знающий сокрытое и явное, Творец небес и земли, Господь и Владыка всего, свидетельствую, что нет бога, кроме Тебя, прибегаю к Тебе от зла души своей и от зла и многобожия шайтана.", source: "Ат-Тирмизи (3392)", recommended: "1 раз" },
+        { id: "m12", name: "Аллахумма инни ас'алюкаль афва", arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي الدُّنْيَا وَالْآخِرَةِ ، اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي دِينِي وَدُنْيَايَ وَأَهْلِي وَمَالِي ، اللَّهُمَّ اسْتُرْ عَوْرَاتِي وَآمِنْ رَوْعَاتِي ، اللَّهُمَّ احْفَظْنِي مِنْ بَيْنِ يَدَيَّ وَمِنْ خَلْفِي وَعَنْ يَمِينِي وَعَنْ شِمَالِي وَمِنْ فَوْقِي ، وَأَعُوذُ بِعَظَمَتِكَ أَنْ أُغْتَالَ مِنْ تَحْتِي", translit: "Аллахумма, инни ас'алюкаль-афва валь-афията фид-дунья валь-ахира. Аллахумма, инни ас'алюкаль-афва валь-афията фи дини ва дуньяйа ва ахли ва мали. Аллахуммастур аурати ва амин рав'ати. Аллахуммахфазни мин байни ядаййа ва мин хальфи ва ан ямини ва ан шимали ва мин фавки. Ва аузу би-азаматика ан угталя мин тахти.", translation: "О Аллах, поистине, я прошу Тебя о прощении и благополучии в этом мире и в мире ином. О Аллах, поистине, я прошу Тебя о прощении и благополучии в моей религии, в моей мирской жизни, в моей семье и в моём имуществе. О Аллах, сокрой мои недостатки и успокой мои страхи. О Аллах, защити меня спереди и сзади, справа и слева, и сверху. И прибегаю к Твоему величию от того, чтобы быть убитым снизу.", source: "Абу Дауд (5074)", recommended: "1 раз" },
         { id: "m13", name: "Асбахна ва асбахаль мульк", arabic: "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ", translit: "Асбахна ва асбахаль-мульку ли-Ллях, валь-хамду ли-Ллях, ля иляха илля-Ллаху вахдаху ля шарика ляху, ляхуль-мульку ва ляхуль-хамду ва хува аля кулли шайин кадир.", translation: "Мы дожили до утра, и этим утром владычество принадлежит Аллаху, и хвала Аллаху, нет бога, кроме одного лишь Аллаха, у которого нет сотоварища, Ему принадлежит владычество, Ему хвала, и Он всё может.", source: "Муслим (2723)", recommended: "1 раз" },
         { id: "m14", name: "Ля иляха илляллах (10 раз)", arabic: "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ", translit: "Ля иляха илля-Ллаху вахдаху ля шарика ляху, ляхуль-мульку ва ляхуль-хамду ва хува аля кулли шайин кадир.", translation: "Нет бога, кроме одного лишь Аллаха, у которого нет сотоварища, Ему принадлежит владычество, Ему хвала, и Он всё может.", source: "Ан-Насаи", recommended: "10 раз" }
     ];
@@ -434,10 +495,10 @@
         { id: "e7", name: "Радиту биллахи раббан", arabic: "رَضِيتُ بِاللَّهِ رَبَّا وَبِالْإِسْلَامِ دِينًا وَبِمُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ نَبِيًّا", translit: "Радиту би-Лляхи Раббан, ва биль-ислами динан, ва би-Мухаммадин салла-Ллаху алейхи ва салляма набийян.", translation: "Доволен я Аллахом как Господом, Исламом как религией и Мухаммадом, да благословит его Аллах и да приветствует, как Пророком.", source: "Ибн Сунни, Ахмад", recommended: "3 раза" },
         { id: "e8", name: "Аллахумма бика амсайна", arabic: "اللَّهُمَّ بِكَ أَمْسَيْنَا وَبِكَ أَصْبَحْنَا ، وَبِكَ نَحْيَا وَبِكَ نَمُوتُ وَإِلَيْكَ الْمَصِيرُ", translit: "Аллахумма, бика амсайна, ва бика асбахна, ва бика нахья, ва бика намуту, ва иляйкаль-масир.", translation: "О Аллах, благодаря Тебе мы дожили до вечера и благодаря Тебе мы дожили до утра, Ты даёшь нам жизнь, и Ты лишаешь нас её, и к Тебе возвращение.", source: "Ат-Тирмизи", recommended: "1 раз" },
         { id: "e9", name: "Я Хаййу Я Кайюм", arabic: "يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ ، أَصْلِحْ لِي شَأْنِي كُلَّهُ وَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ", translit: "Я Хайю, я Кайюм, би-рахматика астагис. Аслих ли ша'ни кулляху, ва ля такильни иля нафси тарфата айн.", translation: "О Живой, о Вечносущий, обращаюсь за защитой к милосердию Твоему...", source: "Аль-Хаким, Аз-Захаби", recommended: "1 раз" },
-        { id: "e10", name: "Аллахумма галимуль гайби", arabic: "اللَّهُمَّ عَالِمَ الْغَيْبِ وَالشَّهَادَةِ ، فَاطِرَ السَّمَاوَاتِ وَالْأَرْضِ ، رَبَّ كُلِّ شَيْءٍ وَمَلِيكَهُ ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا أَنْتَ ، أَعُوذُ بِكَ مِنْ شَرِّ نَفْسِي وَمِنْ شَرِّ الشَّيْطَانِ وَشِرْكِهِ", translit: "Аллахумма, алималь-гайби ваш-шахада, фатырас-самавати валь-ард, Рабба кулли шайин ва Маликаху, ашхаду алля иляха илля Ант, аузу бика мин шарри нафси, ва мин шарриш-шайтани ва ширкихи.", translation: "О Аллах, Знающий сокрытое и явное...", source: "Ат-Тирмизи (3392), Абу Дауд (5067)", recommended: "1 раз" },
-        { id: "e11", name: "Аллахумма инни ас'алюкаль афва", arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي الدُّنْيَا وَالْآخِرَةِ ، اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي دِينِي وَدُنْيَايَ وَأَهْلِي وَمَالِي", translit: "Аллахумма, инни ас'алюкаль-афва валь-афията фид-дунья валь-ахира. Аллахумма, инни ас'алюкаль-афва валь-афията фи дини ва дуньяйа ва ахли ва мали.", translation: "О Аллах, поистине, я прошу Тебя о прощении и благополучии в этом мире и в мире ином...", source: "Абу Дауд (5074)", recommended: "1 раз" },
-        { id: "e12", name: "Амсайна ва амсаль мульк", arabic: "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ", translit: "Амсайна ва амсаль-мульку ли-Ллях, валь-хамду ли-Ллях, ля иляха илля-Ллаху вахдаху ля шарика ляху, ляхуль-мульку ва ляхуль-хамду ва хува аля кулли шайин кадир.", translation: "Мы дожили до вечера, и этим вечером владычество принадлежит Аллаху, и хвала Аллаху, нет бога, кроме одного лишь Аллаха...", source: "Муслим (2723)", recommended: "1 раз" },
-        { id: "e13", name: "Ля иляха илляллах (10 раз)", arabic: "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ", translit: "Ля иляха илля-Ллаху вахдаху ля шарика ляху, ляхуль-мульку ва ляхуль-хамду ва хува аля кулли шайин кадир.", translation: "Нет бога, кроме одного лишь Аллаха, у которого нет сотоварища...", source: "Муслим (2692)", recommended: "10 раз" }
+        { id: "e10", name: "Аллахумма галимуль гайби", arabic: "اللَّهُمَّ عَالِمَ الْغَيْبِ وَالشَّهَادَةِ ، فَاطِرَ السَّمَاوَاتِ وَالْأَرْضِ ، رَبَّ كُلِّ شَيْءٍ وَمَلِيكَهُ ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا أَنْتَ ، أَعُوذُ بِكَ مِنْ شَرِّ نَفْسِي وَمِنْ شَرِّ الشَّيْطَانِ وَشِرْكِهِ", translit: "Аллахумма, алималь-гайби ваш-шахада, фатырас-самавати валь-ард, Рабба кулли шайин ва Маликаху, ашхаду алля иляха илля Ант, аузу бика мин шарри нафси, ва мин шарриш-шайтани ва ширкихи.", translation: "О Аллах, Знающий сокрытое и явное...", source: "Ат-Тирмизи (3392)", recommended: "1 раз" },
+        { id: "e11", name: "Аллахумма инни ас'алюкаль афва", arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي الدُّنْيَا وَالْآخِرَةِ ، اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي دِينِي وَدُنْيَايَ وَأَهْلِي وَمَالِي", translit: "Аллахумма, инни ас'алюкаль-афва валь-афията фид-дунья валь-ахира. Аллахумма, инни ас'алюкаль-афва валь-афията фи дини ва дуньяйа ва ахли ва мали.", translation: "О Аллах, поистине, я прошу Тебя о прощении и благополучии...", source: "Абу Дауд (5074)", recommended: "1 раз" },
+        { id: "e12", name: "Амсайна ва амсаль мульк", arabic: "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ", translit: "Амсайна ва амсаль-мульку ли-Ллях, валь-хамду ли-Ллях, ля иляха илля-Ллаху вахдаху ля шарика ляху, ляхуль-мульку ва ляхуль-хамду ва хува аля кулли шайин кадир.", translation: "Мы дожили до вечера, и этим вечером владычество принадлежит Аллаху...", source: "Муслим (2723)", recommended: "1 раз" },
+        { id: "e13", name: "Ля иляха илляллах (10 раз)", arabic: "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ", translit: "Ля иляха илля-Ллаху вахдаху ля шарика ляху, ляхуль-мульку ва ляхуль-хамду ва хува аля кулли шайин кадир.", translation: "Нет бога, кроме одного лишь Аллаха...", source: "Муслим (2692)", recommended: "10 раз" }
     ];
 
     let currentAzkarList = MORNING_AZKAR_FULL;
@@ -491,11 +552,12 @@
     }
     function getLocationAndPrayerTimes() {
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(async (pos) => { await fetchPrayerTimes(pos.coords.latitude, pos.coords.longitude); }, () => {});
-        }
+            document.getElementById('locationInfo').innerHTML = '📍 Определение местоположения...';
+            navigator.geolocation.getCurrentPosition(async (pos) => { await fetchPrayerTimes(pos.coords.latitude, pos.coords.longitude); }, () => { document.getElementById('locationInfo').innerHTML = '⚠️ Не удалось определить местоположение'; });
+        } else { document.getElementById('locationInfo').innerHTML = '⚠️ Геолокация не поддерживается'; }
     }
     document.getElementById('autoLocateBtn')?.addEventListener('click', getLocationAndPrayerTimes);
-    document.getElementById('searchCityBtn')?.addEventListener('click', async () => { const city = document.getElementById('cityInput').value; const country = document.getElementById('countryInput').value; if (city && country) await fetchPrayerTimes(null, null, city, country); else alert('Введите город и страну'); });
+    document.getElementById('searchCityBtn')?.addEventListener('click', async () => { const city = document.getElementById('cityInput').value; const country = document.getElementById('countryInput').value; if (city && country) { document.getElementById('locationInfo').innerHTML = `📍 Поиск: ${city}, ${country}...`; await fetchPrayerTimes(null, null, city, country); } else alert('Введите город и страну'); });
 
     // ==================== ХАДИС API ====================
     async function fetchRandomHadith() {
@@ -530,7 +592,7 @@
     }
     function displayDuasByCategory(category) {
         let filtered = category === 'All' ? allDuas : allDuas.filter(d => d.category === category);
-        if (filtered.length === 0) { document.getElementById('duaList').innerHTML = '<div style="text-align:center; padding:20px;">📖 Нет дуа</div>'; return; }
+        if (filtered.length === 0) { document.getElementById('duaList').innerHTML = '<div style="text-align:center; padding:20px;">📖 Нет дуа в этой категории</div>'; return; }
         document.getElementById('duaList').innerHTML = filtered.map(dua => `<div style="background:#fef7e8; border-radius:16px; padding:18px; margin-bottom:15px; border-left:4px solid #c49a6c;"><div style="font-family:'Amiri'; font-size:1.3rem; direction:rtl; text-align:right;">${dua.arabic || '—'}</div><div style="font-size:0.85rem; color:#7a683e; margin:8px 0;">${dua.transliteration || ''}</div><div>${dua.translation || dua.translationEn || '—'}</div></div>`).join('');
     }
     function showRandomDua() {
@@ -541,22 +603,22 @@
     document.getElementById('duaCategorySelect')?.addEventListener('change', (e) => displayDuasByCategory(e.target.value));
     document.getElementById('refreshDuaBtn')?.addEventListener('click', showRandomDua);
 
-    // ==================== ДОСТИЖЕНИЯ И КОЛЛЕКЦИЯ ====================
+    // ==================== ДОСТИЖЕНИЯ И КОЛЛЕКЦИЯ (С ШКАЛОЙ ПРОГРЕССА) ====================
     const ACHIEVEMENTS_LIST = [
-        { id: "firstPage", title: "📖 Первая страница", desc: "Прочитать 1 страницу Корана", icon: "📖", xp: 50, type: "auto", check: () => khatmData.readPages >= 1, story: "Первое откровение пришло Пророку (мир ему) в пещере Хира: «Читай!»" },
-        { id: "tenPages", title: "📚 Десять страниц", desc: "Прочитать 10 страниц Корана", icon: "📚", xp: 100, type: "auto", check: () => khatmData.readPages >= 10, story: "Каждая прочитанная буква Корана — десять наград. Представь, сколько награды за 10 страниц!" },
-        { id: "halfJuz", title: "🎯 Полджуза", desc: "Прочитать 20 страниц (1 джуз)", icon: "🎯", xp: 150, type: "auto", check: () => khatmData.readPages >= 20, story: "Первый джуз начинается с суры Аль-Фатиха — величайшей суры Корана, которую Пророк назвал «Мать Писания»" },
-        { id: "khatmComplete", title: "🏆 Завершивший Хатм", desc: "Полностью прочитать Коран (604 стр.)", icon: "🕋", xp: 500, type: "auto", check: () => khatmData.readPages >= 604, story: "Кто прочитал Коран от начала до конца, тому Аллах запишет награду десяти тысяч праведников и простит его родителей" },
-        { id: "zikr100", title: "📿 Начинающий", desc: "Совершить 100 зикров", icon: "🔢", xp: 50, type: "auto", check: () => counterValue >= 100, story: "Пророк (мир ему) сказал: «Пусть твой язык всегда будет влажным от поминания Аллаха». (Ахмад, Тирмизи)" },
-        { id: "zikr1000", title: "🌟 Усердный", desc: "Совершить 1000 зикров", icon: "🌟", xp: 150, type: "auto", check: () => counterValue >= 1000, story: "Два слова легки на языке, тяжелы на весах и любимы Милостивым: «Субханаллах ва бихамдихи, субханаллах-ль-азим». (Бухари, Муслим)" },
-        { id: "zikr10000", title: "⚡ Ас-Саббах", desc: "Совершить 10 000 зикров", icon: "⚡", xp: 500, type: "auto", check: () => counterValue >= 10000, story: "Один человек совершал 12 000 зикров ежедневно. После смерти он увидел Рай и услышал: «Возьми за то, что совершил при жизни»" },
-        { id: "firstTauba", title: "✅ Первое покаяние", desc: "Записать первый день в журнале", icon: "📝", xp: 50, type: "auto", check: () => taubaData.days.length >= 1, story: "Пророк (мир ему) сказал: «Каждый сын Адама грешит, но лучшие из грешников — кающиеся». (Тирмизи, Ибн Маджа)" },
-        { id: "weekStreak", title: "🔥 Неделя", desc: "Заполнить 7 дней подряд", icon: "🔥", xp: 150, type: "auto", check: () => { let s = 0, cd = new Date(); cd.setHours(0,0,0,0); let sorted = [...taubaData.days].sort((a,b)=>new Date(b.date)-new Date(a.date)); for(let i=0;i<sorted.length;i++){ let dd=new Date(sorted[i].date); dd.setHours(0,0,0,0); if(Math.floor((cd-dd)/(86400000))===s) s++; else break; } return s >= 7; }, story: "Самые любимые дела для Аллаха — те, которые совершаются постоянно, даже если их мало. (Бухари, Муслим)" },
-        { id: "monthStreak", title: "🌙 Месяц", desc: "Заполнить 30 дней подряд", icon: "🌙", xp: 300, type: "auto", check: () => { let s = 0, cd = new Date(); cd.setHours(0,0,0,0); let sorted = [...taubaData.days].sort((a,b)=>new Date(b.date)-new Date(a.date)); for(let i=0;i<sorted.length;i++){ let dd=new Date(sorted[i].date); dd.setHours(0,0,0,0); if(Math.floor((cd-dd)/(86400000))===s) s++; else break; } return s >= 30; }, story: "В Судный день Аллах соберёт людей и скажет: «Те, кто поминал Меня постоянно, войдите в Рай без отчета»" },
-        { id: "perfectDay", title: "⭐ Идеальный день", desc: "Выполнить все 6 целей за день", icon: "⭐", xp: 100, type: "auto", check: () => taubaData.days.some(d => Object.values(d.goals).filter(v=>v).length === 6), story: "Кто совершает 5 намазов и читает утренние и вечерние азкары, тому Аллах запишет награду за полный день поклонения, даже если он спал или занимался мирскими делами" },
-        { id: "morningAzkarComplete", title: "☀️ Утренний защитник", desc: "Прочитать утренние азкары", icon: "☀️", xp: 50, type: "manual", story: "Пророк (мир ему) говорил: «Ничто не защитит раба от шайтана лучше, чем поминание Аллаха утром и вечером»" },
-        { id: "eveningAzkarComplete", title: "🌙 Вечерний страж", desc: "Прочитать вечерние азкары", icon: "🌙", xp: 50, type: "manual", story: "Абу Бакр ас-Сиддик (да будет доволен им Аллах) каждую ночь перед сном читал три суры: «Аль-Ихляс», «Аль-Фаляк» и «Ан-Нас»" },
-        { id: "fivePrayers", title: "🕌 Столп религии", desc: "Совершить 5 намазов вовремя", icon: "🕌", xp: 100, type: "manual", story: "Пророк (мир ему) сказал: «Первое, за что будет спрошен раб в Судный день — это его молитва. И если она будет в порядке, то и остальные дела будут в порядке». (Ат-Тирмизи)" }
+        { id: "firstPage", title: "📖 Первая страница", desc: "Прочитать 1 страницу Корана", icon: "📖", xp: 50, type: "auto", current: () => khatmData.readPages, target: 1, story: "Первое откровение пришло Пророку (мир ему) в пещере Хира: «Читай!»" },
+        { id: "tenPages", title: "📚 Десять страниц", desc: "Прочитать 10 страниц Корана", icon: "📚", xp: 100, type: "auto", current: () => khatmData.readPages, target: 10, story: "Каждая прочитанная буква Корана — десять наград. Представь, сколько награды за 10 страниц!" },
+        { id: "halfJuz", title: "🎯 Полджуза", desc: "Прочитать 20 страниц (1 джуз)", icon: "🎯", xp: 150, type: "auto", current: () => khatmData.readPages, target: 20, story: "Первый джуз начинается с суры Аль-Фатиха — величайшей суры Корана" },
+        { id: "khatmComplete", title: "🏆 Завершивший Хатм", desc: "Полностью прочитать Коран (604 стр.)", icon: "🕋", xp: 500, type: "auto", current: () => khatmData.readPages, target: 604, story: "Кто прочитал Коран от начала до конца, тому Аллах запишет награду десяти тысяч праведников" },
+        { id: "zikr100", title: "📿 Начинающий", desc: "Совершить 100 зикров", icon: "🔢", xp: 50, type: "auto", current: () => counterValue, target: 100, story: "Пророк (мир ему) сказал: «Пусть твой язык всегда будет влажным от поминания Аллаха»" },
+        { id: "zikr1000", title: "🌟 Усердный", desc: "Совершить 1000 зикров", icon: "🌟", xp: 150, type: "auto", current: () => counterValue, target: 1000, story: "Два слова легки на языке, тяжелы на весах и любимы Милостивым: «Субханаллах ва бихамдихи»" },
+        { id: "zikr10000", title: "⚡ Ас-Саббах", desc: "Совершить 10 000 зикров", icon: "⚡", xp: 500, type: "auto", current: () => counterValue, target: 10000, story: "Один человек совершал 12 000 зикров ежедневно и вошёл в Рай" },
+        { id: "firstTauba", title: "✅ Первое покаяние", desc: "Записать первый день в журнале", icon: "📝", xp: 50, type: "auto", current: () => taubaData.days.length, target: 1, story: "Пророк (мир ему) сказал: «Каждый сын Адама грешит, но лучшие из грешников — кающиеся»" },
+        { id: "weekStreak", title: "🔥 Неделя", desc: "Заполнить 7 дней подряд", icon: "🔥", xp: 150, type: "auto", current: () => { let s = 0, cd = new Date(); cd.setHours(0,0,0,0); let sorted = [...taubaData.days].sort((a,b)=>new Date(b.date)-new Date(a.date)); for(let i=0;i<sorted.length;i++){ let dd=new Date(sorted[i].date); dd.setHours(0,0,0,0); if(Math.floor((cd-dd)/(86400000))===s) s++; else break; } return s; }, target: 7, story: "Самые любимые дела для Аллаха — постоянные, даже если их мало" },
+        { id: "monthStreak", title: "🌙 Месяц", desc: "Заполнить 30 дней подряд", icon: "🌙", xp: 300, type: "auto", current: () => { let s = 0, cd = new Date(); cd.setHours(0,0,0,0); let sorted = [...taubaData.days].sort((a,b)=>new Date(b.date)-new Date(a.date)); for(let i=0;i<sorted.length;i++){ let dd=new Date(sorted[i].date); dd.setHours(0,0,0,0); if(Math.floor((cd-dd)/(86400000))===s) s++; else break; } return s; }, target: 30, story: "В Судный день Аллах скажет: «Те, кто поминал Меня постоянно, войдите в Рай без отчета»" },
+        { id: "perfectDay", title: "⭐ Идеальный день", desc: "Выполнить все 6 целей за день", icon: "⭐", xp: 100, type: "auto", current: () => taubaData.days.filter(d => Object.values(d.goals).filter(v=>v).length === 6).length, target: 1, story: "Кто совершает 5 намазов и читает азкары, тому Аллах запишет награду за полный день поклонения" },
+        { id: "morningAzkarComplete", title: "☀️ Утренний защитник", desc: "Прочитать утренние азкары", icon: "☀️", xp: 50, type: "manual", story: "Пророк (мир ему) говорил: «Ничто не защитит раба от шайтана лучше, чем поминание Аллаха утром»" },
+        { id: "eveningAzkarComplete", title: "🌙 Вечерний страж", desc: "Прочитать вечерние азкары", icon: "🌙", xp: 50, type: "manual", story: "Абу Бакр ас-Сиддик каждую ночь перед сном читал три суры" },
+        { id: "fivePrayers", title: "🕌 Столп религии", desc: "Совершить 5 намазов вовремя", icon: "🕌", xp: 100, type: "manual", story: "Пророк (мир ему) сказал: «Первое, за что будет спрошен раб в Судный день — это его молитва»" }
     ];
 
     let userAchievements = loadData("userAchievements", { unlocked: [], manualCompleted: [] });
@@ -566,9 +628,12 @@
         let newUnlocked = [];
         for (let ach of ACHIEVEMENTS_LIST) {
             if (userAchievements.unlocked.includes(ach.id)) continue;
-            if (ach.type === "auto" && ach.check()) {
-                userAchievements.unlocked.push(ach.id);
-                newUnlocked.push(ach);
+            if (ach.type === "auto") {
+                let currentVal = typeof ach.current === 'function' ? ach.current() : 0;
+                if (currentVal >= ach.target) {
+                    userAchievements.unlocked.push(ach.id);
+                    newUnlocked.push(ach);
+                }
             }
         }
         if (newUnlocked.length > 0) {
@@ -634,15 +699,30 @@
         if (!container) return;
         container.innerHTML = ACHIEVEMENTS_LIST.map(ach => {
             const isUnlocked = userAchievements.unlocked.includes(ach.id);
+            let progressPercent = 0;
+            let progressText = "";
+            if (!isUnlocked && ach.type === "auto") {
+                let currentVal = typeof ach.current === 'function' ? ach.current() : 0;
+                progressPercent = Math.min(100, (currentVal / ach.target) * 100);
+                progressText = `${currentVal}/${ach.target}`;
+            } else if (isUnlocked) {
+                progressPercent = 100;
+                progressText = "Выполнено!";
+            } else if (ach.type === "manual") {
+                progressText = "Не выполнено";
+            }
             return `<div class="achievement-card ${isUnlocked ? 'unlocked' : 'locked'}">
-                        <div class="achievement-icon">${ach.icon}</div>
-                        <div class="achievement-info">
+                        <div class="achievement-header">
+                            <div class="achievement-icon">${ach.icon}</div>
                             <div class="achievement-title">${ach.title}</div>
-                            <div class="achievement-desc">${ach.desc}</div>
                             <div class="achievement-xp">+${ach.xp} XP</div>
                         </div>
+                        <div class="achievement-desc">${ach.desc}</div>
+                        <div class="achievement-progress-bar">
+                            <div class="achievement-progress-fill" style="width: ${progressPercent}%;"></div>
+                        </div>
                         <div class="achievement-status">
-                            ${isUnlocked ? '✅ Открыто' : (ach.type === 'manual' ? `<button class="complete-btn" data-id="${ach.id}">✅ Выполнил</button>` : '🔒 Закрыто')}
+                            ${isUnlocked ? '✅ Открыто' : (ach.type === 'manual' ? `<button class="complete-btn" data-id="${ach.id}">✅ Выполнил</button>` : `📊 Прогресс: ${progressText}`)}
                         </div>
                     </div>`;
         }).join('');
@@ -689,13 +769,15 @@
     function applyLanguage() { let t = translations[currentLang]; if(t){ document.getElementById('appTitle').innerHTML = t.appTitle; document.getElementById('langLabel').innerHTML = t.langLabel; } }
     document.getElementById('languageSelect')?.addEventListener('change', (e) => { currentLang = e.target.value; applyLanguage(); });
     applyLanguage();
+    populateSuraSelect();
+    updatePositionUI();
     updateKhatmProgress();
     updateTaubaUI();
     fetchRandomHadith();
     fetchDuas();
     renderAchievements();
     renderCollection();
-    setInterval(() => { if (typeof updateAutoAchievements === 'function') updateAutoAchievements(); }, 5000);
+    setInterval(() => { if (typeof updateAutoAchievements === 'function') updateAutoAchievements(); }, 3000);
 
     // Закрытие модальных окон
     document.getElementById('closeStoryModal')?.addEventListener('click', () => document.getElementById('storyModal').style.display = 'none');
