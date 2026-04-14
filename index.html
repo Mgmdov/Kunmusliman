@@ -179,7 +179,12 @@ button{background:#dbb45c;border:none;font-weight:bold;color:#1e3a1a}
 <div id="module-stars" class="module">
 <div class="card"><h2>⭐ Звёзды и ежедневные задания</h2>
 <div class="star-count" id="starCountDisplay">⭐ 0 звёзд</div>
-<div class="rank-card" id="rankCard"><div class="rank-title" id="rankTitle">Новичок</div><div class="rank-stars" id="rankStars">⭐</div><div id="rankDesc"></div></div>
+<div class="rank-card" id="rankCard">
+    <div class="rank-title" id="rankTitle">Новичок</div>
+    <div class="rank-stars" id="rankStars">⭐</div>
+    <div id="rankDesc"></div>
+    <button id="showGoldCardsBtn" style="margin-top: 15px; background: #d4af37; color: #1e3a1a; border: none; padding: 8px 15px; border-radius: 30px; cursor: pointer; font-weight: bold;">📜 Мои золотые карточки сподвижников</button>
+</div>
 <div class="daily-tasks-grid" id="dailyTasksGrid"></div>
 <button id="claimDailyRewardBtn" class="claim-btn disabled">🌟 Забрать звезду (выполните все задания)</button>
 </div></div>
@@ -228,7 +233,113 @@ document.getElementById('imanSlider')?.addEventListener('input',(e)=>document.ge
 // ========== ЗИКР ==========
 let zikrCounters=loadData("zikrCounters",{subhanallah:0,alhamdulillah:0,allahuakbar:0,astaghfirullah:0,lailahaillallah:0,subhanallah_wabihamdihi:0,subhanallah_alazim:0});
 function getTotalZikr(){return Object.values(zikrCounters).reduce((a,b)=>a+b,0);}
-function updateZikrDisplay(){const g=document.getElementById('zikrGrid');if(!g)return;g.innerHTML=`<div class="zikr-card"><div class="zikr-arabic">سُبْحَانَ اللَّهِ</div><div class="zikr-value">${zikrCounters.subhanallah}</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="subhanallah" data-inc="1">+1</button><button class="zikr-btn" data-zikr="subhanallah" data-inc="10">+10</button><button class="zikr-btn" data-zikr="subhanallah" data-inc="100">+100</button><button class="zikr-btn" data-zikr="subhanallah" data-reset="true">Сброс</button></div></div><div class="zikr-card"><div class="zikr-arabic">الْحَمْدُ لِلَّهِ</div><div class="zikr-value">${zikrCounters.alhamdulillah}</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="alhamdulillah" data-inc="1">+1</button><button class="zikr-btn" data-zikr="alhamdulillah" data-inc="10">+10</button><button class="zikr-btn" data-zikr="alhamdulillah" data-inc="100">+100</button><button class="zikr-btn" data-zikr="alhamdulillah" data-reset="true">Сброс</button></div></div><div class="zikr-card"><div class="zikr-arabic">اللَّهُ أَكْبَرُ</div><div class="zikr-value">${zikrCounters.allahuakbar}</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="allahuakbar" data-inc="1">+1</button><button class="zikr-btn" data-zikr="allahuakbar" data-inc="10">+10</button><button class="zikr-btn" data-zikr="allahuakbar" data-inc="100">+100</button><button class="zikr-btn" data-zikr="allahuakbar" data-reset="true">Сброс</button></div></div><div class="zikr-card"><div class="zikr-arabic">أَسْتَغْفِرُ اللَّهَ</div><div class="zikr-value">${zikrCounters.astaghfirullah}</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="astaghfirullah" data-inc="1">+1</button><button class="zikr-btn" data-zikr="astaghfirullah" data-inc="10">+10</button><button class="zikr-btn" data-zikr="astaghfirullah" data-inc="100">+100</button><button class="zikr-btn" data-zikr="astaghfirullah" data-reset="true">Сброс</button></div></div><div class="zikr-card"><div class="zikr-arabic">لَا إِلَهَ إِلَّا اللَّهُ</div><div class="zikr-value">${zikrCounters.lailahaillallah}</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="lailahaillallah" data-inc="1">+1</button><button class="zikr-btn" data-zikr="lailahaillallah" data-inc="10">+10</button><button class="zikr-btn" data-zikr="lailahaillallah" data-inc="100">+100</button><button class="zikr-btn" data-zikr="lailahaillallah" data-reset="true">Сброс</button></div></div><div class="zikr-card"><div class="zikr-arabic">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ</div><div class="zikr-value">${zikrCounters.subhanallah_wabihamdihi}</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="subhanallah_wabihamdihi" data-inc="1">+1</button><button class="zikr-btn" data-zikr="subhanallah_wabihamdihi" data-inc="10">+10</button><button class="zikr-btn" data-zikr="subhanallah_wabihamdihi" data-inc="100">+100</button><button class="zikr-btn" data-zikr="subhanallah_wabihamdihi" data-reset="true">Сброс</button></div></div><div class="zikr-card"><div class="zikr-arabic">سُبْحَانَ اللَّهِ الْعَظِيمِ</div><div class="zikr-value">${zikrCounters.subhanallah_alazim}</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="subhanallah_alazim" data-inc="1">+1</button><button class="zikr-btn" data-zikr="subhanallah_alazim" data-inc="10">+10</button><button class="zikr-btn" data-zikr="subhanallah_alazim" data-inc="100">+100</button><button class="zikr-btn" data-zikr="subhanallah_alazim" data-reset="true">Сброс</button></div></div>`;document.querySelectorAll('.zikr-btn').forEach(btn=>{btn.addEventListener('click',()=>{const z=btn.dataset.zikr;if(btn.dataset.reset){zikrCounters[z]=0;}else{zikrCounters[z]+=parseInt(btn.dataset.inc);}saveData("zikrCounters",zikrCounters);updateZikrDisplay();updateAutoAchievements();checkDailyTasks();vibrate();});});}
+function updateZikrDisplay(){
+    const g = document.getElementById('zikrGrid');
+    if(!g) return;
+    
+    g.innerHTML = `
+        <div class="zikr-card">
+            <div class="zikr-arabic">سُبْحَانَ اللَّهِ</div>
+            <div class="zikr-translit">Субханаллах</div>
+            <div class="zikr-value">${zikrCounters.subhanallah}</div>
+            <div class="zikr-translation" style="font-size:0.75rem; color:#7a683e; margin:5px 0;">📖 «Преславен Аллах»</div>
+            <div class="zikr-buttons">
+                <button class="zikr-btn" data-zikr="subhanallah" data-inc="1">+1</button>
+                <button class="zikr-btn" data-zikr="subhanallah" data-inc="10">+10</button>
+                <button class="zikr-btn" data-zikr="subhanallah" data-inc="100">+100</button>
+                <button class="zikr-btn" data-zikr="subhanallah" data-reset="true">Сброс</button>
+            </div>
+        </div>
+        <div class="zikr-card">
+            <div class="zikr-arabic">الْحَمْدُ لِلَّهِ</div>
+            <div class="zikr-translit">Альхамдулиллах</div>
+            <div class="zikr-value">${zikrCounters.alhamdulillah}</div>
+            <div class="zikr-translation" style="font-size:0.75rem; color:#7a683e; margin:5px 0;">📖 «Хвала Аллаху»</div>
+            <div class="zikr-buttons">
+                <button class="zikr-btn" data-zikr="alhamdulillah" data-inc="1">+1</button>
+                <button class="zikr-btn" data-zikr="alhamdulillah" data-inc="10">+10</button>
+                <button class="zikr-btn" data-zikr="alhamdulillah" data-inc="100">+100</button>
+                <button class="zikr-btn" data-zikr="alhamdulillah" data-reset="true">Сброс</button>
+            </div>
+        </div>
+        <div class="zikr-card">
+            <div class="zikr-arabic">اللَّهُ أَكْبَرُ</div>
+            <div class="zikr-translit">Аллаху Акбар</div>
+            <div class="zikr-value">${zikrCounters.allahuakbar}</div>
+            <div class="zikr-translation" style="font-size:0.75rem; color:#7a683e; margin:5px 0;">📖 «Аллах Велик»</div>
+            <div class="zikr-buttons">
+                <button class="zikr-btn" data-zikr="allahuakbar" data-inc="1">+1</button>
+                <button class="zikr-btn" data-zikr="allahuakbar" data-inc="10">+10</button>
+                <button class="zikr-btn" data-zikr="allahuakbar" data-inc="100">+100</button>
+                <button class="zikr-btn" data-zikr="allahuakbar" data-reset="true">Сброс</button>
+            </div>
+        </div>
+        <div class="zikr-card">
+            <div class="zikr-arabic">أَسْتَغْفِرُ اللَّهَ</div>
+            <div class="zikr-translit">Астагфируллах</div>
+            <div class="zikr-value">${zikrCounters.astaghfirullah}</div>
+            <div class="zikr-translation" style="font-size:0.75rem; color:#7a683e; margin:5px 0;">📖 «Прошу прощения у Аллаха»</div>
+            <div class="zikr-buttons">
+                <button class="zikr-btn" data-zikr="astaghfirullah" data-inc="1">+1</button>
+                <button class="zikr-btn" data-zikr="astaghfirullah" data-inc="10">+10</button>
+                <button class="zikr-btn" data-zikr="astaghfirullah" data-inc="100">+100</button>
+                <button class="zikr-btn" data-zikr="astaghfirullah" data-reset="true">Сброс</button>
+            </div>
+        </div>
+        <div class="zikr-card">
+            <div class="zikr-arabic">لَا إِلَهَ إِلَّا اللَّهُ</div>
+            <div class="zikr-translit">Ля иляха илляллах</div>
+            <div class="zikr-value">${zikrCounters.lailahaillallah}</div>
+            <div class="zikr-translation" style="font-size:0.75rem; color:#7a683e; margin:5px 0;">📖 «Нет бога, кроме Аллаха»</div>
+            <div class="zikr-buttons">
+                <button class="zikr-btn" data-zikr="lailahaillallah" data-inc="1">+1</button>
+                <button class="zikr-btn" data-zikr="lailahaillallah" data-inc="10">+10</button>
+                <button class="zikr-btn" data-zikr="lailahaillallah" data-inc="100">+100</button>
+                <button class="zikr-btn" data-zikr="lailahaillallah" data-reset="true">Сброс</button>
+            </div>
+        </div>
+        <div class="zikr-card">
+            <div class="zikr-arabic">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ</div>
+            <div class="zikr-translit">Субханаллах ва бихамдихи</div>
+            <div class="zikr-value">${zikrCounters.subhanallah_wabihamdihi}</div>
+            <div class="zikr-translation" style="font-size:0.75rem; color:#7a683e; margin:5px 0;">📖 «Преславен Аллах и хвала Ему»</div>
+            <div class="zikr-buttons">
+                <button class="zikr-btn" data-zikr="subhanallah_wabihamdihi" data-inc="1">+1</button>
+                <button class="zikr-btn" data-zikr="subhanallah_wabihamdihi" data-inc="10">+10</button>
+                <button class="zikr-btn" data-zikr="subhanallah_wabihamdihi" data-inc="100">+100</button>
+                <button class="zikr-btn" data-zikr="subhanallah_wabihamdihi" data-reset="true">Сброс</button>
+            </div>
+        </div>
+        <div class="zikr-card">
+            <div class="zikr-arabic">سُبْحَانَ اللَّهِ الْعَظِيمِ</div>
+            <div class="zikr-translit">Субханаллах аль-азым</div>
+            <div class="zikr-value">${zikrCounters.subhanallah_alazim}</div>
+            <div class="zikr-translation" style="font-size:0.75rem; color:#7a683e; margin:5px 0;">📖 «Преславен Аллах Великий»</div>
+            <div class="zikr-buttons">
+                <button class="zikr-btn" data-zikr="subhanallah_alazim" data-inc="1">+1</button>
+                <button class="zikr-btn" data-zikr="subhanallah_alazim" data-inc="10">+10</button>
+                <button class="zikr-btn" data-zikr="subhanallah_alazim" data-inc="100">+100</button>
+                <button class="zikr-btn" data-zikr="subhanallah_alazim" data-reset="true">Сброс</button>
+            </div>
+        </div>
+    `;
+    
+    document.querySelectorAll('.zikr-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const z = btn.dataset.zikr;
+            if(btn.dataset.reset) {
+                zikrCounters[z] = 0;
+            } else {
+                zikrCounters[z] += parseInt(btn.dataset.inc);
+            }
+            saveData("zikrCounters", zikrCounters);
+            updateZikrDisplay();
+            updateAutoAchievements();
+            checkDailyTasks();
+            vibrate();
+        });
+    });
+}
 updateZikrDisplay();
 // ========== ФУНКЦИЯ ПОДСТАНОВКИ ПОДЧЁРКИВАНИЙ ==========
 function applyMarks(text){if(!text)return"";return text.replace(/\[u\]([^\[\]]+?)\[\/u\]/g,function(m,l){return l+'\u0332';}).replace(/\[o\]([^\[\]]+?)\[\/o\]/g,function(m,l){return l+'\u0305';});}
@@ -655,15 +766,57 @@ document.getElementById("toggleRuTranslit")?.addEventListener("click",()=>{
 });
 
 // ========== ФУНКЦИИ ЗВЁЗД ==========
+
 function updateStarsUI(){
     document.getElementById("starCountDisplay").innerHTML = `⭐ ${starsData.totalStars} звёзд`;
     let cr = RANKS[0];
+    let nextRank = null;
     for(let i=RANKS.length-1; i>=0; i--){
-        if(starsData.totalStars >= RANKS[i].stars){ cr = RANKS[i]; break; }
+        if(starsData.totalStars >= RANKS[i].stars){ 
+            cr = RANKS[i]; 
+            if(i+1 < RANKS.length) nextRank = RANKS[i+1];
+            break; 
+        }
     }
     document.getElementById("rankTitle").innerHTML = cr.title;
     document.getElementById("rankStars").innerHTML = cr.starsIcon;
     document.getElementById("rankDesc").innerHTML = `📖 ${cr.sahabi}`;
+    
+    // ===== ПРОГРЕСС ДО СЛЕДУЮЩЕГО РАНГА =====
+    let progressHtml = '';
+    if(nextRank){
+        let needed = nextRank.stars - starsData.totalStars;
+        let percent = (starsData.totalStars / nextRank.stars) * 100;
+        progressHtml = `
+            <div style="margin-top: 15px; background: #e0d5bd; border-radius: 30px; height: 12px; overflow: hidden;">
+                <div style="width: ${Math.min(100, percent)}%; background: #d4af37; height: 100%; border-radius: 30px;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.8rem;">
+                <span>⭐ ${starsData.totalStars}</span>
+                <span>🎯 До ранга «${nextRank.title}»: ${needed} ⭐</span>
+                <span>🏆 ${nextRank.stars}</span>
+            </div>
+        `;
+    } else {
+        progressHtml = `
+            <div style="margin-top: 15px; text-align: center; color: #d4af37;">
+                🎉 Ты достиг максимального ранга! 🎉<br>
+                Всего звёзд: ${starsData.totalStars} / 1000
+            </div>
+        `;
+    }
+    
+    let rankCard = document.getElementById("rankCard");
+    if(rankCard){
+        let oldProgress = document.getElementById("rankProgress");
+        if(oldProgress) oldProgress.remove();
+        let progressDiv = document.createElement('div');
+        progressDiv.id = "rankProgress";
+        progressDiv.innerHTML = progressHtml;
+        rankCard.appendChild(progressDiv);
+    }
+    // ===== КОНЕЦ =====
+    
     if(!starsData.unlockedRanks.includes(cr.stars) && starsData.totalStars >= cr.stars && cr.stars > 0){
         starsData.unlockedRanks.push(cr.stars);
         saveData("starsData",starsData);
@@ -672,14 +825,17 @@ function updateStarsUI(){
     }
 }
 
+// ========== ФУНКЦИИ ЗВЁЗД (СБРОС В ПОЛНОЧЬ) ==========
+
 function checkDailyTasks(){
     let today = new Date().toISOString().split('T')[0];
     let morning = getMorningAzkarCompleted();
     let evening = getEveningAzkarCompleted();
     let quran = khatmData.readPages > 0;
     let zikr = getTotalZikr() >= 100;
-    let taubaSaved = taubaData.days.some(d=>d.date === today);
+    let taubaSaved = taubaData.days.some(d => d.date === today);
     let all = morning && evening && quran && zikr && taubaSaved;
+    
     let btn = document.getElementById("claimDailyRewardBtn");
     if(all && starsData.lastClaimDate !== today){
         btn.classList.remove("disabled");
@@ -688,6 +844,7 @@ function checkDailyTasks(){
         btn.classList.add("disabled");
         btn.disabled = true;
     }
+    
     let grid = document.getElementById("dailyTasksGrid");
     if(grid) grid.innerHTML = `
         <div class="task-card ${morning?'completed':''}"><span>🌅 Утренние азкары</span><input type="checkbox" ${morning?'checked':''} disabled></div>
@@ -704,15 +861,17 @@ function claimDailyReward(){
         alert("⭐ Ты уже получил звезду сегодня!");
         return;
     }
+    
     let morning = getMorningAzkarCompleted();
     let evening = getEveningAzkarCompleted();
     let quran = khatmData.readPages > 0;
     let zikr = getTotalZikr() >= 100;
-    let taubaSaved = taubaData.days.some(d=>d.date === today);
+    let taubaSaved = taubaData.days.some(d => d.date === today);
+    
     if(morning && evening && quran && zikr && taubaSaved){
         starsData.totalStars++;
         starsData.lastClaimDate = today;
-        saveData("starsData",starsData);
+        saveData("starsData", starsData);
         updateStarsUI();
         renderCollection();
         alert(`⭐ Получена звезда! Всего: ${starsData.totalStars}`);
@@ -769,6 +928,375 @@ checkDailyTasks();
 renderAzkar();
 
 setInterval(()=>{ updateAutoAchievements(); checkDailyTasks(); }, 5000);
+// ========== ПОКАЗ ЗОЛОТЫХ КАРТОЧЕК (СПОДВИЖНИКИ) ==========
+function showGoldCards() {
+    let unlockedRanks = starsData.unlockedRanks.map(s => RANKS.find(r => r.stars === s)).filter(r => r);
+    if(unlockedRanks.length === 0) {
+        alert("⭐ У тебя пока нет открытых рангов. Выполняй ежедневные задания и получай звёзды!");
+        return;
+    }
+    
+    let modalHtml = `
+        <div style="max-height: 60vh; overflow-y: auto; padding: 5px;">
+            <h3 style="color: #d4af37; text-align: center;">🏆 Золотая коллекция сподвижников 🏆</h3>
+            <p style="text-align: center; font-size: 0.8rem; color: #7a683e;">Ты открыл ${unlockedRanks.length} из ${RANKS.length} рангов</p>
+    `;
+    
+    unlockedRanks.forEach(rank => {
+        modalHtml += `
+            <div style="background: linear-gradient(135deg, #fef7e8, #f5eddb); border-radius: 20px; padding: 15px; margin: 15px 0; border-left: 5px solid #d4af37;">
+                <div style="font-size: 1.5rem;">${rank.starsIcon} ${rank.title}</div>
+                <div style="font-weight: bold; color: #2c5a2a; margin: 8px 0;">📖 ${rank.sahabi}</div>
+                <div style="font-size: 0.85rem; color: #7a683e; line-height: 1.4;">${rank.story}</div>
+                <div style="margin-top: 8px; font-size: 0.7rem; color: #d4af37;">⭐ ${rank.stars} звёзд</div>
+            </div>
+        `;
+    });
+    
+    modalHtml += `</div><button id="closeGoldModal" style="margin-top: 15px; width: 100%; padding: 10px; background: #c49a6c; border: none; border-radius: 30px; cursor: pointer;">Закрыть</button>`;
+    
+    let modal = document.createElement('div');
+    modal.id = "goldModal";
+    modal.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:2000;display:flex;justify-content:center;align-items:center;padding:20px;";
+    let content = document.createElement('div');
+    content.style.cssText = "background:#fffcf0;border-radius:30px;max-width:500px;width:100%;max-height:80vh;overflow-y:auto;padding:25px;position:relative;border:2px solid #e6bc7e;";
+    content.innerHTML = modalHtml;
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+    
+    document.getElementById("closeGoldModal")?.addEventListener("click", () => modal.remove());
+}
+
+document.getElementById("showGoldCardsBtn")?.addEventListener("click", showGoldCards);
+// ========== ХАДИСЫ ДНЯ (ОНЛАЙН API) ==========
+// Используем бесплатный Hadith API с CDN
+// Источник: https://github.com/fawazahmed0/hadith-api [citation:4]
+
+const HADITH_API_URL = 'https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/';
+
+// Доступные книги хадисов на русском языке
+const AVAILABLE_BOOKS = [
+    { id: 'rus-bukhari', name: 'Сахих аль-Бухари' },
+    { id: 'rus-muslim', name: 'Сахих Муслим' },
+    { id: 'rus-abudawud', name: 'Сунан Абу Дауд' },
+    { id: 'rus-tirmidhi', name: 'Джами ат-Тирмизи' },
+    { id: 'rus-nasai', name: 'Сунан ан-Насаи' },
+    { id: 'rus-ibnmajah', name: 'Сунан Ибн Маджа' }
+];
+
+// Кеш для загруженных хадисов (чтобы не грузить каждый раз всю книгу)
+let hadithsCache = {};
+
+// Функция получения случайного хадиса из выбранной книги
+async function fetchRandomHadithFromAPI() {
+    // Выбираем случайную книгу
+    const randomBook = AVAILABLE_BOOKS[Math.floor(Math.random() * AVAILABLE_BOOKS.length)];
+    
+    // Если книгу ещё не загружали — загружаем
+    if (!hadithsCache[randomBook.id]) {
+        const url = HADITH_API_URL + randomBook.id + '.json';
+        
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Ошибка загрузки');
+            const data = await response.json();
+            
+            // Преобразуем объект в массив хадисов
+            const hadithsArray = Object.entries(data.hadiths || data).map(([key, value]) => ({
+                id: key,
+                arabic: value.arabic || '',
+                text: value.text || value.translation || '',
+                number: key
+            }));
+            
+            hadithsCache[randomBook.id] = {
+                bookName: randomBook.name,
+                hadiths: hadithsArray
+            };
+        } catch (error) {
+            console.error('Ошибка загрузки хадисов:', error);
+            // Если API недоступен, показываем резервный хадис
+            showFallbackHadith();
+            return;
+        }
+    }
+    
+    // Берём случайный хадис из загруженной книги
+    const bookData = hadithsCache[randomBook.id];
+    if (bookData && bookData.hadiths.length > 0) {
+        const randomIndex = Math.floor(Math.random() * bookData.hadiths.length);
+        const hadith = bookData.hadiths[randomIndex];
+        
+        // Обновляем интерфейс
+        document.getElementById('hadithArabic').innerHTML = hadith.arabic || '—';
+        document.getElementById('hadithText').innerHTML = hadith.text || 'Хадис временно недоступен';
+        document.getElementById('hadithSource').innerHTML = `📚 Источник: ${bookData.bookName}, Хадис №${hadith.number}`;
+    } else {
+        showFallbackHadith();
+    }
+}
+
+// Резервные хадисы на случай проблем с интернетом
+function showFallbackHadith() {
+    const fallbackHadiths = [
+        {
+            arabic: "عَنْ أَبِي هُرَيْرَةَ رَضِيَ اللَّهُ عَنْهُ قَالَ: قَالَ رَسُولُ اللَّهِ ﷺ: «مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الْآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ»",
+            text: "Кто верует в Аллаха и в Судный день, пусть говорит благое или молчит.",
+            source: "Сахих аль-Бухари 6018, Сахих Муслим 47"
+        },
+        {
+            arabic: "عَنْ أَنَسِ بْنِ مَالِكٍ رَضِيَ اللَّهُ عَنْهُ قَالَ: قَالَ رَسُولُ اللَّهِ ﷺ: «لَا يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لِأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ»",
+            text: "Не уверует никто из вас, пока не пожелает брату своему того же, чего желает себе.",
+            source: "Сахих аль-Бухари 13, Сахих Муслим 45"
+        }
+    ];
+    const random = fallbackHadiths[Math.floor(Math.random() * fallbackHadiths.length)];
+    document.getElementById('hadithArabic').innerHTML = random.arabic;
+    document.getElementById('hadithText').innerHTML = random.text;
+    document.getElementById('hadithSource').innerHTML = `📚 Источник: ${random.source}`;
+}
+
+// Функция для обновления хадиса (вызывается при загрузке и по кнопке)
+function fetchRandomHadith() {
+    // Показываем индикатор загрузки
+    document.getElementById('hadithArabic').innerHTML = 'جاري التحميل...';
+    document.getElementById('hadithText').innerHTML = 'Загрузка хадиса...';
+    document.getElementById('hadithSource').innerHTML = '';
+    
+    // Загружаем хадис из API
+    fetchRandomHadithFromAPI();
+}
+
+// Привязываем функцию к кнопке обновления
+const refreshBtn = document.getElementById('refreshHadithBtn');
+if (refreshBtn) {
+    // Убираем старые обработчики, если были
+    const newRefreshBtn = refreshBtn.cloneNode(true);
+    refreshBtn.parentNode.replaceChild(newRefreshBtn, refreshBtn);
+    newRefreshBtn.addEventListener('click', fetchRandomHadith);
+}
+
+// Автоматически загружаем хадис при загрузке страницы
+if (document.getElementById('hadithArabic')) {
+    fetchRandomHadith();
+}
+// ========== ВРЕМЯ НАМАЗА (API Aladhan) ==========
+
+// Функция получения времени намаза
+async function fetchPrayerTimes(city, country) {
+    try {
+        // Используем API Aladhan (бесплатно, без ключа)
+        const url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=16`;
+        
+        document.getElementById('locationInfo').innerHTML = `📍 Загрузка... (${city}, ${country})`;
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.code === 200 && data.data) {
+            const timings = data.data.timings;
+            const date = data.data.date.readable;
+            
+            // Обновляем время намазов
+            document.getElementById('prayerTimesGrid').innerHTML = `
+                <div class="prayer-card"><div class="prayer-name">Фаджр</div><div class="prayer-time">${timings.Fajr}</div></div>
+                <div class="prayer-card"><div class="prayer-name">Шурук</div><div class="prayer-time">${timings.Sunrise}</div></div>
+                <div class="prayer-card"><div class="prayer-name">Зухр</div><div class="prayer-time">${timings.Dhuhr}</div></div>
+                <div class="prayer-card"><div class="prayer-name">Аср</div><div class="prayer-time">${timings.Asr}</div></div>
+                <div class="prayer-card"><div class="prayer-name">Магриб</div><div class="prayer-time">${timings.Maghrib}</div></div>
+                <div class="prayer-card"><div class="prayer-name">Иша</div><div class="prayer-time">${timings.Isha}</div></div>
+            `;
+            
+            document.getElementById('locationInfo').innerHTML = `📍 ${city}, ${country} | ${date} | Метод: Духовное управление мусульман РФ`;
+            
+            // Рассчитываем следующий намаз
+            updateNextPrayer(timings);
+            
+            // Сохраняем в localStorage
+            saveData("lastPrayerLocation", { city, country, date, timings });
+            
+            return true;
+        } else {
+            throw new Error('Город не найден');
+        }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        document.getElementById('locationInfo').innerHTML = `⚠️ Ошибка: город "${city}" не найден. Попробуйте написать на русском (например: Москва, Россия)`;
+        return false;
+    }
+}
+
+// Функция определения следующего намаза
+function updateNextPrayer(timings) {
+    const now = new Date();
+    const currentTime = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+    
+    const prayers = [
+        { name: 'Фаджр', time: timings.Fajr },
+        { name: 'Шурук', time: timings.Sunrise },
+        { name: 'Зухр', time: timings.Dhuhr },
+        { name: 'Аср', time: timings.Asr },
+        { name: 'Магриб', time: timings.Maghrib },
+        { name: 'Иша', time: timings.Isha }
+    ];
+    
+    // Находим следующий намаз
+    let nextPrayer = null;
+    for (let prayer of prayers) {
+        if (prayer.time > currentTime) {
+            nextPrayer = prayer;
+            break;
+        }
+    }
+    
+    // Если все намазы прошли сегодня — следующий завтра (Фаджр)
+    if (!nextPrayer) {
+        nextPrayer = prayers[0];
+        document.getElementById('nextPrayerInfo').innerHTML = `🌙 Следующий намаз: ${nextPrayer.name} (${nextPrayer.time}) — завтра`;
+    } else {
+        // Рассчитываем время до следующего намаза
+        const [nextHour, nextMinute] = nextPrayer.time.split(':');
+        const nextTime = new Date();
+        nextTime.setHours(parseInt(nextHour), parseInt(nextMinute), 0);
+        
+        const diffMs = nextTime - now;
+        const diffMin = Math.floor(diffMs / 60000);
+        const diffHour = Math.floor(diffMin / 60);
+        const diffMinRem = diffMin % 60;
+        
+        let timeLeft = '';
+        if (diffHour > 0) timeLeft = `${diffHour} ч ${diffMinRem} мин`;
+        else timeLeft = `${diffMin} мин`;
+        
+        document.getElementById('nextPrayerInfo').innerHTML = `🕌 Следующий намаз: ${nextPrayer.name} (${nextPrayer.time}) — через ${timeLeft}`;
+    }
+}
+
+// Определение местоположения через геолокацию
+function getLocationAndPrayerTimes() {
+    // Пытаемся загрузить сохранённое местоположение
+    const saved = loadData("lastPrayerLocation", null);
+    if (saved && saved.city && saved.country) {
+        fetchPrayerTimes(saved.city, saved.country);
+    } else {
+        document.getElementById('locationInfo').innerHTML = '📍 Нажмите "Моё местоположение" или введите город';
+    }
+}
+
+// Автоопределение через GPS
+function autoLocate() {
+    if (!navigator.geolocation) {
+        alert("Ваш браузер не поддерживает геолокацию");
+        return;
+    }
+    
+    document.getElementById('locationInfo').innerHTML = '📍 Определение местоположения...';
+    
+    navigator.geolocation.getCurrentPosition(async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        
+        try {
+            // Сначала получаем город по координатам (обратный геокодинг)
+            const geoUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=ru`;
+            const geoResponse = await fetch(geoUrl);
+            const geoData = await geoResponse.json();
+            
+            let city = geoData.address?.city || geoData.address?.town || geoData.address?.village || 'Москва';
+            let country = geoData.address?.country || 'Россия';
+            
+            // Очищаем от лишнего
+            city = city.replace(/[0-9]/g, '').trim();
+            country = country.replace(/[0-9]/g, '').trim();
+            
+            await fetchPrayerTimes(city, country);
+        } catch (error) {
+            console.error('Ошибка геокодинга:', error);
+            // Если не получили город, используем примерные координаты (Москва)
+            await fetchPrayerTimes('Москва', 'Россия');
+        }
+    }, (error) => {
+        console.error('Ошибка геолокации:', error);
+        alert("Не удалось определить местоположение. Пожалуйста, введите город вручную.");
+        document.getElementById('locationInfo').innerHTML = '📍 Введите город и страну в поля выше';
+    });
+}
+
+// Поиск по городу
+function searchCity() {
+    const city = document.getElementById('cityInput').value.trim();
+    const country = document.getElementById('countryInput').value.trim();
+    
+    if (!city) {
+        alert("Введите название города");
+        return;
+    }
+    
+    const searchCountry = country || 'Россия';
+    fetchPrayerTimes(city, searchCountry);
+}
+
+// Привязываем кнопки
+document.getElementById('autoLocateBtn')?.addEventListener('click', autoLocate);
+document.getElementById('searchCityBtn')?.addEventListener('click', searchCity);
+
+// Обновляем следующий намаз каждую минуту
+setInterval(() => {
+    const saved = loadData("lastPrayerLocation", null);
+    if (saved && saved.timings) {
+        updateNextPrayer(saved.timings);
+    }
+}, 60000);
+// ========== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА НАМАЗА ПРИ СТАРТЕ ==========
+// Добавляем небольшую задержку, чтобы всё успело загрузиться
+setTimeout(() => {
+    console.log("🔄 Проверка: загружаем намаз и задания...");
+    
+    // Пытаемся загрузить намаз
+    const savedLocation = loadData("lastPrayerLocation", null);
+    if (savedLocation && savedLocation.city && savedLocation.country) {
+        console.log("📍 Найдено сохранённое местоположение:", savedLocation.city);
+        fetchPrayerTimes(savedLocation.city, savedLocation.country);
+    } else {
+        // Если нет сохранённого города, пробуем автоопределение
+        console.log("📍 Сохранённого города нет, пробуем автоопределение...");
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                try {
+                    const geoUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=ru`;
+                    const geoResponse = await fetch(geoUrl);
+                    const geoData = await geoResponse.json();
+                    let city = geoData.address?.city || geoData.address?.town || geoData.address?.village || 'Москва';
+                    let country = geoData.address?.country || 'Россия';
+                    city = city.replace(/[0-9]/g, '').trim();
+                    country = country.replace(/[0-9]/g, '').trim();
+                    await fetchPrayerTimes(city, country);
+                } catch (error) {
+                    console.error("Ошибка геокодинга:", error);
+                    await fetchPrayerTimes('Москва', 'Россия');
+                }
+            }, (error) => {
+                console.error("Геолокация отклонена или ошибка:", error);
+                document.getElementById('locationInfo').innerHTML = '📍 Нажмите "Моё местоположение" или введите город';
+            });
+        } else {
+            document.getElementById('locationInfo').innerHTML = '📍 Геолокация не поддерживается, введите город вручную';
+        }
+    }
+}, 1000); // Задержка 1 секунда
+
+// Принудительная проверка заданий каждые 30 секунд (чтобы обновить кнопку)
+setInterval(() => {
+    checkDailyTasks();
+    // Если есть время намаза, обновляем следующий намаз
+    const saved = loadData("lastPrayerLocation", null);
+    if (saved && saved.timings) {
+        updateNextPrayer(saved.timings);
+    }
+}, 30000);
+
 </script>
 </body>
 </html>
