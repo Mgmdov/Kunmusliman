@@ -1379,6 +1379,55 @@ setInterval(() => {
         updateNextPrayer(saved.timings);
     }
 }, 60000);
+// ========== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА НАМАЗА ПРИ СТАРТЕ ==========
+// Добавляем небольшую задержку, чтобы всё успело загрузиться
+setTimeout(() => {
+    console.log("🔄 Проверка: загружаем намаз и задания...");
+    
+    // Пытаемся загрузить намаз
+    const savedLocation = loadData("lastPrayerLocation", null);
+    if (savedLocation && savedLocation.city && savedLocation.country) {
+        console.log("📍 Найдено сохранённое местоположение:", savedLocation.city);
+        fetchPrayerTimes(savedLocation.city, savedLocation.country);
+    } else {
+        // Если нет сохранённого города, пробуем автоопределение
+        console.log("📍 Сохранённого города нет, пробуем автоопределение...");
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                try {
+                    const geoUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=ru`;
+                    const geoResponse = await fetch(geoUrl);
+                    const geoData = await geoResponse.json();
+                    let city = geoData.address?.city || geoData.address?.town || geoData.address?.village || 'Москва';
+                    let country = geoData.address?.country || 'Россия';
+                    city = city.replace(/[0-9]/g, '').trim();
+                    country = country.replace(/[0-9]/g, '').trim();
+                    await fetchPrayerTimes(city, country);
+                } catch (error) {
+                    console.error("Ошибка геокодинга:", error);
+                    await fetchPrayerTimes('Москва', 'Россия');
+                }
+            }, (error) => {
+                console.error("Геолокация отклонена или ошибка:", error);
+                document.getElementById('locationInfo').innerHTML = '📍 Нажмите "Моё местоположение" или введите город';
+            });
+        } else {
+            document.getElementById('locationInfo').innerHTML = '📍 Геолокация не поддерживается, введите город вручную';
+        }
+    }
+}, 1000); // Задержка 1 секунда
+
+// Принудительная проверка заданий каждые 30 секунд (чтобы обновить кнопку)
+setInterval(() => {
+    checkDailyTasks();
+    // Если есть время намаза, обновляем следующий намаз
+    const saved = loadData("lastPrayerLocation", null);
+    if (saved && saved.timings) {
+        updateNextPrayer(saved.timings);
+    }
+}, 30000);
 
 </script>
 </body>
