@@ -825,22 +825,136 @@ function updateStarsUI(){
     }
 }
 
+// ========== ФУНКЦИИ ЗВЁЗД С ОБНОВЛЕНИЕМ ПО ФАДЖРУ ==========
+
+// Получаем время Фаджр из сохранённых данных
+function getFajrTime() {
+    const saved = loadData("lastPrayerLocation", null);
+    if (saved && saved.timings && saved.timings.Fajr) {
+        return saved.timings.Fajr;
+    }
+    return null;
+}
+
+// Проверяем, наступил ли новый день по Фаджру
+function isNewDayByFajr() {
+    const fajrTime = getFajrTime();
+    if (!fajrTime) {
+        // Если время Фаджр не получено, используем старый метод (полночь)
+        const today = new Date().toISOString().split('T')[0];
+        const lastDate = loadData("lastResetDate", "");
+        return lastDate !== today;
+    }
+    
+    // Получаем последнюю дату сброса
+    const lastReset = loadData("lastResetDate", "");
+    if (!lastReset) return true;
+    
+    const now = new Date();
+    const [fajrHour, fajrMinute] = fajrTime.split(':');
+    
+    // Создаём дату и время сегодняшнего Фаджр
+    const todayFajr = new Date();
+    todayFajr.setHours(parseInt(fajrHour), parseInt(fajrMinute), 0);
+    
+    // Создаём дату и время последнего сброса
+    const lastResetDate = new Date(lastReset);
+    
+    // Если последний сброс был после сегодняшнего Фаджр → новый день ещё не наступил
+    if (lastResetDate > todayFajr) {
+        return false;
+    }
+    
+    // Если последний сброс был до сегодняшнего Фаджр → новый день наступил
+    return true;
+}
+
+// Сохраняем дату сброса (когда забрали звезду или когда наступил новый день)
+function setNewResetDate() {
+    const fajrTime = getFajrTime();
+    if (!fajrTime) {
+        // Если нет времени Фаджр, сохраняем текущую дату
+        const today = new Date().toISOString().split('T')[0];
+        saveData("lastResetDate", today);
+        return;
+    }
+    
+    const now = new Date();
+    const [fajrHour, fajrMinute] = fajrTime.split(':');
+    
+    // Создаём дату сегодняшнего Фаджр
+    const todayFajr = new Date();
+    todayFajr.setHours(parseInt(fajrHour), parseInt(fajrMinute), 0);
+    
+    // Сохраняем дату и время последнего сброса
+    saveData("lastResetDate", now.toISOString());
+}
+
+// Проверка, нужно ли сбросить задания (новый день после Фаджр)
+function shouldResetDailyTasks() {
+    const fajrTime = getFajrTime();
+    if (!fajrTime) {
+        // Если нет времени Фаджр, используем старый метод по дате
+        const today = new Date().toISOString().split('T')[0];
+        const lastClaim = starsData.lastClaimDate;
+        return lastClaim !== today;
+    }
+    
+    const now = new Date();
+    const [fajrHour, fajrMinute] = fajrTime.split(':');
+    
+    // Время сегодняшнего Фаджр
+    const todayFajr = new Date();
+    todayFajr.setHours(parseInt(fajrHour), parseInt(fajrMinute), 0);
+    
+    // Время последнего получения звезды
+    const lastClaimDate = starsData.lastClaimDate ? new Date(starsData.lastClaimDate) : null;
+    
+    if (!lastClaimDate) return true;
+    
+    // Если последний раз забирали звезду ДО сегодняшнего Фаджр → пора сбрасывать
+    return lastClaimDate < todayFajr;
+}
+
+// Сброс ежедневных заданий (очищаем галочки)
+function resetDailyTasks() {
+    // Сбрасываем галочки азкаров
+    azkarChecks = { morning: {}, evening: {} };
+    saveData("azkarChecks", azkarChecks);
+    
+    // Перерисовываем азкары
+    renderAzkar();
+    
+    // Обновляем интерфейс
+    checkDailyTasks();
+    
+    console.log("✅ Ежедневные задания сброшены после Фаджр");
+}
+
+// Обновлённая функция проверки заданий
 function checkDailyTasks(){
+    // Проверяем, нужно ли сбросить задания
+    if (shouldResetDailyTasks()) {
+        resetDailyTasks();
+    }
+    
     let today = new Date().toISOString().split('T')[0];
     let morning = getMorningAzkarCompleted();
     let evening = getEveningAzkarCompleted();
     let quran = khatmData.readPages > 0;
     let zikr = getTotalZikr() >= 100;
-    let taubaSaved = taubaData.days.some(d=>d.date === today);
+    let taubaSaved = taubaData.days.some(d => d.date === today);
     let all = morning && evening && quran && zikr && taubaSaved;
+    
     let btn = document.getElementById("claimDailyRewardBtn");
-    if(all && starsData.lastClaimDate !== today){
+    if (all && starsData.lastClaimDate !== today && shouldResetDailyTasks() === false) {
         btn.classList.remove("disabled");
         btn.disabled = false;
     } else {
         btn.classList.add("disabled");
         btn.disabled = true;
     }
+    
     let grid = document.getElementById("dailyTasksGrid");
     if(grid) grid.innerHTML = `
         <div class="task-card ${morning?'completed':''}"><span>🌅 Утренние азкары</span><input type="checkbox" ${morning?'checked':''} disabled></div>
@@ -851,21 +965,36 @@ function checkDailyTasks(){
     `;
 }
 
+// Обновлённая функция получения звезды
 function claimDailyReward(){
     let today = new Date().toISOString().split('T')[0];
-    if(starsData.lastClaimDate === today){
-        alert("⭐ Ты уже получил звезду сегодня!");
+    
+    // Проверяем, можно ли получить звезду (прошёл ли Фаджр с момента последнего получения)
+    if (!shouldResetDailyTasks()) {
+        // Если новый день ещё не наступил по Фаджру
+        const fajrTime = getFajrTime();
+        if (fajrTime) {
+            alert(`⭐ Новый день начнётся после утреннего намаза (${fajrTime}). Пожалуйста, подождите.`);
+        } else {
+            alert("⭐ Ты уже получил звезду сегодня!");
+        }
         return;
     }
+    
     let morning = getMorningAzkarCompleted();
     let evening = getEveningAzkarCompleted();
     let quran = khatmData.readPages > 0;
     let zikr = getTotalZikr() >= 100;
-    let taubaSaved = taubaData.days.some(d=>d.date === today);
+    let taubaSaved = taubaData.days.some(d => d.date === today);
+    
     if(morning && evening && quran && zikr && taubaSaved){
         starsData.totalStars++;
-        starsData.lastClaimDate = today;
-        saveData("starsData",starsData);
+        starsData.lastClaimDate = new Date().toISOString();
+        saveData("starsData", starsData);
+        
+        // Сохраняем дату сброса
+        setNewResetDate();
+        
         updateStarsUI();
         renderCollection();
         alert(`⭐ Получена звезда! Всего: ${starsData.totalStars}`);
@@ -875,6 +1004,15 @@ function claimDailyReward(){
         alert("⚠️ Выполни все ежедневные задания!");
     }
 }
+
+// Добавляем проверку времени Фаджр каждую минуту (после обновления времени намаза)
+setInterval(() => {
+    const saved = loadData("lastPrayerLocation", null);
+    if (saved && saved.timings) {
+        // Если время Фаджр изменилось или наступил новый день — проверяем
+        checkDailyTasks();
+    }
+}, 60000);
 
 document.getElementById("claimDailyRewardBtn")?.addEventListener("click", claimDailyReward);
 
