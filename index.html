@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-<title>Muslim Tracker | Хатм | Тауба | Азкары | Зикр | Намаз | Достижения | Звёзды</title>
+<title>Muslim Tracker | Хатм | Тауба | Азкары | Зикр | Намаз | 99 имён | Достижения | Звёзды</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{background:linear-gradient(135deg,#0a2f1a,#0d3b1f,#1a4a2a);font-family:'Segoe UI',sans-serif;padding:20px;min-height:100vh}
@@ -102,7 +102,33 @@ button{background:#dbb45c;border:none;font-weight:bold;color:#1e3a1a}
 .note{background:#eef3e9;padding:15px;border-radius:20px;margin:15px 0;border-left:5px solid #dba642}
 .hide-ru .azkar-translit{display:none}
 @media (max-width:600px){.nav-btn{padding:8px 10px;font-size:0.7rem}}
+
+/* Стили для 99 имён Аллаха */
+.names-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;margin-top:20px}
+.name-card{background:linear-gradient(135deg,#fef7e8,#f5eddb);border-radius:24px;padding:18px;border:1px solid #e6bc7e;transition:all 0.2s}
+.name-card:hover{transform:translateY(-3px);border-color:#d4af37}
+.name-arabic{font-family:'Amiri',serif;font-size:2rem;direction:rtl;color:#8b5a2b;margin-bottom:10px}
+.name-number{display:inline-block;background:#e6bc7e;border-radius:30px;padding:4px 12px;font-size:0.7rem;margin-bottom:8px}
+.name-translation{font-weight:bold;color:#2c5a2a;margin-bottom:8px}
+.name-meaning{font-size:0.85rem;color:#7a683e;margin-top:8px;border-top:1px dashed #decb9b;padding-top:8px}
+.name-chechen{font-size:0.85rem;color:#2c5a2a;margin-top:8px;background:#efe3cb;padding:8px;border-radius:12px}
+.toggle-chechen-btn{background:#d4af37;color:#1e3a1a;border:none;padding:10px 20px;border-radius:30px;cursor:pointer;margin-bottom:20px;font-weight:bold}
+
+/* Стили для XP системы */
+.xp-card{background:linear-gradient(135deg,#2a6e3f,#1d5a34);border-radius:20px;padding:15px;margin-top:15px;text-align:center;color:#ffefc0}
+.xp-bar{background:#3a5a3a;border-radius:30px;height:20px;overflow:hidden;margin:10px 0}
+.xp-fill{background:#d4af37;width:0%;height:100%;border-radius:30px;transition:width 0.3s}
+
+/* Стили для профиля и Firebase */
+.profile-card{text-align:center;padding:20px}
+.auth-buttons{display:flex;gap:15px;justify-content:center;margin-top:15px;flex-wrap:wrap}
+.auth-btn{display:flex;align-items:center;gap:10px;padding:12px 20px}
+.user-avatar{width:60px;height:60px;border-radius:50%;margin-bottom:10px}
 </style>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
 </head>
 <body>
 <div class="app-container">
@@ -114,13 +140,13 @@ button{background:#dbb45c;border:none;font-weight:bold;color:#1e3a1a}
 <button class="nav-btn" data-module="counter">🔢 Зикр</button>
 <button class="nav-btn" data-module="prayer">🕌 Намаз</button>
 <button class="nav-btn" data-module="hadith">📜 Хадис дня</button>
+<button class="nav-btn" data-module="names99">🕋 99 имён</button>
 <button class="nav-btn" data-module="achievements">🏆 Достижения</button>
 <button class="nav-btn" data-module="stars">⭐ Звёзды</button>
 <button class="nav-btn" data-module="collection">📚 Коллекция</button>
+<button class="nav-btn" data-module="profile">👤 Профиль</button>
 <button class="nav-btn" data-module="support">📞 Поддержка</button>
-</div>
-
-<!-- Хатм -->
+</div><!-- Хатм -->
 <div id="module-khatm" class="module active-module">
 <div class="card"><h2>📖 Хатм уль-Куран</h2>
 <div class="position-card"><h4>📌 Моя текущая позиция</h4><div class="position-value" id="currentPositionDisplay">Сура: — | Страница: —</div>
@@ -149,16 +175,17 @@ button{background:#dbb45c;border:none;font-weight:bold;color:#1e3a1a}
 <div class="azkar-switch"><button id="morningSwitchBtn" class="azkar-switch-btn active">☀️ Утренние (14)</button><button id="eveningSwitchBtn" class="azkar-switch-btn">🌙 Вечерние (13)</button><button id="rulesSwitchBtn" class="azkar-switch-btn">📖 Правила</button></div>
 <div id="azkarContent"></div>
 <div id="rulesContent" style="display:none"><div class="rules-container"><h2>📚 Правила чтения транскрипции</h2><div class="note"><strong>❗ Символы:</strong> т̲ (твёрдый т), х̲ (твёрдый х), хь̲ (горловой х), г̲ (картавое г), с̅ (межзубный с), з̅ (межзубный з), 1 (айн)</div><table class="rule-table"><thead><tr><th>Символ</th><th>Арабская буква</th><th>Как читать</th></tr></thead><tbody>
-<tr><td class="example">т̲</td><td>ط</td><td>Твёрдый «т» с напряжением языка</td></tr>
-<tr><td class="example">х̲</td><td>خ</td><td>Твёрдый «х» с придыханием</td></tr>
-<tr><td class="example">хь̲</td><td>ح</td><td>Глубокий «х» из горла</td></tr>
-<tr><td class="example">г̲</td><td>غ</td><td>Картавое «г» как французское r</td></tr>
-<tr><td class="example">с̅</td><td>ث</td><td>Межзубный «с» (язык между зубами)</td></tr>
-<tr><td class="example">з̅</td><td>ذ</td><td>Межзубный «з» (как англ. "the")</td></tr>
-<tr><td class="example">1</td><td>ع</td><td>Айн — гортанная смычка</td></tr>
+<tr><td class="example">т̲百家ол<td>ط百家ол<td>Твёрдый «т» с напряжением языка百家ол</tr>
+<tr><td class="example">х̲百家ол<td>خ百家ол<td>Твёрдый «х» с придыханием百家ол</td>
+<tr><td class="example">хь̲百家ол<td>ح百家ол<td>Глубокий «х» из горла百家ол</tr>
+<tr><td class="example">г̲百家ол<td>غ百家ол<td>Картавое «г» как французское r百家ол<tr>
+<tr><td class="example">с̅百家ол<td>ث百家ол<td>Межзубный «с» (язык между зубами)百家ол</tr>
+<tr><td class="example">з̅百家ол<td>ذ百家ол<td>Межзубный «з» (как англ. "the")百家ол</tr>
+<tr><td class="example">1百家ол<td>ع百家ол<td>Айн — гортанная смычка百家ол</tr>
 </tbody></table>
 <div class="note"><strong>Ударения:</strong> знак ́ над гласной — ударный слог. <strong>Долгие гласные:</strong> а́, у́, и́ — тянутся дольше.</div></div></div>
 </div></div>
+
 <!-- Зикр -->
 <div id="module-counter" class="module"><div class="card"><h2>🔢 Счётчики зикра</h2><div class="zikr-grid" id="zikrGrid"></div></div></div>
 
@@ -187,10 +214,43 @@ button{background:#dbb45c;border:none;font-weight:bold;color:#1e3a1a}
 </div>
 <div class="daily-tasks-grid" id="dailyTasksGrid"></div>
 <button id="claimDailyRewardBtn" class="claim-btn disabled">🌟 Забрать звезду (выполните все задания)</button>
+<!-- XP блок -->
+<div class="xp-card">
+    <h3>📈 Уровень и XP</h3>
+    <div style="font-size:2rem; color:#d4af37" id="levelDisplay">Уровень 1</div>
+    <div class="xp-bar"><div class="xp-fill" id="xpProgressFill" style="width:0%"></div></div>
+    <div id="xpText">0 / 100 XP</div>
+</div>
+</div></div>
+
+<!-- 99 имён Аллаха -->
+<div id="module-names99" class="module">
+<div class="card">
+    <h2 style="color:#8b5a2b; text-align:center">🕋 99 имён Аллаха 🇭🇺</h2>
+    <p style="text-align:center; color:#7a683e; margin-bottom:20px">وَلِلَّهِ الْأَسْمَاءُ الْحُسْنَىٰ</p>
+    <div style="text-align:center; margin-bottom:20px">
+        <button id="toggleChechenBtn" class="toggle-chechen-btn">🇭🇺 Скрыть чеченский смысл</button>
+    </div>
+    <div id="names99Grid" class="names-grid"></div>
 </div></div>
 
 <!-- Коллекция -->
 <div id="module-collection" class="module"><div class="card"><h2 class="gold-text">📚 Моя коллекция ✨</h2><p style="color:#7a683e;margin-bottom:15px">🏅 Достижения и звёзды, которые ты открыл</p><div id="collectionGrid" class="collection-grid"></div><div id="emptyCollection" style="text-align:center;padding:40px;color:#7a683e;display:none">🏆 Пока нет открытых достижений</div></div></div>
+
+<!-- Профиль и вход (Firebase) -->
+<div id="module-profile" class="module">
+<div class="card profile-card">
+    <h2>👤 Мой профиль</h2>
+    <div id="authStatus">
+        <div id="userInfo"></div>
+        <div class="auth-buttons">
+            <button id="googleLoginBtn" class="auth-btn" style="background:#4285F4; color:white">🌍 Войти через Google</button>
+            <button id="githubLoginBtn" class="auth-btn" style="background:#333; color:white">🐙 Войти через GitHub</button>
+        </div>
+        <button id="logoutBtn" style="background:#c49a6c; margin-top:15px; display:none">🚪 Выйти</button>
+    </div>
+    <div id="cloudStatus" style="font-size:0.8rem; color:#7a683e; text-align:center; margin-top:15px"></div>
+</div></div>
 
 <!-- Поддержка -->
 <div id="module-support" class="module"><div class="card"><h2>📞 Связь с разработчиком</h2><div style="text-align:center;padding:20px"><p>📧 <strong>Email:</strong></p><a href="mailto:magomadov1195volk@gmail.com" style="color:#2c5a2a">magomadov1195volk@gmail.com</a><p style="margin-top:20px">📞 <strong>WhatsApp:</strong></p><a href="https://wa.me/79635890090" target="_blank" style="background:#25D366;color:white;padding:12px 25px;border-radius:50px;text-decoration:none;display:inline-block">📲 Написать в WhatsApp</a></div></div></div>
@@ -200,7 +260,7 @@ button{background:#dbb45c;border:none;font-weight:bold;color:#1e3a1a}
 <div id="confirmModal" class="modal"><div class="modal-content confirm-dialog"><div class="warning-icon">⚠️</div><h3 style="color:#8b5a2b">Подтверждение выполнения</h3><p style="margin:15px 0;font-size:1.1rem" id="confirmText">Ты точно выполнил это достижение?</p><p style="color:#c49a6c;font-style:italic">✋ Помни: Аллах всё видит. Будь честен.</p><div class="confirm-buttons"><button id="confirmYes" class="confirm-yes">✅ Да, выполнил</button><button id="confirmNo" class="confirm-no">❌ Нет</button></div></div></div>
 <div id="storyModal" class="modal"><div class="modal-content"><button id="closeStoryModal" style="position:absolute;top:15px;right:15px;background:#c49a6c;width:35px;height:35px;border-radius:50%;border:none">✕</button><div style="text-align:center;margin-bottom:15px"><span style="font-size:3rem" id="storyIcon">📖</span></div><h3 style="color:#8b5a2b;text-align:center" id="storyTitle">История</h3><div style="margin-top:15px;line-height:1.7;color:#3a2a1a" id="storyText"></div></div></div>
 
-<script>
+<script>// ========== ОСНОВНЫЕ ДАННЫЕ И УТИЛИТЫ ==========
 function saveData(k,d){localStorage.setItem(k,JSON.stringify(d));}
 function loadData(k,d){const a=localStorage.getItem(k);return a?JSON.parse(a):d;}
 function vibrate(){if(navigator.vibrate)navigator.vibrate(30);}
@@ -208,13 +268,146 @@ function vibrate(){if(navigator.vibrate)navigator.vibrate(30);}
 // ========== ВСЕ 114 СУР ДЛЯ ХАТМА ==========
 const SURA_NAMES_RU=["Аль-Фатиха","Аль-Бакара","Аль Имран","Ан-Ниса","Аль-Маида","Аль-Анам","Аль-Араф","Аль-Анфаль","Ат-Тавба","Юнус","Худ","Юсуф","Ар-Рад","Ибрахим","Аль-Хиджр","Ан-Нахль","Аль-Исра","Аль-Кахф","Марьям","Та Ха","Аль-Анбия","Аль-Хадж","Аль-Муминун","Ан-Нур","Аль-Фуркан","Аш-Шуара","Ан-Намль","Аль-Касас","Аль-Анкабут","Ар-Рум","Лукман","Ас-Саджда","Аль-Ахзаб","Саба","Фатир","Йа Син","Ас-Саффат","Сад","Аз-Зумар","Гафир","Фуссилят","Аш-Шура","Аз-Зухруф","Ад-Духан","Аль-Джасия","Аль-Ахкаф","Мухаммад","Аль-Фатх","Аль-Худжурат","Каф","Аз-Зарият","Ат-Тур","Ан-Наджм","Аль-Камар","Ар-Рахман","Аль-Вакиа","Аль-Хадид","Аль-Муджадиля","Аль-Хашр","Аль-Мумтахана","Ас-Сафф","Аль-Джумуа","Аль-Мунафикун","Ат-Тагабун","Ат-Таляк","Ат-Тахрим","Аль-Мульк","Аль-Калям","Аль-Хакка","Аль-Мааридж","Нух","Аль-Джинн","Аль-Муззаммиль","Аль-Муддассир","Аль-Кияма","Аль-Инсан","Аль-Мурсалят","Ан-Наба","Ан-Назиат","Абаса","Ат-Таквир","Аль-Инфитар","Аль-Мутаффифин","Аль-Иншикак","Аль-Бурудж","Ат-Тарик","Аль-Аля","Аль-Гашия","Аль-Фаджр","Аль-Баляд","Аш-Шамс","Аль-Ляйль","Ад-Духа","Аш-Шарх","Ат-Тин","Аль-Аляк","Аль-Кадр","Аль-Баййина","Аз-Зальзаля","Аль-Адият","Аль-Кариа","Ат-Такасур","Аль-Аср","Аль-Хумаза","Аль-Филь","Курайш","Аль-Маун","Аль-Кавсар","Аль-Кафирун","Ан-Наср","Аль-Масад","Аль-Ихляс","Аль-Фаляк","Ан-Нас"];
 const TOTAL_PAGES=604;
+
+// ========== ЗАГРУЗКА ДАННЫХ ==========
 let khatmData=loadData("khatmData",{readPages:0,period:30});
 let positionData=loadData("quranPosition",{suraIndex:"",page:""});
-function updateKhatmProgress(){const p=khatmData.readPages/TOTAL_PAGES*100;const el=document.getElementById("khatmProgressFill");if(el){el.style.width=p+"%";el.textContent=p.toFixed(1)+"%";}let ppd=TOTAL_PAGES/khatmData.period;document.getElementById('pagesPerDay').innerHTML=ppd.toFixed(1);document.getElementById('readPages').innerText=khatmData.readPages;document.getElementById('dailyGoalText').innerHTML=`Читать ${ppd.toFixed(1)} страниц в день`;let rem=TOTAL_PAGES-khatmData.readPages;document.getElementById('remainingText').innerHTML=`Осталось: ${rem} стр.`;saveData("khatmData",khatmData);updateAutoAchievements();checkDailyTasks();}
-function populateSuraSelect(){let s=document.getElementById('suraSelect');if(!s)return;s.innerHTML='<option value="">-- Выберите суру --</option>';for(let i=1;i<=114;i++){let o=document.createElement('option');o.value=i;o.textContent=`${i}. ${SURA_NAMES_RU[i-1]}`;s.appendChild(o);}if(positionData&&positionData.suraIndex)s.value=positionData.suraIndex;}
-function updatePositionUI(){let t='';if(positionData&&positionData.suraIndex&&positionData.suraIndex!==""){t+=`Сура: ${SURA_NAMES_RU[parseInt(positionData.suraIndex)-1]}`;}else{t+='Сура: —';}t+=(positionData&&positionData.page)?` | Страница: ${positionData.page}`:' | Страница: —';document.getElementById('currentPositionDisplay').innerHTML=t;}
-document.getElementById('suraSelect')?.addEventListener('change',(e)=>{if(e.target.value&&e.target.value!==""){positionData.suraIndex=e.target.value;positionData.page=Math.floor((parseInt(e.target.value)/114)*604)+1;}else{positionData.suraIndex="";positionData.page="";}updatePositionUI();saveData("quranPosition",positionData);});
-document.getElementById('setPageBtn')?.addEventListener('click',()=>{let p=parseInt(document.getElementById('pageInput').value);if(p>=1&&p<=604){positionData.page=p;let suraNum=Math.ceil(p/604*114);positionData.suraIndex=suraNum.toString();updatePositionUI();saveData("quranPosition",positionData);document.getElementById('suraSelect').value=suraNum;alert(`📌 Установлена страница ${p}, сура ${suraNum}`);}else alert('Введите число от 1 до 604');});
+let taubaData=loadData("taubaData",{days:[]});
+let zikrCounters=loadData("zikrCounters",{subhanallah:0,alhamdulillah:0,allahuakbar:0,astaghfirullah:0,lailahaillallah:0,subhanallah_wabihamdihi:0,subhanallah_alazim:0});
+let azkarChecks=loadData("azkarChecks",{morning:{},evening:{}});
+let starsData=loadData("starsData",{totalStars:0,lastClaimDate:"",unlockedRanks:[]});
+let userAchievements=loadData("userAchievements",{unlocked:[],unlockedAt:[]});
+let xpData=loadData("xpData",{xp:0,level:1});
+
+// ========== XP СИСТЕМА ==========
+function addXP(amount){
+    xpData.xp+=amount;
+    let need=xpData.level*100;
+    if(xpData.xp>=need){
+        xpData.xp-=need;
+        xpData.level++;
+        showNotif({icon:"⭐",title:`Новый уровень ${xpData.level}!`,desc:"Ты стал сильнее",xp:0});
+    }
+    saveData("xpData",xpData);
+    updateXPDisplay();
+}
+
+function updateXPDisplay(){
+    let need=xpData.level*100;
+    let percent=(xpData.xp/need)*100;
+    let fill=document.getElementById('xpProgressFill');
+    if(fill){fill.style.width=percent+"%";}
+    let lvl=document.getElementById('levelDisplay');
+    if(lvl)lvl.innerHTML=`Уровень ${xpData.level}`;
+    let txt=document.getElementById('xpText');
+    if(txt)txt.innerHTML=`${xpData.xp} / ${need} XP`;
+}
+
+// ========== ФУНКЦИИ ДЛЯ ХАТМА ==========
+function updateKhatmProgress(){
+    const p=khatmData.readPages/TOTAL_PAGES*100;
+    const el=document.getElementById("khatmProgressFill");
+    if(el){el.style.width=p+"%";el.textContent=p.toFixed(1)+"%";}
+    let ppd=TOTAL_PAGES/khatmData.period;
+    document.getElementById('pagesPerDay').innerHTML=ppd.toFixed(1);
+    document.getElementById('readPages').innerText=khatmData.readPages;
+    document.getElementById('dailyGoalText').innerHTML=`Читать ${ppd.toFixed(1)} страниц в день`;
+    let rem=TOTAL_PAGES-khatmData.readPages;
+    document.getElementById('remainingText').innerHTML=`Осталось: ${rem} стр.`;
+    saveData("khatmData",khatmData);
+    updateAutoAchievements();
+    checkDailyTasks();
+    addXP(5);
+}
+
+function populateSuraSelect(){
+    let s=document.getElementById('suraSelect');
+    if(!s)return;
+    s.innerHTML='<option value="">-- Выберите суру --</option>';
+    for(let i=1;i<=114;i++){
+        let o=document.createElement('option');
+        o.value=i;
+        o.textContent=`${i}. ${SURA_NAMES_RU[i-1]}`;
+        s.appendChild(o);
+    }
+    if(positionData&&positionData.suraIndex)s.value=positionData.suraIndex;
+}
+
+function updatePositionUI(){
+    let t='';
+    if(positionData&&positionData.suraIndex&&positionData.suraIndex!==""){
+        t+=`Сура: ${SURA_NAMES_RU[parseInt(positionData.suraIndex)-1]}`;
+    }else{t+='Сура: —';}
+    t+=(positionData&&positionData.page)?` | Страница: ${positionData.page}`:' | Страница: —';
+    document.getElementById('currentPositionDisplay').innerHTML=t;
+}
+
+// ========== ФУНКЦИИ ДЛЯ ТАУБА ==========
+function updateTaubaUI(){
+    let today=new Date().toISOString().split('T')[0];
+    let te=taubaData.days.find(d=>d.date===today);
+    if(te){
+        document.querySelectorAll('.goal-check').forEach(cb=>{cb.checked=te.goals[cb.dataset.goal]||false;});
+        document.getElementById('imanSlider').value=te.iman;
+        document.getElementById('imanValue').innerText=te.iman+'%';
+    }else{
+        document.querySelectorAll('.goal-check').forEach(cb=>cb.checked=false);
+        document.getElementById('imanSlider').value=50;
+        document.getElementById('imanValue').innerText='50%';
+    }
+    let tg=0;
+    for(let d of taubaData.days)tg+=Object.values(d.goals).filter(v=>v).length;
+    document.getElementById('totalGoalsCompleted').innerText=tg;
+    document.getElementById('totalDaysTracked').innerText=taubaData.days.length;
+    let streak=0,cd=new Date();cd.setHours(0,0,0,0);
+    let sorted=[...taubaData.days].sort((a,b)=>new Date(b.date)-new Date(a.date));
+    for(let i=0;i<sorted.length;i++){
+        let dd=new Date(sorted[i].date);dd.setHours(0,0,0,0);
+        let diff=Math.floor((cd-dd)/86400000);
+        if(diff===streak)streak++;
+        else break;
+    }
+    document.getElementById('streakDays').innerText=streak;
+    let ti=taubaData.days.reduce((s,d)=>s+d.iman,0);
+    document.getElementById('avgIman').innerText=taubaData.days.length?(ti/taubaData.days.length).toFixed(0):0;
+    updateAutoAchievements();
+    checkDailyTasks();
+}
+
+function updateImanFromGoals(){
+    let checked=document.querySelectorAll('.goal-check:checked').length;
+    let newIman=Math.round((checked/6)*100);
+    document.getElementById('imanSlider').value=newIman;
+    document.getElementById('imanValue').innerText=newIman+'%';
+}
+
+function getStreakDays(){
+    let streak=0,cd=new Date();cd.setHours(0,0,0,0);
+    let sorted=[...taubaData.days].sort((a,b)=>new Date(b.date)-new Date(a.date));
+    for(let i=0;i<sorted.length;i++){
+        let dd=new Date(sorted[i].date);dd.setHours(0,0,0,0);
+        if(Math.floor((cd-dd)/86400000)===streak)streak++;
+        else break;
+    }
+    return streak;
+}
+
+function todayStr(){return new Date().toISOString().split('T')[0];}
+function getTotalZikr(){return Object.values(zikrCounters).reduce((a,b)=>a+b,0);}
+
+// ========== ОБРАБОТЧИКИ ХАТМА ==========
+document.getElementById('suraSelect')?.addEventListener('change',(e)=>{
+    if(e.target.value&&e.target.value!==""){
+        positionData.suraIndex=e.target.value;
+        positionData.page=Math.floor((parseInt(e.target.value)/114)*604)+1;
+    }else{positionData.suraIndex="";positionData.page="";}
+    updatePositionUI();saveData("quranPosition",positionData);
+});
+document.getElementById('setPageBtn')?.addEventListener('click',()=>{
+    let p=parseInt(document.getElementById('pageInput').value);
+    if(p>=1&&p<=604){positionData.page=p;let suraNum=Math.ceil(p/604*114);positionData.suraIndex=suraNum.toString();updatePositionUI();saveData("quranPosition",positionData);document.getElementById('suraSelect').value=suraNum;alert(`📌 Установлена страница ${p}, сура ${suraNum}`);}
+    else alert('Введите число от 1 до 604');
+});
 document.getElementById('savePositionBtn')?.addEventListener('click',()=>{saveData("quranPosition",positionData);alert('📌 Позиция сохранена!');});
 document.getElementById('addPageBtn')?.addEventListener('click',()=>{if(khatmData.readPages<TOTAL_PAGES){khatmData.readPages++;updateKhatmProgress();vibrate();checkDailyTasks();}else alert('🎉 Вы уже завершили хатм!');});
 document.getElementById('removePageBtn')?.addEventListener('click',()=>{if(khatmData.readPages>0){khatmData.readPages--;updateKhatmProgress();checkDailyTasks();}else alert('❌ Нельзя убавить меньше 0 страниц!');});
@@ -222,129 +415,56 @@ document.getElementById('addJuzBtn')?.addEventListener('click',()=>{if(khatmData
 document.getElementById('resetKhatmBtn')?.addEventListener('click',()=>{if(confirm('Сбросить прогресс?')){khatmData.readPages=0;updateKhatmProgress();alert('✅ Прогресс сброшен!');}});
 document.getElementById('khatmPeriod')?.addEventListener('change',(e)=>{khatmData.period=parseInt(e.target.value);updateKhatmProgress();});
 
-// ========== ТАУБА ==========
-let taubaData=loadData("taubaData",{days:[]});
-function updateTaubaUI(){let today=new Date().toISOString().split('T')[0];let te=taubaData.days.find(d=>d.date===today);if(te){document.querySelectorAll('.goal-check').forEach(cb=>{cb.checked=te.goals[cb.dataset.goal]||false;});document.getElementById('imanSlider').value=te.iman;document.getElementById('imanValue').innerText=te.iman+'%';}else{document.querySelectorAll('.goal-check').forEach(cb=>cb.checked=false);document.getElementById('imanSlider').value=50;document.getElementById('imanValue').innerText='50%';}let tg=0;for(let d of taubaData.days)tg+=Object.values(d.goals).filter(v=>v).length;document.getElementById('totalGoalsCompleted').innerText=tg;document.getElementById('totalDaysTracked').innerText=taubaData.days.length;let streak=0,cd=new Date();cd.setHours(0,0,0,0);let sorted=[...taubaData.days].sort((a,b)=>new Date(b.date)-new Date(a.date));for(let i=0;i<sorted.length;i++){let dd=new Date(sorted[i].date);dd.setHours(0,0,0,0);let diff=Math.floor((cd-dd)/86400000);if(diff===streak)streak++;else break;}document.getElementById('streakDays').innerText=streak;let ti=taubaData.days.reduce((s,d)=>s+d.iman,0);document.getElementById('avgIman').innerText=taubaData.days.length?(ti/taubaData.days.length).toFixed(0):0;updateAutoAchievements();checkDailyTasks();}
-function updateImanFromGoals(){let checked=document.querySelectorAll('.goal-check:checked').length;let newIman=Math.round((checked/6)*100);document.getElementById('imanSlider').value=newIman;document.getElementById('imanValue').innerText=newIman+'%';}
+// ========== ОБРАБОТЧИКИ ТАУБА ==========
 document.querySelectorAll('.goal-check').forEach(cb=>{cb.addEventListener('change',()=>{updateImanFromGoals();checkDailyTasks();});});
-document.getElementById('saveTaubaDayBtn')?.addEventListener('click',()=>{let today=new Date().toISOString().split('T')[0];let iman=parseInt(document.getElementById('imanSlider').value);let goals={};document.querySelectorAll('.goal-check').forEach(cb=>{goals[cb.dataset.goal]=cb.checked;});let idx=taubaData.days.findIndex(d=>d.date===today);if(idx!==-1)taubaData.days[idx]={date:today,goals,iman};else taubaData.days.push({date:today,goals,iman});saveData("taubaData",taubaData);updateTaubaUI();alert('✅ День сохранён!');checkDailyTasks();updateAutoAchievements();});
+document.getElementById('saveTaubaDayBtn')?.addEventListener('click',()=>{
+    let today=new Date().toISOString().split('T')[0];
+    let iman=parseInt(document.getElementById('imanSlider').value);
+    let goals={};
+    document.querySelectorAll('.goal-check').forEach(cb=>{goals[cb.dataset.goal]=cb.checked;});
+    let idx=taubaData.days.findIndex(d=>d.date===today);
+    if(idx!==-1)taubaData.days[idx]={date:today,goals,iman};
+    else taubaData.days.push({date:today,goals,iman});
+    saveData("taubaData",taubaData);
+    updateTaubaUI();
+    alert('✅ День сохранён!');
+    checkDailyTasks();
+    updateAutoAchievements();
+    addXP(20);
+});
 document.getElementById('imanSlider')?.addEventListener('input',(e)=>document.getElementById('imanValue').innerText=e.target.value+'%');
 
 // ========== ЗИКР ==========
-let zikrCounters=loadData("zikrCounters",{subhanallah:0,alhamdulillah:0,allahuakbar:0,astaghfirullah:0,lailahaillallah:0,subhanallah_wabihamdihi:0,subhanallah_alazim:0});
-function getTotalZikr(){return Object.values(zikrCounters).reduce((a,b)=>a+b,0);}
 function updateZikrDisplay(){
     const g = document.getElementById('zikrGrid');
     if(!g) return;
-    
     g.innerHTML = `
-        <div class="zikr-card">
-            <div class="zikr-arabic">سُبْحَانَ اللَّهِ</div>
-            <div class="zikr-translit">Субханаллах</div>
-            <div class="zikr-value">${zikrCounters.subhanallah}</div>
-            <div class="zikr-translation" style="font-size:0.75rem; color:#7a683e; margin:5px 0;">📖 «Преславен Аллах»</div>
-            <div class="zikr-buttons">
-                <button class="zikr-btn" data-zikr="subhanallah" data-inc="1">+1</button>
-                <button class="zikr-btn" data-zikr="subhanallah" data-inc="10">+10</button>
-                <button class="zikr-btn" data-zikr="subhanallah" data-inc="100">+100</button>
-                <button class="zikr-btn" data-zikr="subhanallah" data-reset="true">Сброс</button>
-            </div>
-        </div>
-        <div class="zikr-card">
-            <div class="zikr-arabic">الْحَمْدُ لِلَّهِ</div>
-            <div class="zikr-translit">Альхамдулиллах</div>
-            <div class="zikr-value">${zikrCounters.alhamdulillah}</div>
-            <div class="zikr-translation" style="font-size:0.75rem; color:#7a683e; margin:5px 0;">📖 «Хвала Аллаху»</div>
-            <div class="zikr-buttons">
-                <button class="zikr-btn" data-zikr="alhamdulillah" data-inc="1">+1</button>
-                <button class="zikr-btn" data-zikr="alhamdulillah" data-inc="10">+10</button>
-                <button class="zikr-btn" data-zikr="alhamdulillah" data-inc="100">+100</button>
-                <button class="zikr-btn" data-zikr="alhamdulillah" data-reset="true">Сброс</button>
-            </div>
-        </div>
-        <div class="zikr-card">
-            <div class="zikr-arabic">اللَّهُ أَكْبَرُ</div>
-            <div class="zikr-translit">Аллаху Акбар</div>
-            <div class="zikr-value">${zikrCounters.allahuakbar}</div>
-            <div class="zikr-translation" style="font-size:0.75rem; color:#7a683e; margin:5px 0;">📖 «Аллах Велик»</div>
-            <div class="zikr-buttons">
-                <button class="zikr-btn" data-zikr="allahuakbar" data-inc="1">+1</button>
-                <button class="zikr-btn" data-zikr="allahuakbar" data-inc="10">+10</button>
-                <button class="zikr-btn" data-zikr="allahuakbar" data-inc="100">+100</button>
-                <button class="zikr-btn" data-zikr="allahuakbar" data-reset="true">Сброс</button>
-            </div>
-        </div>
-        <div class="zikr-card">
-            <div class="zikr-arabic">أَسْتَغْفِرُ اللَّهَ</div>
-            <div class="zikr-translit">Астагфируллах</div>
-            <div class="zikr-value">${zikrCounters.astaghfirullah}</div>
-            <div class="zikr-translation" style="font-size:0.75rem; color:#7a683e; margin:5px 0;">📖 «Прошу прощения у Аллаха»</div>
-            <div class="zikr-buttons">
-                <button class="zikr-btn" data-zikr="astaghfirullah" data-inc="1">+1</button>
-                <button class="zikr-btn" data-zikr="astaghfirullah" data-inc="10">+10</button>
-                <button class="zikr-btn" data-zikr="astaghfirullah" data-inc="100">+100</button>
-                <button class="zikr-btn" data-zikr="astaghfirullah" data-reset="true">Сброс</button>
-            </div>
-        </div>
-        <div class="zikr-card">
-            <div class="zikr-arabic">لَا إِلَهَ إِلَّا اللَّهُ</div>
-            <div class="zikr-translit">Ля иляха илляллах</div>
-            <div class="zikr-value">${zikrCounters.lailahaillallah}</div>
-            <div class="zikr-translation" style="font-size:0.75rem; color:#7a683e; margin:5px 0;">📖 «Нет бога, кроме Аллаха»</div>
-            <div class="zikr-buttons">
-                <button class="zikr-btn" data-zikr="lailahaillallah" data-inc="1">+1</button>
-                <button class="zikr-btn" data-zikr="lailahaillallah" data-inc="10">+10</button>
-                <button class="zikr-btn" data-zikr="lailahaillallah" data-inc="100">+100</button>
-                <button class="zikr-btn" data-zikr="lailahaillallah" data-reset="true">Сброс</button>
-            </div>
-        </div>
-        <div class="zikr-card">
-            <div class="zikr-arabic">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ</div>
-            <div class="zikr-translit">Субханаллах ва бихамдихи</div>
-            <div class="zikr-value">${zikrCounters.subhanallah_wabihamdihi}</div>
-            <div class="zikr-translation" style="font-size:0.75rem; color:#7a683e; margin:5px 0;">📖 «Преславен Аллах и хвала Ему»</div>
-            <div class="zikr-buttons">
-                <button class="zikr-btn" data-zikr="subhanallah_wabihamdihi" data-inc="1">+1</button>
-                <button class="zikr-btn" data-zikr="subhanallah_wabihamdihi" data-inc="10">+10</button>
-                <button class="zikr-btn" data-zikr="subhanallah_wabihamdihi" data-inc="100">+100</button>
-                <button class="zikr-btn" data-zikr="subhanallah_wabihamdihi" data-reset="true">Сброс</button>
-            </div>
-        </div>
-        <div class="zikr-card">
-            <div class="zikr-arabic">سُبْحَانَ اللَّهِ الْعَظِيمِ</div>
-            <div class="zikr-translit">Субханаллах аль-азым</div>
-            <div class="zikr-value">${zikrCounters.subhanallah_alazim}</div>
-            <div class="zikr-translation" style="font-size:0.75rem; color:#7a683e; margin:5px 0;">📖 «Преславен Аллах Великий»</div>
-            <div class="zikr-buttons">
-                <button class="zikr-btn" data-zikr="subhanallah_alazim" data-inc="1">+1</button>
-                <button class="zikr-btn" data-zikr="subhanallah_alazim" data-inc="10">+10</button>
-                <button class="zikr-btn" data-zikr="subhanallah_alazim" data-inc="100">+100</button>
-                <button class="zikr-btn" data-zikr="subhanallah_alazim" data-reset="true">Сброс</button>
-            </div>
-        </div>
+        <div class="zikr-card"><div class="zikr-arabic">سُبْحَانَ اللَّهِ</div><div class="zikr-translit">Субханаллах</div><div class="zikr-value">${zikrCounters.subhanallah}</div><div class="zikr-translation" style="font-size:0.75rem; color:#7a683e; margin:5px 0;">📖 «Преславен Аллах»</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="subhanallah" data-inc="1">+1</button><button class="zikr-btn" data-zikr="subhanallah" data-inc="10">+10</button><button class="zikr-btn" data-zikr="subhanallah" data-inc="100">+100</button><button class="zikr-btn" data-zikr="subhanallah" data-reset="true">Сброс</button></div></div>
+        <div class="zikr-card"><div class="zikr-arabic">الْحَمْدُ لِلَّهِ</div><div class="zikr-translit">Альхамдулиллах</div><div class="zikr-value">${zikrCounters.alhamdulillah}</div><div class="zikr-translation" style="font-size:0.75rem; color:#7a683e; margin:5px 0;">📖 «Хвала Аллаху»</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="alhamdulillah" data-inc="1">+1</button><button class="zikr-btn" data-zikr="alhamdulillah" data-inc="10">+10</button><button class="zikr-btn" data-zikr="alhamdulillah" data-inc="100">+100</button><button class="zikr-btn" data-zikr="alhamdulillah" data-reset="true">Сброс</button></div></div>
+        <div class="zikr-card"><div class="zikr-arabic">اللَّهُ أَكْبَرُ</div><div class="zikr-translit">Аллаху Акбар</div><div class="zikr-value">${zikrCounters.allahuakbar}</div><div class="zikr-translation" style="font-size:0.75rem; color:#7a683e; margin:5px 0;">📖 «Аллах Велик»</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="allahuakbar" data-inc="1">+1</button><button class="zikr-btn" data-zikr="allahuakbar" data-inc="10">+10</button><button class="zikr-btn" data-zikr="allahuakbar" data-inc="100">+100</button><button class="zikr-btn" data-zikr="allahuakbar" data-reset="true">Сброс</button></div></div>
+        <div class="zikr-card"><div class="zikr-arabic">أَسْتَغْفِرُ اللَّهَ</div><div class="zikr-translit">Астагфируллах</div><div class="zikr-value">${zikrCounters.astaghfirullah}</div><div class="zikr-translation" style="font-size:0.75rem; color:#7a683e; margin:5px 0;">📖 «Прошу прощения у Аллаха»</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="astaghfirullah" data-inc="1">+1</button><button class="zikr-btn" data-zikr="astaghfirullah" data-inc="10">+10</button><button class="zikr-btn" data-zikr="astaghfirullah" data-inc="100">+100</button><button class="zikr-btn" data-zikr="astaghfirullah" data-reset="true">Сброс</button></div></div>
+        <div class="zikr-card"><div class="zikr-arabic">لَا إِلَهَ إِلَّا اللَّهُ</div><div class="zikr-translit">Ля иляха илляллах</div><div class="zikr-value">${zikrCounters.lailahaillallah}</div><div class="zikr-translation" style="font-size:0.75rem; color:#7a683e; margin:5px 0;">📖 «Нет бога, кроме Аллаха»</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="lailahaillallah" data-inc="1">+1</button><button class="zikr-btn" data-zikr="lailahaillallah" data-inc="10">+10</button><button class="zikr-btn" data-zikr="lailahaillallah" data-inc="100">+100</button><button class="zikr-btn" data-zikr="lailahaillallah" data-reset="true">Сброс</button></div></div>
+        <div class="zikr-card"><div class="zikr-arabic">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ</div><div class="zikr-translit">Субханаллах ва бихамдихи</div><div class="zikr-value">${zikrCounters.subhanallah_wabihamdihi}</div><div class="zikr-translation" style="font-size:0.75rem; color:#7a683e; margin:5px 0;">📖 «Преславен Аллах и хвала Ему»</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="subhanallah_wabihamdihi" data-inc="1">+1</button><button class="zikr-btn" data-zikr="subhanallah_wabihamdihi" data-inc="10">+10</button><button class="zikr-btn" data-zikr="subhanallah_wabihamdihi" data-inc="100">+100</button><button class="zikr-btn" data-zikr="subhanallah_wabihamdihi" data-reset="true">Сброс</button></div></div>
+        <div class="zikr-card"><div class="zikr-arabic">سُبْحَانَ اللَّهِ الْعَظِيمِ</div><div class="zikr-translit">Субханаллах аль-азым</div><div class="zikr-value">${zikrCounters.subhanallah_alazim}</div><div class="zikr-translation" style="font-size:0.75rem; color:#7a683e; margin:5px 0;">📖 «Преславен Аллах Великий»</div><div class="zikr-buttons"><button class="zikr-btn" data-zikr="subhanallah_alazim" data-inc="1">+1</button><button class="zikr-btn" data-zikr="subhanallah_alazim" data-inc="10">+10</button><button class="zikr-btn" data-zikr="subhanallah_alazim" data-inc="100">+100</button><button class="zikr-btn" data-zikr="subhanallah_alazim" data-reset="true">Сброс</button></div></div>
     `;
-    
     document.querySelectorAll('.zikr-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const z = btn.dataset.zikr;
-            if(btn.dataset.reset) {
-                zikrCounters[z] = 0;
-            } else {
-                zikrCounters[z] += parseInt(btn.dataset.inc);
-            }
+            if(btn.dataset.reset) {zikrCounters[z] = 0;}
+            else {zikrCounters[z] += parseInt(btn.dataset.inc);}
             saveData("zikrCounters", zikrCounters);
             updateZikrDisplay();
             updateAutoAchievements();
             checkDailyTasks();
             vibrate();
+            addXP(1);
         });
     });
 }
 updateZikrDisplay();
-// ========== ФУНКЦИЯ ПОДСТАНОВКИ ПОДЧЁРКИВАНИЙ ==========
-function applyMarks(text){if(!text)return"";return text.replace(/\[u\]([^\[\]]+?)\[\/u\]/g,function(m,l){return l+'\u0332';}).replace(/\[o\]([^\[\]]+?)\[\/o\]/g,function(m,l){return l+'\u0305';});}
 
-// ===== УТРЕННИЕ АЗКАРЫ (14 ПОЗИЦИЙ) =====
+// ========== ФУНКЦИЯ ПОДСТАНОВКИ ПОДЧЁРКИВАНИЙ ==========
+function applyMarks(text){if(!text)return"";return text.replace(/\[u\]([^\[\]]+?)\[\/u\]/g,function(m,l){return l+'\u0332';}).replace(/\[o\]([^\[\]]+?)\[\/o\]/g,function(m,l){return l+'\u0305';});}// ===== УТРЕННИЕ АЗКАРЫ (14 ПОЗИЦИЙ) =====
 const MORNING_AZKAR_FULL = [
 {
 id:"m1",
@@ -378,7 +498,7 @@ id:"m4",
 name:"Саййидуль истигфар",
 arabic:"اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ ، خَلَقْتَني وَأَنَا عَبْدُكَ ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَىَّ وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ",
 translit_raw:"Алло́[u]х1[/u]умма Ан[u]т[/u]а робби́,льа ильа́[u]х1[/u]а илла́ ан[u]т[/u]а, [u]х[/u]ольакъо[u]т[/u]ани́, ва ана 1абдука, ва ана 1ала́ 1а[u]х1[/u]дика ва ва1дика мас[u]т[/u]а[u]т1[/u]о1[u]т[/u]у. А1узу бика мин шарри ма́ сона1[u]т[/u]у, абу́у лака бини1ма[u]т[/u]ика 1альаййа, ва абу́у бизанби́ фа[u]г1[/u]фир ли́, фаинна[u]х1[/u]у́ льа́ я[u]г1[/u]фируззуну́ба илла́ ан[u]т[/u]а.",
-translation:"О Аллах, Ты — Господь мой, и нет бога, кроме Тебя, Ты создал меня, а я — Твой раб. Я верен своему обещанию и covenant с Тобой, насколько могу. Прибегаю к Тебе от зла того, что я сделал. Признаю милость Твою ко мне и признаю свой грех. Прости меня, ибо никто не прощает грехов, кроме Тебя.",
+translation:"О Аллах, Ты — Господь мой, и нет бога, кроме Тебя, Ты создал меня, а я — Твой раб. Я верен своему обещанию с Тобой, насколько могу. Прибегаю к Тебе от зла того, что я сделал. Признаю милость Твою ко мне и признаю свой грех. Прости меня, ибо никто не прощает грехов, кроме Тебя.",
 source:"аль-Бухари (6306)",
 recommended:"1 раз"
 },
@@ -473,6 +593,7 @@ source:"Ан-Насаи",
 recommended:"10 раз"
 }
 ];
+
 // ===== ВЕЧЕРНИЕ АЗКАРЫ (13 ПОЗИЦИЙ) =====
 const EVENING_AZKAR_FULL = [
 {
@@ -593,61 +714,14 @@ source:"Муслим (2692)",
 recommended:"10 раз"
 }
 ];
-// ========== ПРИМЕНЯЕМ ПОДЧЁРКИВАНИЯ КО ВСЕМ АЗКАРАМ ==========
+
+// Применяем подчёркивания
 for(let a of MORNING_AZKAR_FULL) if(a.translit_raw) a.translit = applyMarks(a.translit_raw);
-for(let a of EVENING_AZKAR_FULL) if(a.translit_raw) a.translit = applyMarks(a.translit_raw);
-
-// ========== ДОСТИЖЕНИЯ (ПОЛНЫЕ ДО 1 МЛН) ==========
-const ACHIEVEMENTS_LIST = [
-{id:"firstPage",title:"📖 Первая страница",desc:"1 страница Корана",icon:"📖",xp:50,type:"auto",current:()=>khatmData.readPages,target:1,story:"Первое откровение пришло в пещере Хира"},
-{id:"tenPages",title:"📚 Десять страниц",desc:"10 страниц",icon:"📚",xp:100,type:"auto",current:()=>khatmData.readPages,target:10,story:"Каждая буква Корана — десять наград"},
-{id:"halfJuz",title:"🎯 Полджуза",desc:"20 страниц",icon:"🎯",xp:150,type:"auto",current:()=>khatmData.readPages,target:20,story:"Первый джуз начинается с Аль-Фатихи"},
-{id:"khatmComplete",title:"🏆 Завершивший Хатм",desc:"604 страницы",icon:"🕋",xp:500,type:"auto",current:()=>khatmData.readPages,target:604,story:"Кто прочитал Коран, тому Аллах запишет награду десяти тысяч"},
-{id:"zikr100",title:"📿 Начинающий",desc:"100 зикров",icon:"🔢",xp:50,type:"auto",current:()=>getTotalZikr(),target:100,story:"Пусть язык всегда будет влажным от поминания Аллаха"},
-{id:"zikr1000",title:"🌟 Усердный",desc:"1000 зикров",icon:"🌟",xp:150,type:"auto",current:()=>getTotalZikr(),target:1000,story:"Два слова любимы Милостивым: Субханаллах ва бихамдихи"},
-{id:"zikr10000",title:"⚡ Ас-Саббах",desc:"10 000 зикров",icon:"⚡",xp:500,type:"auto",current:()=>getTotalZikr(),target:10000,story:"Один человек совершал 12 000 зикров ежедневно и вошёл в Рай"},
-{id:"zikr50000",title:"🔥 Стойкий",desc:"50 000 зикров",icon:"🔥",xp:1000,type:"auto",current:()=>getTotalZikr(),target:50000,story:"Кто много поминает Аллаха, того поминают ангелы"},
-{id:"zikr100000",title:"💪 Мудавим",desc:"100 000 зикров",icon:"💪",xp:2000,type:"auto",current:()=>getTotalZikr(),target:100000,story:"Постоянство в поминании — ключ к довольству Аллаха"},
-{id:"zikr250000",title:"👑 Элитный",desc:"250 000 зикров",icon:"👑",xp:3500,type:"auto",current:()=>getTotalZikr(),target:250000,story:"Терпение и усердие вознаграждаются сполна"},
-{id:"zikr500000",title:"🏅 Аз-Закир",desc:"500 000 зикров",icon:"🏅",xp:5000,type:"auto",current:()=>getTotalZikr(),target:500000,story:"Великая награда ждёт тех, кто поминает Аллаха много"},
-{id:"astaghfirullah100",title:"🤲 Астагфирулла 100",desc:"100 раз",icon:"🤲",xp:50,type:"auto",current:()=>zikrCounters.astaghfirullah,target:100,story:"Пророк сам просил прощения более 70 раз в день"},
-{id:"astaghfirullah1000",title:"🤲 Астагфирулла 1000",desc:"1000 раз",icon:"🤲",xp:150,type:"auto",current:()=>zikrCounters.astaghfirullah,target:1000,story:"Кто много просит прощения, Аллах дарует выход из любой трудности"},
-{id:"astaghfirullah1m",title:"🤲 Астагфирулла 1 млн",desc:"1 000 000 раз",icon:"🤲",xp:1000,type:"auto",current:()=>zikrCounters.astaghfirullah,target:1000000,story:"Аллах открывает врата Рая для много просящих прощения"},
-{id:"subhanallah100",title:"📿 Субханаллах ва бихамдихи 100",desc:"100 раз",icon:"📿",xp:50,type:"auto",current:()=>zikrCounters.subhanallah_wabihamdihi,target:100,story:"Субханаллах ва бихамдихи — любимые слова для Аллаха"},
-{id:"subhanallah1000",title:"📿 Субханаллах ва бихамдихи 1000",desc:"1000 раз",icon:"📿",xp:150,type:"auto",current:()=>zikrCounters.subhanallah_wabihamdihi,target:1000,story:"За эти слова Аллах сажает дерево в Раю"},
-{id:"subhanallah1m",title:"📿 Субханаллах ва бихамдихи 1 млн",desc:"1 000 000 раз",icon:"📿",xp:1000,type:"auto",current:()=>zikrCounters.subhanallah_wabihamdihi,target:1000000,story:"Великая награда ждёт того, кто много поминает Аллаха"},
-{id:"subhanallah_alazim100",title:"📿 Субханаллах аль-азым 100",desc:"100 раз",icon:"📿",xp:50,type:"auto",current:()=>zikrCounters.subhanallah_alazim,target:100,story:"Пречист Великий Аллах"},
-{id:"subhanallah_alazim1000",title:"📿 Субханаллах аль-азым 1000",desc:"1000 раз",icon:"📿",xp:150,type:"auto",current:()=>zikrCounters.subhanallah_alazim,target:1000,story:"Величайшее поминание Величайшего"},
-{id:"subhanallah_alazim1m",title:"📿 Субханаллах аль-азым 1 млн",desc:"1 000 000 раз",icon:"📿",xp:1000,type:"auto",current:()=>zikrCounters.subhanallah_alazim,target:1000000,story:"Пречист Аллах, Великий!"},
-{id:"firstTauba",title:"✅ Первое покаяние",desc:"Записать день",icon:"📝",xp:50,type:"auto",current:()=>taubaData.days.length,target:1,story:"Лучшие из грешников — кающиеся"},
-{id:"weekStreak",title:"🔥 Неделя",desc:"7 дней подряд",icon:"🔥",xp:150,type:"auto",current:()=>{let s=0,cd=new Date();cd.setHours(0,0,0,0);let sorted=[...taubaData.days].sort((a,b)=>new Date(b.date)-new Date(a.date));for(let i=0;i<sorted.length;i++){let dd=new Date(sorted[i].date);dd.setHours(0,0,0,0);if(Math.floor((cd-dd)/86400000)===s)s++;else break;}return s;},target:7,story:"Постоянные дела — самые любимые для Аллаха"},
-{id:"monthStreak",title:"🌙 Месяц",desc:"30 дней",icon:"🌙",xp:300,type:"auto",current:()=>{let s=0,cd=new Date();cd.setHours(0,0,0,0);let sorted=[...taubaData.days].sort((a,b)=>new Date(b.date)-new Date(a.date));for(let i=0;i<sorted.length;i++){let dd=new Date(sorted[i].date);dd.setHours(0,0,0,0);if(Math.floor((cd-dd)/86400000)===s)s++;else break;}return s;},target:30,story:"Войдите в Рай без отчета"}
-];
-
-let userAchievements = loadData("userAchievements",{unlocked:[]});
-function updateAutoAchievements(){let newUnlocked=[];for(let a of ACHIEVEMENTS_LIST){if(userAchievements.unlocked.includes(a.id))continue;if(a.type==="auto"){let cur=typeof a.current==='function'?a.current():0;if(cur>=a.target){userAchievements.unlocked.push(a.id);newUnlocked.push(a);}}}if(newUnlocked.length){saveData("userAchievements",userAchievements);for(let a of newUnlocked)showNotif(a);renderAchievements();renderCollection();}}
-function showNotif(ach){let n=document.createElement('div');n.style.cssText=`position:fixed;bottom:20px;right:20px;background:#2b4b29;color:#e6bc7e;padding:15px;border-radius:20px;z-index:2000`;n.innerHTML=`<div style="font-size:2rem">${ach.icon}</div><div>🏆 ${ach.title}</div><div>+${ach.xp} XP</div>`;document.body.appendChild(n);setTimeout(()=>n.remove(),4000);vibrate();}
-function openStory(ach){document.getElementById('storyIcon').innerHTML=ach.icon;document.getElementById('storyTitle').innerHTML=ach.title;document.getElementById('storyText').innerHTML=ach.story||"История сподвижника";document.getElementById('storyModal').style.display='flex';}
-function renderAchievements(){let c=document.getElementById('achievementsList');c.innerHTML=ACHIEVEMENTS_LIST.map(ach=>{let unlocked=userAchievements.unlocked.includes(ach.id);let prog=!unlocked&&ach.type==="auto"?((typeof ach.current==='function'?ach.current():0)/ach.target*100):(unlocked?100:0);let txt=!unlocked&&ach.type==="auto"?`${typeof ach.current==='function'?ach.current():0}/${ach.target}`:(unlocked?"✅ Открыто":"Не выполнено");return `<div class="achievement-card ${unlocked?'unlocked':'locked'}"><div class="achievement-header"><div class="achievement-icon">${ach.icon}</div><div class="achievement-title">${ach.title}</div><div class="achievement-xp">+${ach.xp} XP</div></div><div class="achievement-desc">${ach.desc}</div><div class="achievement-progress-bar"><div class="achievement-progress-fill" style="width:${prog}%"></div></div><div class="achievement-status">${txt}</div></div>`;}).join('');}
-
-// ========== ЗВЁЗДЫ И РАНГИ (СПОДВИЖНИКИ) ==========
-let starsData = loadData("starsData",{totalStars:0,lastClaimDate:"",unlockedRanks:[]});
-const RANKS = [
-{stars:1,title:"🌟 Новичок",starsIcon:"⭐",sahabi:"Абу Бакр ас-Сиддик",story:"Первый праведный халиф, ближайший друг пророка ﷺ, который потратил всё своё имущество на путь Аллаха и был назван «ас-Сиддик» (Правдивейший)."},
-{stars:10,title:"🌟🌟 Усердный",starsIcon:"⭐⭐",sahabi:"Умар ибн аль-Хаттаб",story:"Второй праведный халиф. Изначально был противником Ислама, но после принятия стал одним из самых справедливых правителей. Пророк ﷺ сказал: «Если бы после меня был пророк, им был бы Умар»."},
-{stars:25,title:"🌟🌟🌟 Настойчивый",starsIcon:"⭐⭐⭐",sahabi:"Усман ибн Аффан",story:"Третий праведный халиф, известный своей скромностью и щедростью. Его называли «Зу-н-Нурайн» (Обладатель двух светов) за то, что он был женат на двух дочерях пророка."},
-{stars:50,title:"🏅 Преданный",starsIcon:"🏅",sahabi:"Али ибн Абу Талиб",story:"Четвёртый праведный халиф, двоюродный брат и зять пророка ﷺ. Был одним из самых храбрых воинов. Пророк ﷺ сказал о нём: «Я — город знания, а Али — его ворота»."},
-{stars:100,title:"🏅🏅 Постоянный",starsIcon:"🏅🏅",sahabi:"Абдуррахман ибн Ауф",story:"Один из десяти обещанных Рая. Был богатейшим купцом среди сподвижников, но всё своё богатство тратил на путь Аллаха."},
-{stars:150,title:"⭐ Золотой",starsIcon:"⭐",sahabi:"Саад ибн Аби Ваккас",story:"Один из десяти обещанных Рая. Был лучником и воином. Именно он выпустил первую стрелу на пути Аллаха."},
-{stars:200,title:"⭐⭐ Платиновый",starsIcon:"⭐⭐",sahabi:"Абу Убайда ибн аль-Джаррах",story:"Один из десяти обещанных Рая. Пророк ﷺ назвал его «Амином (хранителем) этой уммы»."},
-{stars:300,title:"👑 Бриллиантовый",starsIcon:"👑",sahabi:"Халид ибн Валид",story:"Меч Аллаха. Великий полководец, который не проиграл ни одного сражения. Сначала сражался против мусульман, но после принятия Ислама стал одним из величайших защитников религии."},
-{stars:500,title:"👑👑 Легендарный",starsIcon:"👑👑",sahabi:"Билял ибн Рабах",story:"Первый муэдзин в Исламе. Был рабом, который принял Ислам и подвергался жестоким пыткам. Его положили на раскалённые камни, но он повторял «Ахад, Ахад» (Един, Един). Освобождён Абу Бакром."},
-{stars:1000,title:"🕋 Аль-Фарук",starsIcon:"🕋",sahabi:"Десять обещанных Рая",story:"Абу Бакр, Умар, Усман, Али, Тальха, Зубайр, Абдуррахман ибн Ауф, Саад ибн Аби Ваккас, Саид ибн Зейд, Абу Убайда — десять сподвижников, которым пророк Мухаммад ﷺ при жизни обещал Рай. Они — лучшие примеры для мусульман."}
-];
-// ========== РЕНДЕРИНГ АЗКАРОВ С ГАЛОЧКАМИ ==========
+for(let a of EVENING_AZKAR_FULL) if(a.translit_raw) a.translit = applyMarks(a.translit_raw);// ========== АЗКАРЫ (РЕНДЕРИНГ С ГАЛОЧКАМИ) ==========
 let currentAzkarList = MORNING_AZKAR_FULL;
 let zoomStates = {};
-let azkarChecks = loadData("azkarChecks",{morning:{},evening:{}});
+let arabicLarge = false;
+let ruHidden = false;
 
 function getMorningAzkarCompleted(){
     let total = MORNING_AZKAR_FULL.length;
@@ -700,112 +774,132 @@ function renderAzkar(){
             azkarChecks[t][idx] = cb.checked;
             saveData("azkarChecks",azkarChecks);
             checkDailyTasks();
+            if((t==='morning' && getMorningAzkarCompleted()) || (t==='evening' && getEveningAzkarCompleted())){
+                addXP(10);
+            }
         });
     });
 }
 
-// ========== НАВИГАЦИЯ ПО ВКЛАДКАМ ==========
-function switchModule(mid){
-    document.querySelectorAll('.module').forEach(m=>m.classList.remove('active-module'));
-    document.getElementById(`module-${mid}`).classList.add('active-module');
-    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-    document.querySelector(`.nav-btn[data-module="${mid}"]`).classList.add('active');
-    if(mid === 'tauba') updateTaubaUI();
-    if(mid === 'prayer') getLocationAndPrayerTimes();
-    if(mid === 'hadith') fetchRandomHadith();
-    if(mid === 'achievements') renderAchievements();
-    if(mid === 'stars') { updateStarsUI(); checkDailyTasks(); }
-    if(mid === 'collection') renderCollection();
-    if(mid === 'azkar') renderAzkar();
+// ========== ДОСТИЖЕНИЯ ==========
+const ACHIEVEMENTS_LIST = [
+{id:"firstPage",title:"📖 Первая страница",desc:"1 страница Корана",icon:"📖",xp:50,type:"auto",current:()=>khatmData.readPages,target:1,story:"Первое откровение пришло в пещере Хира"},
+{id:"tenPages",title:"📚 Десять страниц",desc:"10 страниц",icon:"📚",xp:100,type:"auto",current:()=>khatmData.readPages,target:10,story:"Каждая буква Корана — десять наград"},
+{id:"halfJuz",title:"🎯 Полджуза",desc:"20 страниц",icon:"🎯",xp:150,type:"auto",current:()=>khatmData.readPages,target:20,story:"Первый джуз начинается с Аль-Фатихи"},
+{id:"khatmComplete",title:"🏆 Завершивший Хатм",desc:"604 страницы",icon:"🕋",xp:500,type:"auto",current:()=>khatmData.readPages,target:604,story:"Кто прочитал Коран, тому Аллах запишет награду десяти тысяч"},
+{id:"zikr100",title:"📿 Начинающий",desc:"100 зикров",icon:"🔢",xp:50,type:"auto",current:()=>getTotalZikr(),target:100,story:"Пусть язык всегда будет влажным от поминания Аллаха"},
+{id:"zikr1000",title:"🌟 Усердный",desc:"1000 зикров",icon:"🌟",xp:150,type:"auto",current:()=>getTotalZikr(),target:1000,story:"Два слова любимы Милостивым: Субханаллах ва бихамдихи"},
+{id:"zikr10000",title:"⚡ Ас-Саббах",desc:"10 000 зикров",icon:"⚡",xp:500,type:"auto",current:()=>getTotalZikr(),target:10000,story:"Один человек совершал 12 000 зикров ежедневно и вошёл в Рай"},
+{id:"zikr50000",title:"🔥 Стойкий",desc:"50 000 зикров",icon:"🔥",xp:1000,type:"auto",current:()=>getTotalZikr(),target:50000,story:"Кто много поминает Аллаха, того поминают ангелы"},
+{id:"zikr100000",title:"💪 Мудавим",desc:"100 000 зикров",icon:"💪",xp:2000,type:"auto",current:()=>getTotalZikr(),target:100000,story:"Постоянство в поминании — ключ к довольству Аллаха"},
+{id:"zikr250000",title:"👑 Элитный",desc:"250 000 зикров",icon:"👑",xp:3500,type:"auto",current:()=>getTotalZikr(),target:250000,story:"Терпение и усердие вознаграждаются сполна"},
+{id:"zikr500000",title:"🏅 Аз-Закир",desc:"500 000 зикров",icon:"🏅",xp:5000,type:"auto",current:()=>getTotalZikr(),target:500000,story:"Великая награда ждёт тех, кто поминает Аллаха много"},
+{id:"astaghfirullah100",title:"🤲 Астагфирулла 100",desc:"100 раз",icon:"🤲",xp:50,type:"auto",current:()=>zikrCounters.astaghfirullah,target:100,story:"Пророк сам просил прощения более 70 раз в день"},
+{id:"astaghfirullah1000",title:"🤲 Астагфирулла 1000",desc:"1000 раз",icon:"🤲",xp:150,type:"auto",current:()=>zikrCounters.astaghfirullah,target:1000,story:"Кто много просит прощения, Аллах дарует выход из любой трудности"},
+{id:"astaghfirullah1m",title:"🤲 Астагфирулла 1 млн",desc:"1 000 000 раз",icon:"🤲",xp:1000,type:"auto",current:()=>zikrCounters.astaghfirullah,target:1000000,story:"Аллах открывает врата Рая для много просящих прощения"},
+{id:"subhanallah100",title:"📿 Субханаллах ва бихамдихи 100",desc:"100 раз",icon:"📿",xp:50,type:"auto",current:()=>zikrCounters.subhanallah_wabihamdihi,target:100,story:"Субханаллах ва бихамдихи — любимые слова для Аллаха"},
+{id:"subhanallah1000",title:"📿 Субханаллах ва бихамдихи 1000",desc:"1000 раз",icon:"📿",xp:150,type:"auto",current:()=>zikrCounters.subhanallah_wabihamdihi,target:1000,story:"За эти слова Аллах сажает дерево в Раю"},
+{id:"subhanallah1m",title:"📿 Субханаллах ва бихамдихи 1 млн",desc:"1 000 000 раз",icon:"📿",xp:1000,type:"auto",current:()=>zikrCounters.subhanallah_wabihamdihi,target:1000000,story:"Великая награда ждёт того, кто много поминает Аллаха"},
+{id:"subhanallah_alazim100",title:"📿 Субханаллах аль-азым 100",desc:"100 раз",icon:"📿",xp:50,type:"auto",current:()=>zikrCounters.subhanallah_alazim,target:100,story:"Пречист Великий Аллах"},
+{id:"subhanallah_alazim1000",title:"📿 Субханаллах аль-азым 1000",desc:"1000 раз",icon:"📿",xp:150,type:"auto",current:()=>zikrCounters.subhanallah_alazim,target:1000,story:"Величайшее поминание Величайшего"},
+{id:"subhanallah_alazim1m",title:"📿 Субханаллах аль-азым 1 млн",desc:"1 000 000 раз",icon:"📿",xp:1000,type:"auto",current:()=>zikrCounters.subhanallah_alazim,target:1000000,story:"Пречист Аллах, Великий!"},
+{id:"firstTauba",title:"✅ Первое покаяние",desc:"Записать день",icon:"📝",xp:50,type:"auto",current:()=>taubaData.days.length,target:1,story:"Лучшие из грешников — кающиеся"},
+{id:"weekStreak",title:"🔥 Неделя",desc:"7 дней подряд",icon:"🔥",xp:150,type:"auto",current:()=>getStreakDays(),target:7,story:"Постоянные дела — самые любимые для Аллаха"},
+{id:"monthStreak",title:"🌙 Месяц",desc:"30 дней",icon:"🌙",xp:300,type:"auto",current:()=>getStreakDays(),target:30,story:"Войдите в Рай без отчета"}
+];
+
+let userAchievements = loadData("userAchievements",{unlocked:[],unlockedAt:[]});
+
+function updateAutoAchievements(){
+    let newUnlocked=[];
+    for(let a of ACHIEVEMENTS_LIST){
+        if(userAchievements.unlocked.includes(a.id))continue;
+        if(a.type==="auto"){
+            let cur=typeof a.current==='function'?a.current():0;
+            if(cur>=a.target){
+                userAchievements.unlocked.push(a.id);
+                if(!userAchievements.unlockedAt) userAchievements.unlockedAt=[];
+                userAchievements.unlockedAt.push({id:a.id,date:new Date().toISOString()});
+                newUnlocked.push(a);
+            }
+        }
+    }
+    if(newUnlocked.length){
+        saveData("userAchievements",userAchievements);
+        for(let a of newUnlocked){
+            showNotif(a);
+            addXP(a.xp);
+        }
+        renderAchievements();
+        renderCollection();
+    }
 }
 
-// ========== ПЕРЕКЛЮЧЕНИЕ УТРЕННИЕ/ВЕЧЕРНИЕ АЗКАРЫ ==========
-document.getElementById('morningSwitchBtn')?.addEventListener('click',()=>{
-    currentAzkarList = MORNING_AZKAR_FULL;
-    renderAzkar();
-    document.getElementById('morningSwitchBtn').classList.add('active');
-    document.getElementById('eveningSwitchBtn').classList.remove('active');
-    document.getElementById('rulesSwitchBtn')?.classList.remove('active');
-    document.getElementById('rulesContent').style.display = 'none';
-    document.getElementById('azkarContent').style.display = 'block';
-});
-document.getElementById('eveningSwitchBtn')?.addEventListener('click',()=>{
-    currentAzkarList = EVENING_AZKAR_FULL;
-    renderAzkar();
-    document.getElementById('eveningSwitchBtn').classList.add('active');
-    document.getElementById('morningSwitchBtn').classList.remove('active');
-    document.getElementById('rulesSwitchBtn')?.classList.remove('active');
-    document.getElementById('rulesContent').style.display = 'none';
-    document.getElementById('azkarContent').style.display = 'block';
-});
-document.getElementById('rulesSwitchBtn')?.addEventListener('click',()=>{
-    document.getElementById('rulesContent').style.display = 'block';
-    document.getElementById('azkarContent').style.display = 'none';
-    document.getElementById('rulesSwitchBtn').classList.add('active');
-    document.getElementById('morningSwitchBtn').classList.remove('active');
-    document.getElementById('eveningSwitchBtn').classList.remove('active');
-});
+function showNotif(ach){
+    let n=document.createElement('div');
+    n.style.cssText=`position:fixed;bottom:20px;right:20px;background:#2b4b29;color:#e6bc7e;padding:15px;border-radius:20px;z-index:2000;animation:fadeIn 0.3s`;
+    n.innerHTML=`<div style="font-size:2rem">${ach.icon}</div><div>🏆 ${ach.title}</div><div>+${ach.xp} XP</div><div style="font-size:0.7rem">${ach.desc}</div>`;
+    document.body.appendChild(n);
+    setTimeout(()=>n.remove(),4000);
+    vibrate();
+}
 
-// ========== УВЕЛИЧЕНИЕ АРАБСКОГО ТЕКСТА ==========
-let arabicLarge = false;
-document.getElementById("toggleArabicSize")?.addEventListener("click",()=>{
-    arabicLarge = !arabicLarge;
-    document.querySelectorAll(".azkar-arabic").forEach(el=>{
-        if(arabicLarge) el.classList.add("zoomed");
-        else el.classList.remove("zoomed");
+function openStory(ach){
+    document.getElementById('storyIcon').innerHTML=ach.icon;
+    document.getElementById('storyTitle').innerHTML=ach.title;
+    document.getElementById('storyText').innerHTML=ach.story||"История сподвижника";
+    document.getElementById('storyModal').style.display='flex';
+}
+
+function renderAchievements(){
+    let c=document.getElementById('achievementsList');
+    if(!c)return;
+    c.innerHTML=ACHIEVEMENTS_LIST.map(ach=>{
+        let unlocked=userAchievements.unlocked.includes(ach.id);
+        let prog=!unlocked&&ach.type==="auto"?((typeof ach.current==='function'?ach.current():0)/ach.target*100):(unlocked?100:0);
+        let txt=!unlocked&&ach.type==="auto"?`${typeof ach.current==='function'?ach.current():0}/${ach.target}`:(unlocked?"✅ Открыто":"❌ Не выполнено");
+        return `<div class="achievement-card ${unlocked?'unlocked':'locked'}" data-ach="${ach.id}"><div class="achievement-header"><div class="achievement-icon">${ach.icon}</div><div class="achievement-title">${ach.title}</div><div class="achievement-xp">+${ach.xp} XP</div></div><div class="achievement-desc">${ach.desc}</div><div class="achievement-progress-bar"><div class="achievement-progress-fill" style="width:${prog}%"></div></div><div class="achievement-status">${txt}</div></div>`;
+    }).join('');
+    document.querySelectorAll('.achievement-card[data-ach]').forEach(card=>{
+        let id=card.dataset.ach;
+        let ach=ACHIEVEMENTS_LIST.find(a=>a.id===id);
+        if(ach&&userAchievements.unlocked.includes(id)){
+            card.addEventListener('click',()=>openStory(ach));
+        }
     });
-});
+}
 
-// ========== СКРЫТИЕ ТРАНСКРИПЦИИ ==========
-let ruHidden = false;
-document.getElementById("toggleRuTranslit")?.addEventListener("click",()=>{
-    ruHidden = !ruHidden;
-    let container = document.querySelector("#module-azkar .card");
-    if(ruHidden) container.classList.add("hide-ru");
-    else container.classList.remove("hide-ru");
-});
-
-// ========== ФУНКЦИИ ЗВЁЗД ==========
+// ========== ЗВЁЗДЫ И РАНГИ ==========
+const RANKS = [
+{stars:1,title:"🌟 Новичок",starsIcon:"⭐",sahabi:"Абу Бакр ас-Сиддик",story:"Первый праведный халиф, ближайший друг пророка ﷺ"},
+{stars:10,title:"🌟🌟 Усердный",starsIcon:"⭐⭐",sahabi:"Умар ибн аль-Хаттаб",story:"Второй праведный халиф, справедливейший правитель"},
+{stars:25,title:"🌟🌟🌟 Настойчивый",starsIcon:"⭐⭐⭐",sahabi:"Усман ибн Аффан",story:"Обладатель двух светов, щедрейший из сподвижников"},
+{stars:50,title:"🏅 Преданный",starsIcon:"🏅",sahabi:"Али ибн Абу Талиб",story:"Лев Аллаха, врата знания"},
+{stars:100,title:"⭐ Золотой",starsIcon:"⭐",sahabi:"Абдуррахман ибн Ауф",story:"Богатейший купец, потративший всё на путь Аллаха"},
+{stars:200,title:"👑 Бриллиантовый",starsIcon:"👑",sahabi:"Халид ибн Валид",story:"Меч Аллаха, непобедимый полководец"},
+{stars:500,title:"🕋 Аль-Фарук",starsIcon:"🕋",sahabi:"Билял ибн Рабах",story:"Первый муэдзин, прошедший через пытки ради Ислама"},
+{stars:1000,title:"🏆 Ас-Сиддик",starsIcon:"🏆",sahabi:"Десять обещанных Рая",story:"Десять сподвижников, которым пророк ﷺ обещал Рай"}
+];
 
 function updateStarsUI(){
     document.getElementById("starCountDisplay").innerHTML = `⭐ ${starsData.totalStars} звёзд`;
     let cr = RANKS[0];
     let nextRank = null;
     for(let i=RANKS.length-1; i>=0; i--){
-        if(starsData.totalStars >= RANKS[i].stars){ 
-            cr = RANKS[i]; 
-            if(i+1 < RANKS.length) nextRank = RANKS[i+1];
-            break; 
-        }
+        if(starsData.totalStars >= RANKS[i].stars){ cr = RANKS[i]; if(i+1 < RANKS.length) nextRank = RANKS[i+1]; break; }
     }
     document.getElementById("rankTitle").innerHTML = cr.title;
     document.getElementById("rankStars").innerHTML = cr.starsIcon;
     document.getElementById("rankDesc").innerHTML = `📖 ${cr.sahabi}`;
     
-    // ===== ПРОГРЕСС ДО СЛЕДУЮЩЕГО РАНГА =====
     let progressHtml = '';
     if(nextRank){
         let needed = nextRank.stars - starsData.totalStars;
         let percent = (starsData.totalStars / nextRank.stars) * 100;
-        progressHtml = `
-            <div style="margin-top: 15px; background: #e0d5bd; border-radius: 30px; height: 12px; overflow: hidden;">
-                <div style="width: ${Math.min(100, percent)}%; background: #d4af37; height: 100%; border-radius: 30px;"></div>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.8rem;">
-                <span>⭐ ${starsData.totalStars}</span>
-                <span>🎯 До ранга «${nextRank.title}»: ${needed} ⭐</span>
-                <span>🏆 ${nextRank.stars}</span>
-            </div>
-        `;
+        progressHtml = `<div style="margin-top:15px;background:#e0d5bd;border-radius:30px;height:12px;overflow:hidden;"><div style="width:${Math.min(100,percent)}%;background:#d4af37;height:100%;border-radius:30px;"></div></div><div style="display:flex;justify-content:space-between;margin-top:8px;font-size:0.8rem;"><span>⭐ ${starsData.totalStars}</span><span>🎯 До ранга «${nextRank.title}»: ${needed} ⭐</span><span>🏆 ${nextRank.stars}</span></div>`;
     } else {
-        progressHtml = `
-            <div style="margin-top: 15px; text-align: center; color: #d4af37;">
-                🎉 Ты достиг максимального ранга! 🎉<br>
-                Всего звёзд: ${starsData.totalStars} / 1000
-            </div>
-        `;
+        progressHtml = `<div style="margin-top:15px;text-align:center;color:#d4af37;">🎉 Ты достиг максимального ранга! 🎉<br>Всего звёзд: ${starsData.totalStars} / 1000</div>`;
     }
-    
     let rankCard = document.getElementById("rankCard");
     if(rankCard){
         let oldProgress = document.getElementById("rankProgress");
@@ -815,18 +909,16 @@ function updateStarsUI(){
         progressDiv.innerHTML = progressHtml;
         rankCard.appendChild(progressDiv);
     }
-    // ===== КОНЕЦ =====
-    
+    if(!starsData.unlockedRanks) starsData.unlockedRanks=[];
     if(!starsData.unlockedRanks.includes(cr.stars) && starsData.totalStars >= cr.stars && cr.stars > 0){
         starsData.unlockedRanks.push(cr.stars);
         saveData("starsData",starsData);
         renderCollection();
-        showNotif({icon:cr.starsIcon, title:cr.title, xp:cr.stars});
+        showNotif({icon:cr.starsIcon, title:cr.title, desc:cr.sahabi, xp:cr.stars});
     }
 }
 
-// ========== ФУНКЦИИ ЗВЁЗД (СБРОС В ПОЛНОЧЬ) ==========
-
+// ========== ЕЖЕДНЕВНЫЕ ЗАДАНИЯ ==========
 function checkDailyTasks(){
     let today = new Date().toISOString().split('T')[0];
     let morning = getMorningAzkarCompleted();
@@ -857,37 +949,33 @@ function checkDailyTasks(){
 
 function claimDailyReward(){
     let today = new Date().toISOString().split('T')[0];
-    if(starsData.lastClaimDate === today){
-        alert("⭐ Ты уже получил звезду сегодня!");
-        return;
-    }
-    
+    if(starsData.lastClaimDate === today){alert("⭐ Ты уже получил звезду сегодня!");return;}
     let morning = getMorningAzkarCompleted();
     let evening = getEveningAzkarCompleted();
     let quran = khatmData.readPages > 0;
     let zikr = getTotalZikr() >= 100;
     let taubaSaved = taubaData.days.some(d => d.date === today);
-    
     if(morning && evening && quran && zikr && taubaSaved){
         starsData.totalStars++;
         starsData.lastClaimDate = today;
         saveData("starsData", starsData);
         updateStarsUI();
         renderCollection();
+        addXP(50);
         alert(`⭐ Получена звезда! Всего: ${starsData.totalStars}`);
         checkDailyTasks();
         vibrate();
-    } else {
-        alert("⚠️ Выполни все ежедневные задания!");
-    }
+    } else {alert("⚠️ Выполни все ежедневные задания!");}
 }
 
 document.getElementById("claimDailyRewardBtn")?.addEventListener("click", claimDailyReward);
 
+// ========== КОЛЛЕКЦИЯ ==========
 function renderCollection(){
     let unlocked = ACHIEVEMENTS_LIST.filter(a=>userAchievements.unlocked.includes(a.id));
-    let starsColl = starsData.unlockedRanks.map(s=>RANKS.find(r=>r.stars===s)).filter(r=>r);
+    let starsColl = (starsData.unlockedRanks||[]).map(s=>RANKS.find(r=>r.stars===s)).filter(r=>r);
     let container = document.getElementById('collectionGrid');
+    if(!container)return;
     if(unlocked.length === 0 && starsColl.length === 0){
         container.innerHTML = '<div style="text-align:center;padding:40px;color:#7a683e">🏆 Пока нет открытых достижений</div>';
     } else {
@@ -908,15 +996,495 @@ function renderCollection(){
     }
 }
 
-// ========== НАВИГАЦИЯ ПО КНОПКАМ ==========
+// Золотые карточки
+function showGoldCards() {
+    let unlockedRanks = (starsData.unlockedRanks||[]).map(s => RANKS.find(r => r.stars === s)).filter(r => r);
+    if(unlockedRanks.length === 0) {alert("⭐ У тебя пока нет открытых рангов. Выполняй ежедневные задания и получай звёзды!");return;}
+    let modalHtml = `<div style="max-height:60vh;overflow-y:auto;padding:5px;"><h3 style="color:#d4af37;text-align:center;">🏆 Золотая коллекция сподвижников 🏆</h3><p style="text-align:center;font-size:0.8rem;color:#7a683e;">Ты открыл ${unlockedRanks.length} из ${RANKS.length} рангов</p>`;
+    unlockedRanks.forEach(rank => {
+        modalHtml += `<div style="background:linear-gradient(135deg,#fef7e8,#f5eddb);border-radius:20px;padding:15px;margin:15px 0;border-left:5px solid #d4af37;"><div style="font-size:1.5rem;">${rank.starsIcon} ${rank.title}</div><div style="font-weight:bold;color:#2c5a2a;margin:8px 0;">📖 ${rank.sahabi}</div><div style="font-size:0.85rem;color:#7a683e;line-height:1.4;">${rank.story}</div><div style="margin-top:8px;font-size:0.7rem;color:#d4af37;">⭐ ${rank.stars} звёзд</div></div>`;
+    });
+    modalHtml += `</div><button id="closeGoldModal" style="margin-top:15px;width:100%;padding:10px;background:#c49a6c;border:none;border-radius:30px;cursor:pointer;">Закрыть</button>`;
+    let modal = document.createElement('div');
+    modal.id = "goldModal";
+    modal.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:2000;display:flex;justify-content:center;align-items:center;padding:20px;";
+    let content = document.createElement('div');
+    content.style.cssText = "background:#fffcf0;border-radius:30px;max-width:500px;width:100%;max-height:80vh;overflow-y:auto;padding:25px;position:relative;border:2px solid #e6bc7e;";
+    content.innerHTML = modalHtml;
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+    document.getElementById("closeGoldModal")?.addEventListener("click", () => modal.remove());
+}
+
+document.getElementById("showGoldCardsBtn")?.addEventListener("click", showGoldCards);
+
+// ========== 99 ИМЁН АЛЛАХА (ПОЛНЫЙ СПИСОК) ==========
+const NAMES_99 = [
+{num:1,arabic:"الرَّحْمَن",russian:"Ар-Рахман",meaning:"Милостивый, Чья милость объемлет всё сущее в этом мире",chechen:"🇭🇺 Дуьненчохь бусулбанах, керстанах а цхьатерра къинхетам беш Верг"},
+{num:2,arabic:"الرَّحِيم",russian:"Ар-Рахим",meaning:"Милосердный, проявляющий особую милость к верующим в мире вечном",chechen:"🇭🇺 Къинхетам дукха болуш, эхартахь къаьсттина бусулба нахах къинхетам бийр болуш Верг"},
+{num:3,arabic:"الْمَلِك",russian:"Аль-Малик",meaning:"Царь, Абсолютный Властелин всего сущего",chechen:"🇭🇺 Паччахь. Иза Дела ву, стигланийн а, лаьттанийн а, цу шинна юкъахь мелдерг а Шен долахь долуш волу"},
+{num:4,arabic:"الْقُدُّوس",russian:"Аль-Куддус",meaning:"Пресвятой, Свободный от любых недостатков",chechen:"🇭🇺 Кхачамбацарех ц1ена Верг. Ц1ена ву Иза массо а кхачамбацарех а, массо а вочух а боьхачух а"},
+{num:5,arabic:"السَّلَام",russian:"Ас-Салям",meaning:"Дарующий мир, безопасность и благополучие",chechen:"🇭🇺 Массо а вочух а, кхачамбацарех а ц1ена Верг а Маьрша верг а ву Иза"},
+{num:6,arabic:"الْمُؤْمِن",russian:"Аль-Муъмин",meaning:"Дарующий веру и безопасность Своим рабам",chechen:"🇭🇺 Тешаме верг. Шен сица бакълуьш Верг Ву Иза"},
+{num:7,arabic:"الْمُهَيْمِن",russian:"Аль-Мухаймин",meaning:"Хранитель, Надзиратель, Свидетель над всем",chechen:"🇭🇺 Массо хlума лардеш верг. Шен лайшна церан рицкъашна а церан lамалшна а тlехlоьттинарг Ву Иза"},
+{num:8,arabic:"الْعَزِيز",russian:"Аль-Азиз",meaning:"Могущественный, Великий, Непобедимый",chechen:"🇭🇺 Веза верг. Иза уггаре а чlо́гlа ницlкъ берг Ву, Цуьнца цхьана дуста дац хӀумма а"},
+{num:9,arabic:"الْجَبَّار",russian:"Аль-Джаббар",meaning:"Обладающий силой, Всемогущий, Исправляющий",chechen:"🇭🇺 Нуьцкъалла верг а, Уггаре онда а, чlо‌гlа а долу ницкъ-гlо‌ра, Шегахь долуш верг а Ву"},
+{num:10,arabic:"الْمُتَكَبِّر",russian:"Аль-Мутакаббир",meaning:"Превознесённый, Обладатель истинного величия",chechen:"🇭🇺 Хила хьакъ долуш Кура верг. Сийлахь-Воккха хиларан куц Шена бен доцуш верг ву Иза"},
+{num:11,arabic:"الْخَالِق",russian:"Аль-Халик",meaning:"Создатель, Творец всего из небытия",chechen:"🇭🇺 Кхоллархо. Массо а хlума кхолла а кхуллуш уьш хуьлуьйтург Ву Иза"},
+{num:12,arabic:"الْبَارِئ",russian:"Аль-Бари",meaning:"Творец, Создающий без примера",chechen:"🇭🇺 Йоцучуьра хlуманаш хуьлуьйтуш Верг. Йоцучуьра хlуманаш Хуьлуьйтург Ву Иза"},
+{num:13,arabic:"الْمُصَوِّر",russian:"Аль-Мусаввир",meaning:"Придающий форму, Образующий творения",chechen:"🇭🇺 Сурт хуьлуьйтург Ву Иза массо а хlуманна, царна амат, куц-сибат даларца"},
+{num:14,arabic:"الْغَفَّار",russian:"Аль-Гаффар",meaning:"Прощающий, Скрывающий грехи снова и снова",chechen:"🇭🇺 Дукха гечдеш волу Дела ву Иза, гlалатлонаш хьул а еш, къиношна геч а деш"},
+{num:15,arabic:"الْقَهَّار",russian:"Аль-Каххар",meaning:"Властвующий, Подчиняющий всё Своей воле",chechen:"🇭🇺 Массо а хlума Шен Паччахьаллийна Нуьцкъана кӀела далийнарг Ву Иза"},
+{num:16,arabic:"الْوَهَّاب",russian:"Аль-Ваххаб",meaning:"Дарующий, Щедро одаривающий безвозмездно",chechen:"🇭🇺 Шен лайшна совгlаташ а, ниlматаш а ца кхоош луш верг ву Иза"},
+{num:17,arabic:"الرَّزَّاق",russian:"Ар-Раззак",meaning:"Наделяющий уделом, Дающий пропитание",chechen:"🇭🇺 Рицкъ луш верг. Арроззакъ аьлла йолу АллахӀан цlе"},
+{num:18,arabic:"الْفَتَّاح",russian:"Аль-Фаттах",meaning:"Открывающий врата добра, милости и знания",chechen:"🇭🇺 Схьадоьллуш Верг. Шен лайшна рицкъанан а, къинхетаман а няlарш дlайоьллург Ву Иза"},
+{num:19,arabic:"الْعَلِيم",russian:"Аль-Алим",meaning:"Всезнающий, Ведающий обо всём",chechen:"🇭🇺 Шена цхьа хlума къайла доцуш, массо а хlума хууш Верг"},
+{num:20,arabic:"الْقَابِض",russian:"Аль-Кабид",meaning:"Сжимающий, Уменьшающий удел кому пожелает",chechen:"🇭🇺 Шен лайшха Шена луъчунна рицкъа гатдеш Верг Ву Иза"},
+{num:21,arabic:"الْبَاسِط",russian:"Аль-Басит",meaning:"Простирающий, Увеличивающий удел кому пожелает",chechen:"🇭🇺 Шен лайшха Шена луъчунна рицкъана шорто еш Верг Ву Иза"},
+{num:22,arabic:"الْخَافِض",russian:"Аль-Хафид",meaning:"Унижающий, Принижающий неверующих",chechen:"🇭🇺 Шеца керстаналла динарг охьатаlош верг ву И, иза сийсаз варца"},
+{num:23,arabic:"الرَّافِع",russian:"Ар-Рафи",meaning:"Возвышающий, Поднимающий верующих",chechen:"🇭🇺 Шеца Иман диллинарг лакха воккхуш Верг ву И, иза сийлахь варца"},
+{num:24,arabic:"الْمُعِز",russian:"Аль-Муизз",meaning:"Возвеличивающий, Дарующий почёт",chechen:"🇭🇺 Сийлалла Шен лайшха, Шена луъчунна луш верг Ву Иза"},
+{num:25,arabic:"الْمُذِل",russian:"Аль-Музилль",meaning:"Принижающий, Лишающий почёта",chechen:"🇭🇺 Сийсазалла Шен лайшха Шена луучунна хуьлуьйтуш верг Ву Иза"},
+{num:26,arabic:"السَّمِيع",russian:"Ас-Сами",meaning:"Всеслышащий, Слышащий всё явное и тайное",chechen:"🇭🇺 Массо х1ума хезаш Верг"},
+{num:27,arabic:"الْبَصِير",russian:"Аль-Басир",meaning:"Всевидящий, Видящий всё сущее",chechen:"🇭🇺 Массо х1ума гуш Верг"},
+{num:28,arabic:"الْحَكَم",russian:"Аль-Хакам",meaning:"Судья, Высший и справедливый Судия",chechen:"🇭🇺 Шен лайшна юкъахь нийса хьукм деш верг"},
+{num:29,arabic:"الْعَدْل",russian:"Аль-Адль",meaning:"Справедливый, Абсолютно справедливый во всём",chechen:"🇭🇺 Нийсо еш верг. Шена зулам хьарам а дина, Шен лайшна юккъахь иза хьарам дина волу Дела ву Иза"},
+{num:30,arabic:"اللَّطِيف",russian:"Аль-Латиф",meaning:"Проницательный, Благостный, Милостивый к рабам",chechen:"🇭🇺 Дика хуьлуш верг ву Иза Шен лаьшца, церан лерам а беш - царна рицкъа латторца"},
+{num:31,arabic:"الْخَبِير",russian:"Аль-Хабир",meaning:"Сведущий, Знающий сокровенное",chechen:"🇭🇺 Шех цхьа а хlума къайла ца долуш верг"},
+{num:32,arabic:"الْحَلِيم",russian:"Аль-Халим",meaning:"Кроткий, Снисходительный, Не спешащий с наказанием",chechen:"🇭🇺 Таlзар дан сихлуш воцург. Шен лайша Шеца керистанналла деш а, уьш шена lеса буьлуш а, Шен дозанаш цара хедош а шена гушшехь, собаре хуьлу Иза"},
+{num:33,arabic:"الْعَظِيم",russian:"Аль-Азим",meaning:"Величайший, Обладатель абсолютного величия",chechen:"🇭🇺 Сийлахь-Воккха хиларан уггаре а лакхара куц, Шена долуш верг ву И"},
+{num:34,arabic:"الْغَفُور",russian:"Аль-Гафур",meaning:"Прощающий, Многопрощающий",chechen:"🇭🇺 Дала Шен цlе Ал-Гlофу́р аьлла а яьккхина, Ал-Гlоффа́р аьлла а яьккхина. Даккхийчу къиношна дукха Гечдийриг ву"},
+{num:35,arabic:"الشَّكُور",russian:"Аш-Шакур",meaning:"Благодарный, Воздающий многократно за малые дела",chechen:"🇭🇺 Шен дуьхьа йина йолу мел кlеззиг йолу а дика lамал, ян ца йойтуш, къобалйой, Шен комаьршонца совйоккхий, цунна дуьхьал инзаре боккха мела ло Цо"},
+{num:36,arabic:"الْعَلِيّ",russian:"Аль-Алий",meaning:"Возвышенный, Высочайший",chechen:"🇭🇺 Массо хlуманна тlехь лаккхалла Шена ерг ву И, Сийлахь ву И Шен лакхаллехь"},
+{num:37,arabic:"الْكَبِير",russian:"Аль-Кабир",meaning:"Великий, Превосходящий всё",chechen:"🇭🇺 Массо хlуманал воккха верг. Сийлахьаллин а, воккхаллин а уггаре лакхара куц Шена дерг ву И"},
+{num:38,arabic:"الْحَفِيظ",russian:"Аль-Хафиз",meaning:"Хранитель, Оберегающий всё сущее",chechen:"🇭🇺 Стигланаш а, латта а, цушинна юкъахь мел долу хlума лардийриг ву И"},
+{num:39,arabic:"الْمُقِيت",russian:"Аль-Мукит",meaning:"Поддерживающий, Дающий силу и пропитание",chechen:"🇭🇺 Ша массо а хIуманна тIехь ницкъ кхочуш верг, массо хIума гуш верг, доллу хlума лардийриг"},
+{num:40,arabic:"الْحَسِيب",russian:"Аль-Хасиб",meaning:"Подсчитывающий, Достаточный для всех",chechen:"🇭🇺 Тоьаш ву-кх И Шена тlе болх биллинчарна, Шен лайшна ечу дика а, вон а, кегийчу а, яккхийчу а lамалшна хьесап дийриг а, царна дуьхьала бекхам бийриг а ву И"},
+{num:41,arabic:"الْجَلِيل",russian:"Аль-Джалиль",meaning:"Величественный, Обладатель величия",chechen:"🇭🇺 Шен лайшна дуккха диканаш дарехь Комаьрша Верг. Сийлахь-Воккха Верг"},
+{num:42,arabic:"الْكَرِيم",russian:"Аль-Карим",meaning:"Щедрый, Благородный",chechen:"🇭🇺 Шен лайшна дуккха диканаш дарехь Комаьрша Верг"},
+{num:43,arabic:"الرَّقِيب",russian:"Ар-Ракиб",meaning:"Наблюдающий, Следящий за всеми",chechen:"🇭🇺 Шех цхьа х1ума къайла цадолуш Верг"},
+{num:44,arabic:"الْمُجِيب",russian:"Аль-Муджиб",meaning:"Отвечающий на молитвы просящих",chechen:"🇭🇺 Шега до1а динчунна жоп луш Верг"},
+{num:45,arabic:"الْوَاسِع",russian:"Аль-Васи",meaning:"Всеобъемлющий, Объемлющий всё",chechen:"🇭🇺 Шен комаьршо, ни1маташ а шорта долуш Верг"},
+{num:46,arabic:"الْحَكِيم",russian:"Аль-Хаким",meaning:"Мудрый, Обладатель абсолютной мудрости",chechen:"🇭🇺 Ша деш долу массо х1ума нийса, говза а деш Верг"},
+{num:47,arabic:"الْوَدُود",russian:"Аль-Вадуд",meaning:"Любящий, Проявляющий любовь к верующим",chechen:"🇭🇺 Шен лайшна дика дан лууш, царна дика болх беш Верг"},
+{num:48,arabic:"الْمَجِيد",russian:"Аль-Маджид",meaning:"Славный, Почётный, Преславный",chechen:"🇭🇺 Дерриге сийлаллийн куьцаш Шегахь долуш Верг"},
+{num:49,arabic:"الْبَاعِث",russian:"Аль-Баис",meaning:"Воскрешающий после смерти",chechen:"🇭🇺 Халкъ деллачул т1аьхьа эхартахь дендийр долуш Верг"},
+{num:50,arabic:"الشَّهِيد",russian:"Аш-Шахид",meaning:"Свидетель, Присутствующий везде",chechen:"🇭🇺 Шена хаарха цхьа а х1ума къайлах доцуш Верг"},
+{num:51,arabic:"الْحَقّ",russian:"Аль-Хакк",meaning:"Истинный, Абсолютная Истина",chechen:"🇭🇺 Ц1енна бакъо Шегахь ерг. Устанавливающий истинность истинного через Свои слова"},
+{num:52,arabic:"الْوَكِيل",russian:"Аль-Вакиль",meaning:"Попечитель, Хранитель, На Кого полагаются",chechen:"🇭🇺 1алашдешверг, лардешверг. Тот,на Кого следует полагаться"},
+{num:53,arabic:"الْقَوِيّ",russian:"Аль-Кавий",meaning:"Сильный, Обладатель абсолютной силы",chechen:"🇭🇺 Ондаверг, ницкъберг. Обладатель полной, совершенной мощи"},
+{num:54,arabic:"الْمَتِين",russian:"Аль-Матин",meaning:"Твёрдый, Стойкий, Неколебимый",chechen:"🇭🇺 Г1о оьшушвоцург, ч1ог1аверг. Не нуждающийся в средствах для осуществления Своих решений"},
+{num:55,arabic:"الْوَلِيّ",russian:"Аль-Валий",meaning:"Покровитель, Друг, Защитник верующих",chechen:"🇭🇺 Гергарниг, тешамлург. Тот, Кто благоприятствует подчинившимся"},
+{num:56,arabic:"الْحَمِيد",russian:"Аль-Хамид",meaning:"Достойный похвалы, Прославляемый",chechen:"🇭🇺 Массо а хастамашна хьакъверг. Тот,Кого следует хвалить во всех случаях"},
+{num:57,arabic:"الْمُحْصِي",russian:"Аль-Мухси",meaning:"Учитывающий, Считающий всё сущее",chechen:"🇭🇺 Дерригенна а хьесапдешверг. Тот,Кто Своими знаниями определяет границы для всего сущего"},
+{num:58,arabic:"الْمُبْدِئ",russian:"Аль-Мубди",meaning:"Начинающий, Создающий впервые",chechen:"🇭🇺 Х1ума д1адолошверг. Тот,Кто с самого начала,без примера и прообраза сотворил все сущее"},
+{num:59,arabic:"الْمُعِيد",russian:"Аль-Муид",meaning:"Возвращающий, Возвращающий жизнь после смерти",chechen:"🇭🇺 Духадерзошверг. Тот,Кто возвращает все живое в мертвое состояние,а затем на том свете оживляет их"},
+{num:60,arabic:"الْمُحْيِي",russian:"Аль-Мухйи",meaning:"Оживляющий, Дарующий жизнь",chechen:"🇭🇺 Х1ума денъешверг. Тот,Кто творит жизнь;Тот,Кто даёт жизнь любой вещи,которой хочет"},
+{num:61,arabic:"الْمُمِيت",russian:"Аль-Мумит",meaning:"Умерщвляющий, Дарующий смерть",chechen:"🇭🇺 Садолуьйтушверг, х1ума дуьйшверг. Тот,Кто предписал смерть всем смертным"},
+{num:62,arabic:"الْحَيُّ",russian:"Аль-Хайю",meaning:"Живой, Вечноживой, Жизнь Которого не имеет начала и конца",chechen:"🇭🇺 Даима а дийнаверг. Тот, жизни Которого нет начала и нет конца"},
+{num:63,arabic:"الْقَيُّوم",russian:"Аль-Кайюм",meaning:"Самосущий, Вечный, Хранитель всего",chechen:"🇭🇺 Шен халкъан хьашт кхочушдарехь лаьтташверг. Независимый ни от кого и ни от чего"},
+{num:64,arabic:"الْوَاجِد",russian:"Аль-Ваджид",meaning:"Богатый, Находящий всё, что пожелает",chechen:"🇭🇺 Хьалдолушверг. Тот,у которого все сущее,для Которого отсутствует понятие недостающее"},
+{num:65,arabic:"الْمَاجِد",russian:"Аль-Маджид",meaning:"Преславный, Благородный, Щедрый",chechen:"🇭🇺 Шен хиларехь кхачамеверг. Тот, у Кого полное совершенство"},
+{num:66,arabic:"الْوَاحِد",russian:"Аль-Вахид",meaning:"Единственный, Один в Своей сущности",chechen:"🇭🇺 Шен хиларехь цхьаъ бен воцург. Тот,у Кого нет равных,нет соперников, нет сотоварищей"},
+{num:67,arabic:"الصَّمَد",russian:"Ас-Самад",meaning:"Вечный, Самодостаточный, К Кому обращаются за нуждами",chechen:"🇭🇺 Даима верг. Тот,Которому все подчиняются; Тот,без Чьего ведома не происходит ничего"},
+{num:68,arabic:"الْقَادِر",russian:"Аль-Кадир",meaning:"Всемогущий, Способный на всё",chechen:"🇭🇺 Массо а х1уманна т1ехь никъкхочург. Тот,Кто может сотворить из ничего и может уничтожить сущее"},
+{num:69,arabic:"الْمُقْتَدِر",russian:"Аль-Муктадир",meaning:"Могущественный, Устраивающий дела наилучшим образом",chechen:"🇭🇺 Ницкъ лушверг. Тот, Кто устраивает дела для созданий наилучшим образом"},
+{num:70,arabic:"الْمُقَدِّم",russian:"Аль-Мукаддим",meaning:"Приближающий, Выдвигающий вперёд",chechen:"🇭🇺 Х1ума хьалхатоттушверг. Выдвигающий вперёд достойных рабов Своих"},
+{num:71,arabic:"الْمُؤَخِّر",russian:"Аль-Муаххир",meaning:"Отдаляющий, Отодвигающий назад",chechen:"🇭🇺 Т1аьхьа татта хьакъ верг т1аьхьавуьтуш Верг"},
+{num:72,arabic:"الْأَوَّل",russian:"Аль-Авваль",meaning:"Первый, Начальный, Бывший до всего",chechen:"🇭🇺 Шел хьалха цхьа х1ума доцуш хьалхара Верг"},
+{num:73,arabic:"الْآخِر",russian:"Аль-Ахир",meaning:"Последний, Конечный, Остающийся после всего",chechen:"🇭🇺 Шел т1аьхьа цхьа х1ума доцуш, т1аьхьа вуьсур Верг"},
+{num:74,arabic:"الظَّاهِر",russian:"Аз-Захир",meaning:"Явный, Очевидный, Проявленный",chechen:"🇭🇺 Шен сийлаллехь шел лекха х1умма доцуш, массо х1уманал лакхахь Верг"},
+{num:75,arabic:"الْبَاطِن",russian:"Аль-Батин",meaning:"Скрытый, Тайный, Непостижимый для умов",chechen:"🇭🇺 Цхьанне хьекъал т1екхуьур доцуш, къайлаха Верг"},
+{num:76,arabic:"الْوَالِي",russian:"Аль-Вали",meaning:"Правящий, Властвующий над всем",chechen:"🇭🇺 1аламийн доладеш, церан белхаш тобеш Верг"},
+{num:77,arabic:"الْمُتَعَالِي",russian:"Аль-Мутаали",meaning:"Превознесённый, Высочайший, Превыше всех недостатков",chechen:"🇭🇺 Массо эшамах ц1ена Верг. Возвышенный над любыми недостатками"},
+{num:78,arabic:"الْبَرّ",russian:"Аль-Барр",meaning:"Благостный, Добродетельный, Милостивый",chechen:"🇭🇺 Дика дар дукха долуш Верг. Тот, Чья милость велика ко всем творениям"},
+{num:79,arabic:"التَّوَّاب",russian:"Ат-Тавваб",meaning:"Принимающий покаяние, Многократно прощающий кающихся",chechen:"🇭🇺 Шен лешкара тоба къобалдеш Верг. Многократно прощающий кающихся"},
+{num:80,arabic:"الْمُنْتَقِم",russian:"Аль-Мунтаким",meaning:"Мстящий, Карающий за грехи",chechen:"🇭🇺 Зуламхошкара ч1ир оьцуш Верг. Воздающий непокорным за их грехи"},
+{num:81,arabic:"الْعَفُوّ",russian:"Аль-Афувв",meaning:"Прощающий, Извиняющий, Стирающий грехи",chechen:"🇭🇺 Къиношна гечдеш, къинт1ера волуш Верг. Стирающий грехи полностью"},
+{num:82,arabic:"الرَّؤُوف",russian:"Ар-Рауф",meaning:"Сострадательный, Мягкий, Проявляющий особую милость",chechen:"🇭🇺 Шен лайшца ч1ог1а къинхетаме Верг. Проявляющий особую милость к верующим"},
+{num:83,arabic:"الْمَلِكُ الْمُلْكِ",russian:"Малик аль-Мульк",meaning:"Владыка царства, Царь всего сущего",chechen:"🇭🇺 Массо х1уманна т1ехь куьйгалла дан ницкъ кхочуш Верг. Царь всего сущего"},
+{num:84,arabic:"ذُو الْجَلَالِ وَالْإِكْرَامِ",russian:"Зуль-Джаляли валь-Икрам",meaning:"Обладатель величия и щедрости",chechen:"🇭🇺 Сийлахь-воккха, Шен пайхамарийн, авлияийн а лерам беш Верг"},
+{num:85,arabic:"الْمُقْسِط",russian:"Аль-Муксит",meaning:"Справедливый, Восстанавливающий справедливость",chechen:"🇭🇺 Шен лайшна юккъехь нийсо еш Верг. Тот, Кто восстанавливает справедливость"},
+{num:86,arabic:"الْجَامِع",russian:"Аль-Джами",meaning:"Собирающий, Объединяющий, Созывающий в Судный день",chechen:"🇭🇺 Къематдийнахь дерриге халкъ цхьана меттехь гулдийр Верг. Собирающий творения в Судный день"},
+{num:87,arabic:"الْغَنِيّ",russian:"Аль-Ганий",meaning:"Богатый, Независимый, Не нуждающийся ни в чём",chechen:"🇭🇺 Шен халкъера х1умма ца оьшуш, хьалдолуш Верг. Ни в чём не нуждающийся"},
+{num:88,arabic:"الْمُغْنِي",russian:"Аль-Мугни",meaning:"Обогащающий, Дарующий богатство и достаток",chechen:"🇭🇺 Шен лешха Шена луург хьал долуш веш Верг. Дарующий богатство и достаток"},
+{num:89,arabic:"الْمَانِع",russian:"Аль-Мани",meaning:"Запрещающий, Удерживающий, Защищающий от зла",chechen:"🇭🇺 Дог1маш х1аллакхиларан, дин эшаран а бахьанаш духатухуш Верг. Защищающий от зла"},
+{num:90,arabic:"الضَّار",russian:"Ад-Дарр",meaning:"Причиняющий благо или вред по Своей мудрости",chechen:"🇭🇺 Шен мостаг1ашна та1зар деш Верг. Может насылать испытания по мудрости Своей"},
+{num:91,arabic:"النَّافِع",russian:"Ан-Нафи",meaning:"Приносящий пользу, Дарующий благо",chechen:"🇭🇺 Шена муьт1ахь болчарна дика деш Верг. Дарующий благо кому пожелает"},
+{num:92,arabic:"النُّور",russian:"Ан-Нур",meaning:"Свет, Освещающий небеса и землю",chechen:"🇭🇺 Стигланан,лаьттан а ох1ланаш нисбеш Верг. Освещающий небеса и землю Своим светом"},
+{num:93,arabic:"الْهَادِي",russian:"Аль-Хади",meaning:"Ведущий по прямому пути, Направляющий к истине",chechen:"🇭🇺 Массо х1ума цунна дика долчунна т1е нисдеш Верг. Направляющий к истине"},
+{num:94,arabic:"الْبَدِيع",russian:"Аль-Бади",meaning:"Дивный, Творец, Создающий без примера",chechen:"🇭🇺 Кхоллар долийнарг, цхьаннах тардар а доцуш. Создающий наилучшим образом без примера"},
+{num:95,arabic:"الْبَاقِي",russian:"Аль-Баки",meaning:"Вечный, Предвечный, Остающийся навечно",chechen:"🇭🇺 Даима хин Верг. Тот, у кого нет конца, Бесконечный"},
+{num:96,arabic:"الْوَارِث",russian:"Аль-Варис",meaning:"Наследник, Наследующий всё сущее",chechen:"🇭🇺 Массо х1ума д1адаьлча а, Ша т1аьхьавуьсур Верг. Истинно Наследующий всё сущее"},
+{num:97,arabic:"الرَّشِيد",russian:"Ар-Рашид",meaning:"Разумный, Наставляющий, Ведущий правильным путём",chechen:"🇭🇺 Шен лайш царна маслахьате долчу х1уманна т1е нисбеш Верг. Направляющий на правильный путь"},
+{num:98,arabic:"الصَّبُور",russian:"Ас-Сабур",meaning:"Терпеливый, Не спешащий с наказанием",chechen:"🇭🇺 1есачу нахана та1зар дан сих цалуш, собаре Верг. Не спешащий с наказанием"},
+{num:99,arabic:"الرَّحْمَن",russian:"Ар-Рахман",meaning:"Милостивый, Чья милость объемлет всё",chechen:"🇭🇺 Дуьненчохь бусулбанах,керстанах а цхьатерра къинхетам беш Верг. Милостивый ко всем на этом свете"}
+];
+
+// Состояние для отображения чеченского перевода
+let showChechen = localStorage.getItem("showChechen") === "true" ? true : (localStorage.getItem("showChechen") === null ? true : false);
+
+function renderNames99(){
+    let grid = document.getElementById('names99Grid');
+    if(!grid) return;
+    let html = '';
+    NAMES_99.forEach(name => {
+        html += `<div class="name-card">
+            <div class="name-number">${name.num}</div>
+            <div class="name-arabic">${name.arabic}</div>
+            <div class="name-translation">${name.russian}</div>
+            <div class="name-meaning">📖 ${name.meaning}</div>
+            ${showChechen ? `<div class="name-chechen">${name.chechen}</div>` : ''}
+        </div>`;
+    });
+    grid.innerHTML = html;
+}
+
+function toggleChechen(){
+    showChechen = !showChechen;
+    localStorage.setItem("showChechen", showChechen);
+    renderNames99();
+    let btn = document.getElementById('toggleChechenBtn');
+    if(btn) btn.innerHTML = showChechen ? '🇭🇺 Скрыть чеченский смысл' : '🇭🇺 Показать чеченский смысл';
+}
+
+document.getElementById('toggleChechenBtn')?.addEventListener('click', toggleChechen);
+
+// ========== НАВИГАЦИЯ ПО ВКЛАДКАМ ==========
+function switchModule(mid){
+    document.querySelectorAll('.module').forEach(m=>m.classList.remove('active-module'));
+    let targetModule = document.getElementById(`module-${mid}`);
+    if(targetModule) targetModule.classList.add('active-module');
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    let activeBtn = document.querySelector(`.nav-btn[data-module="${mid}"]`);
+    if(activeBtn) activeBtn.classList.add('active');
+    
+    if(mid === 'tauba') updateTaubaUI();
+    if(mid === 'prayer') getLocationAndPrayerTimes();
+    if(mid === 'hadith') fetchRandomHadith();
+    if(mid === 'achievements') renderAchievements();
+    if(mid === 'stars') { updateStarsUI(); checkDailyTasks(); }
+    if(mid === 'collection') renderCollection();
+    if(mid === 'azkar') renderAzkar();
+    if(mid === 'names99') renderNames99();
+    if(mid === 'profile') updateAuthUI();
+}
+
+// ========== ОБРАБОТЧИКИ АЗКАРОВ И НАВИГАЦИИ ==========
+document.getElementById('morningSwitchBtn')?.addEventListener('click',()=>{
+    currentAzkarList = MORNING_AZKAR_FULL;
+    renderAzkar();
+    document.getElementById('morningSwitchBtn').classList.add('active');
+    document.getElementById('eveningSwitchBtn').classList.remove('active');
+    document.getElementById('rulesSwitchBtn')?.classList.remove('active');
+    let rulesContent = document.getElementById('rulesContent');
+    let azkarContent = document.getElementById('azkarContent');
+    if(rulesContent) rulesContent.style.display = 'none';
+    if(azkarContent) azkarContent.style.display = 'block';
+});
+document.getElementById('eveningSwitchBtn')?.addEventListener('click',()=>{
+    currentAzkarList = EVENING_AZKAR_FULL;
+    renderAzkar();
+    document.getElementById('eveningSwitchBtn').classList.add('active');
+    document.getElementById('morningSwitchBtn').classList.remove('active');
+    document.getElementById('rulesSwitchBtn')?.classList.remove('active');
+    let rulesContent = document.getElementById('rulesContent');
+    let azkarContent = document.getElementById('azkarContent');
+    if(rulesContent) rulesContent.style.display = 'none';
+    if(azkarContent) azkarContent.style.display = 'block';
+});
+document.getElementById('rulesSwitchBtn')?.addEventListener('click',()=>{
+    let rulesContent = document.getElementById('rulesContent');
+    let azkarContent = document.getElementById('azkarContent');
+    if(rulesContent) rulesContent.style.display = 'block';
+    if(azkarContent) azkarContent.style.display = 'none';
+    document.getElementById('rulesSwitchBtn').classList.add('active');
+    document.getElementById('morningSwitchBtn').classList.remove('active');
+    document.getElementById('eveningSwitchBtn').classList.remove('active');
+});
+
+document.getElementById("toggleArabicSize")?.addEventListener("click",()=>{
+    arabicLarge = !arabicLarge;
+    document.querySelectorAll(".azkar-arabic").forEach(el=>{
+        if(arabicLarge) el.classList.add("zoomed");
+        else el.classList.remove("zoomed");
+    });
+});
+
+document.getElementById("toggleRuTranslit")?.addEventListener("click",()=>{
+    ruHidden = !ruHidden;
+    let container = document.querySelector("#module-azkar .card");
+    if(container){
+        if(ruHidden) container.classList.add("hide-ru");
+        else container.classList.remove("hide-ru");
+    }
+});
+
 document.querySelectorAll('.nav-btn').forEach(btn=>{
     btn.addEventListener('click',()=>switchModule(btn.getAttribute('data-module')));
 });
 
-document.getElementById('closeStoryModal')?.addEventListener('click',()=>document.getElementById('storyModal').style.display='none');
-window.onclick=(e)=>{ if(e.target === document.getElementById('storyModal')) document.getElementById('storyModal').style.display='none'; };
+document.getElementById('closeStoryModal')?.addEventListener('click',()=>{
+    let storyModal = document.getElementById('storyModal');
+    if(storyModal) storyModal.style.display='none';
+});
+window.onclick=(e)=>{
+    let storyModal = document.getElementById('storyModal');
+    if(e.target === storyModal && storyModal) storyModal.style.display='none';
+};
 
-// ========== ИНИЦИАЛИЗАЦИЯ ВСЕГО ==========
+// ========== FIREBASE ==========
+const firebaseConfig = {
+  apiKey: "AIzaSyCUiXHBbxlSn1DladBWj5ODfEs-FXJXyTI",
+  authDomain: "muslim-tracker-2d567.firebaseapp.com",
+  projectId: "muslim-tracker-2d567",
+  storageBucket: "muslim-tracker-2d567.firebasestorage.app",
+  messagingSenderId: "527056085452",
+  appId: "1:527056085452:web:47bf5ce838508ae2bf7d69",
+  measurementId: "G-Y7TNSQYRCY"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+let currentUser = null;
+
+async function saveToCloud() {
+    if (!currentUser || !db) return;
+    const userData = { khatmData, taubaData, zikrCounters, starsData, userAchievements, xpData, azkarChecks, updatedAt: new Date() };
+    try {
+        await db.collection('users').doc(currentUser.uid).set(userData);
+        document.getElementById('cloudStatus').innerHTML = '✅ Данные сохранены в облаке';
+    } catch(e) { console.error(e); }
+}
+
+async function loadFromCloud(uid) {
+    if (!db) return;
+    try {
+        const doc = await db.collection('users').doc(uid).get();
+        if (doc.exists) {
+            const data = doc.data();
+            if(data.khatmData) khatmData = data.khatmData;
+            if(data.taubaData) taubaData = data.taubaData;
+            if(data.zikrCounters) zikrCounters = data.zikrCounters;
+            if(data.starsData) starsData = data.starsData;
+            if(data.userAchievements) userAchievements = data.userAchievements;
+            if(data.xpData) xpData = data.xpData;
+            if(data.azkarChecks) azkarChecks = data.azkarChecks;
+            updateKhatmProgress(); updateTaubaUI(); updateZikrDisplay(); updateStarsUI();
+            renderAchievements(); renderCollection(); renderAzkar(); updateXPDisplay();
+            document.getElementById('cloudStatus').innerHTML = '☁️ Данные загружены из облака';
+        } else { await saveToCloud(); }
+    } catch(e) { console.error(e); }
+}
+
+function setupAutoSave() {
+    const originalSave = saveData;
+    window.saveData = function(k, d) {
+        originalSave(k, d);
+        if (currentUser) setTimeout(() => saveToCloud(), 100);
+    };
+}
+
+document.getElementById('googleLoginBtn')?.addEventListener('click', async () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    try {
+        const result = await auth.signInWithPopup(provider);
+        currentUser = result.user;
+        await loadFromCloud(currentUser.uid);
+        updateAuthUI();
+    } catch(e) { alert('Ошибка входа: ' + e.message); }
+});
+
+document.getElementById('githubLoginBtn')?.addEventListener('click', async () => {
+    const provider = new firebase.auth.GithubAuthProvider();
+    try {
+        const result = await auth.signInWithPopup(provider);
+        currentUser = result.user;
+        await loadFromCloud(currentUser.uid);
+        updateAuthUI();
+    } catch(e) { alert('Ошибка входа: ' + e.message); }
+});
+
+document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+    await auth.signOut();
+    currentUser = null;
+    updateAuthUI();
+    alert('Вы вышли из аккаунта');
+});
+
+function updateAuthUI() {
+    const userInfo = document.getElementById('userInfo');
+    const googleBtn = document.getElementById('googleLoginBtn');
+    const githubBtn = document.getElementById('githubLoginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (currentUser) {
+        userInfo.innerHTML = `<img src="${currentUser.photoURL || ''}" class="user-avatar"><br><strong>${currentUser.displayName || currentUser.email}</strong>`;
+        if(googleBtn) googleBtn.style.display = 'none';
+        if(githubBtn) githubBtn.style.display = 'none';
+        if(logoutBtn) logoutBtn.style.display = 'inline-block';
+    } else {
+        userInfo.innerHTML = '<p>Войдите, чтобы сохранить прогресс в облаке 🌐</p>';
+        if(googleBtn) googleBtn.style.display = 'inline-flex';
+        if(githubBtn) githubBtn.style.display = 'inline-flex';
+        if(logoutBtn) logoutBtn.style.display = 'none';
+    }
+}
+
+auth.onAuthStateChanged(async (user) => {
+    currentUser = user;
+    updateAuthUI();
+    if (user) await loadFromCloud(user.uid);
+});
+setupAutoSave();
+
+// ========== ХАДИСЫ ДНЯ ==========
+const HADITH_API_URL = 'https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/';
+const AVAILABLE_BOOKS = [
+    { id: 'rus-bukhari', name: 'Сахих аль-Бухари' }, { id: 'rus-muslim', name: 'Сахих Муслим' },
+    { id: 'rus-abudawud', name: 'Сунан Абу Дауд' }, { id: 'rus-tirmidhi', name: 'Джами ат-Тирмизи' }
+];
+let hadithsCache = {};
+
+async function fetchRandomHadithFromAPI() {
+    const randomBook = AVAILABLE_BOOKS[Math.floor(Math.random() * AVAILABLE_BOOKS.length)];
+    if (!hadithsCache[randomBook.id]) {
+        const url = HADITH_API_URL + randomBook.id + '.json';
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Ошибка загрузки');
+            const data = await response.json();
+            const hadithsArray = Object.entries(data.hadiths || data).map(([key, value]) => ({
+                id: key, arabic: value.arabic || '', text: value.text || value.translation || '', number: key
+            }));
+            hadithsCache[randomBook.id] = { bookName: randomBook.name, hadiths: hadithsArray };
+        } catch (error) { showFallbackHadith(); return; }
+    }
+    const bookData = hadithsCache[randomBook.id];
+    if (bookData && bookData.hadiths.length > 0) {
+        const randomIndex = Math.floor(Math.random() * bookData.hadiths.length);
+        const hadith = bookData.hadiths[randomIndex];
+        document.getElementById('hadithArabic').innerHTML = hadith.arabic || '—';
+        document.getElementById('hadithText').innerHTML = hadith.text || 'Хадис временно недоступен';
+        document.getElementById('hadithSource').innerHTML = `📚 Источник: ${bookData.bookName}, Хадис №${hadith.number}`;
+    } else { showFallbackHadith(); }
+}
+
+function showFallbackHadith() {
+    const fallbackHadiths = [
+        { arabic: "عَنْ أَبِي هُرَيْرَةَ رَضِيَ اللَّهُ عَنْهُ قَالَ: قَالَ رَسُولُ اللَّهِ ﷺ: «مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الْآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ»", text: "Кто верует в Аллаха и в Судный день, пусть говорит благое или молчит.", source: "Сахих аль-Бухари 6018" },
+        { arabic: "عَنْ أَنَسِ بْنِ مَالِكٍ رَضِيَ اللَّهُ عَنْهُ قَالَ: قَالَ رَسُولُ اللَّهِ ﷺ: «لَا يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لِأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ»", text: "Не уверует никто из вас, пока не пожелает брату своему того же, чего желает себе.", source: "Сахих аль-Бухари 13" }
+    ];
+    const random = fallbackHadiths[Math.floor(Math.random() * fallbackHadiths.length)];
+    document.getElementById('hadithArabic').innerHTML = random.arabic;
+    document.getElementById('hadithText').innerHTML = random.text;
+    document.getElementById('hadithSource').innerHTML = `📚 Источник: ${random.source}`;
+}
+
+function fetchRandomHadith() {
+    document.getElementById('hadithArabic').innerHTML = 'جاري التحميل...';
+    document.getElementById('hadithText').innerHTML = 'Загрузка хадиса...';
+    document.getElementById('hadithSource').innerHTML = '';
+    fetchRandomHadithFromAPI();
+}
+
+document.getElementById('refreshHadithBtn')?.addEventListener('click', fetchRandomHadith);
+if(document.getElementById('hadithArabic')) fetchRandomHadith();
+
+// ========== ВРЕМЯ НАМАЗА ==========
+async function fetchPrayerTimes(city, country) {
+    try {
+        const url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=16`;
+        document.getElementById('locationInfo').innerHTML = `📍 Загрузка... (${city}, ${country})`;
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.code === 200 && data.data) {
+            const timings = data.data.timings;
+            const date = data.data.date.readable;
+            document.getElementById('prayerTimesGrid').innerHTML = `
+                <div class="prayer-card"><div class="prayer-name">Фаджр</div><div class="prayer-time">${timings.Fajr}</div></div>
+                <div class="prayer-card"><div class="prayer-name">Шурук</div><div class="prayer-time">${timings.Sunrise}</div></div>
+                <div class="prayer-card"><div class="prayer-name">Зухр</div><div class="prayer-time">${timings.Dhuhr}</div></div>
+                <div class="prayer-card"><div class="prayer-name">Аср</div><div class="prayer-time">${timings.Asr}</div></div>
+                <div class="prayer-card"><div class="prayer-name">Магриб</div><div class="prayer-time">${timings.Maghrib}</div></div>
+                <div class="prayer-card"><div class="prayer-name">Иша</div><div class="prayer-time">${timings.Isha}</div></div>
+            `;
+            document.getElementById('locationInfo').innerHTML = `📍 ${city}, ${country} | ${date}`;
+            updateNextPrayer(timings);
+            saveData("lastPrayerLocation", { city, country, date, timings });
+        } else { throw new Error('Город не найден'); }
+    } catch (error) {
+        document.getElementById('locationInfo').innerHTML = `⚠️ Ошибка: город "${city}" не найден`;
+    }
+}
+
+function updateNextPrayer(timings) {
+    const now = new Date();
+    const currentTime = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+    const prayers = [
+        { name: 'Фаджр', time: timings.Fajr }, { name: 'Шурук', time: timings.Sunrise },
+        { name: 'Зухр', time: timings.Dhuhr }, { name: 'Аср', time: timings.Asr },
+        { name: 'Магриб', time: timings.Maghrib }, { name: 'Иша', time: timings.Isha }
+    ];
+    let nextPrayer = null;
+    for (let prayer of prayers) { if (prayer.time > currentTime) { nextPrayer = prayer; break; } }
+    if (!nextPrayer) { nextPrayer = prayers[0]; document.getElementById('nextPrayerInfo').innerHTML = `🌙 Следующий намаз: ${nextPrayer.name} (${nextPrayer.time}) — завтра`; }
+    else { document.getElementById('nextPrayerInfo').innerHTML = `🕌 Следующий намаз: ${nextPrayer.name} (${nextPrayer.time})`; }
+}
+
+function getLocationAndPrayerTimes() {
+    const saved = loadData("lastPrayerLocation", null);
+    if (saved && saved.city && saved.country) { fetchPrayerTimes(saved.city, saved.country); }
+    else { document.getElementById('locationInfo').innerHTML = '📍 Нажмите "Моё местоположение" или введите город'; }
+}
+
+function autoLocate() {
+    if (!navigator.geolocation) { alert("Ваш браузер не поддерживает геолокацию"); return; }
+    document.getElementById('locationInfo').innerHTML = '📍 Определение местоположения...';
+    navigator.geolocation.getCurrentPosition(async (position) => {
+        const lat = position.coords.latitude; const lon = position.coords.longitude;
+        try {
+            const geoUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=ru`;
+            const geoResponse = await fetch(geoUrl);
+            const geoData = await geoResponse.json();
+            let city = geoData.address?.city || geoData.address?.town || geoData.address?.village || 'Москва';
+            let country = geoData.address?.country || 'Россия';
+            city = city.replace(/[0-9]/g, '').trim();
+            await fetchPrayerTimes(city, country);
+        } catch (error) { await fetchPrayerTimes('Москва', 'Россия'); }
+    }, (error) => { alert("Не удалось определить местоположение"); });
+}
+
+function searchCity() {
+    const city = document.getElementById('cityInput').value.trim();
+    const country = document.getElementById('countryInput').value.trim() || 'Россия';
+    if (!city) { alert("Введите название города"); return; }
+    fetchPrayerTimes(city, country);
+}
+
+document.getElementById('autoLocateBtn')?.addEventListener('click', autoLocate);
+document.getElementById('searchCityBtn')?.addEventListener('click', searchCity);
+
+setInterval(() => {
+    const saved = loadData("lastPrayerLocation", null);
+    if (saved && saved.timings) { updateNextPrayer(saved.timings); }
+}, 60000);
+
+// ========== ЭКСПОРТ ДАННЫХ ==========
+document.getElementById('exportHistoryBtn')?.addEventListener('click', () => {
+    const exportData = { khatmData, taubaData, zikrCounters, starsData, userAchievements, xpData, exportDate: new Date().toISOString() };
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `muslim_tracker_backup_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    alert("✅ Данные экспортированы!");
+});
+
+// ========== ИНИЦИАЛИЗАЦИЯ ==========
 populateSuraSelect();
 updatePositionUI();
 updateKhatmProgress();
@@ -926,377 +1494,34 @@ renderCollection();
 updateStarsUI();
 checkDailyTasks();
 renderAzkar();
+renderNames99();
+updateXPDisplay();
 
 setInterval(()=>{ updateAutoAchievements(); checkDailyTasks(); }, 5000);
-// ========== ПОКАЗ ЗОЛОТЫХ КАРТОЧЕК (СПОДВИЖНИКИ) ==========
-function showGoldCards() {
-    let unlockedRanks = starsData.unlockedRanks.map(s => RANKS.find(r => r.stars === s)).filter(r => r);
-    if(unlockedRanks.length === 0) {
-        alert("⭐ У тебя пока нет открытых рангов. Выполняй ежедневные задания и получай звёзды!");
-        return;
-    }
-    
-    let modalHtml = `
-        <div style="max-height: 60vh; overflow-y: auto; padding: 5px;">
-            <h3 style="color: #d4af37; text-align: center;">🏆 Золотая коллекция сподвижников 🏆</h3>
-            <p style="text-align: center; font-size: 0.8rem; color: #7a683e;">Ты открыл ${unlockedRanks.length} из ${RANKS.length} рангов</p>
-    `;
-    
-    unlockedRanks.forEach(rank => {
-        modalHtml += `
-            <div style="background: linear-gradient(135deg, #fef7e8, #f5eddb); border-radius: 20px; padding: 15px; margin: 15px 0; border-left: 5px solid #d4af37;">
-                <div style="font-size: 1.5rem;">${rank.starsIcon} ${rank.title}</div>
-                <div style="font-weight: bold; color: #2c5a2a; margin: 8px 0;">📖 ${rank.sahabi}</div>
-                <div style="font-size: 0.85rem; color: #7a683e; line-height: 1.4;">${rank.story}</div>
-                <div style="margin-top: 8px; font-size: 0.7rem; color: #d4af37;">⭐ ${rank.stars} звёзд</div>
-            </div>
-        `;
-    });
-    
-    modalHtml += `</div><button id="closeGoldModal" style="margin-top: 15px; width: 100%; padding: 10px; background: #c49a6c; border: none; border-radius: 30px; cursor: pointer;">Закрыть</button>`;
-    
-    let modal = document.createElement('div');
-    modal.id = "goldModal";
-    modal.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:2000;display:flex;justify-content:center;align-items:center;padding:20px;";
-    let content = document.createElement('div');
-    content.style.cssText = "background:#fffcf0;border-radius:30px;max-width:500px;width:100%;max-height:80vh;overflow-y:auto;padding:25px;position:relative;border:2px solid #e6bc7e;";
-    content.innerHTML = modalHtml;
-    modal.appendChild(content);
-    document.body.appendChild(modal);
-    
-    document.getElementById("closeGoldModal")?.addEventListener("click", () => modal.remove());
-}
 
-document.getElementById("showGoldCardsBtn")?.addEventListener("click", showGoldCards);
-// ========== ХАДИСЫ ДНЯ (ОНЛАЙН API) ==========
-// Используем бесплатный Hadith API с CDN
-// Источник: https://github.com/fawazahmed0/hadith-api [citation:4]
-
-const HADITH_API_URL = 'https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/';
-
-// Доступные книги хадисов на русском языке
-const AVAILABLE_BOOKS = [
-    { id: 'rus-bukhari', name: 'Сахих аль-Бухари' },
-    { id: 'rus-muslim', name: 'Сахих Муслим' },
-    { id: 'rus-abudawud', name: 'Сунан Абу Дауд' },
-    { id: 'rus-tirmidhi', name: 'Джами ат-Тирмизи' },
-    { id: 'rus-nasai', name: 'Сунан ан-Насаи' },
-    { id: 'rus-ibnmajah', name: 'Сунан Ибн Маджа' }
-];
-
-// Кеш для загруженных хадисов (чтобы не грузить каждый раз всю книгу)
-let hadithsCache = {};
-
-// Функция получения случайного хадиса из выбранной книги
-async function fetchRandomHadithFromAPI() {
-    // Выбираем случайную книгу
-    const randomBook = AVAILABLE_BOOKS[Math.floor(Math.random() * AVAILABLE_BOOKS.length)];
-    
-    // Если книгу ещё не загружали — загружаем
-    if (!hadithsCache[randomBook.id]) {
-        const url = HADITH_API_URL + randomBook.id + '.json';
-        
-        try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error('Ошибка загрузки');
-            const data = await response.json();
-            
-            // Преобразуем объект в массив хадисов
-            const hadithsArray = Object.entries(data.hadiths || data).map(([key, value]) => ({
-                id: key,
-                arabic: value.arabic || '',
-                text: value.text || value.translation || '',
-                number: key
-            }));
-            
-            hadithsCache[randomBook.id] = {
-                bookName: randomBook.name,
-                hadiths: hadithsArray
-            };
-        } catch (error) {
-            console.error('Ошибка загрузки хадисов:', error);
-            // Если API недоступен, показываем резервный хадис
-            showFallbackHadith();
-            return;
-        }
-    }
-    
-    // Берём случайный хадис из загруженной книги
-    const bookData = hadithsCache[randomBook.id];
-    if (bookData && bookData.hadiths.length > 0) {
-        const randomIndex = Math.floor(Math.random() * bookData.hadiths.length);
-        const hadith = bookData.hadiths[randomIndex];
-        
-        // Обновляем интерфейс
-        document.getElementById('hadithArabic').innerHTML = hadith.arabic || '—';
-        document.getElementById('hadithText').innerHTML = hadith.text || 'Хадис временно недоступен';
-        document.getElementById('hadithSource').innerHTML = `📚 Источник: ${bookData.bookName}, Хадис №${hadith.number}`;
-    } else {
-        showFallbackHadith();
-    }
-}
-
-// Резервные хадисы на случай проблем с интернетом
-function showFallbackHadith() {
-    const fallbackHadiths = [
-        {
-            arabic: "عَنْ أَبِي هُرَيْرَةَ رَضِيَ اللَّهُ عَنْهُ قَالَ: قَالَ رَسُولُ اللَّهِ ﷺ: «مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الْآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ»",
-            text: "Кто верует в Аллаха и в Судный день, пусть говорит благое или молчит.",
-            source: "Сахих аль-Бухари 6018, Сахих Муслим 47"
-        },
-        {
-            arabic: "عَنْ أَنَسِ بْنِ مَالِكٍ رَضِيَ اللَّهُ عَنْهُ قَالَ: قَالَ رَسُولُ اللَّهِ ﷺ: «لَا يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لِأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ»",
-            text: "Не уверует никто из вас, пока не пожелает брату своему того же, чего желает себе.",
-            source: "Сахих аль-Бухари 13, Сахих Муслим 45"
-        }
-    ];
-    const random = fallbackHadiths[Math.floor(Math.random() * fallbackHadiths.length)];
-    document.getElementById('hadithArabic').innerHTML = random.arabic;
-    document.getElementById('hadithText').innerHTML = random.text;
-    document.getElementById('hadithSource').innerHTML = `📚 Источник: ${random.source}`;
-}
-
-// Функция для обновления хадиса (вызывается при загрузке и по кнопке)
-function fetchRandomHadith() {
-    // Показываем индикатор загрузки
-    document.getElementById('hadithArabic').innerHTML = 'جاري التحميل...';
-    document.getElementById('hadithText').innerHTML = 'Загрузка хадиса...';
-    document.getElementById('hadithSource').innerHTML = '';
-    
-    // Загружаем хадис из API
-    fetchRandomHadithFromAPI();
-}
-
-// Привязываем функцию к кнопке обновления
-const refreshBtn = document.getElementById('refreshHadithBtn');
-if (refreshBtn) {
-    // Убираем старые обработчики, если были
-    const newRefreshBtn = refreshBtn.cloneNode(true);
-    refreshBtn.parentNode.replaceChild(newRefreshBtn, refreshBtn);
-    newRefreshBtn.addEventListener('click', fetchRandomHadith);
-}
-
-// Автоматически загружаем хадис при загрузке страницы
-if (document.getElementById('hadithArabic')) {
-    fetchRandomHadith();
-}
-// ========== ВРЕМЯ НАМАЗА (API Aladhan) ==========
-
-// Функция получения времени намаза
-async function fetchPrayerTimes(city, country) {
-    try {
-        // Используем API Aladhan (бесплатно, без ключа)
-        const url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=16`;
-        
-        document.getElementById('locationInfo').innerHTML = `📍 Загрузка... (${city}, ${country})`;
-        
-        const response = await fetch(url);
-        const data = await response.json();
-        
-        if (data.code === 200 && data.data) {
-            const timings = data.data.timings;
-            const date = data.data.date.readable;
-            
-            // Обновляем время намазов
-            document.getElementById('prayerTimesGrid').innerHTML = `
-                <div class="prayer-card"><div class="prayer-name">Фаджр</div><div class="prayer-time">${timings.Fajr}</div></div>
-                <div class="prayer-card"><div class="prayer-name">Шурук</div><div class="prayer-time">${timings.Sunrise}</div></div>
-                <div class="prayer-card"><div class="prayer-name">Зухр</div><div class="prayer-time">${timings.Dhuhr}</div></div>
-                <div class="prayer-card"><div class="prayer-name">Аср</div><div class="prayer-time">${timings.Asr}</div></div>
-                <div class="prayer-card"><div class="prayer-name">Магриб</div><div class="prayer-time">${timings.Maghrib}</div></div>
-                <div class="prayer-card"><div class="prayer-name">Иша</div><div class="prayer-time">${timings.Isha}</div></div>
-            `;
-            
-            document.getElementById('locationInfo').innerHTML = `📍 ${city}, ${country} | ${date} | Метод: Духовное управление мусульман РФ`;
-            
-            // Рассчитываем следующий намаз
-            updateNextPrayer(timings);
-            
-            // Сохраняем в localStorage
-            saveData("lastPrayerLocation", { city, country, date, timings });
-            
-            return true;
-        } else {
-            throw new Error('Город не найден');
-        }
-    } catch (error) {
-        console.error('Ошибка:', error);
-        document.getElementById('locationInfo').innerHTML = `⚠️ Ошибка: город "${city}" не найден. Попробуйте написать на русском (например: Москва, Россия)`;
-        return false;
-    }
-}
-
-// Функция определения следующего намаза
-function updateNextPrayer(timings) {
-    const now = new Date();
-    const currentTime = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-    
-    const prayers = [
-        { name: 'Фаджр', time: timings.Fajr },
-        { name: 'Шурук', time: timings.Sunrise },
-        { name: 'Зухр', time: timings.Dhuhr },
-        { name: 'Аср', time: timings.Asr },
-        { name: 'Магриб', time: timings.Maghrib },
-        { name: 'Иша', time: timings.Isha }
-    ];
-    
-    // Находим следующий намаз
-    let nextPrayer = null;
-    for (let prayer of prayers) {
-        if (prayer.time > currentTime) {
-            nextPrayer = prayer;
-            break;
-        }
-    }
-    
-    // Если все намазы прошли сегодня — следующий завтра (Фаджр)
-    if (!nextPrayer) {
-        nextPrayer = prayers[0];
-        document.getElementById('nextPrayerInfo').innerHTML = `🌙 Следующий намаз: ${nextPrayer.name} (${nextPrayer.time}) — завтра`;
-    } else {
-        // Рассчитываем время до следующего намаза
-        const [nextHour, nextMinute] = nextPrayer.time.split(':');
-        const nextTime = new Date();
-        nextTime.setHours(parseInt(nextHour), parseInt(nextMinute), 0);
-        
-        const diffMs = nextTime - now;
-        const diffMin = Math.floor(diffMs / 60000);
-        const diffHour = Math.floor(diffMin / 60);
-        const diffMinRem = diffMin % 60;
-        
-        let timeLeft = '';
-        if (diffHour > 0) timeLeft = `${diffHour} ч ${diffMinRem} мин`;
-        else timeLeft = `${diffMin} мин`;
-        
-        document.getElementById('nextPrayerInfo').innerHTML = `🕌 Следующий намаз: ${nextPrayer.name} (${nextPrayer.time}) — через ${timeLeft}`;
-    }
-}
-
-// Определение местоположения через геолокацию
-function getLocationAndPrayerTimes() {
-    // Пытаемся загрузить сохранённое местоположение
-    const saved = loadData("lastPrayerLocation", null);
-    if (saved && saved.city && saved.country) {
-        fetchPrayerTimes(saved.city, saved.country);
-    } else {
-        document.getElementById('locationInfo').innerHTML = '📍 Нажмите "Моё местоположение" или введите город';
-    }
-}
-
-// Автоопределение через GPS
-function autoLocate() {
-    if (!navigator.geolocation) {
-        alert("Ваш браузер не поддерживает геолокацию");
-        return;
-    }
-    
-    document.getElementById('locationInfo').innerHTML = '📍 Определение местоположения...';
-    
-    navigator.geolocation.getCurrentPosition(async (position) => {
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
-        
-        try {
-            // Сначала получаем город по координатам (обратный геокодинг)
-            const geoUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=ru`;
-            const geoResponse = await fetch(geoUrl);
-            const geoData = await geoResponse.json();
-            
-            let city = geoData.address?.city || geoData.address?.town || geoData.address?.village || 'Москва';
-            let country = geoData.address?.country || 'Россия';
-            
-            // Очищаем от лишнего
-            city = city.replace(/[0-9]/g, '').trim();
-            country = country.replace(/[0-9]/g, '').trim();
-            
-            await fetchPrayerTimes(city, country);
-        } catch (error) {
-            console.error('Ошибка геокодинга:', error);
-            // Если не получили город, используем примерные координаты (Москва)
-            await fetchPrayerTimes('Москва', 'Россия');
-        }
-    }, (error) => {
-        console.error('Ошибка геолокации:', error);
-        alert("Не удалось определить местоположение. Пожалуйста, введите город вручную.");
-        document.getElementById('locationInfo').innerHTML = '📍 Введите город и страну в поля выше';
-    });
-}
-
-// Поиск по городу
-function searchCity() {
-    const city = document.getElementById('cityInput').value.trim();
-    const country = document.getElementById('countryInput').value.trim();
-    
-    if (!city) {
-        alert("Введите название города");
-        return;
-    }
-    
-    const searchCountry = country || 'Россия';
-    fetchPrayerTimes(city, searchCountry);
-}
-
-// Привязываем кнопки
-document.getElementById('autoLocateBtn')?.addEventListener('click', autoLocate);
-document.getElementById('searchCityBtn')?.addEventListener('click', searchCity);
-
-// Обновляем следующий намаз каждую минуту
-setInterval(() => {
-    const saved = loadData("lastPrayerLocation", null);
-    if (saved && saved.timings) {
-        updateNextPrayer(saved.timings);
-    }
-}, 60000);
-// ========== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА НАМАЗА ПРИ СТАРТЕ ==========
-// Добавляем небольшую задержку, чтобы всё успело загрузиться
 setTimeout(() => {
-    console.log("🔄 Проверка: загружаем намаз и задания...");
-    
-    // Пытаемся загрузить намаз
     const savedLocation = loadData("lastPrayerLocation", null);
-    if (savedLocation && savedLocation.city && savedLocation.country) {
-        console.log("📍 Найдено сохранённое местоположение:", savedLocation.city);
+    if (savedLocation && savedLocation.city) {
         fetchPrayerTimes(savedLocation.city, savedLocation.country);
-    } else {
-        // Если нет сохранённого города, пробуем автоопределение
-        console.log("📍 Сохранённого города нет, пробуем автоопределение...");
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(async (position) => {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                try {
-                    const geoUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=ru`;
-                    const geoResponse = await fetch(geoUrl);
-                    const geoData = await geoResponse.json();
-                    let city = geoData.address?.city || geoData.address?.town || geoData.address?.village || 'Москва';
-                    let country = geoData.address?.country || 'Россия';
-                    city = city.replace(/[0-9]/g, '').trim();
-                    country = country.replace(/[0-9]/g, '').trim();
-                    await fetchPrayerTimes(city, country);
-                } catch (error) {
-                    console.error("Ошибка геокодинга:", error);
-                    await fetchPrayerTimes('Москва', 'Россия');
-                }
-            }, (error) => {
-                console.error("Геолокация отклонена или ошибка:", error);
-                document.getElementById('locationInfo').innerHTML = '📍 Нажмите "Моё местоположение" или введите город';
-            });
-        } else {
-            document.getElementById('locationInfo').innerHTML = '📍 Геолокация не поддерживается, введите город вручную';
-        }
+    } else if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+            const lat = position.coords.latitude; const lon = position.coords.longitude;
+            try {
+                const geoUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=ru`;
+                const geoResponse = await fetch(geoUrl);
+                const geoData = await geoResponse.json();
+                let city = geoData.address?.city || geoData.address?.town || geoData.address?.village || 'Москва';
+                let country = geoData.address?.country || 'Россия';
+                city = city.replace(/[0-9]/g, '').trim();
+                fetchPrayerTimes(city, country);
+            } catch (error) { fetchPrayerTimes('Москва', 'Россия'); }
+        });
     }
-}, 1000); // Задержка 1 секунда
+}, 1000);
 
-// Принудительная проверка заданий каждые 30 секунд (чтобы обновить кнопку)
-setInterval(() => {
-    checkDailyTasks();
-    // Если есть время намаза, обновляем следующий намаз
-    const saved = loadData("lastPrayerLocation", null);
-    if (saved && saved.timings) {
-        updateNextPrayer(saved.timings);
-    }
-}, 30000);
-
+console.log("✅ Muslim Tracker полностью загружен!");
+console.log("📊 Статистика: Зикров - " + getTotalZikr() + ", Дней - " + taubaData.days.length);
+console.log("⭐ Звёзд: " + starsData.totalStars);
 </script>
 </body>
 </html>
