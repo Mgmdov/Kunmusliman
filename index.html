@@ -90,7 +90,7 @@
             font-size: 0.9rem;
         }
 
-        /* Шапка с профилем */
+        /* Шапка */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -284,14 +284,13 @@
         <span class="xp-popup-text" id="popupXpText">0 / 100 XP</span>
     </div>
 
-    <!-- Верхняя панель с профилем -->
+    <!-- Верхняя панель (без кнопки входа) -->
     <div class="top-bar">
         <div></div>
         <div class="auth-section">
             <div class="user-info" id="userInfo">
-                <span>👤</span>
+                <span></span>
             </div>
-            <button class="auth-btn" id="authBtn">🔐 Войти</button>
         </div>
     </div>
 
@@ -311,6 +310,9 @@
                 <input type="password" id="loginPassword" placeholder="Пароль" style="width: 100%; margin: 10px 0;">
                 <button id="loginBtn" style="width: 100%; margin-top: 10px;">Войти</button>
                 <p style="text-align: center; margin-top: 15px; font-size: 0.8rem; color: #7a683e;">
+                    <a href="#" id="forgotPasswordLink" style="color: #2c5a2a;">Забыли пароль?</a>
+                </p>
+                <p style="text-align: center; margin-top: 10px; font-size: 0.8rem; color: #7a683e;">
                     Или <a href="#" id="continueAsGuest" style="color: #2c5a2a;">продолжить как гость</a>
                 </p>
             </div>
@@ -320,6 +322,15 @@
                 <input type="password" id="regPassword" placeholder="Пароль (мин. 6 символов)" style="width: 100%; margin: 10px 0;">
                 <input type="password" id="regConfirmPassword" placeholder="Подтвердите пароль" style="width: 100%; margin: 10px 0;">
                 <button id="registerBtn" style="width: 100%; margin-top: 10px;">Зарегистрироваться</button>
+            </div>
+
+            <div id="forgotPasswordForm" style="display: none;">
+                <p style="color: #5a3a1a; margin-bottom: 15px;">Введите email для восстановления пароля</p>
+                <input type="email" id="resetEmail" placeholder="Email" style="width: 100%; margin: 10px 0;">
+                <button id="sendResetBtn" style="width: 100%; margin-top: 10px;">Отправить письмо</button>
+                <p style="text-align: center; margin-top: 15px;">
+                    <a href="#" id="backToLoginLink" style="color: #2c5a2a;">← Назад ко входу</a>
+                </p>
             </div>
 
             <p id="authError" style="color: #c44; font-size: 0.8rem; margin-top: 15px; text-align: center;"></p>
@@ -373,15 +384,58 @@
     let userData = {
         xp: 0,
         level: 1,
-        khatm: { readPages: 0, completedKhatms: 0, period: 30 },
+        khatm: { readPages: 0, completedKhatms: 0, period: 30, currentSura: 1, currentPage: 1 },
         tauba: { days: [] },
         zikrCounters: {},
-        azkarChecks: { morning: {}, evening: {} },
+        azkarChecks: { morning: {}, evening: {}, morningDate: null, eveningDate: null },
         stars: { totalStars: 0, lastClaimDate: "", unlockedRanks: [] },
         namesLearned: [],
         achievements: [],
         settings: { zikrNotificationInterval: 0, showChechen: true }
     };
+
+    // ==================== НОВОЕ: СИСТЕМА СОХРАНЕНИЯ ДАННЫХ ====================
+    let localDataLoaded = false;
+
+    // Загрузка данных из локального хранилища
+    function loadLocalBackup() {
+        try {
+            const backup = localStorage.getItem('muslim_tracker_backup');
+            if (backup) {
+                const data = JSON.parse(backup);
+                Object.assign(userData, data);
+                console.log('📦 Данные загружены из локального бекапа');
+                return true;
+            }
+        } catch (e) {
+            console.warn('Ошибка загрузки локального бекапа:', e);
+        }
+        return false;
+    }
+
+    // Сохранение локального бекапа
+    function saveLocalBackup() {
+        try {
+            localStorage.setItem('muslim_tracker_backup', JSON.stringify(userData));
+        } catch (e) {
+            console.warn('Ошибка сохранения локального бекапа:', e);
+        }
+    }
+
+    // Проверка и исправление структуры данных
+    function ensureFullDataStructure() {
+        if (!userData.khatm) userData.khatm = { readPages: 0, completedKhatms: 0, period: 30, currentSura: 1, currentPage: 1 };
+        if (userData.khatm.currentSura === undefined) userData.khatm.currentSura = 1;
+        if (userData.khatm.currentPage === undefined) userData.khatm.currentPage = 1;
+        if (!userData.tauba) userData.tauba = { days: [] };
+        if (!userData.zikrCounters) userData.zikrCounters = {};
+        if (!userData.azkarChecks) userData.azkarChecks = { morning: {}, evening: {}, morningDate: null, eveningDate: null };
+        if (!userData.stars) userData.stars = { totalStars: 0, lastClaimDate: '', unlockedRanks: [] };
+        if (!userData.namesLearned) userData.namesLearned = [];
+        if (!userData.achievements) userData.achievements = [];
+        if (!userData.settings) userData.settings = { zikrNotificationInterval: 0, showChechen: true };
+        if (userData.totalSalawat === undefined) userData.totalSalawat = 0;
+    }
 
     const XP_LEVELS = [0, 100, 250, 500, 750, 1000, 1500, 2000, 3000, 4000, 5000];
     const LEVEL_NAMES = ["Новичок", "Ученик", "Практик", "Усердный", "Знающий", 
@@ -440,7 +494,7 @@
         setTimeout(() => n.remove(), 4000);
     }
 
-    // ==================== АВТОРИЗАЦИЯ ====================
+    // ==================== АВТОРИЗАЦИЯ (ИСПРАВЛЕННАЯ) ====================
     function openAuthModal() {
         document.getElementById('authModal').style.display = 'flex';
     }
@@ -448,17 +502,34 @@
     function closeAuthModal() {
         document.getElementById('authModal').style.display = 'none';
         document.getElementById('authError').textContent = '';
+        document.getElementById('loginForm').style.display = 'block';
+        document.getElementById('registerForm').style.display = 'none';
+        document.getElementById('forgotPasswordForm').style.display = 'none';
     }
 
     async function signInAnonymously() {
         try {
+            const hasLocalData = loadLocalBackup();
+            if (hasLocalData) {
+                localDataLoaded = true;
+                console.log('✅ Загружены локальные данные');
+            }
+            
             const result = await auth.signInAnonymously();
             currentUser = result.user;
+            console.log('👤 Анонимный вход:', currentUser.uid);
+            
             updateUserUI();
             closeAuthModal();
             await loadUserData();
+            
+            if (localDataLoaded && (!userData.xp || userData.xp === 0)) {
+                await saveUserData();
+            }
         } catch (error) {
             console.error('Ошибка анонимного входа:', error);
+            loadLocalBackup();
+            updateAllUI();
         }
     }
 
@@ -470,55 +541,77 @@
     }
 
     function updateUserUI() {
-        const authBtn = document.getElementById('authBtn');
+        const userInfo = document.getElementById('userInfo');
         if (currentUser && !currentUser.isAnonymous) {
-            authBtn.textContent = '👤';
-            authBtn.onclick = null;
+            userInfo.innerHTML = `<span>👤 ${currentUser.email || 'Пользователь'}</span>`;
         } else {
-            authBtn.textContent = '🔐 Войти';
-            authBtn.onclick = openAuthModal;
+            userInfo.innerHTML = `<span></span>`;
         }
     }
 
     async function loadUserData() {
-        if (!currentUser) return;
+        if (!currentUser) {
+            if (loadLocalBackup()) updateAllUI();
+            return;
+        }
+        
         try {
             const docRef = db.collection('users').doc(currentUser.uid);
             const doc = await docRef.get();
+            
             if (doc.exists) {
                 const data = doc.data();
+                const oldAchievements = [...(userData.achievements || [])];
                 Object.assign(userData, data);
+                ensureFullDataStructure();
+                
+                if (oldAchievements.length > (userData.achievements || []).length) {
+                    userData.achievements = [...new Set([...oldAchievements, ...(userData.achievements || [])])];
+                    await saveUserData();
+                }
+                
+                saveLocalBackup();
+                showXPPopup();
+                updateAllUI();
             } else {
+                const hasLocalData = loadLocalBackup();
+                if (!hasLocalData) ensureFullDataStructure();
                 await createNewUserInFirestore();
+                saveLocalBackup();
             }
-            showXPPopup();
         } catch (error) {
             console.error('Ошибка загрузки:', error);
+            if (loadLocalBackup()) updateAllUI();
         }
     }
 
     async function createNewUserInFirestore() {
         if (!currentUser) return;
+        
         const defaultData = {
-            xp: 0, level: 1,
-            khatm: { readPages: 0, completedKhatms: 0, period: 30 },
-            tauba: { days: [] },
-            zikrCounters: { subhanallah: 0, alhamdulillah: 0, allahuakbar: 0, astaghfirullah: 0, lailahaillallah: 0, subhanallah_wabihamdihi: 0, subhanallah_alazim: 0 },
-            azkarChecks: { morning: {}, evening: {} },
-            stars: { totalStars: 0, lastClaimDate: "", unlockedRanks: [] },
-            namesLearned: [],
-            achievements: [],
-            settings: { zikrNotificationInterval: 0, showChechen: true },
+            xp: userData.xp || 0,
+            level: userData.level || 1,
+            khatm: userData.khatm || { readPages: 0, completedKhatms: 0, period: 30, currentSura: 1, currentPage: 1 },
+            tauba: userData.tauba || { days: [] },
+            zikrCounters: userData.zikrCounters || {},
+            azkarChecks: userData.azkarChecks || { morning: {}, evening: {}, morningDate: null, eveningDate: null },
+            stars: userData.stars || { totalStars: 0, lastClaimDate: '', unlockedRanks: [] },
+            namesLearned: userData.namesLearned || [],
+            achievements: userData.achievements || [],
+            settings: userData.settings || { zikrNotificationInterval: 0, showChechen: true },
+            totalSalawat: userData.totalSalawat || 0,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
+        
         await db.collection('users').doc(currentUser.uid).set(defaultData);
-        userData = defaultData;
-        showXPPopup();
     }
 
     async function saveUserData() {
+        saveLocalBackup();
         if (!currentUser) return;
+        
         try {
+            ensureFullDataStructure();
             await db.collection('users').doc(currentUser.uid).set(userData, { merge: true });
         } catch (error) {
             console.error('Ошибка сохранения:', error);
@@ -559,9 +652,40 @@
         }
     });
 
+    document.getElementById('forgotPasswordLink')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('registerForm').style.display = 'none';
+        document.getElementById('forgotPasswordForm').style.display = 'block';
+    });
+
+    document.getElementById('backToLoginLink')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('loginForm').style.display = 'block';
+        document.getElementById('registerForm').style.display = 'none';
+        document.getElementById('forgotPasswordForm').style.display = 'none';
+    });
+
+    document.getElementById('sendResetBtn')?.addEventListener('click', async () => {
+        const email = document.getElementById('resetEmail').value;
+        if (!email) {
+            document.getElementById('authError').textContent = 'Введите email';
+            return;
+        }
+        try {
+            await auth.sendPasswordResetEmail(email);
+            alert('Письмо отправлено на ' + email);
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('forgotPasswordForm').style.display = 'none';
+        } catch (error) {
+            document.getElementById('authError').textContent = 'Ошибка: ' + error.message;
+        }
+    });
+
     document.getElementById('loginTabBtn')?.addEventListener('click', () => {
         document.getElementById('loginForm').style.display = 'block';
         document.getElementById('registerForm').style.display = 'none';
+        document.getElementById('forgotPasswordForm').style.display = 'none';
         document.getElementById('loginTabBtn').style.background = '#e6bc7e';
         document.getElementById('registerTabBtn').style.background = '#e8dcc8';
     });
@@ -569,6 +693,7 @@
     document.getElementById('registerTabBtn')?.addEventListener('click', () => {
         document.getElementById('loginForm').style.display = 'none';
         document.getElementById('registerForm').style.display = 'block';
+        document.getElementById('forgotPasswordForm').style.display = 'none';
         document.getElementById('registerTabBtn').style.background = '#e6bc7e';
         document.getElementById('loginTabBtn').style.background = '#e8dcc8';
     });
@@ -602,8 +727,19 @@
         btn.addEventListener('click', () => switchModule(btn.dataset.module));
     });
 
-    console.log('✅ Часть 1/5 загружена.');
-</script><!-- ==================== ЧАСТЬ 2/5: ХАТМ + ТАУБА + 99 ИМЁН ==================== -->
+    // Заглушка для updateAllUI (будет дополнена позже)
+    function updateAllUI() {
+        showXPPopup();
+        if (typeof updateKhatmUI === 'function') updateKhatmUI();
+        if (typeof updateTaubaUI === 'function') updateTaubaUI();
+    }
+
+    // Периодическое сохранение
+    setInterval(() => saveLocalBackup(), 30000);
+    window.addEventListener('beforeunload', () => saveLocalBackup());
+
+    console.log('✅ Часть 1/10 загружена (с исправлениями сохранения данных)');
+</script><!-- ==================== ЧАСТЬ 2/10: ХАТМ + ТАУБА + 99 ИМЁН ==================== -->
 
 <!-- ХАТМ -->
 <div id="module-khatm" class="module active-module">
@@ -883,7 +1019,7 @@ function populateSuraSelect() {
 }
 
 function updateKhatmUI() {
-    const khatm = userData.khatm || { readPages: 0, completedKhatms: 0, period: 30 };
+    const khatm = userData.khatm || { readPages: 0, completedKhatms: 0, period: 30, currentSura: 1, currentPage: 1 };
     const readPages = khatm.readPages || 0;
     const completedKhatms = khatm.completedKhatms || 0;
     const period = khatm.period || 30;
@@ -892,6 +1028,13 @@ function updateKhatmUI() {
     document.getElementById('readPages').textContent = readPages;
     const periodSelect = document.getElementById('khatmPeriod');
     if (periodSelect) periodSelect.value = period;
+    
+    const suraIndex = khatm.currentSura || 1;
+    const page = khatm.currentPage || 1;
+    const suraName = SURA_NAMES_RU[suraIndex - 1] || '—';
+    document.getElementById('currentPositionDisplay').textContent = `Сура: ${suraIndex}. ${suraName} | Страница: ${page}`;
+    document.getElementById('suraSelect').value = suraIndex;
+    document.getElementById('pageInput').value = page;
     
     const progress = (readPages / TOTAL_PAGES) * 100;
     const fill = document.getElementById('khatmProgressFill');
@@ -1149,9 +1292,20 @@ document.getElementById('khatmPeriod')?.addEventListener('change', (e) => {
 document.getElementById('setPageBtn')?.addEventListener('click', () => {
     const page = parseInt(document.getElementById('pageInput').value);
     if (page >= 1 && page <= 604) {
-        positionData.page = page;
-        document.getElementById('suraSelect').value = Math.ceil((page / 604) * 114);
+        const sura = document.getElementById('suraSelect').value;
+        if (sura) {
+            userData.khatm.currentSura = parseInt(sura);
+        }
+        userData.khatm.currentPage = page;
+        updateKhatmUI();
+        saveUserData();
+        showNotification('📌 Позиция установлена');
     }
+});
+
+document.getElementById('savePositionBtn')?.addEventListener('click', () => {
+    saveUserData();
+    showNotification('💾 Позиция сохранена');
 });
 
 document.getElementById('namesSearchInput')?.addEventListener('input', (e) => {
@@ -1187,14 +1341,26 @@ switchModule = function(moduleId) {
     }
 };
 
+// ==================== ОБНОВЛЕНИЕ updateAllUI ====================
+const originalUpdateAllUI = updateAllUI;
+updateAllUI = function() {
+    if (typeof showXPPopup === 'function') showXPPopup();
+    if (typeof updateKhatmUI === 'function') updateKhatmUI();
+    if (typeof updateTaubaUI === 'function') updateTaubaUI();
+    if (typeof updateStarsUI === 'function') updateStarsUI();
+    if (typeof checkDailyTasks === 'function') checkDailyTasks();
+    if (typeof renderCollection === 'function') renderCollection();
+    if (typeof updateAccountInfo === 'function') updateAccountInfo();
+};
+
 // ==================== ИНИЦИАЛИЗАЦИЯ ====================
 populateSuraSelect();
 updateKhatmUI();
 updateTaubaUI();
 setTimeout(() => renderNamesOfAllah(), 200);
 
-console.log('✅ Часть 2/5 загружена.');
-</script><!-- ==================== ЧАСТЬ 3/5: АЗКАРЫ + ЗИКР + НАМАЗ ==================== -->
+console.log('✅ Часть 2/10 загружена.');
+</script><!-- ==================== ЧАСТЬ 3/10: АЗКАРЫ + ЗИКР + НАМАЗ ==================== -->
 
 <!-- АЗКАРЫ -->
 <div id="module-azkar" class="module">
@@ -1345,9 +1511,27 @@ let currentAzkarList = MORNING_AZKAR_FULL;
 let arabicLarge = false;
 let ruHidden = false;
 
+// Проверка и сброс азкаров при новом дне
+function checkAndResetAzkarDate() {
+    const today = new Date().toISOString().split('T')[0];
+    if (!userData.azkarChecks) userData.azkarChecks = { morning: {}, evening: {}, morningDate: null, eveningDate: null };
+    
+    if (userData.azkarChecks.morningDate !== today) {
+        userData.azkarChecks.morning = {};
+        userData.azkarChecks.morningDate = today;
+    }
+    if (userData.azkarChecks.eveningDate !== today) {
+        userData.azkarChecks.evening = {};
+        userData.azkarChecks.eveningDate = today;
+    }
+    saveUserData();
+}
+
 function renderAzkar() {
     const container = document.getElementById('azkarContent');
     if (!container) return;
+    
+    checkAndResetAzkarDate();
     
     const isMorning = currentAzkarList === MORNING_AZKAR_FULL;
     const timeKey = isMorning ? 'morning' : 'evening';
@@ -1360,7 +1544,7 @@ function renderAzkar() {
             <div style="background: ${checked ? 'linear-gradient(135deg, #d4e8ca, #c0dfb0)' : '#fcf6e6'}; border-radius: 20px; padding: 18px; margin-bottom: 15px; border: 1px solid ${checked ? '#6aad5a' : '#e6bc7e'};">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap;">
                     <label style="display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" class="azkar-check" data-time="${timeKey}" data-idx="${idx}" ${checked ? 'checked' : ''} style="width: 22px; height: 22px; accent-color: #4a8b3c;">
+                        <input type="checkbox" class="azkar-check" data-time="${timeKey}" data-idx="${idx}" ${checked ? 'checked disabled' : ''} style="width: 22px; height: 22px; accent-color: #4a8b3c;">
                         <span style="font-weight: bold; color: #2c5a2a;">${azkar.name}</span>
                     </label>
                     <span style="color: #c49a6c; font-size: 0.85rem; background: rgba(0,0,0,0.05); padding: 4px 10px; border-radius: 20px;">${azkar.rec}</span>
@@ -1374,11 +1558,11 @@ function renderAzkar() {
     });
     container.innerHTML = html;
     
-    document.querySelectorAll('.azkar-check').forEach(cb => {
+    document.querySelectorAll('.azkar-check:not([disabled])').forEach(cb => {
         cb.addEventListener('change', () => {
             const time = cb.dataset.time;
             const idx = parseInt(cb.dataset.idx);
-            if (!userData.azkarChecks) userData.azkarChecks = { morning: {}, evening: {} };
+            if (!userData.azkarChecks) userData.azkarChecks = { morning: {}, evening: {}, morningDate: null, eveningDate: null };
             if (!userData.azkarChecks[time]) userData.azkarChecks[time] = {};
             userData.azkarChecks[time][idx] = cb.checked;
             if (cb.checked) addXP(5);
@@ -1636,7 +1820,7 @@ switchModule = function(moduleId) {
         document.getElementById('toggleChechenBtn').textContent = showChechen ? '🇷🇺 Скрыть чеченский перевод' : '🇷🇺 Показать чеченский перевод';
         renderNamesOfAllah();
     }
-    if (moduleId === 'azkar') renderAzkar();
+    if (moduleId === 'azkar') { checkAndResetAzkarDate(); renderAzkar(); }
     if (moduleId === 'counter') renderZikr();
     if (moduleId === 'prayer') {
         const saved = localStorage.getItem('prayerLocation');
@@ -1650,9 +1834,9 @@ switchModule = function(moduleId) {
     }
 };
 
-setTimeout(() => { renderAzkar(); renderZikr(); }, 300);
-console.log('✅ Часть 3/5 загружена.');
-</script><!-- ==================== ЧАСТЬ 4/5: ДОСТИЖЕНИЯ + ЗВЁЗДЫ + КОЛЛЕКЦИЯ ==================== -->
+setTimeout(() => { checkAndResetAzkarDate(); renderAzkar(); renderZikr(); }, 300);
+console.log('✅ Часть 3/10 загружена.');
+</script><!-- ==================== ЧАСТЬ 4/10: ДОСТИЖЕНИЯ + ЗВЁЗДЫ + КОЛЛЕКЦИЯ ==================== -->
 
 <!-- ДОСТИЖЕНИЯ -->
 <div id="module-achievements" class="module">
@@ -1732,85 +1916,143 @@ console.log('✅ Часть 3/5 загружена.');
 </div>
 
 <script>
-// ==================== ДОСТИЖЕНИЯ (60+) ====================
+// ==================== ДОСТИЖЕНИЯ (60+) со счётчиками ====================
 const ALL_ACHIEVEMENTS_FULL = [
     // Хатм (9)
-    { id: 'firstPage', category: 'khatm', title: '📖 Первая страница', desc: 'Прочитать 1 страницу Корана', icon: '📖', xp: 50, story: '«Читай! Во имя Господа твоего» (96:1) — первое откровение.', check: () => (userData.khatm?.readPages || 0) >= 1 },
-    { id: 'juz1', category: 'khatm', title: '📚 Первый джуз', desc: 'Прочитать 20 страниц', icon: '📚', xp: 100, story: 'Первый джуз начинается с суры Аль-Фатиха.', check: () => (userData.khatm?.readPages || 0) >= 20 },
-    { id: 'halfQuran', category: 'khatm', title: '🌓 Половина Корана', desc: 'Прочитать 302 страницы', icon: '🌓', xp: 300, story: 'Вы на полпути к завершению Корана!', check: () => (userData.khatm?.readPages || 0) >= 302 },
-    { id: 'khatm1', category: 'khatm', title: '🕋 Первый Хатм', desc: 'Завершить чтение Корана 1 раз', icon: '🕋', xp: 500, story: '«Лучший из вас тот, кто изучает Коран и обучает ему» (Бухари).', check: () => (userData.khatm?.completedKhatms || 0) >= 1 },
-    { id: 'khatm5', category: 'khatm', title: '📖 5 Хатмов', desc: 'Завершить чтение Корана 5 раз', icon: '📖', xp: 1000, story: 'Постоянство в чтении Корана — признак веры.', check: () => (userData.khatm?.completedKhatms || 0) >= 5 },
-    { id: 'khatm10', category: 'khatm', title: '🌟 10 Хатмов', desc: 'Завершить чтение Корана 10 раз', icon: '🌟', xp: 2000, story: 'Каждая буква Корана — десять наград.', check: () => (userData.khatm?.completedKhatms || 0) >= 10 },
-    { id: 'khatm25', category: 'khatm', title: '🏅 25 Хатмов', desc: 'Завершить чтение Корана 25 раз', icon: '🏅', xp: 5000, story: 'Коран заступится за вас в Судный день.', check: () => (userData.khatm?.completedKhatms || 0) >= 25 },
-    { id: 'khatm50', category: 'khatm', title: '👑 50 Хатмов', desc: 'Завершить чтение Корана 50 раз', icon: '👑', xp: 10000, story: 'Вы из числа людей Корана!', check: () => (userData.khatm?.completedKhatms || 0) >= 50 },
-    { id: 'khatm100', category: 'khatm', title: '🕋 100 Хатмов', desc: 'Завершить чтение Корана 100 раз', icon: '🕋', xp: 25000, story: 'Величайшее достижение! Коран стал частью вашей жизни.', check: () => (userData.khatm?.completedKhatms || 0) >= 100, special: true },
+    { id: 'firstPage', category: 'khatm', title: '📖 Первая страница', desc: 'Прочитать 1 страницу Корана', icon: '📖', xp: 50, story: '«Читай! Во имя Господа твоего» (96:1) — первое откровение.', 
+      check: () => (userData.khatm?.readPages || 0) >= 1, current: () => Math.min(userData.khatm?.readPages || 0, 1), target: () => 1 },
+    { id: 'juz1', category: 'khatm', title: '📚 Первый джуз', desc: 'Прочитать 20 страниц', icon: '📚', xp: 100, story: 'Первый джуз начинается с суры Аль-Фатиха.', 
+      check: () => (userData.khatm?.readPages || 0) >= 20, current: () => Math.min(userData.khatm?.readPages || 0, 20), target: () => 20 },
+    { id: 'halfQuran', category: 'khatm', title: '🌓 Половина Корана', desc: 'Прочитать 302 страницы', icon: '🌓', xp: 300, story: 'Вы на полпути к завершению Корана!', 
+      check: () => (userData.khatm?.readPages || 0) >= 302, current: () => Math.min(userData.khatm?.readPages || 0, 302), target: () => 302 },
+    { id: 'khatm1', category: 'khatm', title: '🕋 Первый Хатм', desc: 'Завершить чтение Корана 1 раз', icon: '🕋', xp: 500, story: '«Лучший из вас тот, кто изучает Коран и обучает ему» (Бухари).', 
+      check: () => (userData.khatm?.completedKhatms || 0) >= 1, current: () => Math.min(userData.khatm?.completedKhatms || 0, 1), target: () => 1 },
+    { id: 'khatm5', category: 'khatm', title: '📖 5 Хатмов', desc: 'Завершить чтение Корана 5 раз', icon: '📖', xp: 1000, story: 'Постоянство в чтении Корана — признак веры.', 
+      check: () => (userData.khatm?.completedKhatms || 0) >= 5, current: () => Math.min(userData.khatm?.completedKhatms || 0, 5), target: () => 5 },
+    { id: 'khatm10', category: 'khatm', title: '🌟 10 Хатмов', desc: 'Завершить чтение Корана 10 раз', icon: '🌟', xp: 2000, story: 'Каждая буква Корана — десять наград.', 
+      check: () => (userData.khatm?.completedKhatms || 0) >= 10, current: () => Math.min(userData.khatm?.completedKhatms || 0, 10), target: () => 10 },
+    { id: 'khatm25', category: 'khatm', title: '🏅 25 Хатмов', desc: 'Завершить чтение Корана 25 раз', icon: '🏅', xp: 5000, story: 'Коран заступится за вас в Судный день.', 
+      check: () => (userData.khatm?.completedKhatms || 0) >= 25, current: () => Math.min(userData.khatm?.completedKhatms || 0, 25), target: () => 25 },
+    { id: 'khatm50', category: 'khatm', title: '👑 50 Хатмов', desc: 'Завершить чтение Корана 50 раз', icon: '👑', xp: 10000, story: 'Вы из числа людей Корана!', 
+      check: () => (userData.khatm?.completedKhatms || 0) >= 50, current: () => Math.min(userData.khatm?.completedKhatms || 0, 50), target: () => 50 },
+    { id: 'khatm100', category: 'khatm', title: '🕋 100 Хатмов', desc: 'Завершить чтение Корана 100 раз', icon: '🕋', xp: 25000, story: 'Величайшее достижение! Коран стал частью вашей жизни.', 
+      check: () => (userData.khatm?.completedKhatms || 0) >= 100, current: () => Math.min(userData.khatm?.completedKhatms || 0, 100), target: () => 100, special: true },
     
     // Зикр (7)
-    { id: 'zikr100', category: 'zikr', title: '📿 100 зикров', desc: 'Совершить 100 зикров', icon: '📿', xp: 50, story: 'Пусть язык всегда будет влажным от поминания Аллаха.', check: () => getTotalZikr() >= 100 },
-    { id: 'zikr1000', category: 'zikr', title: '🌟 1 000 зикров', desc: 'Совершить 1 000 зикров', icon: '🌟', xp: 150, story: 'Поминание Аллаха — величайшее поклонение.', check: () => getTotalZikr() >= 1000 },
-    { id: 'zikr10000', category: 'zikr', title: '⚡ 10 000 зикров', desc: 'Совершить 10 000 зикров', icon: '⚡', xp: 500, story: 'Вы на пути постоянного поминания!', check: () => getTotalZikr() >= 10000 },
-    { id: 'zikr50000', category: 'zikr', title: '🔥 50 000 зикров', desc: 'Совершить 50 000 зикров', icon: '🔥', xp: 1000, story: 'Аллах поминает того, кто поминает Его.', check: () => getTotalZikr() >= 50000 },
-    { id: 'zikr100000', category: 'zikr', title: '💪 100 000 зикров', desc: 'Совершить 100 000 зикров', icon: '💪', xp: 2000, story: 'Ас-Саббах — много поминающий Аллаха.', check: () => getTotalZikr() >= 100000 },
-    { id: 'zikr500000', category: 'zikr', title: '🏅 500 000 зикров', desc: 'Совершить 500 000 зикров', icon: '🏅', xp: 5000, story: 'Аз-Закир — постоянно поминающий.', check: () => getTotalZikr() >= 500000 },
-    { id: 'zikr1000000', category: 'zikr', title: '👑 1 000 000 зикров', desc: 'Совершить 1 000 000 зикров', icon: '👑', xp: 10000, story: 'Султан зикра! Ваше поминание достигло миллиона.', check: () => getTotalZikr() >= 1000000 },
+    { id: 'zikr100', category: 'zikr', title: '📿 100 зикров', desc: 'Совершить 100 зикров', icon: '📿', xp: 50, story: 'Пусть язык всегда будет влажным от поминания Аллаха.', 
+      check: () => getTotalZikr() >= 100, current: () => Math.min(getTotalZikr(), 100), target: () => 100 },
+    { id: 'zikr1000', category: 'zikr', title: '🌟 1 000 зикров', desc: 'Совершить 1 000 зикров', icon: '🌟', xp: 150, story: 'Поминание Аллаха — величайшее поклонение.', 
+      check: () => getTotalZikr() >= 1000, current: () => Math.min(getTotalZikr(), 1000), target: () => 1000 },
+    { id: 'zikr10000', category: 'zikr', title: '⚡ 10 000 зикров', desc: 'Совершить 10 000 зикров', icon: '⚡', xp: 500, story: 'Вы на пути постоянного поминания!', 
+      check: () => getTotalZikr() >= 10000, current: () => Math.min(getTotalZikr(), 10000), target: () => 10000 },
+    { id: 'zikr50000', category: 'zikr', title: '🔥 50 000 зикров', desc: 'Совершить 50 000 зикров', icon: '🔥', xp: 1000, story: 'Аллах поминает того, кто поминает Его.', 
+      check: () => getTotalZikr() >= 50000, current: () => Math.min(getTotalZikr(), 50000), target: () => 50000 },
+    { id: 'zikr100000', category: 'zikr', title: '💪 100 000 зикров', desc: 'Совершить 100 000 зикров', icon: '💪', xp: 2000, story: 'Ас-Саббах — много поминающий Аллаха.', 
+      check: () => getTotalZikr() >= 100000, current: () => Math.min(getTotalZikr(), 100000), target: () => 100000 },
+    { id: 'zikr500000', category: 'zikr', title: '🏅 500 000 зикров', desc: 'Совершить 500 000 зикров', icon: '🏅', xp: 5000, story: 'Аз-Закир — постоянно поминающий.', 
+      check: () => getTotalZikr() >= 500000, current: () => Math.min(getTotalZikr(), 500000), target: () => 500000 },
+    { id: 'zikr1000000', category: 'zikr', title: '👑 1 000 000 зикров', desc: 'Совершить 1 000 000 зикров', icon: '👑', xp: 10000, story: 'Султан зикра! Ваше поминание достигло миллиона.', 
+      check: () => getTotalZikr() >= 1000000, current: () => Math.min(getTotalZikr(), 1000000), target: () => 1000000 },
     
     // Салават (4)
-    { id: 'salawat10', category: 'salawat', title: '🌹 10 салаватов', desc: 'Прочитать 10 салаватов', icon: '🌹', xp: 50, story: '«Кто благословит меня раз, того Аллах благословит десять раз».', check: () => (userData.totalSalawat || 0) >= 10 },
-    { id: 'salawat100', category: 'salawat', title: '🌹🌹 100 салаватов', desc: 'Прочитать 100 салаватов', icon: '🌹🌹', xp: 150, story: 'Благословение Пророка ﷺ — ключ к заступничеству.', check: () => (userData.totalSalawat || 0) >= 100 },
-    { id: 'salawat1000', category: 'salawat', title: '🌹🌹🌹 1 000 салаватов', desc: 'Прочитать 1 000 салаватов', icon: '🌹🌹🌹', xp: 500, story: 'Вы приближаетесь к Пророку ﷺ через салават.', check: () => (userData.totalSalawat || 0) >= 1000 },
-    { id: 'salawat10000', category: 'salawat', title: '👑 10 000 салаватов', desc: 'Прочитать 10 000 салаватов', icon: '👑', xp: 2000, story: 'Заступничество Пророка ﷺ обещано вам!', check: () => (userData.totalSalawat || 0) >= 10000 },
+    { id: 'salawat10', category: 'salawat', title: '🌹 10 салаватов', desc: 'Прочитать 10 салаватов', icon: '🌹', xp: 50, story: '«Кто благословит меня раз, того Аллах благословит десять раз».', 
+      check: () => (userData.totalSalawat || 0) >= 10, current: () => Math.min(userData.totalSalawat || 0, 10), target: () => 10 },
+    { id: 'salawat100', category: 'salawat', title: '🌹🌹 100 салаватов', desc: 'Прочитать 100 салаватов', icon: '🌹🌹', xp: 150, story: 'Благословение Пророка ﷺ — ключ к заступничеству.', 
+      check: () => (userData.totalSalawat || 0) >= 100, current: () => Math.min(userData.totalSalawat || 0, 100), target: () => 100 },
+    { id: 'salawat1000', category: 'salawat', title: '🌹🌹🌹 1 000 салаватов', desc: 'Прочитать 1 000 салаватов', icon: '🌹🌹🌹', xp: 500, story: 'Вы приближаетесь к Пророку ﷺ через салават.', 
+      check: () => (userData.totalSalawat || 0) >= 1000, current: () => Math.min(userData.totalSalawat || 0, 1000), target: () => 1000 },
+    { id: 'salawat10000', category: 'salawat', title: '👑 10 000 салаватов', desc: 'Прочитать 10 000 салаватов', icon: '👑', xp: 2000, story: 'Заступничество Пророка ﷺ обещано вам!', 
+      check: () => (userData.totalSalawat || 0) >= 10000, current: () => Math.min(userData.totalSalawat || 0, 10000), target: () => 10000 },
     
     // Имена Аллаха (4)
-    { id: 'names10', category: 'names', title: '📜 10 Имён', desc: 'Выучить 10 Имён Аллаха', icon: '📜', xp: 100, story: '«У Аллаха 99 имён. Кто перечислит их, войдёт в Рай».', check: () => (userData.namesLearned?.length || 0) >= 10 },
-    { id: 'names20', category: 'names', title: '📚 20 Имён', desc: 'Выучить 20 Имён Аллаха', icon: '📚', xp: 200, story: 'Познание Имён Аллаха укрепляет веру.', check: () => (userData.namesLearned?.length || 0) >= 20 },
-    { id: 'names50', category: 'names', title: '🏅 50 Имён', desc: 'Выучить 50 Имён Аллаха', icon: '🏅', xp: 500, story: 'Вы на полпути к знанию всех Имён!', check: () => (userData.namesLearned?.length || 0) >= 50 },
-    { id: 'names99', category: 'names', title: '👑 99 Имён', desc: 'Выучить все 99 Имён Аллаха', icon: '👑', xp: 1000, story: 'Хранитель Имён Аллаха! Вам обещан Рай.', check: () => (userData.namesLearned?.length || 0) >= 99, special: true },
+    { id: 'names10', category: 'names', title: '📜 10 Имён', desc: 'Выучить 10 Имён Аллаха', icon: '📜', xp: 100, story: '«У Аллаха 99 имён. Кто перечислит их, войдёт в Рай».', 
+      check: () => (userData.namesLearned?.length || 0) >= 10, current: () => Math.min(userData.namesLearned?.length || 0, 10), target: () => 10 },
+    { id: 'names20', category: 'names', title: '📚 20 Имён', desc: 'Выучить 20 Имён Аллаха', icon: '📚', xp: 200, story: 'Познание Имён Аллаха укрепляет веру.', 
+      check: () => (userData.namesLearned?.length || 0) >= 20, current: () => Math.min(userData.namesLearned?.length || 0, 20), target: () => 20 },
+    { id: 'names50', category: 'names', title: '🏅 50 Имён', desc: 'Выучить 50 Имён Аллаха', icon: '🏅', xp: 500, story: 'Вы на полпути к знанию всех Имён!', 
+      check: () => (userData.namesLearned?.length || 0) >= 50, current: () => Math.min(userData.namesLearned?.length || 0, 50), target: () => 50 },
+    { id: 'names99', category: 'names', title: '👑 99 Имён', desc: 'Выучить все 99 Имён Аллаха', icon: '👑', xp: 1000, story: 'Хранитель Имён Аллаха! Вам обещан Рай.', 
+      check: () => (userData.namesLearned?.length || 0) >= 99, current: () => Math.min(userData.namesLearned?.length || 0, 99), target: () => 99, special: true },
     
     // Тауба - серия (6)
-    { id: 'streak3', category: 'tauba', title: '🌱 3 дня', desc: 'Вести дневник 3 дня подряд', icon: '🌱', xp: 50, story: 'Начало пути постоянства.', check: () => getStreak() >= 3 },
-    { id: 'streak7', category: 'tauba', title: '🔥 7 дней', desc: 'Вести дневник 7 дней подряд', icon: '🔥', xp: 150, story: 'Неделя постоянства — первый рубеж.', check: () => getStreak() >= 7 },
-    { id: 'streak14', category: 'tauba', title: '📅 14 дней', desc: 'Вести дневник 14 дней подряд', icon: '📅', xp: 250, story: 'Две недели самоанализа.', check: () => getStreak() >= 14 },
-    { id: 'streak30', category: 'tauba', title: '🌙 30 дней', desc: 'Вести дневник 30 дней подряд', icon: '🌙', xp: 500, story: 'Месяц постоянства! Привычка сформирована.', check: () => getStreak() >= 30 },
-    { id: 'streak60', category: 'tauba', title: '📆 60 дней', desc: 'Вести дневник 60 дней подряд', icon: '📆', xp: 1000, story: 'Два месяца искренности.', check: () => getStreak() >= 60 },
-    { id: 'streak100', category: 'tauba', title: '🏆 100 дней', desc: 'Вести дневник 100 дней подряд', icon: '🏆', xp: 2000, story: 'Стойкость! Аллах любит постоянные дела.', check: () => getStreak() >= 100 },
+    { id: 'streak3', category: 'tauba', title: '🌱 3 дня', desc: 'Вести дневник 3 дня подряд', icon: '🌱', xp: 50, story: 'Начало пути постоянства.', 
+      check: () => getStreak() >= 3, current: () => Math.min(getStreak(), 3), target: () => 3 },
+    { id: 'streak7', category: 'tauba', title: '🔥 7 дней', desc: 'Вести дневник 7 дней подряд', icon: '🔥', xp: 150, story: 'Неделя постоянства — первый рубеж.', 
+      check: () => getStreak() >= 7, current: () => Math.min(getStreak(), 7), target: () => 7 },
+    { id: 'streak14', category: 'tauba', title: '📅 14 дней', desc: 'Вести дневник 14 дней подряд', icon: '📅', xp: 250, story: 'Две недели самоанализа.', 
+      check: () => getStreak() >= 14, current: () => Math.min(getStreak(), 14), target: () => 14 },
+    { id: 'streak30', category: 'tauba', title: '🌙 30 дней', desc: 'Вести дневник 30 дней подряд', icon: '🌙', xp: 500, story: 'Месяц постоянства! Привычка сформирована.', 
+      check: () => getStreak() >= 30, current: () => Math.min(getStreak(), 30), target: () => 30 },
+    { id: 'streak60', category: 'tauba', title: '📆 60 дней', desc: 'Вести дневник 60 дней подряд', icon: '📆', xp: 1000, story: 'Два месяца искренности.', 
+      check: () => getStreak() >= 60, current: () => Math.min(getStreak(), 60), target: () => 60 },
+    { id: 'streak100', category: 'tauba', title: '🏆 100 дней', desc: 'Вести дневник 100 дней подряд', icon: '🏆', xp: 2000, story: 'Стойкость! Аллах любит постоянные дела.', 
+      check: () => getStreak() >= 100, current: () => Math.min(getStreak(), 100), target: () => 100 },
     
     // Уровни (10)
-    { id: 'level2', category: 'levels', title: '⭐ Уровень 2', desc: 'Достичь 2 уровня', icon: '⭐', xp: 0, story: 'Вы растёте в знании и поклонении!', check: () => (userData.level || 1) >= 2 },
-    { id: 'level3', category: 'levels', title: '⭐⭐ Уровень 3', desc: 'Достичь 3 уровня', icon: '⭐⭐', xp: 0, story: 'Практик — ваши дела становятся привычкой.', check: () => (userData.level || 1) >= 3 },
-    { id: 'level4', category: 'levels', title: '💪 Уровень 4', desc: 'Достичь 4 уровня', icon: '💪', xp: 0, story: 'Усердный — Аллах видит ваше старание.', check: () => (userData.level || 1) >= 4 },
-    { id: 'level5', category: 'levels', title: '📖 Уровень 5', desc: 'Достичь 5 уровня', icon: '📖', xp: 0, story: 'Знающий — вы накапливаете знания.', check: () => (userData.level || 1) >= 5 },
-    { id: 'level6', category: 'levels', title: '🦉 Уровень 6', desc: 'Достичь 6 уровня', icon: '🦉', xp: 0, story: 'Мудрец — ваша мудрость растёт.', check: () => (userData.level || 1) >= 6 },
-    { id: 'level7', category: 'levels', title: '✨ Уровень 7', desc: 'Достичь 7 уровня', icon: '✨', xp: 0, story: 'Просветлённый — свет веры в вашем сердце.', check: () => (userData.level || 1) >= 7 },
-    { id: 'level8', category: 'levels', title: '🌿 Уровень 8', desc: 'Достичь 8 уровня', icon: '🌿', xp: 0, story: 'Благословенный — барака в ваших делах.', check: () => (userData.level || 1) >= 8 },
-    { id: 'level9', category: 'levels', title: '👑 Уровень 9', desc: 'Достичь 9 уровня', icon: '👑', xp: 0, story: 'Наместник — вы пример для других.', check: () => (userData.level || 1) >= 9 },
-    { id: 'level10', category: 'levels', title: '🌟 Уровень 10', desc: 'Достичь 10 уровня', icon: '🌟', xp: 0, story: 'Наследник — высший уровень усердия!', check: () => (userData.level || 1) >= 10 },
-    { id: 'levelGrand', category: 'levels', title: '👑👑 Великий Мурид', desc: 'Набрать 50 000 XP', icon: '👑👑', xp: 0, story: 'Вы достигли высшего ранга XP! Ваше усердие отмечено Аллахом.', check: () => (userData.xp || 0) >= 50000, special: true },
+    { id: 'level2', category: 'levels', title: '⭐ Уровень 2', desc: 'Достичь 2 уровня', icon: '⭐', xp: 0, story: 'Вы растёте в знании и поклонении!', 
+      check: () => (userData.level || 1) >= 2, current: () => Math.min(userData.level || 1, 2), target: () => 2 },
+    { id: 'level3', category: 'levels', title: '⭐⭐ Уровень 3', desc: 'Достичь 3 уровня', icon: '⭐⭐', xp: 0, story: 'Практик — ваши дела становятся привычкой.', 
+      check: () => (userData.level || 1) >= 3, current: () => Math.min(userData.level || 1, 3), target: () => 3 },
+    { id: 'level4', category: 'levels', title: '💪 Уровень 4', desc: 'Достичь 4 уровня', icon: '💪', xp: 0, story: 'Усердный — Аллах видит ваше старание.', 
+      check: () => (userData.level || 1) >= 4, current: () => Math.min(userData.level || 1, 4), target: () => 4 },
+    { id: 'level5', category: 'levels', title: '📖 Уровень 5', desc: 'Достичь 5 уровня', icon: '📖', xp: 0, story: 'Знающий — вы накапливаете знания.', 
+      check: () => (userData.level || 1) >= 5, current: () => Math.min(userData.level || 1, 5), target: () => 5 },
+    { id: 'level6', category: 'levels', title: '🦉 Уровень 6', desc: 'Достичь 6 уровня', icon: '🦉', xp: 0, story: 'Мудрец — ваша мудрость растёт.', 
+      check: () => (userData.level || 1) >= 6, current: () => Math.min(userData.level || 1, 6), target: () => 6 },
+    { id: 'level7', category: 'levels', title: '✨ Уровень 7', desc: 'Достичь 7 уровня', icon: '✨', xp: 0, story: 'Просветлённый — свет веры в вашем сердце.', 
+      check: () => (userData.level || 1) >= 7, current: () => Math.min(userData.level || 1, 7), target: () => 7 },
+    { id: 'level8', category: 'levels', title: '🌿 Уровень 8', desc: 'Достичь 8 уровня', icon: '🌿', xp: 0, story: 'Благословенный — барака в ваших делах.', 
+      check: () => (userData.level || 1) >= 8, current: () => Math.min(userData.level || 1, 8), target: () => 8 },
+    { id: 'level9', category: 'levels', title: '👑 Уровень 9', desc: 'Достичь 9 уровня', icon: '👑', xp: 0, story: 'Наместник — вы пример для других.', 
+      check: () => (userData.level || 1) >= 9, current: () => Math.min(userData.level || 1, 9), target: () => 9 },
+    { id: 'level10', category: 'levels', title: '🌟 Уровень 10', desc: 'Достичь 10 уровня', icon: '🌟', xp: 0, story: 'Наследник — высший уровень усердия!', 
+      check: () => (userData.level || 1) >= 10, current: () => Math.min(userData.level || 1, 10), target: () => 10 },
+    { id: 'levelGrand', category: 'levels', title: '👑👑 Великий Мурид', desc: 'Набрать 50 000 XP', icon: '👑👑', xp: 0, story: 'Вы достигли высшего ранга XP! Ваше усердие отмечено Аллахом.', 
+      check: () => (userData.xp || 0) >= 50000, current: () => Math.min(userData.xp || 0, 50000), target: () => 50000, special: true },
     
     // Намаз (5)
-    { id: 'prayer5_1', category: 'prayer', title: '🕌 5 намазов', desc: 'Совершить все 5 намазов вовремя 1 день', icon: '🕌', xp: 50, story: 'Намаз — опора религии.', check: () => (userData.prayerDays || 0) >= 1 },
-    { id: 'prayer5_7', category: 'prayer', title: '🕌🕌 7 дней намаза', desc: 'Совершать 5 намазов 7 дней подряд', icon: '🕌🕌', xp: 200, story: 'Неделя выстоянных намазов!', check: () => (userData.prayerStreak || 0) >= 7 },
-    { id: 'prayer5_30', category: 'prayer', title: '🕌🕌🕌 30 дней намаза', desc: 'Совершать 5 намазов 30 дней подряд', icon: '🕌🕌🕌', xp: 500, story: 'Месяц намаза! Ваша связь с Аллахом крепка.', check: () => (userData.prayerStreak || 0) >= 30 },
-    { id: 'tahajjud10', category: 'prayer', title: '🌙 Тахаджуд 10', desc: 'Совершить тахаджуд 10 раз', icon: '🌙', xp: 100, story: 'Тахаджуд — молитва праведников.', check: () => (userData.tahajjudCount || 0) >= 10 },
-    { id: 'tahajjud50', category: 'prayer', title: '🌙🌙 Тахаджуд 50', desc: 'Совершить тахаджуд 50 раз', icon: '🌙🌙', xp: 500, story: 'Вы из числа тех, кто встаёт ночью для молитвы.', check: () => (userData.tahajjudCount || 0) >= 50 },
+    { id: 'prayer5_1', category: 'prayer', title: '🕌 5 намазов', desc: 'Совершить все 5 намазов вовремя 1 день', icon: '🕌', xp: 50, story: 'Намаз — опора религии.', 
+      check: () => (userData.prayerDays || 0) >= 1, current: () => Math.min(userData.prayerDays || 0, 1), target: () => 1 },
+    { id: 'prayer5_7', category: 'prayer', title: '🕌🕌 7 дней намаза', desc: 'Совершать 5 намазов 7 дней подряд', icon: '🕌🕌', xp: 200, story: 'Неделя выстоянных намазов!', 
+      check: () => (userData.prayerStreak || 0) >= 7, current: () => Math.min(userData.prayerStreak || 0, 7), target: () => 7 },
+    { id: 'prayer5_30', category: 'prayer', title: '🕌🕌🕌 30 дней намаза', desc: 'Совершать 5 намазов 30 дней подряд', icon: '🕌🕌🕌', xp: 500, story: 'Месяц намаза! Ваша связь с Аллахом крепка.', 
+      check: () => (userData.prayerStreak || 0) >= 30, current: () => Math.min(userData.prayerStreak || 0, 30), target: () => 30 },
+    { id: 'tahajjud10', category: 'prayer', title: '🌙 Тахаджуд 10', desc: 'Совершить тахаджуд 10 раз', icon: '🌙', xp: 100, story: 'Тахаджуд — молитва праведников.', 
+      check: () => (userData.tahajjudCount || 0) >= 10, current: () => Math.min(userData.tahajjudCount || 0, 10), target: () => 10 },
+    { id: 'tahajjud50', category: 'prayer', title: '🌙🌙 Тахаджуд 50', desc: 'Совершить тахаджуд 50 раз', icon: '🌙🌙', xp: 500, story: 'Вы из числа тех, кто встаёт ночью для молитвы.', 
+      check: () => (userData.tahajjudCount || 0) >= 50, current: () => Math.min(userData.tahajjudCount || 0, 50), target: () => 50 },
     
     // Пост (5)
-    { id: 'fast1', category: 'fast', title: '☀️ Пост (пн/чт)', desc: 'Поститься в понедельник или четверг 1 раз', icon: '☀️', xp: 50, story: 'Пророк ﷺ постился по понедельникам и четвергам.', check: () => (userData.fastCount || 0) >= 1 },
-    { id: 'fast10', category: 'fast', title: '☀️☀️ Пост 10', desc: 'Поститься в пн/чт 10 раз', icon: '☀️☀️', xp: 150, story: 'Сунна Пророка ﷺ в вашей жизни.', check: () => (userData.fastCount || 0) >= 10 },
-    { id: 'fast50', category: 'fast', title: '☀️☀️☀️ Пост 50', desc: 'Поститься в пн/чт 50 раз', icon: '☀️☀️☀️', xp: 500, story: 'Вы постоянны в соблюдении сунны!', check: () => (userData.fastCount || 0) >= 50 },
-    { id: 'whiteDays1', category: 'fast', title: '🌕 Белые дни', desc: 'Поститься в белые дни 1 раз', icon: '🌕', xp: 50, story: 'Пост в белые дни (13,14,15) подобен посту всего года.', check: () => (userData.whiteDaysCount || 0) >= 1 },
-    { id: 'whiteDays10', category: 'fast', title: '🌕🌕 Белые дни 10', desc: 'Поститься в белые дни 10 раз', icon: '🌕🌕', xp: 200, story: 'Великая награда за соблюдение сунны.', check: () => (userData.whiteDaysCount || 0) >= 10 },
+    { id: 'fast1', category: 'fast', title: '☀️ Пост (пн/чт)', desc: 'Поститься в понедельник или четверг 1 раз', icon: '☀️', xp: 50, story: 'Пророк ﷺ постился по понедельникам и четвергам.', 
+      check: () => (userData.fastCount || 0) >= 1, current: () => Math.min(userData.fastCount || 0, 1), target: () => 1 },
+    { id: 'fast10', category: 'fast', title: '☀️☀️ Пост 10', desc: 'Поститься в пн/чт 10 раз', icon: '☀️☀️', xp: 150, story: 'Сунна Пророка ﷺ в вашей жизни.', 
+      check: () => (userData.fastCount || 0) >= 10, current: () => Math.min(userData.fastCount || 0, 10), target: () => 10 },
+    { id: 'fast50', category: 'fast', title: '☀️☀️☀️ Пост 50', desc: 'Поститься в пн/чт 50 раз', icon: '☀️☀️☀️', xp: 500, story: 'Вы постоянны в соблюдении сунны!', 
+      check: () => (userData.fastCount || 0) >= 50, current: () => Math.min(userData.fastCount || 0, 50), target: () => 50 },
+    { id: 'whiteDays1', category: 'fast', title: '🌕 Белые дни', desc: 'Поститься в белые дни 1 раз', icon: '🌕', xp: 50, story: 'Пост в белые дни (13,14,15) подобен посту всего года.', 
+      check: () => (userData.whiteDaysCount || 0) >= 1, current: () => Math.min(userData.whiteDaysCount || 0, 1), target: () => 1 },
+    { id: 'whiteDays10', category: 'fast', title: '🌕🌕 Белые дни 10', desc: 'Поститься в белые дни 10 раз', icon: '🌕🌕', xp: 200, story: 'Великая награда за соблюдение сунны.', 
+      check: () => (userData.whiteDaysCount || 0) >= 10, current: () => Math.min(userData.whiteDaysCount || 0, 10), target: () => 10 },
     
     // Садака (3)
-    { id: 'sadaqa1', category: 'sadaqa', title: '💝 Первая садака', desc: 'Подать милостыню 1 раз', icon: '💝', xp: 50, story: 'Садака тушит гнев Господа.', check: () => (userData.sadaqaCount || 0) >= 1 },
-    { id: 'sadaqa10', category: 'sadaqa', title: '💝💝 10 садака', desc: 'Подать милостыню 10 раз', icon: '💝💝', xp: 150, story: 'Садака увеличивает имущество.', check: () => (userData.sadaqaCount || 0) >= 10 },
-    { id: 'sadaqa50', category: 'sadaqa', title: '💝💝💝 50 садака', desc: 'Подать милостыню 50 раз', icon: '💝💝💝', xp: 500, story: 'Вы из числа щедрых!', check: () => (userData.sadaqaCount || 0) >= 50 },
+    { id: 'sadaqa1', category: 'sadaqa', title: '💝 Первая садака', desc: 'Подать милостыню 1 раз', icon: '💝', xp: 50, story: 'Садака тушит гнев Господа.', 
+      check: () => (userData.sadaqaCount || 0) >= 1, current: () => Math.min(userData.sadaqaCount || 0, 1), target: () => 1 },
+    { id: 'sadaqa10', category: 'sadaqa', title: '💝💝 10 садака', desc: 'Подать милостыню 10 раз', icon: '💝💝', xp: 150, story: 'Садака увеличивает имущество.', 
+      check: () => (userData.sadaqaCount || 0) >= 10, current: () => Math.min(userData.sadaqaCount || 0, 10), target: () => 10 },
+    { id: 'sadaqa50', category: 'sadaqa', title: '💝💝💝 50 садака', desc: 'Подать милостыню 50 раз', icon: '💝💝💝', xp: 500, story: 'Вы из числа щедрых!', 
+      check: () => (userData.sadaqaCount || 0) >= 50, current: () => Math.min(userData.sadaqaCount || 0, 50), target: () => 50 },
     
     // Особые дни (5)
-    { id: 'arafa', category: 'special', title: '☀️ День Арафа', desc: 'Поститься в день Арафа', icon: '☀️', xp: 100, story: 'Пост в день Арафа искупает грехи прошлого и будущего года.', check: () => (specialDaysCounters?.arafa || 0) >= 1 },
-    { id: 'ashura', category: 'special', title: '🌙 День Ашура', desc: 'Поститься в день Ашура', icon: '🌙', xp: 100, story: 'Пост в день Ашура искупает грехи прошлого года.', check: () => (specialDaysCounters?.ashura || 0) >= 1 },
-    { id: 'baraat', category: 'special', title: '✨ Ночь Бараат', desc: 'Поклоняться в ночь Бараат', icon: '✨', xp: 100, story: 'В эту ночь Аллах прощает всех, кроме многобожников.', check: () => (specialDaysCounters?.baraat || 0) >= 1 },
-    { id: 'laylatulqadr', category: 'special', title: '🌟 Ляйлятуль-Кадр', desc: 'Поклоняться в ночь Предопределения', icon: '🌟', xp: 200, story: 'Эта ночь лучше тысячи месяцев!', check: () => (specialDaysCounters?.laylatulqadr || 0) >= 1 },
-    { id: 'shawwal', category: 'special', title: '🌙 6 дней Шавваля', desc: 'Поститься 6 дней в Шаввале', icon: '🌙', xp: 150, story: 'Кто постится Рамадан и 6 дней Шавваля, подобен постившемуся весь год.', check: () => (specialDaysCounters?.shawwal || 0) >= 1 }
+    { id: 'arafa', category: 'special', title: '☀️ День Арафа', desc: 'Поститься в день Арафа', icon: '☀️', xp: 100, story: 'Пост в день Арафа искупает грехи прошлого и будущего года.', 
+      check: () => (specialDaysCounters?.arafa || 0) >= 1, current: () => Math.min(specialDaysCounters?.arafa || 0, 1), target: () => 1 },
+    { id: 'ashura', category: 'special', title: '🌙 День Ашура', desc: 'Поститься в день Ашура', icon: '🌙', xp: 100, story: 'Пост в день Ашура искупает грехи прошлого года.', 
+      check: () => (specialDaysCounters?.ashura || 0) >= 1, current: () => Math.min(specialDaysCounters?.ashura || 0, 1), target: () => 1 },
+    { id: 'baraat', category: 'special', title: '✨ Ночь Бараат', desc: 'Поклоняться в ночь Бараат', icon: '✨', xp: 100, story: 'В эту ночь Аллах прощает всех, кроме многобожников.', 
+      check: () => (specialDaysCounters?.baraat || 0) >= 1, current: () => Math.min(specialDaysCounters?.baraat || 0, 1), target: () => 1 },
+    { id: 'laylatulqadr', category: 'special', title: '🌟 Ляйлятуль-Кадр', desc: 'Поклоняться в ночь Предопределения', icon: '🌟', xp: 200, story: 'Эта ночь лучше тысячи месяцев!', 
+      check: () => (specialDaysCounters?.laylatulqadr || 0) >= 1, current: () => Math.min(specialDaysCounters?.laylatulqadr || 0, 1), target: () => 1 },
+    { id: 'shawwal', category: 'special', title: '🌙 6 дней Шавваля', desc: 'Поститься 6 дней в Шаввале', icon: '🌙', xp: 150, story: 'Кто постится Рамадан и 6 дней Шавваля, подобен постившемуся весь год.', 
+      check: () => (specialDaysCounters?.shawwal || 0) >= 1, current: () => Math.min(specialDaysCounters?.shawwal || 0, 1), target: () => 1 }
 ];
 
 function renderAchievements() {
@@ -1825,6 +2067,10 @@ function renderAchievements() {
     filtered.forEach(ach => {
         const isUnlocked = unlocked.includes(ach.id);
         const isSpecial = ach.special || false;
+        const currentVal = ach.current ? ach.current() : 0;
+        const targetVal = ach.target ? ach.target() : 1;
+        const progressText = `${currentVal} / ${targetVal}`;
+        
         html += `
             <div onclick="showAchievementStory('${ach.id}')" style="background: ${isUnlocked ? (isSpecial ? 'linear-gradient(135deg, #c9a227, #a07d1a)' : 'linear-gradient(135deg, #d4e8ca, #c0dfb0)') : '#e0d5bd'}; 
                         border-radius: 20px; padding: 15px; margin-bottom: 12px; 
@@ -1836,6 +2082,7 @@ function renderAchievements() {
                     <div style="flex: 1;">
                         <div style="font-weight: bold; color: ${isUnlocked ? '#1e3a1a' : '#555'};">${ach.title}</div>
                         <div style="font-size: 0.8rem; color: ${isUnlocked ? '#5a3a1a' : '#777'};">${ach.desc}</div>
+                        <div style="font-size: 0.7rem; color: ${isUnlocked ? '#2c5a2a' : '#888'}; margin-top: 4px;">📊 ${progressText}</div>
                     </div>
                     <div style="color: ${isUnlocked ? '#d4af37' : '#888'}; font-size: 0.8rem; font-weight: bold;">+${ach.xp} XP</div>
                 </div>
@@ -1852,9 +2099,11 @@ function showAchievementStory(id) {
     const ach = ALL_ACHIEVEMENTS_FULL.find(a => a.id === id);
     if (!ach) return;
     const isUnlocked = (userData.achievements || []).includes(id);
+    const currentVal = ach.current ? ach.current() : 0;
+    const targetVal = ach.target ? ach.target() : 1;
     document.getElementById('storyIcon').innerHTML = ach.icon;
     document.getElementById('storyTitle').textContent = ach.title;
-    document.getElementById('storyText').innerHTML = `<p><strong>${ach.desc}</strong></p><p style="color:#5a3a1a;margin-top:15px;">${ach.story}</p><p style="margin-top:15px;color:${isUnlocked ? '#d4af37' : '#888'};">${isUnlocked ? '✅ Открыто! +'+ach.xp+' XP' : '🔒 Ещё не открыто'}</p>`;
+    document.getElementById('storyText').innerHTML = `<p><strong>${ach.desc}</strong></p><p style="color:#5a3a1a;margin-top:15px;">${ach.story}</p><p style="margin-top:15px;">📊 Прогресс: ${currentVal} / ${targetVal}</p><p style="margin-top:10px;color:${isUnlocked ? '#d4af37' : '#888'};">${isUnlocked ? '✅ Открыто! +'+ach.xp+' XP' : '🔒 Ещё не открыто'}</p>`;
     document.getElementById('storyModal').style.display = 'flex';
 }
 
@@ -2020,7 +2269,7 @@ switchModule = function(moduleId) {
     if (moduleId === 'khatm') updateKhatmUI();
     if (moduleId === 'tauba') updateTaubaUI();
     if (moduleId === 'names') { showChechen = userData.settings?.showChechen !== false; document.getElementById('toggleChechenBtn').textContent = showChechen ? '🇷🇺 Скрыть чеченский перевод' : '🇷🇺 Показать чеченский перевод'; renderNamesOfAllah(); }
-    if (moduleId === 'azkar') renderAzkar();
+    if (moduleId === 'azkar') { checkAndResetAzkarDate(); renderAzkar(); }
     if (moduleId === 'counter') renderZikr();
     if (moduleId === 'prayer') { const saved = localStorage.getItem('prayerLocation'); if (saved) { const { city, country, method } = JSON.parse(saved); if (method) document.getElementById('mazhabSelect').value = method; fetchPrayerTimes(city, country); } }
     if (moduleId === 'achievements') renderAchievements();
@@ -2031,13 +2280,29 @@ switchModule = function(moduleId) {
 setInterval(() => { checkAllAchievements(); checkDailyTasks(); }, 10000);
 setTimeout(() => { updateStarsUI(); checkDailyTasks(); renderAchievements(); renderCollection(); }, 500);
 
-console.log('✅ Часть 4/5 загружена.');
-</script><!-- ==================== ЧАСТЬ 5/5: НАСТРОЙКИ + ПОДДЕРЖКА + ФИНАЛ ==================== -->
+console.log('✅ Часть 4/10 загружена.');
+</script><!-- ==================== ЧАСТЬ 5/10: НАСТРОЙКИ + АККАУНТ + ПОДДЕРЖКА ==================== -->
 
 <!-- НАСТРОЙКИ -->
 <div id="module-settings" class="module">
     <div class="card">
         <h2>⚙️ Настройки</h2>
+        
+        <!-- АККАУНТ -->
+        <div style="margin-bottom: 25px;">
+            <h3>👤 Аккаунт</h3>
+            <div style="background: #f5eddb; border-radius: 20px; padding: 20px;">
+                <div id="accountInfo" style="margin-bottom: 15px;">
+                    <p style="color: #5a3a1a; display: flex; justify-content: space-between;"><strong>Статус:</strong> <span id="accountStatus">Гость</span></p>
+                    <p style="color: #5a3a1a; display: flex; justify-content: space-between;"><strong>Email:</strong> <span id="accountEmail">—</span></p>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button id="loginBtnSettings" style="flex: 1; padding: 12px; background: #2c5a2a; color: #ffefc0; border: none; border-radius: 30px; font-weight: bold;">🔐 Войти / Регистрация</button>
+                    <button id="signOutBtnSettings" style="flex: 1; padding: 12px; background: #a05050; color: white; border: none; border-radius: 30px; font-weight: bold; display: none;">🚪 Выйти</button>
+                </div>
+                <p style="font-size: 0.75rem; color: #7a683e; margin-top: 10px; text-align: center;">Войдите, чтобы сохранять прогресс в облаке</p>
+            </div>
+        </div>
         
         <div style="margin-bottom: 25px;">
             <h3>🔔 Push-уведомления для зикра</h3>
@@ -2078,25 +2343,44 @@ console.log('✅ Часть 4/5 загружена.');
                 <a href="https://wa.me/79635890090" target="_blank" style="background: #25D366; color: white; padding: 12px 20px; border-radius: 50px; text-decoration: none; display: inline-block; font-weight: bold;">📲 Написать в WhatsApp</a>
             </div>
         </div>
-        
-        <div>
-            <h3>🚪 Аккаунт</h3>
-            <button id="signOutBtn" style="width: 100%; padding: 15px; background: #a05050; color: white; border: none; border-radius: 30px; font-weight: bold; font-size: 1rem;">🚪 Выйти из аккаунта</button>
-        </div>
     </div>
 </div>
 
 <script>
-// ==================== НАСТРОЙКИ ====================
+// ==================== НАСТРОЙКИ И АККАУНТ ====================
 let notificationInterval = null;
 
+// Обновление информации об аккаунте
+function updateAccountInfo() {
+    const statusEl = document.getElementById('accountStatus');
+    const emailEl = document.getElementById('accountEmail');
+    const signOutBtn = document.getElementById('signOutBtnSettings');
+    const loginBtn = document.getElementById('loginBtnSettings');
+    
+    if (currentUser && !currentUser.isAnonymous) {
+        if (statusEl) statusEl.textContent = 'Авторизован';
+        if (emailEl) emailEl.textContent = currentUser.email || '—';
+        if (signOutBtn) signOutBtn.style.display = 'block';
+        if (loginBtn) loginBtn.style.display = 'none';
+    } else {
+        if (statusEl) statusEl.textContent = 'Гость';
+        if (emailEl) emailEl.textContent = '—';
+        if (signOutBtn) signOutBtn.style.display = 'none';
+        if (loginBtn) loginBtn.style.display = 'block';
+    }
+}
+
 // Загрузка сохранённого интервала
-if (userData.settings?.zikrNotificationInterval) {
-    document.getElementById('notificationInterval').value = userData.settings.zikrNotificationInterval;
+function loadSettingsUI() {
+    const intervalSelect = document.getElementById('notificationInterval');
+    if (intervalSelect && userData.settings) {
+        intervalSelect.value = userData.settings.zikrNotificationInterval || 0;
+    }
+    updateAccountInfo();
 }
 
 document.getElementById('notificationInterval')?.addEventListener('change', (e) => {
-    userData.settings = userData.settings || {};
+    if (!userData.settings) userData.settings = {};
     userData.settings.zikrNotificationInterval = parseInt(e.target.value);
 });
 
@@ -2133,11 +2417,40 @@ document.getElementById('saveSettingsBtn')?.addEventListener('click', () => {
     showNotification('⚙️ Настройки сохранены!');
 });
 
+// Кнопка входа из настроек
+document.getElementById('loginBtnSettings')?.addEventListener('click', () => {
+    openAuthModal();
+});
+
+// Кнопка выхода из настроек
+document.getElementById('signOutBtnSettings')?.addEventListener('click', async () => {
+    if (!currentUser || currentUser.isAnonymous) {
+        showNotification('👤 Вы не вошли в аккаунт');
+        return;
+    }
+    
+    if (confirm('Выйти из аккаунта? Все данные сохранены в облаке.')) {
+        try {
+            // Сохраняем данные перед выходом
+            await saveUserData();
+            await auth.signOut();
+            currentUser = null;
+            updateUserUI();
+            updateAccountInfo();
+            await signInAnonymously();
+            showNotification('👋 Вы вышли из аккаунта');
+            updateAllUI();
+        } catch (error) {
+            showNotification('❌ Ошибка при выходе');
+        }
+    }
+});
+
 // Экспорт данных
 document.getElementById('exportDataBtn')?.addEventListener('click', () => {
     const exportData = {
         userData: userData,
-        specialDaysCounters: specialDaysCounters,
+        specialDaysCounters: typeof specialDaysCounters !== 'undefined' ? specialDaysCounters : {},
         exportDate: new Date().toISOString(),
         version: '2.0'
     };
@@ -2169,11 +2482,16 @@ document.getElementById('importFileInput')?.addEventListener('change', (e) => {
             // Поддержка старого и нового формата
             if (imported.userData) {
                 Object.assign(userData, imported.userData);
-                if (imported.specialDaysCounters) {
+                if (imported.specialDaysCounters && typeof specialDaysCounters !== 'undefined') {
                     Object.assign(specialDaysCounters, imported.specialDaysCounters);
                 }
             } else {
                 Object.assign(userData, imported);
+            }
+            
+            // Восстанавливаем структуру
+            if (typeof ensureFullDataStructure === 'function') {
+                ensureFullDataStructure();
             }
             
             saveUserData();
@@ -2209,99 +2527,7 @@ document.getElementById('syncNowBtn')?.addEventListener('click', async () => {
     }
 });
 
-// Выход из аккаунта
-document.getElementById('signOutBtn')?.addEventListener('click', async () => {
-    if (!currentUser || currentUser.isAnonymous) {
-        showNotification('👤 Вы не вошли в аккаунт');
-        return;
-    }
-    
-    if (confirm('Выйти из аккаунта? Все данные сохранены в облаке.')) {
-        try {
-            await auth.signOut();
-            currentUser = null;
-            updateUserUI();
-            await signInAnonymously();
-            showNotification('👋 Вы вышли из аккаунта');
-            updateAllUI();
-        } catch (error) {
-            showNotification('❌ Ошибка при выходе');
-        }
-    }
-});
-
-// ==================== ФИНАЛЬНАЯ ИНИЦИАЛИЗАЦИЯ ====================
-function updateAllUI() {
-    showXPPopup();
-    updateKhatmUI();
-    updateTaubaUI();
-    updateStarsUI();
-    checkDailyTasks();
-    renderCollection();
-    if (document.getElementById('module-names')?.classList.contains('active-module')) {
-        renderNamesOfAllah();
-    }
-    if (document.getElementById('module-azkar')?.classList.contains('active-module')) {
-        renderAzkar();
-    }
-    if (document.getElementById('module-counter')?.classList.contains('active-module')) {
-        renderZikr();
-    }
-    if (document.getElementById('module-achievements')?.classList.contains('active-module')) {
-        renderAchievements();
-    }
-}
-
-// Финальное расширение switchModule
-const originalSwitchFinal = switchModule;
-switchModule = function(moduleId) {
-    // Скрываем все модули
-    document.querySelectorAll('.module').forEach(m => m.classList.remove('active-module'));
-    
-    // Показываем нужный модуль
-    const targetModule = document.getElementById(`module-${moduleId}`);
-    if (targetModule) targetModule.classList.add('active-module');
-    
-    // Обновляем активную кнопку
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    document.querySelector(`[data-module="${moduleId}"]`)?.classList.add('active');
-    
-    currentModule = moduleId;
-    
-    // Вызов функций для конкретных модулей
-    if (moduleId === 'khatm') updateKhatmUI();
-    if (moduleId === 'tauba') updateTaubaUI();
-    if (moduleId === 'names') {
-        showChechen = userData.settings?.showChechen !== false;
-        const toggleBtn = document.getElementById('toggleChechenBtn');
-        if (toggleBtn) toggleBtn.textContent = showChechen ? '🇷🇺 Скрыть чеченский перевод' : '🇷🇺 Показать чеченский перевод';
-        renderNamesOfAllah();
-    }
-    if (moduleId === 'azkar') renderAzkar();
-    if (moduleId === 'counter') renderZikr();
-    if (moduleId === 'prayer') {
-        const saved = localStorage.getItem('prayerLocation');
-        if (saved) {
-            const { city, country, method } = JSON.parse(saved);
-            const mazhabSelect = document.getElementById('mazhabSelect');
-            if (method && mazhabSelect) mazhabSelect.value = method;
-            fetchPrayerTimes(city, country);
-        } else {
-            const locationInfo = document.getElementById('locationInfo');
-            if (locationInfo) locationInfo.innerHTML = '📍 Нажмите "Моё местоположение"';
-        }
-    }
-    if (moduleId === 'achievements') renderAchievements();
-    if (moduleId === 'stars') { updateStarsUI(); checkDailyTasks(); }
-    if (moduleId === 'collection') renderCollection();
-    if (moduleId === 'settings') {
-        const interval = userData.settings?.zikrNotificationInterval || 0;
-        const notifSelect = document.getElementById('notificationInterval');
-        if (notifSelect) notifSelect.value = interval;
-    }
-};
-
-// Восстановление интервала уведомлений при загрузке
+// ==================== ВОССТАНОВЛЕНИЕ ИНТЕРВАЛА УВЕДОМЛЕНИЙ ====================
 function restoreNotificationInterval() {
     const interval = userData.settings?.zikrNotificationInterval || 0;
     if (interval > 0 && Notification.permission === 'granted') {
@@ -2315,62 +2541,1451 @@ function restoreNotificationInterval() {
     }
 }
 
-// Периодические проверки
-setInterval(() => {
-    checkAllAchievements();
-    checkDailyTasks();
-    // Обновление времени намаза, если модуль активен
-    if (currentModule === 'prayer') {
+// ==================== РАСШИРЕНИЕ НАВИГАЦИИ ====================
+const originalSwitch4 = switchModule;
+switchModule = function(moduleId) {
+    document.querySelectorAll('.module').forEach(m => m.classList.remove('active-module'));
+    document.getElementById(`module-${moduleId}`)?.classList.add('active-module');
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector(`[data-module="${moduleId}"]`)?.classList.add('active');
+    currentModule = moduleId;
+    
+    if (moduleId === 'khatm') { if (typeof updateKhatmUI === 'function') updateKhatmUI(); }
+    if (moduleId === 'tauba') { if (typeof updateTaubaUI === 'function') updateTaubaUI(); }
+    if (moduleId === 'names') {
+        showChechen = userData.settings?.showChechen !== false;
+        const toggleBtn = document.getElementById('toggleChechenBtn');
+        if (toggleBtn) toggleBtn.textContent = showChechen ? '🇷🇺 Скрыть чеченский перевод' : '🇷🇺 Показать чеченский перевод';
+        if (typeof renderNamesOfAllah === 'function') renderNamesOfAllah();
+    }
+    if (moduleId === 'azkar') { 
+        if (typeof checkAndResetAzkarDate === 'function') checkAndResetAzkarDate(); 
+        if (typeof renderAzkar === 'function') renderAzkar(); 
+    }
+    if (moduleId === 'counter') { if (typeof renderZikr === 'function') renderZikr(); }
+    if (moduleId === 'prayer') {
         const saved = localStorage.getItem('prayerLocation');
         if (saved) {
-            const { city, country } = JSON.parse(saved);
-            fetchPrayerTimes(city, country);
+            const { city, country, method } = JSON.parse(saved);
+            const mazhabSelect = document.getElementById('mazhabSelect');
+            if (method && mazhabSelect) mazhabSelect.value = method;
+            if (typeof fetchPrayerTimes === 'function') fetchPrayerTimes(city, country);
+        } else {
+            const locationInfo = document.getElementById('locationInfo');
+            if (locationInfo) locationInfo.innerHTML = '📍 Нажмите "Моё местоположение"';
         }
     }
-}, 60000); // Каждую минуту
-
-// Дополнительная проверка достижений при изменении данных
-const originalSaveUserData = saveUserData;
-saveUserData = async function() {
-    await originalSaveUserData();
-    checkAllAchievements();
-    checkDailyTasks();
+    if (moduleId === 'achievements') { if (typeof renderAchievements === 'function') renderAchievements(); }
+    if (moduleId === 'stars') { 
+        if (typeof updateStarsUI === 'function') updateStarsUI(); 
+        if (typeof checkDailyTasks === 'function') checkDailyTasks(); 
+    }
+    if (moduleId === 'collection') { if (typeof renderCollection === 'function') renderCollection(); }
+    if (moduleId === 'settings') {
+        if (typeof loadSettingsUI === 'function') loadSettingsUI();
+    }
 };
 
-// Финальный запуск
-setTimeout(() => {
-    updateAllUI();
-    checkAllAchievements();
-    restoreNotificationInterval();
-    
-    // Принудительно показываем Хатм при загрузке
-    switchModule('khatm');
-    
-    console.log('✅ ПРИЛОЖЕНИЕ MUSLIM TRACKER ПОЛНОСТЬЮ ЗАГРУЖЕНО!');
-    showNotification('🕌 Muslim Tracker готов к использованию!');
-}, 800);
+console.log('✅ Часть 5/10 загружена.');
+</script><!-- ==================== ЧАСТЬ 6/10: ОБНОВЛЕНИЕ UI + ФИНАЛЬНЫЕ ФУНКЦИИ ==================== -->
 
-// Обработка закрытия модалки при клике на фон
+<script>
+// ==================== ФИНАЛЬНАЯ ФУНКЦИЯ ОБНОВЛЕНИЯ UI ====================
+function updateAllUI() {
+    // XP и уровень
+    if (typeof showXPPopup === 'function') showXPPopup();
+    
+    // Хатм
+    if (typeof updateKhatmUI === 'function') updateKhatmUI();
+    
+    // Тауба
+    if (typeof updateTaubaUI === 'function') updateTaubaUI();
+    
+    // Звёзды и задания
+    if (typeof updateStarsUI === 'function') updateStarsUI();
+    if (typeof checkDailyTasks === 'function') checkDailyTasks();
+    
+    // Коллекция
+    if (typeof renderCollection === 'function') renderCollection();
+    
+    // Аккаунт
+    if (typeof updateAccountInfo === 'function') updateAccountInfo();
+    
+    // Текущий активный модуль
+    if (currentModule === 'names' && typeof renderNamesOfAllah === 'function') {
+        renderNamesOfAllah();
+    }
+    if (currentModule === 'azkar' && typeof renderAzkar === 'function') {
+        renderAzkar();
+    }
+    if (currentModule === 'counter' && typeof renderZikr === 'function') {
+        renderZikr();
+    }
+    if (currentModule === 'achievements' && typeof renderAchievements === 'function') {
+        renderAchievements();
+    }
+    
+    console.log('🔄 UI полностью обновлён');
+}
+
+// ==================== ПРОВЕРКА НОВОГО ДНЯ ====================
+function checkNewDayReset() {
+    const today = new Date().toISOString().split('T')[0];
+    const lastActive = localStorage.getItem('lastActiveDate');
+    
+    if (lastActive !== today) {
+        // Сбрасываем ежедневные счётчики
+        localStorage.setItem(`salawat_${today}`, '0');
+        
+        // Сохраняем дату последней активности
+        localStorage.setItem('lastActiveDate', today);
+        
+        console.log('🔄 Новый день! Ежедневные счётчики сброшены.');
+    }
+}
+
+// ==================== ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ ====================
+
+// Функция для принудительной синхронизации (можно вызвать из консоли)
+window.forceSync = async function() {
+    if (!currentUser) {
+        console.log('❌ Нет пользователя');
+        showNotification('❌ Войдите в аккаунт');
+        return;
+    }
+    try {
+        if (typeof ensureFullDataStructure === 'function') ensureFullDataStructure();
+        await db.collection('users').doc(currentUser.uid).set(userData, { merge: true });
+        saveLocalBackup();
+        console.log('✅ Принудительная синхронизация выполнена');
+        showNotification('✅ Данные синхронизированы');
+    } catch (e) {
+        console.error('❌ Ошибка синхронизации:', e);
+        showNotification('❌ Ошибка синхронизации');
+    }
+};
+
+// Функция для отладки (вызов из консоли)
+window.debugApp = function() {
+    console.log('=== MUSLIM TRACKER DEBUG ===');
+    console.log('Current User:', currentUser ? (currentUser.isAnonymous ? 'Аноним' : currentUser.email) : 'Нет');
+    console.log('User Data:', userData);
+    console.log('Current Module:', currentModule);
+    console.log('Achievements:', userData.achievements?.length || 0);
+    console.log('Stars:', userData.stars?.totalStars || 0);
+    console.log('Level:', userData.level, 'XP:', userData.xp);
+    console.log('Total Zikr:', typeof getTotalZikr === 'function' ? getTotalZikr() : 'N/A');
+    console.log('Total Salawat:', userData.totalSalawat || 0);
+    console.log('Names Learned:', userData.namesLearned?.length || 0);
+    console.log('Khatms:', userData.khatm?.completedKhatms || 0);
+    console.log('Streak:', typeof getStreak === 'function' ? getStreak() : 'N/A');
+    console.log('Local Backup:', localStorage.getItem('muslim_tracker_backup') ? 'Есть' : 'Нет');
+    console.log('===========================');
+};
+
+// Функция для сброса всех данных (требует подтверждения)
+window.resetAllData = function() {
+    if (confirm('⚠️ ВНИМАНИЕ! Это удалит ВСЕ ваши данные! Продолжить?')) {
+        if (confirm('Точно? Данные нельзя будет восстановить!')) {
+            userData = {
+                xp: 0, level: 1,
+                khatm: { readPages: 0, completedKhatms: 0, period: 30, currentSura: 1, currentPage: 1 },
+                tauba: { days: [] },
+                zikrCounters: {},
+                azkarChecks: { morning: {}, evening: {}, morningDate: null, eveningDate: null },
+                stars: { totalStars: 0, lastClaimDate: '', unlockedRanks: [] },
+                namesLearned: [],
+                achievements: [],
+                settings: { zikrNotificationInterval: 0, showChechen: true },
+                totalSalawat: 0
+            };
+            if (typeof specialDaysCounters !== 'undefined') {
+                specialDaysCounters = { arafa: 0, ashura: 0, baraat: 0, laylatulqadr: 0, shawwal: 0 };
+            }
+            saveUserData();
+            saveLocalBackup();
+            updateAllUI();
+            showNotification('🔄 Все данные сброшены');
+            setTimeout(() => location.reload(), 1000);
+        }
+    }
+};
+
+// ==================== ОБРАБОТЧИКИ СОБЫТИЙ ====================
+
+// Закрытие модалок при клике на фон
 window.addEventListener('click', (e) => {
     const storyModal = document.getElementById('storyModal');
-    if (e.target === storyModal) {
+    if (e.target === storyModal && typeof closeStoryModal === 'function') {
         closeStoryModal();
     }
     const authModal = document.getElementById('authModal');
-    if (e.target === authModal) {
+    if (e.target === authModal && typeof closeAuthModal === 'function') {
         closeAuthModal();
     }
 });
 
-// Предотвращение множественных интервалов
-let checkInterval = null;
-if (checkInterval) clearInterval(checkInterval);
-checkInterval = setInterval(() => {
-    checkAllAchievements();
-    checkDailyTasks();
+// Сохранение перед закрытием страницы
+window.addEventListener('beforeunload', () => {
+    if (typeof saveLocalBackup === 'function') saveLocalBackup();
+    if (currentUser && typeof ensureFullDataStructure === 'function') {
+        ensureFullDataStructure();
+    }
+});
+
+// Проверка видимости страницы
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+        checkNewDayReset();
+        if (typeof checkAndResetAzkarDate === 'function') {
+            checkAndResetAzkarDate();
+        }
+    }
+});
+
+// ==================== ПЕРИОДИЧЕСКИЕ ПРОВЕРКИ ====================
+
+// Проверка достижений и заданий каждые 15 секунд
+let checkInterval = setInterval(() => {
+    if (typeof checkAllAchievements === 'function') checkAllAchievements();
+    if (typeof checkDailyTasks === 'function') checkDailyTasks();
 }, 15000);
 
-console.log('🎉 Часть 5/5 загружена. ПРИЛОЖЕНИЕ ПОЛНОСТЬЮ ГОТОВО!');
+// Локальное сохранение каждые 30 секунд
+let saveInterval = setInterval(() => {
+    if (typeof saveLocalBackup === 'function') saveLocalBackup();
+}, 30000);
+
+// Обновление времени намаза каждую минуту (если модуль активен)
+let prayerInterval = setInterval(() => {
+    if (currentModule === 'prayer') {
+        const saved = localStorage.getItem('prayerLocation');
+        if (saved && typeof fetchPrayerTimes === 'function') {
+            const { city, country } = JSON.parse(saved);
+            fetchPrayerTimes(city, country);
+        }
+    }
+}, 60000);
+
+// ==================== ОБРАБОТКА ОШИБОК ====================
+
+window.addEventListener('error', (e) => {
+    if (e.message && e.message.includes('firebase')) {
+        console.warn('⚠️ Firebase warning:', e.message);
+    }
+});
+
+window.addEventListener('unhandledrejection', (e) => {
+    if (e.reason && e.reason.message && e.reason.message.includes('firebase')) {
+        console.warn('⚠️ Unhandled Firebase rejection:', e.reason.message);
+        e.preventDefault();
+    }
+});
+
+// ==================== ДОПОЛНИТЕЛЬНЫЕ СТИЛИ ДЛЯ УЛУЧШЕНИЯ ОТОБРАЖЕНИЯ ====================
+const additionalStyles = document.createElement('style');
+additionalStyles.textContent = `
+    /* Стили для карточек позиции */
+    .position-card {
+        background: #f5eddb;
+        border-radius: 20px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .position-card h4 {
+        color: #5a3a1a;
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+    }
+    
+    /* Стили для статистики */
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #2c5a2a;
+    }
+    
+    /* Стили для кнопок при наведении */
+    button:hover {
+        opacity: 0.9;
+        transform: scale(0.98);
+        transition: all 0.2s ease;
+    }
+    
+    button:active {
+        transform: scale(0.96);
+    }
+    
+    button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    /* Стили для чекбоксов */
+    input[type="checkbox"] {
+        accent-color: #4a8b3c;
+        cursor: pointer;
+    }
+    
+    input[type="checkbox"]:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    /* Стили для селектов */
+    select {
+        cursor: pointer;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235a3a1a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 15px center;
+        appearance: none;
+        padding-right: 35px;
+    }
+    
+    /* Стили для скроллбара */
+    ::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #e0d5bd;
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #c49a6c;
+        border-radius: 10px;
+    }
+    
+    /* Стили для арабского текста */
+    .arabic-text {
+        font-family: 'Amiri', 'Traditional Arabic', serif;
+        direction: rtl;
+        line-height: 1.8;
+    }
+    
+    /* Стили для кнопок азкаров */
+    .azkar-switch-btn {
+        transition: all 0.2s ease;
+    }
+    
+    /* Стили для коллекции */
+    .collection-tab.active {
+        background: #e6bc7e !important;
+        color: #1e3a1a !important;
+    }
+    
+    /* Стили для золотых карточек */
+    .gold-card {
+        background: linear-gradient(135deg, #c9a227, #a07d1a) !important;
+        border: 3px solid #ffd700 !important;
+    }
+    
+    /* Адаптивные стили */
+    @media (max-width: 480px) {
+        .card {
+            padding: 15px;
+        }
+        
+        .card h2 {
+            font-size: 1.2rem;
+        }
+        
+        button, select, input {
+            padding: 8px 12px;
+            font-size: 0.85rem;
+        }
+    }
+`;
+document.head.appendChild(additionalStyles);
+
+// ==================== ФИНАЛЬНАЯ ИНИЦИАЛИЗАЦИЯ ====================
+setTimeout(() => {
+    // Проверяем структуру данных
+    if (typeof ensureFullDataStructure === 'function') ensureFullDataStructure();
+    
+    // Проверяем новый день
+    checkNewDayReset();
+    
+    // Обновляем весь UI
+    updateAllUI();
+    
+    // Проверяем достижения
+    if (typeof checkAllAchievements === 'function') checkAllAchievements();
+    
+    // Восстанавливаем интервал уведомлений
+    if (typeof restoreNotificationInterval === 'function') restoreNotificationInterval();
+    
+    // Загружаем настройки
+    if (typeof loadSettingsUI === 'function') loadSettingsUI();
+    
+    // Принудительно показываем Хатм
+    switchModule('khatm');
+    
+    console.log('🎉 MUSLIM TRACKER - ПОЛНАЯ ЗАГРУЗКА ЗАВЕРШЕНА!');
+    console.log('📖 Хатм уль-Куран | 📿 Азкары | 📜 99 Имён | ⭐ Звёзды');
+    console.log('🤲 Да примет Аллах все ваши поклонения!');
+    
+    // Приветственное уведомление
+    setTimeout(() => {
+        showNotification('🕌 Ассаляму алейкум! Да примет Аллах ваши поклонения!');
+    }, 1000);
+}, 800);
+
+// ==================== ГЛОБАЛЬНЫЕ ФУНКЦИИ ДЛЯ ИСТОРИЙ ====================
+window.showAchievementStory = function(id) {
+    const ach = ALL_ACHIEVEMENTS_FULL.find(a => a.id === id);
+    if (!ach) return;
+    const isUnlocked = (userData.achievements || []).includes(id);
+    const currentVal = ach.current ? ach.current() : 0;
+    const targetVal = ach.target ? ach.target() : 1;
+    document.getElementById('storyIcon').innerHTML = ach.icon;
+    document.getElementById('storyTitle').textContent = ach.title;
+    document.getElementById('storyText').innerHTML = `<p><strong>${ach.desc}</strong></p><p style="color:#5a3a1a;margin-top:15px;">${ach.story}</p><p style="margin-top:15px;">📊 Прогресс: ${currentVal} / ${targetVal}</p><p style="margin-top:10px;color:${isUnlocked ? '#d4af37' : '#888'};">${isUnlocked ? '✅ Открыто! +'+ach.xp+' XP' : '🔒 Ещё не открыто'}</p>`;
+    document.getElementById('storyModal').style.display = 'flex';
+};
+
+window.showStory = function(icon, title, story) {
+    document.getElementById('storyIcon').innerHTML = icon;
+    document.getElementById('storyTitle').textContent = title;
+    document.getElementById('storyText').innerHTML = story;
+    document.getElementById('storyModal').style.display = 'flex';
+};
+
+window.closeStoryModal = function() {
+    document.getElementById('storyModal').style.display = 'none';
+};
+
+window.closeAuthModal = function() {
+    document.getElementById('authModal').style.display = 'none';
+    const authError = document.getElementById('authError');
+    if (authError) authError.textContent = '';
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const forgotForm = document.getElementById('forgotPasswordForm');
+    if (loginForm) loginForm.style.display = 'block';
+    if (registerForm) registerForm.style.display = 'none';
+    if (forgotForm) forgotForm.style.display = 'none';
+};
+
+console.log('✅ Часть 6/10 загружена.');
+</script><!-- ==================== ЧАСТЬ 7/10: ФУТЕР + ЗАКРЫТИЕ КОНТЕЙНЕРОВ ==================== -->
+
+<!-- Футер -->
+<footer style="text-align: center; padding: 20px; color: #b8a87c; font-size: 0.8rem; margin-top: 20px;">
+    <p>🕌 Muslim Tracker v2.0</p>
+    <p style="margin-top: 5px;">رَبَّنَا تَقَبَّلْ مِنَّا إِنَّكَ أَنتَ السَّمِيعُ الْعَلِيمُ</p>
+    <p style="margin-top: 5px;">"Господь наш! Прими от нас, ведь Ты — Слышащий, Знающий" (2:127)</p>
+    <p style="margin-top: 10px; font-size: 0.7rem;">📧 magomadov1195volk@gmail.com | 📲 +7 963 589-00-90</p>
+</footer>
+
+</div>
+<!-- Закрытие app-container -->
+
+<!-- Контейнер для уведомлений -->
+<div id="notificationContainer" style="position: fixed; bottom: 20px; right: 20px; z-index: 10001;"></div>
+
+<script>
+// ==================== ФИНАЛЬНАЯ ПРОВЕРКА И ДИАГНОСТИКА ====================
+(function() {
+    console.log('🔍 Финальная диагностика Muslim Tracker...');
+    
+    // Проверяем наличие всех критических элементов
+    const requiredElements = [
+        'xpPopup', 'authModal', 'navTabs', 'modulesContainer',
+        'module-khatm', 'module-tauba', 'module-names', 'module-azkar',
+        'module-counter', 'module-prayer', 'module-achievements', 'module-stars',
+        'module-collection', 'module-settings', 'storyModal'
+    ];
+    
+    let missingElements = [];
+    requiredElements.forEach(id => {
+        if (!document.getElementById(id)) {
+            missingElements.push(id);
+        }
+    });
+    
+    if (missingElements.length > 0) {
+        console.warn('⚠️ Отсутствуют элементы DOM:', missingElements);
+    } else {
+        console.log('✅ Все основные элементы DOM найдены');
+    }
+    
+    // Проверяем Firebase
+    if (typeof firebase !== 'undefined') {
+        console.log('✅ Firebase загружен');
+    } else {
+        console.error('❌ Firebase не загружен!');
+    }
+    
+    // Проверяем глобальные переменные
+    console.log('📊 Статистика приложения:');
+    console.log('   - 114 сур Корана');
+    console.log('   - 99 Имён Аллаха с переводом');
+    console.log('   - 14 утренних азкаров');
+    console.log('   - 13 вечерних азкаров');
+    console.log('   - 60+ достижений со счётчиками');
+    console.log('   - 10 рангов звёзд');
+    console.log('   - Локальное сохранение данных');
+    console.log('   - Облачная синхронизация Firebase');
+    
+    // Проверяем локальное хранилище
+    const backup = localStorage.getItem('muslim_tracker_backup');
+    if (backup) {
+        console.log('✅ Локальный бекап найден');
+    } else {
+        console.log('📝 Локальный бекап ещё не создан');
+    }
+    
+    // Проверяем состояние авторизации
+    if (currentUser) {
+        console.log(`👤 Пользователь: ${currentUser.isAnonymous ? 'Аноним' : currentUser.email}`);
+    } else {
+        console.log('👤 Пользователь: не авторизован');
+    }
+    
+    console.log('🎉 Muslim Tracker готов к использованию!');
+    console.log('💡 Подсказка: введите debugApp() в консоли для просмотра статистики');
+})();
+
+// ==================== ОБРАБОТЧИК ДЛЯ ЗАКРЫТИЯ МОДАЛОК ПО ESC ====================
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const storyModal = document.getElementById('storyModal');
+        if (storyModal && storyModal.style.display === 'flex') {
+            closeStoryModal();
+        }
+        const authModal = document.getElementById('authModal');
+        if (authModal && authModal.style.display === 'flex') {
+            closeAuthModal();
+        }
+    }
+});
+
+// ==================== ПРОВЕРКА ПОДКЛЮЧЕНИЯ К ИНТЕРНЕТУ ====================
+let isOnline = navigator.onLine;
+window.addEventListener('online', () => {
+    if (!isOnline) {
+        isOnline = true;
+        console.log('🌐 Подключение к интернету восстановлено');
+        showNotification('🌐 Интернет восстановлен');
+        if (currentUser && !currentUser.isAnonymous) {
+            forceSync();
+        }
+    }
+});
+
+window.addEventListener('offline', () => {
+    isOnline = false;
+    console.log('📴 Нет подключения к интернету');
+    showNotification('📴 Нет интернета, работа в офлайн-режиме');
+});
+
+// ==================== ФУНКЦИЯ ДЛЯ ОТОБРАЖЕНИЯ ВЕРСИИ ====================
+window.showVersion = function() {
+    console.log('Muslim Tracker v2.0');
+    console.log('Дата сборки: 2024');
+    console.log('Разработчик: magomadov1195volk@gmail.com');
+    alert('Muslim Tracker v2.0\n\nПолное исламское приложение:\n- Хатм Корана\n- Азкары\n- 99 Имён Аллаха\n- Зикр и салаваты\n- Время намаза\n- Дневник покаяния\n- Достижения и звёзды\n- Облачная синхронизация');
+};
+
+// ==================== ФУНКЦИЯ ДЛЯ ПРИНУДИТЕЛЬНОГО ОБНОВЛЕНИЯ ДОСТИЖЕНИЙ ====================
+window.refreshAchievements = function() {
+    if (typeof checkAllAchievements === 'function') {
+        checkAllAchievements();
+        if (typeof renderAchievements === 'function') renderAchievements();
+        console.log('✅ Достижения обновлены');
+        showNotification('✅ Достижения проверены');
+    }
+};
+
+// ==================== ОЧИСТКА СТАРЫХ ИНТЕРВАЛОВ ПРИ ПЕРЕЗАГРУЗКЕ ====================
+window.addEventListener('beforeunload', () => {
+    if (checkInterval) clearInterval(checkInterval);
+    if (saveInterval) clearInterval(saveInterval);
+    if (prayerInterval) clearInterval(prayerInterval);
+    if (notificationInterval) clearInterval(notificationInterval);
+});
+
+console.log('✅ Часть 7/10 загружена.');
+</script><!-- ==================== ЧАСТЬ 8/10: ДОПОЛНИТЕЛЬНЫЕ СТИЛИ ==================== -->
+
+<style>
+    /* Дополнительные стили для улучшения отображения */
+    
+    /* Стили для карточек позиции */
+    .position-card {
+        background: #f5eddb;
+        border-radius: 20px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .position-card h4 {
+        color: #5a3a1a;
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+    }
+    
+    /* Стили для статистики */
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #2c5a2a;
+    }
+    
+    /* Стили для прогресс-баров */
+    .progress-bar {
+        background: #e0d5bd;
+        border-radius: 30px;
+        height: 12px;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        background: #4a8b3c;
+        height: 100%;
+        border-radius: 30px;
+        transition: width 0.3s ease;
+    }
+    
+    /* Стили для кнопок */
+    button {
+        transition: all 0.2s ease;
+    }
+    
+    button:hover {
+        opacity: 0.9;
+        transform: scale(0.98);
+    }
+    
+    button:active {
+        transform: scale(0.96);
+    }
+    
+    button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    /* Стили для чекбоксов */
+    input[type="checkbox"] {
+        accent-color: #4a8b3c;
+        cursor: pointer;
+    }
+    
+    input[type="checkbox"]:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    /* Стили для селектов */
+    select {
+        cursor: pointer;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235a3a1a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 15px center;
+        appearance: none;
+        padding-right: 35px;
+    }
+    
+    /* Стили для инпутов */
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    input[type="password"] {
+        background: #fffef7;
+        border: 1px solid #c4a86a;
+        padding: 12px 16px;
+        border-radius: 30px;
+        font-size: 0.9rem;
+    }
+    
+    input:focus {
+        outline: none;
+        border-color: #d4af37;
+        box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+    }
+    
+    /* Стили для скроллбара */
+    ::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #e0d5bd;
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #c49a6c;
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #a05050;
+    }
+    
+    /* Стили для модальных окон */
+    .modal {
+        animation: fadeIn 0.2s ease;
+    }
+    
+    .modal-content {
+        animation: slideUp 0.3s ease;
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Стили для активных вкладок коллекции */
+    .collection-tab.active {
+        background: #e6bc7e !important;
+        color: #1e3a1a !important;
+    }
+    
+    /* Стили для карточек достижений */
+    .achievement-card {
+        transition: all 0.2s ease;
+    }
+    
+    .achievement-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    /* Стили для арабского текста */
+    .arabic-text {
+        font-family: 'Amiri', 'Traditional Arabic', serif;
+        direction: rtl;
+        line-height: 1.8;
+    }
+    
+    /* Стили для кнопок азкаров */
+    .azkar-switch-btn {
+        transition: all 0.2s ease;
+    }
+    
+    .azkar-switch-btn.active {
+        background: #e6bc7e !important;
+        color: #1e3a1a !important;
+    }
+    
+    /* Стили для сетки намаза */
+    .prayer-time {
+        transition: color 0.3s ease;
+    }
+    
+    /* Стили для информации о следующем намазе */
+    #nextPrayerInfo {
+        transition: all 0.3s ease;
+    }
+    
+    /* Стили для прелоадера */
+    .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #e6bc7e;
+        border-radius: 50%;
+        border-top-color: #2c5a2a;
+        animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Стили для уведомлений */
+    .notification {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #2b4b29;
+        color: #e6bc7e;
+        padding: 15px 20px;
+        border-radius: 20px;
+        z-index: 10000;
+        max-width: 280px;
+        font-size: 0.9rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    /* Стили для подсветки активного элемента */
+    .highlight {
+        animation: highlightPulse 1s ease;
+    }
+    
+    @keyframes highlightPulse {
+        0% { background: transparent; }
+        50% { background: rgba(212, 175, 55, 0.3); }
+        100% { background: transparent; }
+    }
+    
+    /* Стили для вкладки аккаунта */
+    #accountInfo p {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px dashed #c4a86a;
+    }
+    
+    #accountInfo p:last-child {
+        border-bottom: none;
+    }
+    
+    /* Стили для золотых карточек */
+    .gold-card {
+        background: linear-gradient(135deg, #c9a227, #a07d1a) !important;
+        border: 3px solid #ffd700 !important;
+    }
+    
+    /* Стили для обычных карточек */
+    .normal-card {
+        background: linear-gradient(135deg, #f5dca8, #e6bc7e) !important;
+        border: 2px solid #d4af37 !important;
+    }
+    
+    /* Адаптивные стили */
+    @media (max-width: 480px) {
+        .card {
+            padding: 15px;
+        }
+        
+        .card h2 {
+            font-size: 1.2rem;
+        }
+        
+        button, select, input {
+            padding: 8px 12px;
+            font-size: 0.85rem;
+        }
+        
+        .nav-btn {
+            padding: 8px 8px;
+            font-size: 0.6rem;
+        }
+        
+        .header h1 {
+            font-size: 1.3rem;
+        }
+        
+        .arabic-header {
+            font-size: 1rem;
+        }
+    }
+    
+    /* Стили для широких экранов */
+    @media (min-width: 768px) {
+        .app-container {
+            padding: 0 20px;
+        }
+        
+        .nav-tabs {
+            gap: 10px;
+        }
+        
+        .nav-btn {
+            padding: 12px 18px;
+            font-size: 0.85rem;
+        }
+    }
+    
+    /* Стили для кнопки "Забрать звезду" */
+    .claim-btn {
+        transition: all 0.3s ease;
+    }
+    
+    .claim-btn:not(:disabled):hover {
+        background: #c9a227 !important;
+        transform: scale(1.02);
+    }
+    
+    /* Стили для счётчиков в достижениях */
+    .achievement-progress {
+        font-size: 0.7rem;
+        color: #2c5a2a;
+        margin-top: 4px;
+    }
+    
+    /* Стили для имён Аллаха */
+    .name-card {
+        transition: all 0.2s ease;
+    }
+    
+    .name-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    /* Стили для арабского текста в азкарах */
+    .azkar-arabic {
+        font-family: 'Amiri', serif;
+        direction: rtl;
+        line-height: 1.8;
+        margin-bottom: 12px;
+    }
+    
+    /* Стили для транслитерации */
+    .azkar-translit {
+        font-family: monospace;
+        color: #7a683e;
+        margin-bottom: 8px;
+        font-size: 0.85rem;
+        background: rgba(0,0,0,0.02);
+        padding: 8px;
+        border-radius: 12px;
+    }
+</style>
+
+<script>
+console.log('✅ Часть 8/10 загружена (дополнительные стили).');
+</script><!-- ==================== ЧАСТЬ 9/10: ФИНАЛЬНЫЕ ФУНКЦИИ FIREBASE И СИНХРОНИЗАЦИИ ==================== -->
+
+<script>
+// ==================== РАСШИРЕННАЯ СИНХРОНИЗАЦИЯ С FIREBASE ====================
+
+// Функция для объединения локальных и облачных данных
+async function mergeLocalAndCloudData() {
+    if (!currentUser) return;
+    
+    try {
+        const docRef = db.collection('users').doc(currentUser.uid);
+        const doc = await docRef.get();
+        
+        if (doc.exists) {
+            const cloudData = doc.data();
+            const localData = userData;
+            
+            // Объединяем достижения (сохраняем максимум)
+            const mergedAchievements = [...new Set([
+                ...(localData.achievements || []),
+                ...(cloudData.achievements || [])
+            ])];
+            
+            // Объединяем выученные имена
+            const mergedNames = [...new Set([
+                ...(localData.namesLearned || []),
+                ...(cloudData.namesLearned || [])
+            ])];
+            
+            // Берём максимальные значения для прогресса
+            const mergedKhatm = {
+                readPages: Math.max(localData.khatm?.readPages || 0, cloudData.khatm?.readPages || 0),
+                completedKhatms: Math.max(localData.khatm?.completedKhatms || 0, cloudData.khatm?.completedKhatms || 0),
+                period: localData.khatm?.period || cloudData.khatm?.period || 30,
+                currentSura: localData.khatm?.currentSura || cloudData.khatm?.currentSura || 1,
+                currentPage: localData.khatm?.currentPage || cloudData.khatm?.currentPage || 1
+            };
+            
+            // Объединяем счётчики зикров (суммируем)
+            const mergedZikrCounters = { ...cloudData.zikrCounters };
+            Object.keys(localData.zikrCounters || {}).forEach(key => {
+                mergedZikrCounters[key] = (mergedZikrCounters[key] || 0) + (localData.zikrCounters[key] || 0);
+            });
+            
+            // Берём максимальное XP и уровень
+            const mergedXP = Math.max(localData.xp || 0, cloudData.xp || 0);
+            const mergedLevel = Math.max(localData.level || 1, cloudData.level || 1);
+            
+            // Объединяем звёзды
+            const mergedStars = {
+                totalStars: Math.max(localData.stars?.totalStars || 0, cloudData.stars?.totalStars || 0),
+                lastClaimDate: localData.stars?.lastClaimDate || cloudData.stars?.lastClaimDate || '',
+                unlockedRanks: [...new Set([
+                    ...(localData.stars?.unlockedRanks || []),
+                    ...(cloudData.stars?.unlockedRanks || [])
+                ])]
+            };
+            
+            // Обновляем локальные данные
+            userData = {
+                ...cloudData,
+                ...localData,
+                xp: mergedXP,
+                level: mergedLevel,
+                khatm: mergedKhatm,
+                zikrCounters: mergedZikrCounters,
+                achievements: mergedAchievements,
+                namesLearned: mergedNames,
+                stars: mergedStars,
+                totalSalawat: Math.max(localData.totalSalawat || 0, cloudData.totalSalawat || 0)
+            };
+            
+            // Сохраняем объединённые данные
+            ensureFullDataStructure();
+            await saveUserData();
+            saveLocalBackup();
+            
+            console.log('✅ Данные объединены и синхронизированы');
+            return true;
+        }
+    } catch (error) {
+        console.error('❌ Ошибка при объединении данных:', error);
+    }
+    return false;
+}
+
+// Функция для проверки целостности данных
+function validateUserData() {
+    const requiredFields = ['xp', 'level', 'khatm', 'tauba', 'zikrCounters', 'azkarChecks', 'stars', 'namesLearned', 'achievements', 'settings'];
+    const missingFields = [];
+    
+    requiredFields.forEach(field => {
+        if (userData[field] === undefined || userData[field] === null) {
+            missingFields.push(field);
+        }
+    });
+    
+    if (missingFields.length > 0) {
+        console.warn('⚠️ Отсутствуют поля в userData:', missingFields);
+        ensureFullDataStructure();
+        saveUserData();
+        return false;
+    }
+    
+    return true;
+}
+
+// Функция для восстановления данных из бекапа
+function restoreFromBackup(backupData) {
+    try {
+        const data = typeof backupData === 'string' ? JSON.parse(backupData) : backupData;
+        
+        // Проверяем версию и структуру
+        if (data.userData) {
+            Object.assign(userData, data.userData);
+        } else {
+            Object.assign(userData, data);
+        }
+        
+        ensureFullDataStructure();
+        saveUserData();
+        saveLocalBackup();
+        updateAllUI();
+        
+        console.log('✅ Данные восстановлены из бекапа');
+        showNotification('✅ Данные восстановлены');
+        return true;
+    } catch (error) {
+        console.error('❌ Ошибка восстановления из бекапа:', error);
+        showNotification('❌ Ошибка восстановления');
+        return false;
+    }
+}
+
+// Функция для создания полного бекапа
+function createFullBackup() {
+    const backup = {
+        userData: userData,
+        specialDaysCounters: typeof specialDaysCounters !== 'undefined' ? specialDaysCounters : {},
+        timestamp: new Date().toISOString(),
+        version: '2.0',
+        app: 'Muslim Tracker'
+    };
+    
+    const backupStr = JSON.stringify(backup, null, 2);
+    
+    // Сохраняем в localStorage
+    try {
+        localStorage.setItem('muslim_tracker_full_backup', backupStr);
+        console.log('💾 Полный бекап создан');
+    } catch (e) {
+        console.warn('⚠️ Не удалось создать полный бекап в localStorage');
+    }
+    
+    return backupStr;
+}
+
+// Функция для автоматического бекапа
+function autoBackup() {
+    const lastBackup = localStorage.getItem('last_auto_backup_date');
+    const today = new Date().toISOString().split('T')[0];
+    
+    if (lastBackup !== today) {
+        createFullBackup();
+        localStorage.setItem('last_auto_backup_date', today);
+        console.log('📦 Автоматический бекап создан');
+    }
+}
+
+// ==================== УЛУЧШЕННАЯ ОБРАБОТКА ОШИБОК FIREBASE ====================
+
+// Проверка соединения с Firebase
+async function checkFirebaseConnection() {
+    try {
+        const testDoc = db.collection('system').doc('connection_test');
+        await testDoc.set({ timestamp: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+        console.log('✅ Соединение с Firebase активно');
+        return true;
+    } catch (error) {
+        console.warn('⚠️ Нет соединения с Firebase, работа в офлайн-режиме');
+        return false;
+    }
+}
+
+// Обработка ошибок при сохранении
+async function safeSaveUserData() {
+    try {
+        await saveUserData();
+        return true;
+    } catch (error) {
+        console.error('❌ Ошибка сохранения:', error);
+        // Сохраняем локально
+        saveLocalBackup();
+        return false;
+    }
+}
+
+// ==================== ФУНКЦИИ ДЛЯ РАБОТЫ С АККАУНТОМ ====================
+
+// Проверка email на валидность
+function isValidEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+}
+
+// Обновление email пользователя
+async function updateUserEmail(newEmail) {
+    if (!currentUser || currentUser.isAnonymous) {
+        showNotification('⚠️ Войдите в аккаунт');
+        return false;
+    }
+    
+    if (!isValidEmail(newEmail)) {
+        showNotification('❌ Некорректный email');
+        return false;
+    }
+    
+    try {
+        await currentUser.updateEmail(newEmail);
+        updateAccountInfo();
+        showNotification('✅ Email обновлён');
+        return true;
+    } catch (error) {
+        console.error('Ошибка обновления email:', error);
+        showNotification('❌ ' + error.message);
+        return false;
+    }
+}
+
+// Отправка письма для верификации email
+async function sendVerificationEmail() {
+    if (!currentUser || currentUser.isAnonymous) {
+        showNotification('⚠️ Войдите в аккаунт');
+        return false;
+    }
+    
+    try {
+        await currentUser.sendEmailVerification();
+        showNotification('📧 Письмо для подтверждения отправлено');
+        return true;
+    } catch (error) {
+        console.error('Ошибка отправки письма:', error);
+        showNotification('❌ ' + error.message);
+        return false;
+    }
+}
+
+// ==================== ИНИЦИАЛИЗАЦИЯ И ЗАПУСК ====================
+
+// Автоматический бекап при загрузке
+setTimeout(() => {
+    autoBackup();
+    validateUserData();
+}, 2000);
+
+// Периодическая проверка соединения
+setInterval(async () => {
+    const isConnected = await checkFirebaseConnection();
+    if (isConnected && currentUser && !currentUser.isAnonymous) {
+        // Синхронизируем данные если есть соединение
+        mergeLocalAndCloudData();
+    }
+}, 300000); // Каждые 5 минут
+
+// Создание бекапа каждый день
+setInterval(() => {
+    autoBackup();
+}, 3600000); // Каждый час
+
+// ==================== ДОПОЛНИТЕЛЬНЫЕ ГЛОБАЛЬНЫЕ ФУНКЦИИ ====================
+
+// Функция для просмотра статистики в консоли
+window.stats = function() {
+    console.log('=== СТАТИСТИКА MUSLIM TRACKER ===');
+    console.log('📖 Хатмы:', userData.khatm?.completedKhatms || 0);
+    console.log('📄 Страниц прочитано:', userData.khatm?.readPages || 0);
+    console.log('🔢 Всего зикров:', typeof getTotalZikr === 'function' ? getTotalZikr() : 0);
+    console.log('🌹 Салаватов:', userData.totalSalawat || 0);
+    console.log('📜 Имён Аллаха:', userData.namesLearned?.length || 0, '/ 99');
+    console.log('🏆 Достижений:', userData.achievements?.length || 0);
+    console.log('⭐ Звёзд:', userData.stars?.totalStars || 0);
+    console.log('📊 Уровень:', userData.level, '| XP:', userData.xp);
+    console.log('🔥 Серия дней:', typeof getStreak === 'function' ? getStreak() : 0);
+    console.log('===================================');
+};
+
+// Функция для экспорта данных в буфер обмена
+window.copyBackupToClipboard = function() {
+    const backup = createFullBackup();
+    navigator.clipboard?.writeText(backup).then(() => {
+        showNotification('📋 Бекап скопирован в буфер обмена');
+    }).catch(() => {
+        showNotification('❌ Не удалось скопировать');
+    });
+};
+
+// Функция для восстановления из буфера обмена
+window.restoreFromClipboard = async function() {
+    try {
+        const text = await navigator.clipboard?.readText();
+        if (text) {
+            restoreFromBackup(text);
+        }
+    } catch (error) {
+        showNotification('❌ Не удалось прочитать буфер обмена');
+    }
+};
+
+console.log('✅ Часть 9/10 загружена (расширенные функции Firebase).');
+</script><!-- ==================== ЧАСТЬ 10/10: ЗАКРЫТИЕ ТЕГОВ И ФИНАЛЬНЫЙ ЗАПУСК ==================== -->
+
+<script>
+// ==================== ФИНАЛЬНЫЙ ЗАПУСК ПРИЛОЖЕНИЯ ====================
+
+(function finalInitialization() {
+    console.log('🚀 Запуск финальной инициализации Muslim Tracker...');
+    
+    // 1. Проверяем и исправляем структуру данных
+    if (typeof ensureFullDataStructure === 'function') {
+        ensureFullDataStructure();
+        console.log('✅ Структура данных проверена');
+    }
+    
+    // 2. Загружаем локальный бекап если есть
+    if (typeof loadLocalBackup === 'function') {
+        const hasBackup = loadLocalBackup();
+        console.log(hasBackup ? '✅ Локальный бекап загружен' : '📝 Локальный бекап не найден');
+    }
+    
+    // 3. Проверяем новый день
+    if (typeof checkNewDayReset === 'function') {
+        checkNewDayReset();
+    }
+    
+    // 4. Проверяем и сбрасываем азкары при новом дне
+    if (typeof checkAndResetAzkarDate === 'function') {
+        checkAndResetAzkarDate();
+    }
+    
+    // 5. Заполняем список сур
+    if (typeof populateSuraSelect === 'function') {
+        populateSuraSelect();
+    }
+    
+    // 6. Обновляем весь UI
+    if (typeof updateAllUI === 'function') {
+        updateAllUI();
+        console.log('✅ UI обновлён');
+    }
+    
+    // 7. Проверяем достижения
+    if (typeof checkAllAchievements === 'function') {
+        checkAllAchievements();
+    }
+    
+    // 8. Восстанавливаем интервал уведомлений
+    if (typeof restoreNotificationInterval === 'function') {
+        restoreNotificationInterval();
+    }
+    
+    // 9. Загружаем настройки UI
+    if (typeof loadSettingsUI === 'function') {
+        loadSettingsUI();
+    }
+    
+    // 10. Принудительно показываем модуль Хатм
+    if (typeof switchModule === 'function') {
+        switchModule('khatm');
+    }
+    
+    // 11. Создаём автоматический бекап
+    if (typeof autoBackup === 'function') {
+        autoBackup();
+    }
+    
+    // 12. Проверяем соединение с Firebase
+    if (typeof checkFirebaseConnection === 'function') {
+        checkFirebaseConnection().then(isConnected => {
+            console.log(isConnected ? '✅ Firebase подключён' : '⚠️ Firebase офлайн');
+        });
+    }
+    
+    console.log('🎉 MUSLIM TRACKER ПОЛНОСТЬЮ ЗАГРУЖЕН И ГОТОВ К РАБОТЕ!');
+    console.log('🕌 Ассаляму алейкум! Да примет Аллах все ваши поклонения!');
+    console.log('💡 Подсказки:');
+    console.log('   - debugApp() — просмотр отладочной информации');
+    console.log('   - stats() — просмотр статистики');
+    console.log('   - forceSync() — принудительная синхронизация');
+    console.log('   - resetAllData() — сброс всех данных');
+    
+    // Приветственное уведомление с задержкой
+    setTimeout(() => {
+        if (typeof showNotification === 'function') {
+            showNotification('🕌 Ассаляму алейкум! Muslim Tracker готов!');
+        }
+    }, 1500);
+    
+})();
+
+// ==================== ОБРАБОТЧИК ЗАГРУЗКИ СТРАНИЦЫ ====================
+window.addEventListener('load', () => {
+    console.log('📱 Страница полностью загружена');
+    
+    // Скрываем прелоадер если есть
+    const preloader = document.getElementById('preloader');
+    if (preloader) {
+        preloader.style.display = 'none';
+    }
+    
+    // Проверяем авторизацию
+    if (!currentUser) {
+        console.log('👤 Пользователь не авторизован, выполняем анонимный вход...');
+    }
+    
+    // Проверяем наличие обновлений из Service Worker (если есть)
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+            registrations.forEach(registration => {
+                registration.update();
+            });
+        });
+    }
+});
+
+// ==================== ОБРАБОТЧИК ПЕРЕД ЗАКРЫТИЕМ ====================
+window.addEventListener('beforeunload', (e) => {
+    console.log('💾 Сохранение данных перед закрытием...');
+    
+    // Сохраняем локальный бекап
+    if (typeof saveLocalBackup === 'function') {
+        saveLocalBackup();
+    }
+    
+    // Создаём полный бекап
+    if (typeof createFullBackup === 'function') {
+        createFullBackup();
+    }
+    
+    // Очищаем интервалы
+    if (typeof checkInterval !== 'undefined' && checkInterval) {
+        clearInterval(checkInterval);
+    }
+    if (typeof saveInterval !== 'undefined' && saveInterval) {
+        clearInterval(saveInterval);
+    }
+    if (typeof prayerInterval !== 'undefined' && prayerInterval) {
+        clearInterval(prayerInterval);
+    }
+    if (typeof notificationInterval !== 'undefined' && notificationInterval) {
+        clearInterval(notificationInterval);
+    }
+    
+    // Для анонимных пользователей можно показать предупреждение
+    if (currentUser && currentUser.isAnonymous) {
+        // Не показываем диалог, просто логируем
+        console.log('⚠️ Анонимный пользователь, данные могут быть потеряны при очистке кэша');
+    }
+});
+
+// ==================== ОБРАБОТЧИК ОШИБОК ИЗОБРАЖЕНИЙ ====================
+window.addEventListener('error', (e) => {
+    if (e.target.tagName === 'IMG') {
+        console.warn('⚠️ Ошибка загрузки изображения:', e.target.src);
+        // Можно заменить на заглушку
+        // e.target.src = 'data:image/svg+xml,...';
+    }
+}, true);
+
+// ==================== PWA - РЕГИСТРАЦИЯ SERVICE WORKER (опционально) ====================
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        // Раскомментируй если есть файл service-worker.js
+        // navigator.serviceWorker.register('/service-worker.js').then(registration => {
+        //     console.log('✅ Service Worker зарегистрирован:', registration.scope);
+        // }).catch(error => {
+        //     console.log('❌ Ошибка регистрации Service Worker:', error);
+        // });
+    });
+}
+
+// ==================== ОТЛОЖЕННАЯ ЗАГРУЗКА ИЗОБРАЖЕНИЙ ====================
+document.addEventListener('DOMContentLoaded', () => {
+    const lazyImages = document.querySelectorAll('img[data-src]');
+    if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.src = img.dataset.src;
+                    img.removeAttribute('data-src');
+                    imageObserver.unobserve(img);
+                }
+            });
+        });
+        
+        lazyImages.forEach(img => imageObserver.observe(img));
+    } else {
+        // Fallback для старых браузеров
+        lazyImages.forEach(img => {
+            img.src = img.dataset.src;
+            img.removeAttribute('data-src');
+        });
+    }
+});
+
+// ==================== ФИНАЛЬНОЕ СООБЩЕНИЕ ====================
+console.log(`
+╔══════════════════════════════════════════════════════════════╗
+║                                                              ║
+║              🕌 MUSLIM TRACKER v2.0 🕌                       ║
+║                                                              ║
+║         Хатм • Азкары • 99 Имён • Зикр • Намаз              ║
+║         Тауба • Достижения • Звёзды • Коллекция             ║
+║                                                              ║
+║              Да примет Аллах все ваши дела!                 ║
+║                                                              ║
+║                    رَبِّ زِدْنِي عِلْمًا                      ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+`);
+
 </script>
+
+<!-- Финальное закрытие тегов -->
 </body>
 </html>
