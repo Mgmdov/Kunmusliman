@@ -48,31 +48,6 @@
         .surah-card { background: linear-gradient(135deg, #1a4a2a, #0d3b1f); border: 2px solid #d4af37; color: #ffefc0; }
         .prophet-card { background: linear-gradient(135deg, #5a3a1a, #3a2510); border: 2px solid #c9a227; color: #ffefc0; }
         @media (max-width: 480px) { body { padding: 8px; } .nav-btn { padding: 8px 10px; font-size: 0.65rem; } .header h1 { font-size: 1.4rem; } }
-        /* Салют */
-        .firework-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 99999; }
-        .achievement-center-text { position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #1a4a2a, #0d3b1f); border: 4px solid #d4af37; border-radius: 80px; padding: 25px 45px; color: #ffefc0; font-weight: bold; font-size: clamp(1.5rem, 6vw, 2.5rem); box-shadow: 0 0 80px #d4af37; z-index: 100000; animation: centerTextPop 4.5s ease-out forwards; pointer-events: none; white-space: nowrap; }
-        @keyframes centerTextPop { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); } 15% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); } 25% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 70% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } }
-        /* Джума-карты */
-        .juma-check-item { display: flex; align-items: center; gap: 15px; padding: 15px; background: #f5eddb; border-radius: 20px; margin-bottom: 12px; }
-        .juma-check-item input[type="checkbox"] { width: 28px; height: 28px; accent-color: #4a8b3c; }
-        .juma-check-item a { color: #2c5a2a; text-decoration: underline; margin-left: auto; }
-        .mystery-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 100000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: 0.3s; }
-        .mystery-overlay.active { opacity: 1; visibility: visible; }
-        .mystery-cards { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; padding: 20px; }
-        .mystery-card { width: 160px; height: 220px; background: linear-gradient(145deg, #1a1a2e, #16213e); border: 3px solid #d4af37; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; }
-        .mystery-card::before { content: "?"; font-size: 5rem; font-weight: bold; color: #d4af37; text-shadow: 0 0 20px #ffd700; }
-        .mystery-card:hover { transform: scale(1.05); box-shadow: 0 0 40px #d4af37; }
-        .mystery-ayah { position: absolute; bottom: 10px; left: 10px; right: 10px; font-size: 0.7rem; color: #a0a0a0; text-align: center; font-style: italic; }
-        /* Редкие карты */
-        .card-rare { opacity: 0.7; filter: brightness(0.6); position: relative; }
-        .card-rare::after { content: "🔒"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; opacity: 0.8; text-shadow: 0 0 20px rgba(0,0,0,0.8); }
-        .card-rare.revealed::after { display: none; }
-        .card-rare.revealed { opacity: 1; filter: brightness(1); }
-        .card-rarity { font-size: 0.6rem; padding: 3px 8px; border-radius: 20px; display: inline-block; margin-top: 8px; font-weight: bold; }
-        .rarity-legendary { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #1e1e1e; box-shadow: 0 0 15px #ffd700; }
-        .rarity-epic { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; }
-        .rarity-rare { background: #4a90e2; color: white; }
-        .notification-banner { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #1a4a2a, #0d3b1f); border: 3px solid #d4af37; border-radius: 60px; padding: 15px 30px; color: #ffefc0; font-weight: bold; font-size: 1.1rem; box-shadow: 0 0 40px #d4af37; z-index: 99999; animation: slideDown 0.4s ease; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -140,13 +115,6 @@
     <div style="text-align:center; margin-top:15px; color:#b8a87c; font-size: 0.9rem;">🤲 Да примет Аллах</div>
 </div>
 
-<!-- Салют -->
-<div class="firework-container" id="fireworkContainer"></div>
-<!-- Мистери-карты -->
-<div class="mystery-overlay" id="mysteryOverlay">
-    <div class="mystery-cards" id="mysteryCards"></div>
-</div>
-
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyCUiXHBbxlSn1DladBWj5ODfEs-FXJXyTI",
@@ -164,23 +132,19 @@
     let currentUser = null;
     let userData = {
         xp: 0, level: 1,
-        khatm: { readPages: 0, completedKhatms: 0, period: 30, currentSura: 1, currentPage: 1, lastCompletion: null },
+        khatm: { readPages: 0, completedKhatms: 0, period: 30, currentSura: 1, currentPage: 1 },
         tauba: { days: [] }, zikrCounters: {},
         azkarChecks: { morning: {}, evening: {}, morningDate: null, eveningDate: null },
         stars: { totalStars: 0, lastClaimDate: "", unlockedRanks: [] },
         namesLearned: [], achievements: [],
         settings: { zikrNotificationInterval: 0, showChechen: true },
-        unlockedSurahs: [], unlockedProphets: [],
-        totalSalawat: 0, totalZikrOverall: 0,
-        jumaCards: [], unlockedCards: [], jumaChecked: { kahf: false, khutba: false }
+        unlockedSurahs: [], unlockedProphets: []
     };
 
     const XP_LEVELS = [0, 100, 250, 500, 750, 1000, 1500, 2000, 3000, 4000, 5000, 7500, 10000, 15000, 20000, 30000, 50000];
     const LEVEL_NAMES = ["Новичок", "Ученик", "Практик", "Усердный", "Знающий", "Мудрец", "Просветлённый", "Благословенный", "Наместник", "Наследник", "Сиддик", "Вали", "Муджахид", "Мухсин", "Ариф", "Садик", "Шахид"];
 
     let xpPopupTimer = null, currentModule = 'khatm';
-    let specialDaysCounters = { arafa: 0, ashura: 0, baraat: 0, laylatulqadr: 0, shawwal: 0 };
-    let hasClaimedThisWeek = false;
 
     const SURA_NAMES_RU = ["Аль-Фатиха","Аль-Бакара","Аль Имран","Ан-Ниса","Аль-Маида","Аль-Анам","Аль-Араф","Аль-Анфаль","Ат-Тавба","Юнус","Худ","Юсуф","Ар-Рад","Ибрахим","Аль-Хиджр","Ан-Нахль","Аль-Исра","Аль-Кахф","Марьям","Та Ха","Аль-Анбия","Аль-Хадж","Аль-Муминун","Ан-Нур","Аль-Фуркан","Аш-Шуара","Ан-Намль","Аль-Касас","Аль-Анкабут","Ар-Рум","Лукман","Ас-Саджда","Аль-Ахзаб","Саба","Фатир","Йа Син","Ас-Саффат","Сад","Аз-Зумар","Гафир","Фуссилят","Аш-Шура","Аз-Зухруф","Ад-Духан","Аль-Джасия","Аль-Ахкаф","Мухаммад","Аль-Фатх","Аль-Худжурат","Каф","Аз-Зарият","Ат-Тур","Ан-Наджм","Аль-Камар","Ар-Рахман","Аль-Вакиа","Аль-Хадид","Аль-Муджадиля","Аль-Хашр","Аль-Мумтахана","Ас-Сафф","Аль-Джумуа","Аль-Мунафикун","Ат-Тагабун","Ат-Таляк","Ат-Тахрим","Аль-Мульк","Аль-Калям","Аль-Хакка","Аль-Мааридж","Нух","Аль-Джинн","Аль-Муззаммиль","Аль-Муддассир","Аль-Кияма","Аль-Инсан","Аль-Мурсалят","Ан-Наба","Ан-Назиат","Абаса","Ат-Таквир","Аль-Инфитар","Аль-Мутаффифин","Аль-Иншикак","Аль-Бурудж","Ат-Тарик","Аль-Аля","Аль-Гашия","Аль-Фаджр","Аль-Баляд","Аш-Шамс","Аль-Ляйль","Ад-Духа","Аш-Шарх","Ат-Тин","Аль-Аляк","Аль-Кадр","Аль-Баййина","Аз-Зальзаля","Аль-Адият","Аль-Кариа","Ат-Такасур","Аль-Аср","Аль-Хумаза","Аль-Филь","Курайш","Аль-Маун","Аль-Кавсар","Аль-Кафирун","Ан-Наср","Аль-Масад","Аль-Ихляс","Аль-Фаляк","Ан-Нас"];
 
@@ -344,6 +308,7 @@
         { name: "Билял ибн Рабах", arabicTitle: "مُؤَذِّنُ الرَّسُول", titleMeaning: "Муэдзин Посланника", fullName: "Билял ибн Рабах аль-Хабаши", story: "Первый муэдзин в Исламе. Эфиопский раб, подвергшийся пыткам." }
     ];
 
+    // Ссылки для Джума (10 ссылок, меняются по пятницам)
     const JUMA_LINKS = [
         { title: "Пятничная хутба 1", url: "https://youtu.be/mrFKaKfkbcs?si=v9kQBVogp_xvVcl6" },
         { title: "Говорите о Коране уверенно и просто | Нуман Али Хан", url: "https://youtu.be/C5RtLVPRyW0?si=mOCC2dNGRZj2-xb_" },
@@ -357,28 +322,9 @@
         { title: "Стойкость с силой | Нуман Али Хан", url: "https://youtu.be/qbnTK48cE5o?si=wT3VbTPoh1SNVTWC" }
     ];
 
-    const ALL_CARDS = [
-        { id: 's1', name: 'Абу Бакр', title: 'ас-Сиддик', emoji: '👑', type: 'sahabi', rarity: 'legendary', story: 'Первый халиф, ближайший друг Пророка ﷺ', condition: 'stars_1000', conditionText: '1000 звёзд' },
-        { id: 's2', name: 'Умар', title: 'аль-Фарук', emoji: '⚔️', type: 'sahabi', rarity: 'legendary', story: 'Второй халиф, различающий истину', condition: 'stars_500', conditionText: '500 звёзд' },
-        { id: 's3', name: 'Усман', title: 'Зун-Нурайн', emoji: '📖', type: 'sahabi', rarity: 'epic', story: 'Третий халиф, обладатель двух светочей', condition: 'stars_300', conditionText: '300 звёзд' },
-        { id: 's4', name: 'Али', title: 'Абу Тураб', emoji: '🦁', type: 'sahabi', rarity: 'legendary', story: 'Четвёртый халиф, лев Аллаха', condition: 'stars_750', conditionText: '750 звёзд' },
-        { id: 'su1', name: 'Аль-Фатиха', title: 'Открывающая', emoji: '🌟', type: 'surah', rarity: 'legendary', story: 'Величайшая сура Корана', condition: 'khatm_1', conditionText: 'Первый хатм' },
-        { id: 'su2', name: 'Аль-Ихляс', title: 'Очищение', emoji: '💎', type: 'surah', rarity: 'epic', story: 'Равна трети Корана', condition: 'khatm_1', conditionText: 'Первый хатм' },
-        { id: 'su3', name: 'Аль-Кахф', title: 'Пещера', emoji: '🕯️', type: 'surah', rarity: 'rare', story: 'Свет между двумя пятницами', condition: 'khatm_2', conditionText: 'Второй хатм' },
-        { id: 'p1', name: 'Нух', title: 'Первый посланник', emoji: '🚢', type: 'prophet', rarity: 'legendary', story: 'Призывал народ 950 лет', condition: 'khatm_3', conditionText: 'Третий хатм' },
-        { id: 'p2', name: 'Ибрахим', title: 'Халилуллах', emoji: '🕋', type: 'prophet', rarity: 'legendary', story: 'Друг Аллаха, построил Каабу', condition: 'khatm_5', conditionText: 'Пятый хатм' },
-        { id: 'p3', name: 'Муса', title: 'Калимуллах', emoji: '🌊', type: 'prophet', rarity: 'legendary', story: 'Говорил с Аллахом, море расступилось', condition: 'stars_750', conditionText: '750 звёзд' },
-        { id: 'j1', name: 'Пятничная', title: 'Благословение', emoji: '🌟', type: 'juma', rarity: 'rare', story: 'Особая пятничная карта', ayah: '«И стремитесь к поминанию Аллаха» (62:9)' },
-        { id: 'j2', name: 'Пятничная', title: 'Свет', emoji: '💡', type: 'juma', rarity: 'epic', story: 'Свет между двумя пятницами', ayah: '«Аллах — Свет небес и земли» (24:35)' },
-        { id: 'j3', name: 'Пятничная', title: 'Милость', emoji: '🌙', type: 'juma', rarity: 'legendary', story: 'Милость Аллаха безгранична', ayah: '«Милость Моя объемлет всякую вещь» (7:156)' },
-        { id: 'z1', name: 'Зикр', title: '50 тысяч', emoji: '📿', type: 'achievement', rarity: 'epic', story: '50 000 зикров', condition: 'zikr_50000', conditionText: '50 000 зикров' },
-        { id: 'z2', name: 'Зикр', title: '100 тысяч', emoji: '📿', type: 'achievement', rarity: 'legendary', story: '100 000 зикров', condition: 'zikr_100000', conditionText: '100 000 зикров' },
-        { id: 'sal1', name: 'Салават', title: '50 тысяч', emoji: '🌹', type: 'achievement', rarity: 'epic', story: '50 000 салаватов', condition: 'salawat_50000', conditionText: '50 000 салаватов' },
-        { id: 'sal2', name: 'Салават', title: '100 тысяч', emoji: '🌹', type: 'achievement', rarity: 'legendary', story: '100 000 салаватов', condition: 'salawat_100000', conditionText: '100 000 салаватов' }
-    ];
-
     const TOTAL_PAGES = 604;
-    let currentMysteryCards = [];
+    let specialDaysCounters = { arafa: 0, ashura: 0, baraat: 0, laylatulqadr: 0, shawwal: 0 };
+    let localDataLoaded = false;
 
     // ==================== ФУНКЦИИ СОХРАНЕНИЯ И XP ====================
     function loadLocalBackup() {
@@ -390,7 +336,7 @@
     }
     function saveLocalBackup() { try { localStorage.setItem('muslim_tracker_backup', JSON.stringify(userData)); } catch (e) {} }
     function ensureFullDataStructure() {
-        if (!userData.khatm) userData.khatm = { readPages: 0, completedKhatms: 0, period: 30, currentSura: 1, currentPage: 1, lastCompletion: null };
+        if (!userData.khatm) userData.khatm = { readPages: 0, completedKhatms: 0, period: 30, currentSura: 1, currentPage: 1 };
         if (!userData.tauba) userData.tauba = { days: [] };
         if (!userData.zikrCounters) userData.zikrCounters = {};
         if (!userData.azkarChecks) userData.azkarChecks = { morning: {}, evening: {}, morningDate: null, eveningDate: null };
@@ -401,10 +347,6 @@
         if (!userData.unlockedSurahs) userData.unlockedSurahs = [];
         if (!userData.unlockedProphets) userData.unlockedProphets = [];
         if (userData.totalSalawat === undefined) userData.totalSalawat = 0;
-        if (userData.totalZikrOverall === undefined) userData.totalZikrOverall = 0;
-        if (!userData.jumaCards) userData.jumaCards = [];
-        if (!userData.unlockedCards) userData.unlockedCards = [];
-        if (!userData.jumaChecked) userData.jumaChecked = { kahf: false, khutba: false };
     }
 
     function addXP(amount) {
@@ -449,33 +391,6 @@
         }
     }
 
-    // ==================== САЛЮТ ====================
-    function showFirework(text) {
-        const container = document.getElementById('fireworkContainer');
-        const centerText = document.createElement('div');
-        centerText.className = 'achievement-center-text';
-        centerText.innerHTML = text;
-        document.body.appendChild(centerText);
-        setTimeout(() => centerText.remove(), 4500);
-        
-        const colors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#FFE66D', '#A8E6CF', '#FF8C42', '#DDA0DD', '#87CEEB', '#FFB347', '#98FB98'];
-        for (let burst = 0; burst < 5; burst++) {
-            setTimeout(() => {
-                for (let i = 0; i < 50; i++) {
-                    const p = document.createElement('div');
-                    p.style.cssText = `position:absolute;width:10px;height:10px;border-radius:50%;background:${colors[Math.floor(Math.random()*colors.length)]};box-shadow:0 0 20px currentColor;left:${window.innerWidth/2}px;top:${window.innerHeight/3}px;animation:fireworkExplode 1.8s ease-out forwards;`;
-                    p.style.setProperty('--tx', (Math.random()-0.5)*300 + 'px');
-                    p.style.setProperty('--ty', -100 - Math.random()*150 + 'px');
-                    container.appendChild(p);
-                    setTimeout(() => p.remove(), 2000);
-                }
-            }, burst * 250);
-        }
-        const style = document.createElement('style');
-        style.textContent = `@keyframes fireworkExplode { 0% { transform: translate(0,0) scale(1); opacity:1; } 100% { transform: translate(var(--tx),var(--ty)) scale(0); opacity:0; } }`;
-        if (!document.getElementById('fireworkStyle')) { style.id = 'fireworkStyle'; document.head.appendChild(style); }
-    }
-
     // ==================== АВТОРИЗАЦИЯ ====================
     function openAuthModal() { document.getElementById('authModal').style.display = 'flex'; }
     function closeAuthModal() {
@@ -512,6 +427,7 @@
     }
     async function saveUserData() { saveLocalBackup(); if (!currentUser) return; try { ensureFullDataStructure(); await db.collection('users').doc(currentUser.uid).set(userData, { merge: true }); } catch (e) {} }
 
+    // Навигация
     function switchModule(moduleId) {
         document.querySelectorAll('.module').forEach(m => m.classList.remove('active-module'));
         document.getElementById(`module-${moduleId}`)?.classList.add('active-module');
@@ -523,6 +439,7 @@
 
     document.querySelectorAll('.nav-btn').forEach(b => b.addEventListener('click', () => switchModule(b.dataset.module)));
 
+    // Обработчики авторизации
     document.getElementById('loginBtn')?.addEventListener('click', async () => {
         try { const r = await auth.signInWithEmailAndPassword(loginEmail.value, loginPassword.value); currentUser = r.user; updateUserUI(); closeAuthModal(); await loadUserData(); } catch (e) { authError.textContent = 'Ошибка: ' + e.message; }
     });
@@ -541,6 +458,8 @@
 
     setInterval(() => saveLocalBackup(), 30000);
     window.addEventListener('beforeunload', () => saveLocalBackup());
+
+    console.log('✅ Часть 1/10 загружена');
 </script><!-- ХАТМ -->
 <div id="module-khatm" class="module active-module">
     <div class="card">
@@ -578,7 +497,6 @@
             <button id="addJuzBtn" style="flex: 1;">📚 +20</button>
             <button id="resetKhatmBtn" style="flex: 1; background: #a05050; color: white;">⟳ Сброс</button>
         </div>
-        <div id="khatmCooldownMsg" style="margin-top: 15px; color: #c44; font-size: 0.9rem; text-align: center;"></div>
         <div style="margin-top: 20px; background: #f0e8d8; padding: 15px; border-radius: 20px;">
             <strong>🎯 Ваша цель:</strong>
             <p id="dailyGoalText"></p><p id="remainingText"></p>
@@ -614,18 +532,10 @@ function completeCurrentSurah() {
     } else {
         userData.khatm.completedKhatms = (userData.khatm.completedKhatms||0) + 1;
         userData.khatm.currentSura = 1; userData.khatm.currentPage = 1; userData.khatm.readPages = 0;
-        userData.khatm.lastCompletion = new Date().toISOString();
-        addXP(1000); showFirework(`🎉 ${userData.khatm.completedKhatms}-й ХАТМ ЗАВЕРШЁН!`);
+        addXP(1000); showNotification('🕋🎉 ПОЛНЫЙ ХАТМ ЗАВЕРШЁН! +1000 XP');
         unlockSurahAchievement(114);
-        checkKhatmCards();
     }
     updateKhatmUI(); saveUserData();
-}
-function checkKhatmCooldown() {
-    const k = userData.khatm || {};
-    if (!k.lastCompletion) return false;
-    const daysPassed = (Date.now() - new Date(k.lastCompletion).getTime()) / 86400000;
-    return daysPassed < 7;
 }
 function updateKhatmUI() {
     const k = userData.khatm || { readPages:0, completedKhatms:0, period:30, currentSura:1, currentPage:1 };
@@ -641,32 +551,9 @@ function updateKhatmUI() {
     const ppd = 604/(k.period||30); document.getElementById('pagesPerDay').textContent = ppd.toFixed(1);
     document.getElementById('dailyGoalText').innerHTML = `Читать ${ppd.toFixed(1)} страниц в день`;
     document.getElementById('remainingText').innerHTML = `Осталось: ${604-(k.readPages||0)} стр.`;
-    
-    const cooldown = checkKhatmCooldown();
-    const btns = ['addPageBtn', 'removePageBtn', 'addJuzBtn', 'resetKhatmBtn', 'completeSurahBtn'];
-    btns.forEach(id => { const btn = document.getElementById(id); if (btn) btn.disabled = cooldown; });
-    const msg = document.getElementById('khatmCooldownMsg');
-    if (cooldown) {
-        const daysLeft = Math.ceil(7 - (Date.now() - new Date(k.lastCompletion).getTime()) / 86400000);
-        msg.textContent = `⏳ Перерыв после хатма: ${daysLeft} дн. осталось`;
-    } else { msg.textContent = ''; }
-}
-function checkKhatmCards() {
-    const completed = userData.khatm?.completedKhatms || 0;
-    if (completed === 1) { unlockCardIfNotHave('su1'); unlockCardIfNotHave('su2'); showFirework('🎉 Карты: Аль-Фатиха, Аль-Ихляс!'); }
-    if (completed === 2) { unlockCardIfNotHave('su3'); showFirework('🎉 Карта: Аль-Кахф!'); }
-    if (completed === 3) { unlockCardIfNotHave('p1'); showFirework('🎉 Карта: Пророк Нух!'); }
-    if (completed === 5) { unlockCardIfNotHave('p2'); showFirework('🎉 Карта: Пророк Ибрахим!'); }
-}
-function unlockCardIfNotHave(cardId) {
-    if (!userData.unlockedCards) userData.unlockedCards = [];
-    if (!userData.unlockedCards.includes(cardId)) {
-        userData.unlockedCards.push(cardId);
-        saveUserData();
-    }
 }
 document.getElementById('completeSurahBtn')?.addEventListener('click', () => { if (confirm(`Завершить суру «${SURA_NAMES_RU[(userData.khatm?.currentSura||1)-1]}»?`)) completeCurrentSurah(); });
-document.getElementById('addPageBtn')?.addEventListener('click', () => { let r = userData.khatm?.readPages||0; if (r<604) { r++; userData.khatm.readPages=r; addXP(5); userData.totalZikrOverall = (userData.totalZikrOverall||0) + 1; checkZikrAchievements(); } updateKhatmUI(); saveUserData(); });
+document.getElementById('addPageBtn')?.addEventListener('click', () => { let r = userData.khatm?.readPages||0; if (r<604) { r++; userData.khatm.readPages=r; addXP(5); } updateKhatmUI(); saveUserData(); });
 document.getElementById('removePageBtn')?.addEventListener('click', () => { if (userData.khatm.readPages>0) { userData.khatm.readPages--; updateKhatmUI(); saveUserData(); } });
 document.getElementById('addJuzBtn')?.addEventListener('click', () => { let r = Math.min((userData.khatm?.readPages||0)+20, 604); userData.khatm.readPages=r; addXP(100); updateKhatmUI(); saveUserData(); });
 document.getElementById('resetKhatmBtn')?.addEventListener('click', () => { if (confirm('Сбросить прогресс?')) { userData.khatm.readPages=0; updateKhatmUI(); saveUserData(); } });
@@ -674,9 +561,8 @@ document.getElementById('khatmPeriod')?.addEventListener('change', e => { userDa
 document.getElementById('setPageBtn')?.addEventListener('click', () => { const p=parseInt(pageInput.value); if (p>=1&&p<=604) { const s=parseInt(suraSelect.value); if(s) userData.khatm.currentSura=s; userData.khatm.currentPage=p; updateKhatmUI(); saveUserData(); showNotification('📌 Позиция установлена'); } });
 document.getElementById('savePositionBtn')?.addEventListener('click', () => { saveUserData(); showNotification('💾 Позиция сохранена'); });
 populateSuraSelect(); updateKhatmUI();
-</script>
-
-<!-- ТАУБА -->
+console.log('✅ Часть 2/10 загружена (Хатм)');
+</script><!-- ТАУБА -->
 <div id="module-tauba" class="module">
     <div class="card">
         <h2>📝 Журнал покаяния</h2>
@@ -739,9 +625,8 @@ document.querySelectorAll('.special-check').forEach(cb=>{cb.addEventListener('cl
 document.querySelectorAll('.goal-check').forEach(c=>c.addEventListener('change',calculateImanFromGoals));
 document.getElementById('saveTaubaDayBtn')?.addEventListener('click',()=>{const t=new Date().toISOString().split('T')[0];const im=calculateImanFromGoals();const g={};document.querySelectorAll('.goal-check').forEach(c=>g[c.dataset.goal]=c.checked);let tauba=userData.tauba||{days:[]};const idx=tauba.days.findIndex(d=>d.date===t);if(idx!==-1)tauba.days[idx]={date:t,goals:g,iman:im};else tauba.days.push({date:t,goals:g,iman:im});userData.tauba=tauba;userData.specialDays=specialDaysCounters;addXP(Object.values(g).filter(v=>v).length*5);saveUserData();updateTaubaUI();showNotification('✅ День сохранён!');});
 updateTaubaUI();
-</script>
-
-<!-- 99 ИМЁН АЛЛАХА -->
+console.log('✅ Часть 3/10 загружена (Тауба)');
+</script><!-- 99 ИМЁН АЛЛАХА -->
 <div id="module-names" class="module">
     <div class="card">
         <h2>📜 99 Прекрасных Имён Аллаха</h2>
@@ -891,9 +776,8 @@ document.getElementById('toggleChechenBtn')?.addEventListener('click', () => {
     renderNamesOfAllah(); saveUserData();
 });
 setTimeout(() => renderNamesOfAllah(), 200);
-</script>
-
-<!-- АЗКАРЫ С ВКЛАДКОЙ ВОПРОСЫ -->
+console.log('✅ Часть 4/10 загружена (99 Имён)');
+</script><!-- АЗКАРЫ -->
 <div id="module-azkar" class="module">
     <div class="card">
         <h2>📿 Азкары</h2>
@@ -905,7 +789,6 @@ setTimeout(() => renderNamesOfAllah(), 200);
             <button id="morningSwitchBtn" class="azkar-switch-btn active" style="flex: 1; padding: 12px 8px; border-radius: 30px; background: #e6bc7e; border: none; font-weight: bold; font-size: 0.8rem;">☀️ Утро (14)</button>
             <button id="eveningSwitchBtn" class="azkar-switch-btn" style="flex: 1; padding: 12px 8px; border-radius: 30px; background: #e8dcc8; border: none; font-weight: bold; font-size: 0.8rem;">🌙 Вечер (13)</button>
             <button id="rulesSwitchBtn" class="azkar-switch-btn" style="flex: 1; padding: 12px 8px; border-radius: 30px; background: #e8dcc8; border: none; font-weight: bold; font-size: 0.8rem;">📖 Правила</button>
-            <button id="questionsSwitchBtn" class="azkar-switch-btn" style="flex: 1; padding: 12px 8px; border-radius: 30px; background: #e8dcc8; border: none; font-weight: bold; font-size: 0.8rem;">❓ Вопросы</button>
             <button id="hadithTabBtn" class="azkar-switch-btn" style="flex: 1; padding: 12px 8px; border-radius: 30px; background: #e8dcc8; border: none; font-weight: bold; font-size: 0.8rem;">📜 Хадис</button>
         </div>
         <div id="azkarContent"></div>
@@ -917,35 +800,6 @@ setTimeout(() => renderNamesOfAllah(), 200);
                     <thead><tr style="background: #dba642; color: white;"><th>Символ</th><th>Арабская буква</th><th>Как читать</th></tr></thead>
                     <tbody><tr><td>т̲</td><td>ط</td><td>Твёрдый «т»</td></tr><tr><td>х̲</td><td>خ</td><td>Твёрдый «х»</td></tr><tr><td>хь̲</td><td>ح</td><td>Глубокий «х»</td></tr><tr><td>г̲</td><td>غ</td><td>Картавое «г»</td></tr><tr><td>с̅</td><td>ث</td><td>Межзубный «с»</td></tr><tr><td>з̅</td><td>ذ</td><td>Межзубный «з»</td></tr><tr><td>1</td><td>ع</td><td>Айн</td></tr></tbody>
                 </table>
-            </div>
-        </div>
-        <div id="questionsContent" style="display: none;">
-            <div style="background: #fef7e8; border-radius: 20px; padding: 20px;">
-                <h3>❓ Вопросы по азкарам</h3>
-                <div style="margin: 20px 0; padding: 15px; background: #e8f0e0; border-radius: 15px;">
-                    <p><strong>1) Маца д1айолало 1уьйрана йохачу азкарий хан?</strong><br>— 1уьйра ламаза ханца.</p>
-                    <p style="margin-top: 10px; color: #5a3a1a;"><em>Когда начинается время утренних азкаров?<br>— С наступлением времени утреннего намаза.</em></p>
-                </div>
-                <div style="margin: 20px 0; padding: 15px; background: #e8f0e0; border-radius: 15px;">
-                    <p><strong>2) Маца д1айолало суйрана йохачу азкарий хан?</strong><br>— Малхабуза ламаза ханца.</p>
-                    <p style="margin-top: 10px; color: #5a3a1a;"><em>Когда начинается время вечерних азкаров?<br>— С наступлением времени намаза Аср.</em></p>
-                </div>
-                <div style="margin: 20px 0; padding: 15px; background: #e8f0e0; border-radius: 15px;">
-                    <p><strong>3) Цу хенашина тахьависсича (бахьан долуш) яха йиш юй иш?</strong><br>— Йиш ю.</p>
-                    <p style="margin-top: 10px; color: #5a3a1a;"><em>Если не успел (по уважительной причине) прочитать вовремя, можно ли позднее?<br>— Да, можно.</em></p>
-                </div>
-                <div style="margin: 20px 0; padding: 15px; background: #e8f0e0; border-radius: 15px;">
-                    <p><strong>4) Ламаз карахь доцуш а яха йиш юй иш?</strong><br>— Йиш ю.</p>
-                    <p style="margin-top: 10px; color: #5a3a1a;"><em>Можно ли читать азкары без омовения?<br>— Да, можно.</em></p>
-                </div>
-                <div style="margin: 20px 0; padding: 15px; background: #e8f0e0; border-radius: 15px;">
-                    <p><strong>5) Зудчон ламаз да деш ха сьча (хьайд долаш, йа берах схвапаргат йолаш, йа фарз личар т1едолаш хилча) яха йиш юй иш?</strong><br>— Йиш ю.</p>
-                    <p style="margin-top: 10px; color: #5a3a1a;"><em>Когда у женщин бывает время, когда они не читают намаз (хайд, послеродовые, совокупление), можно ли читать азкары?<br>— Да, можно.</em></p>
-                </div>
-                <div style="margin-top: 30px; padding: 20px; background: linear-gradient(135deg, #f5dca8, #e6bc7e); border-radius: 20px; text-align: center;">
-                    <p style="font-weight: bold;">🤲 И хвала Аллаху Господу миров!</p>
-                    <p style="margin-top: 15px; font-size: 0.9rem;">Братья и сёстры, ОЧЕНЬ ВАЖНО, чтобы вы читали и учили азкары с арабского, так как невозможно передать выговаривание многих арабских букв буквами с другого языка. Транскрипция составлена для тех, кто вообще не умеет читать на арабском. Призываю выучить хотя бы начальный уровень арабских букв. И ещё очень важно прослушивать аудио, прикреплённое к дуа.</p>
-                </div>
             </div>
         </div>
         <div id="hadithContent" style="display: none;">
@@ -1038,31 +892,27 @@ function renderAzkar() {
 }
 function fetchRandomHadith() { const h = HADITHS_FULL[Math.floor(Math.random()*HADITHS_FULL.length)]; document.getElementById('hadithArabic').textContent = h.arabic; document.getElementById('hadithText').textContent = h.text; document.getElementById('hadithSource').textContent = `📚 ${h.source}`; }
 function setActiveAzkarTab(active) {
-    ['morningSwitchBtn','eveningSwitchBtn','rulesSwitchBtn','questionsSwitchBtn','hadithTabBtn'].forEach(id => { const b = document.getElementById(id); if (b) b.style.background = '#e8dcc8'; });
+    ['morningSwitchBtn','eveningSwitchBtn','rulesSwitchBtn','hadithTabBtn'].forEach(id => { const b = document.getElementById(id); if (b) b.style.background = '#e8dcc8'; });
     if (active==='morning') document.getElementById('morningSwitchBtn').style.background='#e6bc7e';
     if (active==='evening') document.getElementById('eveningSwitchBtn').style.background='#e6bc7e';
     if (active==='rules') document.getElementById('rulesSwitchBtn').style.background='#e6bc7e';
-    if (active==='questions') document.getElementById('questionsSwitchBtn').style.background='#e6bc7e';
     if (active==='hadith') document.getElementById('hadithTabBtn').style.background='#e6bc7e';
-    const az = document.getElementById('azkarContent'), ru = document.getElementById('rulesContent'), qu = document.getElementById('questionsContent'), ha = document.getElementById('hadithContent');
+    const az = document.getElementById('azkarContent'), ru = document.getElementById('rulesContent'), ha = document.getElementById('hadithContent');
     if (az) az.style.display = (active==='morning'||active==='evening')?'block':'none';
     if (ru) ru.style.display = active==='rules'?'block':'none';
-    if (qu) qu.style.display = active==='questions'?'block':'none';
     if (ha) ha.style.display = active==='hadith'?'block':'none';
 }
 document.getElementById('morningSwitchBtn')?.addEventListener('click', () => { currentAzkarList = MORNING_AZKAR_FULL; setActiveAzkarTab('morning'); renderAzkar(); });
 document.getElementById('eveningSwitchBtn')?.addEventListener('click', () => { currentAzkarList = EVENING_AZKAR_FULL; setActiveAzkarTab('evening'); renderAzkar(); });
 document.getElementById('rulesSwitchBtn')?.addEventListener('click', () => setActiveAzkarTab('rules'));
-document.getElementById('questionsSwitchBtn')?.addEventListener('click', () => setActiveAzkarTab('questions'));
 document.getElementById('hadithTabBtn')?.addEventListener('click', () => { setActiveAzkarTab('hadith'); fetchRandomHadith(); });
 document.getElementById('toggleArabicSize')?.addEventListener('click', () => { arabicLarge = !arabicLarge; renderAzkar(); });
 document.getElementById('toggleRuTranslit')?.addEventListener('click', () => { ruHidden = !ruHidden; renderAzkar(); });
 document.getElementById('refreshHadithBtn')?.addEventListener('click', fetchRandomHadith);
 startMidnightResetTimer();
 setTimeout(() => { checkAndResetAzkarDate(); renderAzkar(); }, 300);
-</script>
-
-<!-- ЗИКР -->
+console.log('✅ Часть 5/10 загружена (Азкары)');
+</script><!-- ЗИКР -->
 <div id="module-counter" class="module">
     <div class="card">
         <h2>🔢 Зикр и Салават</h2>
@@ -1082,14 +932,6 @@ const ZIKR_LIST_FULL = [
 ];
 let salawatCount = 0, totalSalawatLifetime = 0;
 function getTotalZikr() { return Object.values(userData.zikrCounters || {}).reduce((a,b) => a+b, 0); }
-function checkZikrAchievements() {
-    const totalZ = userData.totalZikrOverall || 0;
-    const totalS = userData.totalSalawat || 0;
-    if (totalZ >= 50000) unlockCardIfNotHave('z1');
-    if (totalZ >= 100000) unlockCardIfNotHave('z2');
-    if (totalS >= 50000) unlockCardIfNotHave('sal1');
-    if (totalS >= 100000) unlockCardIfNotHave('sal2');
-}
 function renderZikr() {
     const g = document.getElementById('zikrGrid'); if (!g) return;
     const counters = userData.zikrCounters || {};
@@ -1129,23 +971,21 @@ function renderZikr() {
         const id = b.dataset.id, inc = parseInt(b.dataset.inc);
         if (!userData.zikrCounters) userData.zikrCounters = {};
         userData.zikrCounters[id] = (userData.zikrCounters[id] || 0) + inc;
-        userData.totalZikrOverall = (userData.totalZikrOverall || 0) + inc;
-        addXP(inc); saveUserData(); renderZikr(); checkZikrAchievements();
+        addXP(inc); saveUserData(); renderZikr();
     }));
     document.querySelectorAll('.zikr-reset').forEach(b => b.addEventListener('click', () => { userData.zikrCounters[b.dataset.id] = 0; saveUserData(); renderZikr(); }));
     document.getElementById('addSalawatBtn')?.addEventListener('click', () => {
         salawatCount++; totalSalawatLifetime++;
         localStorage.setItem(`salawat_${today}`, salawatCount);
         userData.totalSalawat = totalSalawatLifetime;
-        addXP(10); saveUserData(); renderZikr(); checkZikrAchievements();
+        addXP(10); saveUserData(); renderZikr();
         showNotification('🌹 Салават засчитан! +10 XP');
     });
     document.getElementById('resetSalawatBtn')?.addEventListener('click', () => { salawatCount = 0; localStorage.setItem(`salawat_${today}`, 0); renderZikr(); });
 }
 setTimeout(() => renderZikr(), 300);
-</script>
-
-<!-- НАМАЗ -->
+console.log('✅ Часть 6/10 загружена (Зикр)');
+</script><!-- НАМАЗ -->
 <div id="module-prayer" class="module">
     <div class="card">
         <h2>🕌 Время намаза</h2>
@@ -1251,6 +1091,7 @@ let prayerUpdateInterval = setInterval(() => {
         if (s) { const {city, country} = JSON.parse(s); fetchPrayerTimes(city, country); }
     }
 }, 60000);
+console.log('✅ Часть 7/10 загружена (Намаз)');
 </script><!-- ДЖУМА (ПЯТНИЦА) -->
 <div id="module-juma" class="module">
     <div class="card">
@@ -1262,6 +1103,7 @@ let prayerUpdateInterval = setInterval(() => {
             <div style="font-size: 0.9rem; margin-top: 5px;">Пророк ﷺ сказал: «Лучший из дней, в которые восходит солнце — пятница»</div>
         </div>
         
+        <!-- Хутба недели -->
         <div style="margin-bottom: 25px;">
             <h3>🎥 Хутба недели</h3>
             <div id="jumaKhutbaContainer" style="background: #f5eddb; border-radius: 20px; padding: 15px;">
@@ -1274,6 +1116,7 @@ let prayerUpdateInterval = setInterval(() => {
             </div>
         </div>
         
+        <!-- Что делать в пятницу -->
         <div style="margin-bottom: 25px;">
             <h3>📋 Что делать в пятницу</h3>
             <div style="display: grid; gap: 10px;">
@@ -1293,27 +1136,25 @@ let prayerUpdateInterval = setInterval(() => {
                     </div>
                     <button onclick="switchModule('counter')" style="background: #dbb45c; padding: 8px 15px; border-radius: 30px; border: none; font-weight: bold;">Салават</button>
                 </div>
+                <div style="background: #fef7e8; padding: 15px; border-radius: 15px; display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 1.8rem;">🕌</span>
+                    <div style="flex: 1;">
+                        <strong>Джума-намаз в мечети</strong>
+                        <p style="font-size: 0.8rem; color: #5a3a1a;">Обязателен для мужчин. Совершите гусль, наденьте лучшую одежду.</p>
+                    </div>
+                </div>
+                <div style="background: #fef7e8; padding: 15px; border-radius: 15px; display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 1.8rem;">🤲</span>
+                    <div style="flex: 1;">
+                        <strong>Дуа в последний час пятницы</strong>
+                        <p style="font-size: 0.8rem; color: #5a3a1a;">Есть час, когда дуа принимается (перед магрибом)</p>
+                    </div>
+                </div>
             </div>
         </div>
         
-        <div style="background: #f0e8d8; border-radius: 20px; padding: 20px; margin-bottom: 20px;">
-            <h3 style="display: flex; align-items: center; gap: 10px;">✅ Подтверждение <span style="font-size: 0.8rem; color: #a05050;">(обязательно)</span></h3>
-            <div class="juma-check-item">
-                <input type="checkbox" id="jumaKahfCheck">
-                <span>📖 Я прочитал(а) суру Аль-Кахф</span>
-            </div>
-            <div class="juma-check-item">
-                <input type="checkbox" id="jumaKhutbaCheck">
-                <span>🎙️ Я посмотрел(а) пятничную хутбу</span>
-            </div>
-        </div>
-        
-        <div style="text-align: center;">
-            <button id="claimJumaCardBtn" style="width: 100%; padding: 18px; background: #d4af37; color: #1e3a1a; font-size: 1.2rem; font-weight: bold;" disabled>🎁 Забрать коллекционную карту</button>
-            <p style="color: #e6bc7e; margin-top: 15px; font-size: 0.85rem;">⚠️ Карта уникальна! Доступна только сегодня. Не обманывай — это харам.</p>
-        </div>
-        
-        <div style="margin-top: 20px; padding: 15px; background: #f5eddb; border-radius: 20px;">
+        <!-- Дополнительно -->
+        <div style="background: #f0e8d8; border-radius: 20px; padding: 15px;">
             <h3>✨ Сунны пятницы</h3>
             <ul style="margin-left: 20px; color: #3a2a1a;">
                 <li>Совершить полное омовение (гусль)</li>
@@ -1325,149 +1166,6 @@ let prayerUpdateInterval = setInterval(() => {
         </div>
     </div>
 </div>
-
-<script>
-function getCurrentKhutbaIndex() {
-    const saved = localStorage.getItem('juma_khutba_index');
-    if (saved) return parseInt(saved);
-    return 0;
-}
-function updateKhutbaForFriday() {
-    const today = new Date();
-    const dayOfWeek = today.getDay();
-    const lastFriday = localStorage.getItem('last_friday_update');
-    const todayStr = today.toISOString().split('T')[0];
-    
-    if (dayOfWeek === 5 && lastFriday !== todayStr) {
-        let index = getCurrentKhutbaIndex();
-        index = (index + 1) % JUMA_LINKS.length;
-        localStorage.setItem('juma_khutba_index', index);
-        localStorage.setItem('last_friday_update', todayStr);
-    }
-    
-    const index = getCurrentKhutbaIndex();
-    const khutba = JUMA_LINKS[index];
-    const titleEl = document.getElementById('khutbaTitle');
-    const linkEl = document.getElementById('khutbaLink');
-    if (titleEl) titleEl.textContent = khutba.title;
-    if (linkEl) linkEl.href = khutba.url;
-}
-
-function checkFridayAndNotify() {
-    const today = new Date();
-    if (today.getDay() === 5) {
-        const weekKey = `juma_claimed_${getWeekNumber()}`;
-        const claimed = localStorage.getItem(weekKey) === 'true';
-        if (!claimed) {
-            const banner = document.createElement('div');
-            banner.className = 'notification-banner';
-            banner.innerHTML = '🌟 Джума Мубарак! Забери свою коллекционную карту! 🎴';
-            banner.onclick = () => { banner.remove(); switchModule('juma'); };
-            document.body.appendChild(banner);
-            setTimeout(() => banner.remove(), 10000);
-        }
-    }
-}
-
-function getWeekNumber() {
-    const now = new Date();
-    const start = new Date(now.getFullYear(), 0, 1);
-    return Math.ceil((((now - start) / 86400000) + start.getDay() + 1) / 7);
-}
-
-function updateJumaButton() {
-    const kahf = document.getElementById('jumaKahfCheck')?.checked || false;
-    const khutba = document.getElementById('jumaKhutbaCheck')?.checked || false;
-    const btn = document.getElementById('claimJumaCardBtn');
-    if (btn) btn.disabled = !(kahf && khutba);
-}
-
-function showMysteryCards() {
-    const available = ALL_CARDS.filter(c => c.type === 'juma' && !userData.jumaCards?.find(jc => jc.id === c.id));
-    let cardsToShow = [];
-    
-    if (available.length >= 3) {
-        const shuffled = [...available].sort(() => Math.random() - 0.5);
-        cardsToShow = shuffled.slice(0, 3);
-    } else {
-        const other = ALL_CARDS.filter(c => c.type !== 'juma' || !userData.jumaCards?.find(jc => jc.id === c.id));
-        const shuffled = [...other].sort(() => Math.random() - 0.5);
-        cardsToShow = shuffled.slice(0, 3);
-    }
-    
-    currentMysteryCards = cardsToShow;
-    const container = document.getElementById('mysteryCards');
-    const layoutStyle = window.innerWidth <= 600 
-        ? 'display:flex; flex-direction:column; align-items:center; gap:15px;'
-        : 'display:flex; justify-content:center; gap:20px;';
-    container.style.cssText = layoutStyle;
-    
-    container.innerHTML = cardsToShow.map((c, i) => `
-        <div class="mystery-card" data-index="${i}" style="${window.innerWidth <= 600 ? 'width:180px;' : ''}">
-            <div class="mystery-ayah">${c.ayah || '«Поистине, Аллах любит творящих добро» (2:195)'}</div>
-        </div>
-    `).join('');
-    
-    document.getElementById('mysteryOverlay').classList.add('active');
-}
-
-document.getElementById('mysteryCards')?.addEventListener('click', (e) => {
-    const card = e.target.closest('.mystery-card');
-    if (!card) return;
-    
-    const index = parseInt(card.dataset.index);
-    const selected = currentMysteryCards[index];
-    
-    if (!userData.jumaCards) userData.jumaCards = [];
-    if (!userData.unlockedCards) userData.unlockedCards = [];
-    
-    if (!userData.jumaCards.find(c => c.id === selected.id)) {
-        userData.jumaCards.push(selected);
-    }
-    if (!userData.unlockedCards.includes(selected.id)) {
-        userData.unlockedCards.push(selected);
-    }
-    
-    const weekKey = `juma_claimed_${getWeekNumber()}`;
-    localStorage.setItem(weekKey, 'true');
-    hasClaimedThisWeek = true;
-    
-    saveUserData();
-    document.getElementById('mysteryOverlay').classList.remove('active');
-    showFirework(`🎉 ${selected.name} ${selected.title}!`);
-    if (typeof renderCollection === 'function') renderCollection();
-    
-    setTimeout(() => alert(`📜 ${selected.story}`), 500);
-});
-
-document.getElementById('mysteryOverlay')?.addEventListener('click', (e) => {
-    if (e.target === document.getElementById('mysteryOverlay')) {
-        document.getElementById('mysteryOverlay').classList.remove('active');
-    }
-});
-
-document.getElementById('jumaKahfCheck')?.addEventListener('change', updateJumaButton);
-document.getElementById('jumaKhutbaCheck')?.addEventListener('change', updateJumaButton);
-
-document.getElementById('claimJumaCardBtn')?.addEventListener('click', () => {
-    if (confirm('Ты точно прочитал(а) суру Аль-Кахф и посмотрел(а) хутбу? Обманывать — харам.')) {
-        const weekKey = `juma_claimed_${getWeekNumber()}`;
-        if (localStorage.getItem(weekKey) === 'true') {
-            alert('🎴 Вы уже забрали карту на этой неделе!');
-            return;
-        }
-        showMysteryCards();
-    }
-});
-
-setInterval(() => {
-    const today = new Date();
-    if (today.getDay() === 5) updateKhutbaForFriday();
-}, 3600000);
-
-updateKhutbaForFriday();
-checkFridayAndNotify();
-</script>
 
 <!-- ДОСТИЖЕНИЯ -->
 <div id="module-achievements" class="module">
@@ -1484,6 +1182,9 @@ checkFridayAndNotify();
                 <option value="tauba">📝 Тауба</option>
                 <option value="levels">⭐ Уровни</option>
                 <option value="prophet">🕋 Пророки</option>
+                <option value="prayer">🕌 Намаз</option>
+                <option value="fast">☀️ Пост</option>
+                <option value="sadaqa">💝 Садака</option>
                 <option value="special">🌙 Особые дни</option>
             </select>
         </div>
@@ -1491,7 +1192,48 @@ checkFridayAndNotify();
     </div>
 </div>
 
-<!-- ЗВЁЗДЫ И ЕЖЕДНЕВНЫЕ ЗАДАНИЯ -->
+<script>
+// ==================== ФУНКЦИИ ДЖУМА ====================
+function getCurrentKhutbaIndex() {
+    const saved = localStorage.getItem('juma_khutba_index');
+    if (saved) return parseInt(saved);
+    return 0;
+}
+
+function updateKhutbaForFriday() {
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 5 = пятница
+    const lastFriday = localStorage.getItem('last_friday_update');
+    const todayStr = today.toISOString().split('T')[0];
+    
+    // Если сегодня пятница и ещё не обновляли
+    if (dayOfWeek === 5 && lastFriday !== todayStr) {
+        let index = getCurrentKhutbaIndex();
+        index = (index + 1) % JUMA_LINKS.length;
+        localStorage.setItem('juma_khutba_index', index);
+        localStorage.setItem('last_friday_update', todayStr);
+    }
+    
+    // Показываем текущую хутбу
+    const index = getCurrentKhutbaIndex();
+    const khutba = JUMA_LINKS[index];
+    document.getElementById('khutbaTitle').textContent = khutba.title;
+    document.getElementById('khutbaLink').href = khutba.url;
+}
+
+// Проверка пятницы каждый час
+setInterval(() => {
+    const today = new Date();
+    if (today.getDay() === 5) {
+        updateKhutbaForFriday();
+    }
+}, 3600000);
+
+// Инициализация при загрузке модуля
+updateKhutbaForFriday();
+
+console.log('✅ Часть 8/10 загружена (Джума + Достижения - начало)');
+</script><!-- ЗВЁЗДЫ И ЕЖЕДНЕВНЫЕ ЗАДАНИЯ -->
 <div id="module-stars" class="module">
     <div class="card">
         <h2>⭐ Звёзды и ежедневные задания</h2>
@@ -1512,7 +1254,33 @@ checkFridayAndNotify();
     </div>
 </div>
 
+<!-- КОЛЛЕКЦИЯ -->
+<div id="module-collection" class="module">
+    <div class="card">
+        <h2 style="color: #d4af37;">📚 Моя коллекция ✨</h2>
+        <div style="display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap;">
+            <button class="collection-tab active" data-collection="sahabi" style="flex: 1; padding: 10px; border-radius: 30px; border: none; background: #e6bc7e; font-weight: bold;">👳 Сподвижники</button>
+            <button class="collection-tab" data-collection="names" style="flex: 1; padding: 10px; border-radius: 30px; border: none; background: #e8dcc8; font-weight: bold;">📜 99 Имён</button>
+            <button class="collection-tab" data-collection="khatm" style="flex: 1; padding: 10px; border-radius: 30px; border: none; background: #e8dcc8; font-weight: bold;">🕋 Хатм</button>
+            <button class="collection-tab" data-collection="surah" style="flex: 1; padding: 10px; border-radius: 30px; border: none; background: #e8dcc8; font-weight: bold;">📖 Суры</button>
+            <button class="collection-tab" data-collection="prophet" style="flex: 1; padding: 10px; border-radius: 30px; border: none; background: #e8dcc8; font-weight: bold;">🕋 Пророки</button>
+        </div>
+        <div id="collectionGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px;"></div>
+    </div>
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО ДЛЯ ИСТОРИЙ -->
+<div id="storyModal" class="modal">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closeStoryModal()">✕</button>
+        <div style="text-align: center; margin-bottom: 15px;"><span style="font-size: 3rem;" id="storyIcon">📖</span></div>
+        <h3 style="color: #8b5a2b; text-align: center;" id="storyTitle">История</h3>
+        <div style="margin-top: 15px; line-height: 1.7; color: #3a2a1a;" id="storyText"></div>
+    </div>
+</div>
+
 <script>
+// ==================== ДОСТИЖЕНИЯ ====================
 const BASE_ACHIEVEMENTS = [
     { id: 'firstPage', category: 'khatm', title: '📖 Первая страница', desc: 'Прочитать 1 страницу Корана', icon: '📖', xp: 50, story: '«Читай! Во имя Господа твоего» (96:1) — первое откровение.', check: () => (userData.khatm?.readPages || 0) >= 1, current: () => Math.min(userData.khatm?.readPages || 0, 1), target: () => 1 },
     { id: 'juz1', category: 'khatm', title: '📚 Первый джуз', desc: 'Прочитать 20 страниц', icon: '📚', xp: 100, story: 'Первый джуз начинается с суры Аль-Фатиха.', check: () => (userData.khatm?.readPages || 0) >= 20, current: () => Math.min(userData.khatm?.readPages || 0, 20), target: () => 20 },
@@ -1520,15 +1288,11 @@ const BASE_ACHIEVEMENTS = [
     { id: 'khatm1', category: 'khatm', title: '🕋 Первый Хатм', desc: 'Завершить чтение Корана 1 раз', icon: '🕋', xp: 500, story: '«Лучший из вас тот, кто изучает Коран и обучает ему» (Бухари).', check: () => (userData.khatm?.completedKhatms || 0) >= 1, current: () => Math.min(userData.khatm?.completedKhatms || 0, 1), target: () => 1 },
     { id: 'khatm5', category: 'khatm', title: '📖 5 Хатмов', desc: 'Завершить 5 раз', icon: '📖', xp: 1000, story: 'Постоянство в чтении Корана — признак веры.', check: () => (userData.khatm?.completedKhatms || 0) >= 5, current: () => Math.min(userData.khatm?.completedKhatms || 0, 5), target: () => 5 },
     { id: 'khatm10', category: 'khatm', title: '🌟 10 Хатмов', desc: 'Завершить 10 раз', icon: '🌟', xp: 2000, story: 'Каждая буква Корана — десять наград.', check: () => (userData.khatm?.completedKhatms || 0) >= 10, current: () => Math.min(userData.khatm?.completedKhatms || 0, 10), target: () => 10 },
-    { id: 'zikr100', category: 'zikr', title: '📿 100 зикров', desc: 'Совершить 100 зикров', icon: '📿', xp: 50, story: 'Пусть язык всегда будет влажным от поминания Аллаха.', check: () => (userData.totalZikrOverall || 0) >= 100, current: () => Math.min(userData.totalZikrOverall || 0, 100), target: () => 100 },
-    { id: 'zikr1000', category: 'zikr', title: '🌟 1 000 зикров', desc: 'Совершить 1 000 зикров', icon: '🌟', xp: 150, story: 'Поминание Аллаха — величайшее поклонение.', check: () => (userData.totalZikrOverall || 0) >= 1000, current: () => Math.min(userData.totalZikrOverall || 0, 1000), target: () => 1000 },
-    { id: 'zikr10000', category: 'zikr', title: '⚡ 10 000 зикров', desc: 'Совершить 10 000 зикров', icon: '⚡', xp: 500, story: 'Вы на пути постоянного поминания!', check: () => (userData.totalZikrOverall || 0) >= 10000, current: () => Math.min(userData.totalZikrOverall || 0, 10000), target: () => 10000 },
-    { id: 'zikr50000', category: 'zikr', title: '💫 50 000 зикров', desc: 'Совершить 50 000 зикров', icon: '💫', xp: 1000, story: 'Великое достижение в поминании Аллаха!', check: () => (userData.totalZikrOverall || 0) >= 50000, current: () => Math.min(userData.totalZikrOverall || 0, 50000), target: () => 50000 },
-    { id: 'zikr100000', category: 'zikr', title: '👑 100 000 зикров', desc: 'Совершить 100 000 зикров', icon: '👑', xp: 2500, story: 'Ты из числа много поминающих Аллаха!', check: () => (userData.totalZikrOverall || 0) >= 100000, current: () => Math.min(userData.totalZikrOverall || 0, 100000), target: () => 100000 },
+    { id: 'zikr100', category: 'zikr', title: '📿 100 зикров', desc: 'Совершить 100 зикров', icon: '📿', xp: 50, story: 'Пусть язык всегда будет влажным от поминания Аллаха.', check: () => getTotalZikr() >= 100, current: () => Math.min(getTotalZikr(), 100), target: () => 100 },
+    { id: 'zikr1000', category: 'zikr', title: '🌟 1 000 зикров', desc: 'Совершить 1 000 зикров', icon: '🌟', xp: 150, story: 'Поминание Аллаха — величайшее поклонение.', check: () => getTotalZikr() >= 1000, current: () => Math.min(getTotalZikr(), 1000), target: () => 1000 },
+    { id: 'zikr10000', category: 'zikr', title: '⚡ 10 000 зикров', desc: 'Совершить 10 000 зикров', icon: '⚡', xp: 500, story: 'Вы на пути постоянного поминания!', check: () => getTotalZikr() >= 10000, current: () => Math.min(getTotalZikr(), 10000), target: () => 10000 },
     { id: 'salawat10', category: 'salawat', title: '🌹 10 салаватов', desc: 'Прочитать 10 салаватов', icon: '🌹', xp: 50, story: '«Кто благословит меня раз, того Аллах благословит десять раз».', check: () => (userData.totalSalawat || 0) >= 10, current: () => Math.min(userData.totalSalawat || 0, 10), target: () => 10 },
     { id: 'salawat100', category: 'salawat', title: '🌹🌹 100 салаватов', desc: 'Прочитать 100 салаватов', icon: '🌹🌹', xp: 150, story: 'Благословение Пророка ﷺ — ключ к заступничеству.', check: () => (userData.totalSalawat || 0) >= 100, current: () => Math.min(userData.totalSalawat || 0, 100), target: () => 100 },
-    { id: 'salawat1000', category: 'salawat', title: '💐 1 000 салаватов', desc: 'Прочитать 1 000 салаватов', icon: '💐', xp: 500, story: 'Ты часто благословляешь Пророка ﷺ!', check: () => (userData.totalSalawat || 0) >= 1000, current: () => Math.min(userData.totalSalawat || 0, 1000), target: () => 1000 },
-    { id: 'salawat50000', category: 'salawat', title: '🌟 50 000 салаватов', desc: 'Прочитать 50 000 салаватов', icon: '🌟', xp: 2000, story: 'Великое благословение Пророку ﷺ!', check: () => (userData.totalSalawat || 0) >= 50000, current: () => Math.min(userData.totalSalawat || 0, 50000), target: () => 50000 },
     { id: 'names10', category: 'names', title: '📜 10 Имён', desc: 'Выучить 10 Имён Аллаха', icon: '📜', xp: 100, story: '«У Аллаха 99 имён. Кто перечислит их, войдёт в Рай».', check: () => (userData.namesLearned?.length || 0) >= 10, current: () => Math.min(userData.namesLearned?.length || 0, 10), target: () => 10 },
     { id: 'names20', category: 'names', title: '📚 20 Имён', desc: 'Выучить 20 Имён', icon: '📚', xp: 200, story: 'Познание Имён Аллаха укрепляет веру.', check: () => (userData.namesLearned?.length || 0) >= 20, current: () => Math.min(userData.namesLearned?.length || 0, 20), target: () => 20 },
     { id: 'names50', category: 'names', title: '🏅 50 Имён', desc: 'Выучить 50 Имён', icon: '🏅', xp: 500, story: 'Вы на полпути к знанию всех Имён!', check: () => (userData.namesLearned?.length || 0) >= 50, current: () => Math.min(userData.namesLearned?.length || 0, 50), target: () => 50 },
@@ -1600,6 +1364,7 @@ function checkAllAchievements() {
     if (changed) { saveUserData(); if (currentModule==='achievements') renderAchievements(); }
 }
 
+// ==================== ЗВЁЗДЫ ====================
 const RANKS_FULL = [
     { stars: 1, title: '🌟 Новичок', starsIcon: '⭐', sahabi: 'Абу Бакр ас-Сиддик', story: 'Первый праведный халиф.', special: false },
     { stars: 10, title: '🌟🌟 Усердный', starsIcon: '⭐⭐', sahabi: 'Умар ибн аль-Хаттаб', story: 'Второй халиф.', special: false },
@@ -1634,7 +1399,7 @@ function checkDailyTasks() {
     const m = Object.values(userData.azkarChecks?.morning || {}).some(v=>v);
     const e = Object.values(userData.azkarChecks?.evening || {}).some(v=>v);
     const q = (userData.khatm?.readPages || 0) > 0;
-    const z = (userData.totalZikrOverall || 0) >= 100;
+    const z = getTotalZikr() >= 100;
     const t = (userData.tauba?.days || []).some(d=>d.date===today);
     const all = m && e && q && z && t;
     const g = document.getElementById('dailyTasksGrid');
@@ -1643,45 +1408,37 @@ function checkDailyTasks() {
     if (btn) { if (all && stars.lastClaimDate !== today) { btn.disabled = false; btn.style.opacity = '1'; } else { btn.disabled = true; btn.style.opacity = '0.5'; } }
 }
 
-let currentCollection = 'all';
+// ==================== КОЛЛЕКЦИЯ ====================
+let currentCollection = 'sahabi';
 function renderCollection() {
     const c = document.getElementById('collectionGrid'); if (!c) return;
-    const activeTab = document.querySelector('.collection-tab.active')?.dataset.collection || 'all';
-    let cards = [];
-    
-    if (activeTab === 'rare') {
-        cards = ALL_CARDS.filter(card => card.rarity === 'legendary' || card.rarity === 'epic').map(c => ({ ...c, isUnlocked: (userData.unlockedCards || []).includes(c.id) }));
-    } else if (activeTab === 'juma') {
-        cards = userData.jumaCards || [];
-    } else if (activeTab === 'all') {
-        cards = ALL_CARDS.filter(c => (userData.unlockedCards || []).includes(c.id));
-    } else {
-        cards = ALL_CARDS.filter(c => c.type === activeTab && (userData.unlockedCards || []).includes(c.id));
+    const stars = userData.stars || { unlockedRanks: [] };
+    const names = userData.namesLearned || [];
+    const khatms = userData.khatm?.completedKhatms || 0;
+    const surahs = userData.unlockedSurahs || [];
+    const prophets = userData.unlockedProphets || [];
+    let h = '';
+    if (currentCollection === 'sahabi') {
+        RANKS_FULL.filter(r => stars.unlockedRanks.includes(r.stars)).forEach(r => {
+            const sd = SAHABI_DATA.find(s => s.name === r.sahabi) || { arabicTitle: '', titleMeaning: '', fullName: r.sahabi, story: r.story };
+            h += `<div onclick='showSahabiStory(${JSON.stringify(sd).replace(/'/g,"&#39;")})' style="background:${r.special?'linear-gradient(135deg,#c9a227,#a07d1a)':'linear-gradient(135deg,#f5dca8,#e6bc7e)'};border-radius:20px;padding:15px;text-align:center;cursor:pointer;border:2px solid #d4af37;"><div style="font-size:2rem;">${r.starsIcon}</div><div style="font-weight:bold;color:#1e3a1a;">${r.sahabi}</div><div style="font-size:0.7rem;font-family:'Amiri';">${sd.arabicTitle}</div><div style="font-size:0.65rem;color:#7a683e;">${sd.titleMeaning}</div></div>`;
+        });
+    } else if (currentCollection === 'names') {
+        NAMES_OF_ALLAH.filter(n => names.includes(n.num)).forEach(n => {
+            h += `<div onclick='showStory("📜","${n.translit}","${n.translation}<br><br>🇷🇺 ${n.chechen}")' style="background:linear-gradient(135deg,#f5dca8,#e6bc7e);border-radius:20px;padding:15px;text-align:center;cursor:pointer;border:2px solid #d4af37;"><div style="font-family:'Amiri';font-size:1.8rem;">${n.arabic}</div><div style="font-weight:bold;color:#2c5a2a;">${n.translit}</div></div>`;
+        });
+    } else if (currentCollection === 'khatm') {
+        [{c:1,i:'🕋',t:'Первый Хатм'},{c:5,i:'📖',t:'5 Хатмов'},{c:10,i:'🌟',t:'10 Хатмов'},{c:25,i:'🏅',t:'25 Хатмов'},{c:50,i:'👑',t:'50 Хатмов'},{c:100,i:'🕋',t:'100 Хатмов'}].forEach(a => { if (khatms >= a.c) h += `<div style="background:${a.c===100?'linear-gradient(135deg,#c9a227,#a07d1a)':'linear-gradient(135deg,#f5dca8,#e6bc7e)'};border-radius:20px;padding:15px;text-align:center;border:2px solid #d4af37;"><div style="font-size:2.5rem;">${a.i}</div><div style="font-weight:bold;color:#1e3a1a;">${a.t}</div></div>`; });
+    } else if (currentCollection === 'surah') {
+        surahs.sort((a,b)=>a-b).forEach(n => {
+            h += `<div onclick='showStory("📖","${SURA_NAMES_RU[n-1]}",${JSON.stringify(SURAH_STORIES[n]||`Сура «${SURA_NAMES_RU[n-1]}»`)})' class="surah-card" style="background:linear-gradient(135deg,#1a4a2a,#0d3b1f);border-radius:20px;padding:15px;text-align:center;cursor:pointer;border:2px solid #d4af37;color:#ffefc0;"><div style="font-size:1.5rem;font-weight:bold;">${n}</div><div style="font-size:0.8rem;margin-top:5px;">${SURA_NAMES_RU[n-1]}</div></div>`;
+        });
+    } else if (currentCollection === 'prophet') {
+        PROPHETS_DATA.filter(p => prophets.includes(p.id)).forEach(p => {
+            h += `<div onclick='showStory("🕋","${p.name}",${JSON.stringify(p.story)})' class="prophet-card" style="background:linear-gradient(135deg,#5a3a1a,#3a2510);border-radius:20px;padding:15px;text-align:center;cursor:pointer;border:2px solid #c9a227;color:#ffefc0;"><div style="font-family:'Amiri';font-size:1.5rem;">${p.arabic}</div><div style="font-weight:bold;margin-top:5px;">${p.name}</div><div style="font-size:0.65rem;">${p.title}</div></div>`;
+        });
     }
-    
-    if (cards.length === 0) {
-        c.innerHTML = '<div style="text-align:center;padding:40px;color:#7a683e;grid-column:1/-1;">Пока нет открытых карт</div>';
-        return;
-    }
-    
-    c.innerHTML = cards.map(card => {
-        const isRare = activeTab === 'rare';
-        const isUnlocked = isRare ? card.isUnlocked : true;
-        const cardClass = `collection-card ${isRare && !isUnlocked ? 'card-rare' : ''} ${isUnlocked ? 'revealed' : ''}`;
-        const style = card.type === 'sahabi' ? 'background:linear-gradient(135deg,#2a1a0a,#4a2a0a);border-color:#d4af37;' 
-                    : card.type === 'surah' ? 'background:linear-gradient(135deg,#1a3a1a,#0d2a0d);border-color:#4a9e4a;'
-                    : card.type === 'prophet' ? 'background:linear-gradient(135deg,#2a0a2a,#4a0a4a);border-color:#c9a227;'
-                    : card.type === 'juma' ? 'background:linear-gradient(135deg,#1a1a3a,#0a0a2a);border-color:#ffd700;'
-                    : 'background:rgba(212,175,55,0.15);border-color:#d4af37;';
-        
-        return `<div class="${cardClass}" style="${style}padding:16px 10px;border-radius:20px;text-align:center;cursor:pointer;" onclick="${isUnlocked ? `alert('${card.story || ''}')` : `alert('🔒 ${card.conditionText}')`}">
-            <div style="font-size:2.2rem;">${card.emoji}</div>
-            <div style="font-weight:bold;color:#ffefc0;">${card.name}</div>
-            <div style="font-size:0.7rem;opacity:0.8;">${card.title}</div>
-            ${card.rarity ? `<div class="card-rarity rarity-${card.rarity}">${card.rarity === 'legendary' ? '✨ Легендарная' : card.rarity === 'epic' ? '💫 Эпическая' : '🔷 Редкая'}</div>` : ''}
-            ${!isUnlocked ? `<div style="font-size:0.6rem;margin-top:5px;color:#aaa;">${card.conditionText}</div>` : ''}
-        </div>`;
-    }).join('');
+    c.innerHTML = h || '<div style="text-align:center;padding:40px;color:#7a683e;grid-column:1/-1;">Пока нет открытых элементов</div>';
 }
 
 function showSahabiStory(d) {
@@ -1708,41 +1465,15 @@ document.getElementById('claimDailyRewardBtn')?.addEventListener('click', () => 
 });
 document.querySelectorAll('.collection-tab').forEach(t => t.addEventListener('click', () => {
     document.querySelectorAll('.collection-tab').forEach(x => { x.style.background='#e8dcc8'; x.classList.remove('active'); });
-    t.style.background='#e6bc7e'; t.classList.add('active'); renderCollection();
+    t.style.background='#e6bc7e'; t.classList.add('active'); currentCollection = t.dataset.collection; renderCollection();
 }));
-document.getElementById('showGoldCardsBtn')?.addEventListener('click', () => { switchModule('collection'); document.querySelector('[data-collection="rare"]')?.click(); });
+document.getElementById('showGoldCardsBtn')?.addEventListener('click', () => { switchModule('collection'); currentCollection='sahabi'; document.querySelector('[data-collection="sahabi"]')?.click(); });
 
 setInterval(() => { checkAllAchievements(); checkDailyTasks(); }, 15000);
 setTimeout(() => { updateStarsUI(); checkDailyTasks(); renderAchievements(); renderCollection(); }, 500);
-</script>
 
-<!-- КОЛЛЕКЦИЯ -->
-<div id="module-collection" class="module">
-    <div class="card">
-        <h2 style="color: #d4af37;">📚 Моя коллекция ✨</h2>
-        <div style="display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap;">
-            <button class="collection-tab active" data-collection="all" style="flex: 1; padding: 10px; border-radius: 30px; border: none; background: #e6bc7e; font-weight: bold;">📦 Все</button>
-            <button class="collection-tab" data-collection="sahabi" style="flex: 1; padding: 10px; border-radius: 30px; border: none; background: #e8dcc8; font-weight: bold;">👳 Сподвижники</button>
-            <button class="collection-tab" data-collection="surah" style="flex: 1; padding: 10px; border-radius: 30px; border: none; background: #e8dcc8; font-weight: bold;">📖 Суры</button>
-            <button class="collection-tab" data-collection="prophet" style="flex: 1; padding: 10px; border-radius: 30px; border: none; background: #e8dcc8; font-weight: bold;">🕋 Пророки</button>
-            <button class="collection-tab" data-collection="juma" style="flex: 1; padding: 10px; border-radius: 30px; border: none; background: #e8dcc8; font-weight: bold;">🎴 Джума</button>
-            <button class="collection-tab" data-collection="rare" style="flex: 1; padding: 10px; border-radius: 30px; border: none; background: #e8dcc8; font-weight: bold;">💎 Редкие</button>
-        </div>
-        <div id="collectionGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px;"></div>
-    </div>
-</div>
-
-<!-- МОДАЛЬНОЕ ОКНО ДЛЯ ИСТОРИЙ -->
-<div id="storyModal" class="modal">
-    <div class="modal-content">
-        <button class="close-modal" onclick="closeStoryModal()">✕</button>
-        <div style="text-align: center; margin-bottom: 15px;"><span style="font-size: 3rem;" id="storyIcon">📖</span></div>
-        <h3 style="color: #8b5a2b; text-align: center;" id="storyTitle">История</h3>
-        <div style="margin-top: 15px; line-height: 1.7; color: #3a2a1a;" id="storyText"></div>
-    </div>
-</div>
-
-<!-- НАСТРОЙКИ -->
+console.log('✅ Часть 9/10 загружена (Достижения, Звёзды, Коллекция)');
+</script><!-- НАСТРОЙКИ -->
 <div id="module-settings" class="module">
     <div class="card">
         <h2>⚙️ Настройки</h2>
@@ -1840,7 +1571,7 @@ switchModule = function(moduleId) {
     if (moduleId==='azkar') { checkAndResetAzkarDate(); renderAzkar(); }
     if (moduleId==='counter') renderZikr();
     if (moduleId==='prayer') { const s = localStorage.getItem('prayerLocation'); if(s) { const {city, country, method} = JSON.parse(s); if(method) document.getElementById('mazhabSelect').value = method; fetchPrayerTimes(city, country); } }
-    if (moduleId==='juma') { updateKhutbaForFriday(); updateJumaButton(); }
+    if (moduleId==='juma') { updateKhutbaForFriday(); }
     if (moduleId==='achievements') renderAchievements();
     if (moduleId==='stars') { updateStarsUI(); checkDailyTasks(); }
     if (moduleId==='collection') renderCollection();
