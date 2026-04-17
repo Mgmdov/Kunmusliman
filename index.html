@@ -74,9 +74,6 @@
         .card-surah { background: linear-gradient(135deg, #1a3a1a, #0d2a0d); border: 2px solid #4a9e4a; box-shadow: 0 5px 15px rgba(74, 158, 74, 0.3); }
         .card-prophet { background: linear-gradient(135deg, #2a0a2a, #4a0a4a); border: 2px solid #c9a227; box-shadow: 0 5px 15px rgba(201, 162, 39, 0.3); }
         .card-juma { background: linear-gradient(135deg, #1a1a3a, #0a0a2a); border: 2px solid #ffd700; box-shadow: 0 0 25px rgba(255, 215, 0, 0.5); }
-        .card-ayat { background: #ffffff !important; border: 2px solid #2c5a2a; box-shadow: 0 5px 15px rgba(44, 90, 42, 0.1); color: #1e3a1a !important; }
-        .card-ayat .ayat-text-ar { font-family: 'Amiri', serif; font-size: 1.3rem; color: #2c5a2a; margin: 15px 0; line-height: 1.6; text-align: center; direction: rtl; }
-        .card-ayat .ayat-text-ru { font-size: 0.9rem; font-style: italic; color: #5a3a1a; line-height: 1.4; text-align: center; margin-top: 10px; }
         .card-muhammad { background: linear-gradient(145deg, #3a2a0a, #5a4a1a, #3a2a0a); border: 3px solid #ffd700; box-shadow: 0 0 40px #ffd700, 0 0 80px #ffbe2e, inset 0 0 20px #fff8d0; animation: muhammadGlow 2s infinite; }
         @keyframes muhammadGlow { 0%, 100% { box-shadow: 0 0 40px #ffd700, 0 0 80px #ffbe2e, inset 0 0 20px #fff8d0; } 50% { box-shadow: 0 0 60px #ffea00, 0 0 120px #ffd700, inset 0 0 30px #ffffff; } }
         .card-achievement { background: linear-gradient(135deg, #2a2a3a, #1a1a2a); border: 2px solid #6a6a8a; box-shadow: 0 5px 15px rgba(100, 100, 150, 0.3); }
@@ -393,7 +390,6 @@
     }
 
     function showNotification(text) {
-        if (!sessionNotificationShown) return; // Не показывать уведомления при первой загрузке
         const n = document.createElement('div');
         n.style.cssText = `position:fixed;bottom:20px;right:20px;background:#2b4b29;color:#e6bc7e;padding:15px 20px;border-radius:20px;z-index:10000;max-width:280px;font-size:0.9rem;box-shadow:0 5px 20px rgba(0,0,0,0.3);`;
         n.innerHTML = text; document.body.appendChild(n); setTimeout(() => n.remove(), 4000);
@@ -416,7 +412,6 @@
     }
 
     function showFirework(text) {
-        if (!sessionNotificationShown) return; // Не показывать фейерверки при первой загрузке
         const container = document.getElementById('fireworkContainer');
         const centerText = document.createElement('div');
         centerText.className = 'achievement-center-text';
@@ -456,31 +451,20 @@
             const result = await auth.signInAnonymously();
             currentUser = result.user;
             updateUserUI(); closeAuthModal(); await loadUserData();
-        } catch (error) { console.error('Ошибка входа:', error); loadLocalBackup(); updateAllUI(true); }
+        } catch (error) { console.error('Ошибка входа:', error); loadLocalBackup(); updateAllUI(); }
     }
     function updateUserUI() {
         const ui = document.getElementById('userInfo');
         if (currentUser && !currentUser.isAnonymous) ui.innerHTML = `<span>👤 ${currentUser.email || 'Пользователь'}</span>`;
         else ui.innerHTML = '<span></span>';
     }
-    let sessionNotificationShown = false;
     async function loadUserData() {
-        if (!currentUser) { if (loadLocalBackup()) updateAllUI(true); return; }
+        if (!currentUser) { if (loadLocalBackup()) updateAllUI(); return; }
         try {
             const doc = await db.collection('users').doc(currentUser.uid).get();
-            if (doc.exists) { 
-                Object.assign(userData, doc.data()); 
-                ensureFullDataStructure(); 
-                saveLocalBackup(); 
-                if (!sessionNotificationShown) {
-                    updateAllUI(true); // Первый вход - без XP попапа
-                    sessionNotificationShown = true;
-                } else {
-                    updateAllUI();
-                } 
-            }
+            if (doc.exists) { Object.assign(userData, doc.data()); ensureFullDataStructure(); saveLocalBackup(); showXPPopup(); updateAllUI(); }
             else { loadLocalBackup(); ensureFullDataStructure(); await createNewUserInFirestore(); saveLocalBackup(); }
-        } catch (e) { console.error(e); if (loadLocalBackup()) updateAllUI(true); }
+        } catch (e) { console.error(e); if (loadLocalBackup()) updateAllUI(); }
     }
     async function createNewUserInFirestore() {
         if (!currentUser) return;
@@ -495,7 +479,7 @@
         document.querySelector(`[data-module="${moduleId}"]`)?.classList.add('active');
         currentModule = moduleId;
     }
-    // updateAllUI определена ниже (полная версия)
+    function updateAllUI() { showXPPopup(); if (typeof updateKhatmUI === 'function') updateKhatmUI(); if (typeof updateTaubaUI === 'function') updateTaubaUI(); }
 
     document.querySelectorAll('.nav-btn').forEach(b => b.addEventListener('click', () => switchModule(b.dataset.module)));
 
@@ -569,50 +553,18 @@ function populateSuraSelect() {
     SURA_NAMES_RU.forEach((n, i) => { const o = document.createElement('option'); o.value = i + 1; o.textContent = `${i + 1}. ${n}`; s.appendChild(o); });
 }
 
-    function giveRandomAyatCard() {
-        if (!userData.unlockedCards) userData.unlockedCards = [];
-        const available = AYAT_CARDS.filter(a => !userData.unlockedCards.includes(a.id));
-        if (available.length === 0) return null;
-        const selected = available[Math.floor(Math.random() * available.length)];
-        userData.unlockedCards.push(selected.id);
-        saveUserData();
+function unlockSurahAchievement(num) {
+    if (!userData.unlockedSurahs) userData.unlockedSurahs = [];
+    if (!userData.unlockedCards) userData.unlockedCards = [];
+    
+    if (!userData.unlockedSurahs.includes(num)) {
+        userData.unlockedSurahs.push(num);
         
-        const card = generateAyatCards().find(c => c.id === selected.id);
-        showStory('📖', `Новый аят: ${card.name}`, card.story);
-        showNotification(`📖 Получен новый аят!`);
-        if (currentModule === 'collection') renderCollection();
-        return selected;
-    }
-
-    function checkDailyAyat() {
-        const today = new Date().toISOString().split('T')[0];
-        if (!userData.lastDailyAyat || userData.lastDailyAyat !== today) {
-            userData.lastDailyAyat = today;
-            // Для ежедневного аята временно включаем уведомления, если они были выключены
-            const wasShown = sessionNotificationShown;
-            sessionNotificationShown = true;
-            setTimeout(() => {
-                giveRandomAyatCard();
-                sessionNotificationShown = wasShown;
-            }, 2000);
+        // Добавляем карточку суры в коллекцию
+        const surahCardId = `su${num}`;
+        if (!userData.unlockedCards.includes(surahCardId)) {
+            userData.unlockedCards.push(surahCardId);
         }
-    }
-
-    function unlockSurahAchievement(num) {
-        if (!userData.unlockedSurahs) userData.unlockedSurahs = [];
-        if (!userData.unlockedCards) userData.unlockedCards = [];
-        
-        if (!userData.unlockedSurahs.includes(num)) {
-            userData.unlockedSurahs.push(num);
-            
-            // Шанс 50% получить карточку аята при завершении суры
-            if (Math.random() > 0.5) giveRandomAyatCard();
-
-            // Добавляем карточку суры в коллекцию
-            const surahCardId = `su${num}`;
-            if (!userData.unlockedCards.includes(surahCardId)) {
-                userData.unlockedCards.push(surahCardId);
-            }
         
         // Проверяем, есть ли в этой суре упоминание пророка
         const surahName = SURA_NAMES_RU[num-1];
@@ -729,7 +681,6 @@ document.getElementById('addPageBtn')?.addEventListener('click', () => {
         userData.totalZikrOverall = (userData.totalZikrOverall || 0) + 1;
         checkZikrAchievements();
         addStarForPage(); // +1 звезда за страницу
-        if (Math.random() < 0.1) setTimeout(() => giveRandomAyatCard(), 1500); // 10% шанс на аят
     } else {
         showNotification('📖 Вы уже прочитали весь Коран!');
     }
@@ -766,7 +717,6 @@ document.getElementById('addJuzBtn')?.addEventListener('click', () => {
         checkZikrAchievements();
         // Добавляем звёзды за каждую страницу
         for (let i = 0; i < canAdd; i++) addStarForPage();
-        if (Math.random() < 0.3) setTimeout(() => giveRandomAyatCard(), 1500); // 30% шанс на аят за джуз
         if (canAdd < 20) {
             showNotification(`📖 Добавлено ${canAdd} стр. (до конца Корана)`);
         }
@@ -1616,7 +1566,7 @@ document.getElementById('mysteryCards')?.addEventListener('click', (e) => {
         userData.jumaCards.push(selected);
     }
     if (!userData.unlockedCards.includes(selected.id)) {
-        userData.unlockedCards.push(selected.id);
+        userData.unlockedCards.push(selected);
     }
     
     const weekKey = `juma_claimed_${getWeekNumber()}`;
@@ -1902,14 +1852,9 @@ document.getElementById('showGoldCardsBtn')?.addEventListener('click', () => {
     setTimeout(() => document.querySelector('[data-collection="rare"]')?.click(), 100);
 });
 
-    setInterval(() => { checkAllAchievements(); checkDailyTasks(); }, 5000);
-    setTimeout(() => { 
-        updateStarsUI(); 
-        checkDailyTasks(); 
-        renderAchievements();
-        checkDailyAyat();
-    }, 1000);
-    </script><!-- КОЛЛЕКЦИЯ -->
+setInterval(() => { checkAllAchievements(); checkDailyTasks(); }, 5000);
+setTimeout(() => { updateStarsUI(); checkDailyTasks(); renderAchievements(); }, 500);
+</script><!-- КОЛЛЕКЦИЯ -->
 <div id="module-collection" class="module">
     <div class="card">
         <h2 style="color: #d4af37;">📚 Моя коллекция ✨</h2>
@@ -1920,7 +1865,6 @@ document.getElementById('showGoldCardsBtn')?.addEventListener('click', () => {
             <button class="collection-tab" data-collection="prophet">🕋 Пророки</button>
             <button class="collection-tab" data-collection="names">📜 99 Имён</button>
             <button class="collection-tab" data-collection="juma">🎴 Джума</button>
-            <button class="collection-tab" data-collection="ayat">📖 Аяты</button>
             <button class="collection-tab" data-collection="rare">💎 Редкие</button>
         </div>
         <div id="collectionGrid" class="collection-grid"></div>
@@ -1965,62 +1909,12 @@ function generateProphetCards() {
     }));
 }
 
-    const AYAT_CARDS = [
-        { id: "ay3_147", surah: 3, number: 147, text_ar: "رَبَّنَا اغْفِرْ لَنَا ذُنُوبَنَا وَإِسْرَافَنَا فِي أَمْرِنَا وَثَبِّتْ أَقْدَامَنَا وَانصُرْنَا عَلَى الْقَوْمِ الْكَافِرِينَ", text_ru: "Господь наш! Прости нам наши грехи и излишества, которые мы допустили в нашем деле, утверди наши стопы и помоги нам против неверующих людей.", category: "Дуа", rarity: "epic" },
-        { id: "ay2_153", surah: 2, number: 153, text_ar: "يَا أَيُّهَا الَّذِينَ آمَنُوا اسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ إِنَّ اللَّهَ مَعَ الصَّابِرِينَ", text_ru: "О те, которые уверовали! Обратитесь за помощью к терпению и намазу. Воистину, Аллах — с терпеливыми.", category: "Терпение", rarity: "common" },
-        { id: "ay2_186", surah: 2, number: 186, text_ar: "وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌ أُجِيبُ دَعْوَةَ الدَّاعِ إِذَا دَعَانِ", text_ru: "Если Мои рабы спросят тебя обо Мне, то ведь Я близок и отвечаю на зов молящегося, когда он взывает ко Мне.", category: "Милость", rarity: "rare" },
-        { id: "ay2_255", surah: 2, number: 255, text_ar: "اللَّهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ", text_ru: "Аллах — нет божества, кроме Него, Живого, Вседержителя. (Аят аль-Курси)", category: "Величие", rarity: "epic" },
-        { id: "ay2_286", surah: 2, number: 286, text_ar: "لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا", text_ru: "Аллах не возлагает на человека сверх его возможностей.", category: "Милость", rarity: "common" },
-        { id: "ay3_31", surah: 3, number: 31, text_ar: "قُلْ إِن كُنتُمْ تُحِبُّونَ اللَّهَ فَاتَّبِعُونِي يُحْبِبْكُمُ اللَّهُ", text_ru: "Скажи: «Если вы любите Аллаха, то следуйте за мной, и тогда Аллах возлюбит вас».", category: "Любовь", rarity: "rare" },
-        { id: "ay3_159", surah: 3, number: 159, text_ar: "فَإِذَا عَزَمْتَ فَتَوَكَّلْ عَلَى اللَّهِ إِنَّ اللَّه- يُحِبُّ الْمُتَوَكِّلِينَ", text_ru: "Когда же ты примешь решение, то уповай на Аллаха, ведь Аллах любит уповающих.", category: "Упование", rarity: "common" },
-        { id: "ay4_28", surah: 4, number: 28, text_ar: "يُرِيدُ اللَّهُ أَن يُخَفِّفَ عَنكُمْ وَخُلِقَ الْإِنسَانُ ضَعِيفًا", text_ru: "Аллах желает вам облегчения, ведь человек создан слабым.", category: "Милость", rarity: "common" },
-        { id: "ay7_156", surah: 7, number: 156, text_ar: "وَرَحْمَتِي وَسِعَتْ كُلَّ شَيْءٍ", text_ru: "Моя милость объяла всякую вещь.", category: "Милость", rarity: "rare" },
-        { id: "ay8_2", surah: 8, number: 2, text_ar: "إِنَّمَا الْمُؤْمِنُونَ الَّذِينَ إِذَا ذُكِرَ اللَّهُ وَجِلَتْ قُلُوبُهُمْ", text_ru: "Верующими являются только те, сердца которых испытывают страх при упоминании Аллаха.", category: "Вера", rarity: "rare" },
-        { id: "ay8_33", surah: 8, number: 33, text_ar: "وَمَا كَانَ اللَّهُ مُعَذِّبَهُمْ وَهُمْ يَسْتَغْفِرُونَ", text_ru: "Аллах не стал подвергать их мучениям, пока они просили о прощении.", category: "Покаяние", rarity: "common" },
-        { id: "ay9_128", surah: 9, number: 128, text_ar: "لَقَدْ جَاءَكُمْ رَسُولٌ مِّنْ أَنفُسِكُمْ عَزِيزٌ عَلَيْهِ مَا عَنِتُّمْ", text_ru: "К вам явился Посланник из вашей среды. Тяжко для него то, что вы страдаете.", category: "Пророк", rarity: "epic" },
-        { id: "ay13_28", surah: 13, number: 28, text_ar: "أَلَا بِذِкْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ", text_ru: "Разве не поминанием Аллаха утешаются сердца?", category: "Зикр", rarity: "rare" },
-        { id: "ay14_7", surah: 14, number: 7, text_ar: "لَئِن شَكَرْتُمْ لَأَزِيدَنَّكُمْ", text_ru: "Если вы будете благодарны, то Я одарю вас еще большим.", category: "Благодарность", rarity: "common" },
-        { id: "ay16_128", surah: 16, number: 128, text_ar: "إِنَّ اللَّهَ مَعَ الَّذِينَ اتَّقَوا وَّالَّذِينَ هُم مُّحْسِنُونَ", text_ru: "Воистину, Аллах — с теми, кто богобоязнен и кто творит добро.", category: "Ихсан", rarity: "rare" },
-        { id: "ay17_23", surah: 17, number: 23, text_ar: "وَبِالْوَالِدَيْنِ إِحْسَانًا", text_ru: "Делайте добро родителям.", category: "Родители", rarity: "common" },
-        { id: "ay20_114", surah: 20, number: 114, text_ar: "رَّبِّ زِدْنِي عِلْمًا", text_ru: "Господи! Приумножь мои знания.", category: "Знания", rarity: "common" },
-        { id: "ay21_87", surah: 21, number: 87, text_ar: "لَّا إِلَهَ إِلَّا أَنتَ سُبْحَانَكَ إِنِّي كُنتُ مِنَ الظَّالِمِينَ", text_ru: "Нет божества, кроме Тебя! Пречист Ты! Воистину, я был одним из беззаконников!", category: "Покаяние", rarity: "epic" },
-        { id: "ay25_74", surah: 25, number: 74, text_ar: "رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ", text_ru: "Господь наш! Даруй нам отраду глаз в наших супругах и потомках.", category: "Семья", rarity: "rare" },
-        { id: "ay29_69", surah: 29, number: 69, text_ar: "وَالَّذِينَ جَاهَدُوا فِينَا لَنَهْدِيَنَّهُمْ سُبُلَنَا", text_ru: "А тех, которые сражаются ради Нас, Мы непременно повезем Нашими путями.", category: "Усердие", rarity: "rare" },
-        { id: "ay33_41", surah: 33, number: 41, text_ar: "يَا أَيُّهَا الَّذِينَ آمَنُوا اذْكُرُوا اللَّهَ ذِكْرًا كَثِيرًا", text_ru: "О те, которые уверовали! Поминайте Аллаха многократно.", category: "Зикр", rarity: "common" },
-        { id: "ay39_53", surah: 39, number: 53, text_ar: "لَا تَقْنَطُوا مِن رَّحْمَةِ اللَّهِ إِنَّ اللَّهَ يَغْفِرُ الذُّنُوبَ جَمِيعًا", text_ru: "Не отчаивайтесь в милости Аллаха. Воистину, Аллах прощает все грехи.", category: "Надежда", rarity: "epic" },
-        { id: "ay40_60", surah: 40, number: 60, text_ar: "ادْعُونِي أَسْتَجِبْ لَكُمْ", text_ru: "Взывайте ко Мне, и Я отвечу вам.", category: "Дуа", rarity: "common" },
-        { id: "ay49_10", surah: 49, number: 10, text_ar: "إِنَّمَا الْمُؤْمِنُونَ إِخْوَةٌ", text_ru: "Воистину, верующие — братья.", category: "Братство", rarity: "common" },
-        { id: "ay55_60", surah: 55, number: 60, text_ar: "هَلْ جَزَاءُ الْإِحْسَانِ إِلَّا الْإِحْسَانُ", text_ru: "Разве воздаяние за добро может быть чем-либо, кроме добра?", category: "Ихсан", rarity: "rare" },
-        { id: "ay65_3", surah: 65, number: 3, text_ar: "وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ", text_ru: "Кто уповает на Аллаха, тому Его достаточно.", category: "Упование", rarity: "rare" },
-        { id: "ay93_3", surah: 93, number: 3, text_ar: "مَا وَدَّعَكَ رَبُّكَ وَمَا قَلَى", text_ru: "Не покинул тебя твой Господь и не возненавидел.", category: "Надежда", rarity: "rare" },
-        { id: "ay94_5", surah: 94, number: 5, text_ar: "فَإِنَّ مَعَ الْعُسْرِ يُسْرًا", text_ru: "Воистину, за тягостью наступает облегчение.", category: "Облегчение", rarity: "rare" },
-        { id: "ay103_3", surah: 103, number: 3, text_ar: "وَتَوَاصَوْا بِالْحَقِّ وَتَوَاصَوْا بِالصَّبْرِ", text_ru: "Заповедали друг другу истину и заповедали друг другу терпение.", category: "Терпение", rarity: "common" },
-        { id: "ay110_1", surah: 110, number: 1, text_ar: "إِذَا جَاءَ نَصْرُ اللَّهِ وَالْفَتْحُ", text_ru: "Когда придет помощь Аллаха и победа.", category: "Победа", rarity: "rare" }
-    ];
-
-    function generateAyatCards() {
-        return AYAT_CARDS.map(a => ({
-            id: a.id,
-            name: `Аят ${a.surah}:${a.number}`,
-            title: a.category,
-            emoji: '📖',
-            type: 'ayat',
-            rarity: a.rarity,
-            story: `<div class="ayat-text-ar">${a.text_ar}</div><div class="ayat-text-ru">${a.text_ru}</div>`,
-            condition: `ayat_${a.id}`,
-            conditionText: `Получить аят ${a.surah}:${a.number}`,
-            text_ar: a.text_ar,
-            text_ru: a.text_ru
-        }));
-    }
-
-    // Объединяем все карточки
-    const ALL_COLLECTION_CARDS = [
-        ...ALL_CARDS,
-        ...generateSurahCards(),
-        ...generateProphetCards(),
-        ...generateAyatCards()
-    ];
+// Объединяем все карточки
+const ALL_COLLECTION_CARDS = [
+    ...ALL_CARDS,
+    ...generateSurahCards(),
+    ...generateProphetCards()
+];
 
 function renderCollection() {
     const c = document.getElementById('collectionGrid'); if (!c) return;
@@ -2030,24 +1924,22 @@ function renderCollection() {
     if (activeTab === 'rare') {
         cards = ALL_COLLECTION_CARDS.filter(card => 
             (card.rarity === 'legendary' || card.rarity === 'epic' || card.rarity === 'mythic')
-        ).map(card => ({ ...card, isUnlocked: (userData.unlockedCards || []).includes(card.id) }));
+        ).map(c => ({ ...c, isUnlocked: (userData.unlockedCards || []).includes(c.id) }));
     } else if (activeTab === 'juma') {
         cards = userData.jumaCards || [];
     } else if (activeTab === 'names') {
-        cards = ALL_COLLECTION_CARDS.filter(card => card.type === 'names' && (userData.unlockedCards || []).includes(card.id));
+        cards = ALL_COLLECTION_CARDS.filter(c => c.type === 'names' && (userData.unlockedCards || []).includes(c.id));
     } else if (activeTab === 'all') {
-        cards = ALL_COLLECTION_CARDS.filter(card => (userData.unlockedCards || []).includes(card.id));
-    } else if (activeTab === 'ayat') {
-        cards = ALL_COLLECTION_CARDS.filter(card => card.type === 'ayat' && (userData.unlockedCards || []).includes(card.id));
+        cards = ALL_COLLECTION_CARDS.filter(c => (userData.unlockedCards || []).includes(c.id));
     } else {
-        cards = ALL_COLLECTION_CARDS.filter(card => card.type === activeTab && (userData.unlockedCards || []).includes(card.id));
+        cards = ALL_COLLECTION_CARDS.filter(c => c.type === activeTab && (userData.unlockedCards || []).includes(c.id));
     }
     
-    // Удаляем дубликаты
+    // Удаляем дубликаты по id
     const uniqueCards = [];
     const seenIds = new Set();
     cards.forEach(card => {
-        if (card && card.id && !seenIds.has(card.id)) {
+        if (!seenIds.has(card.id)) {
             seenIds.add(card.id);
             uniqueCards.push(card);
         }
@@ -2063,54 +1955,42 @@ function renderCollection() {
         const isRare = activeTab === 'rare';
         const isUnlocked = isRare ? card.isUnlocked : true;
         const isJanna = card.isJanna || false;
-        
-        let cardClass = 'collection-card';
-        if (card.type === 'names') cardClass += ' card-names';
-        if (card.id === 'muhammad') cardClass += ' card-muhammad';
-        if (card.type === 'sahabi') cardClass += isJanna ? ' card-sahabi-janna' : ' card-sahabi';
-        if (card.type === 'surah') cardClass += ' card-surah';
-        if (card.type === 'prophet') cardClass += ' card-prophet';
-        if (card.type === 'juma') cardClass += ' card-juma';
-        if (card.type === 'ayat') cardClass += ' card-ayat';
-        if (isRare && !isUnlocked) cardClass += ' card-rare';
-        if (isUnlocked) cardClass += ' revealed';
+        const cardClass = `collection-card 
+            ${card.type === 'names' ? 'card-names' : ''} 
+            ${card.id === 'muhammad' ? 'card-muhammad' : ''} 
+            ${card.type === 'sahabi' ? (isJanna ? 'card-sahabi-janna' : 'card-sahabi') : ''} 
+            ${card.type === 'surah' ? 'card-surah' : ''} 
+            ${card.type === 'prophet' ? 'card-prophet' : ''} 
+            ${card.type === 'juma' ? 'card-juma' : ''} 
+            ${isRare && !isUnlocked ? 'card-rare' : ''} 
+            ${isUnlocked ? 'revealed' : ''}`;
         
         const onclickAction = isUnlocked 
-            ? `showCardStoryById('${card.id}')` 
+            ? `showCardStory('${card.id}', '${card.name}', '${card.emoji}', \`${card.story || ''}\`)` 
             : `alert('🔒 ${card.conditionText}')`;
         
-        let cardInner = `<div style="font-size:2.4rem;">${card.emoji}</div>
-            <div style="font-weight:bold;">${card.name}</div>
-            <div style="font-size:0.75rem;opacity:0.8;">${card.title || ''}</div>`;
-
-        let rarityBadge = '';
-        if (card.rarity && card.type !== 'ayat') {
-            const rarityText = card.rarity === 'mythic' ? '💫 Мифическая' : 
-                               card.rarity === 'legendary' ? '✨ Легендарная' : 
-                               card.rarity === 'epic' ? '💫 Эпическая' : '🔷 Редкая';
-            rarityBadge = `<div class="card-rarity rarity-${card.rarity}">${rarityText}</div>`;
-        }
-
-        let footer = '';
-        if (!isUnlocked) footer = `<div style="font-size:0.65rem; margin-top:8px; color:#aaa;">${card.conditionText}</div>`;
-        if (isJanna) footer = '<div style="font-size:0.65rem; margin-top:8px; color:#ffd700;">🌟 Обрадован Раем</div>';
-
-        return `<div class="${cardClass}" style="padding:18px 12px; border-radius:24px; text-align:center; cursor:pointer;" onclick="${onclickAction}">
-            ${cardInner}
-            ${rarityBadge}
-            ${footer}
+        return `<div class="${cardClass}" style="padding:18px 12px;border-radius:20px;text-align:center;cursor:pointer;" onclick="${onclickAction}">
+            <div style="font-size:2.4rem;">${card.emoji}</div>
+            <div style="font-weight:bold; color: ${card.type === 'surah' ? '#ffefc0' : '#ffefc0'};">${card.name}</div>
+            <div style="font-size:0.75rem;opacity:0.8;">${card.title || ''}</div>
+            ${card.rarity ? `<div class="card-rarity rarity-${card.rarity}">${
+                card.rarity === 'mythic' ? '💫 Мифическая' : 
+                card.rarity === 'legendary' ? '✨ Легендарная' : 
+                card.rarity === 'epic' ? '💫 Эпическая' : '🔷 Редкая'
+            }</div>` : ''}
+            ${!isUnlocked ? `<div style="font-size:0.6rem;margin-top:5px;color:#aaa;">${card.conditionText}</div>` : ''}
+            ${isJanna ? '<div style="font-size:0.6rem;margin-top:5px;color:#ffd700;">🌟 Обрадован Раем</div>' : ''}
         </div>`;
     }).join('');
 }
 
-window.showCardStoryById = function(id) {
-    const card = ALL_COLLECTION_CARDS.find(c => c.id === id);
-    if (!card) return;
-    document.getElementById('storyIcon').innerHTML = card.emoji;
-    document.getElementById('storyTitle').textContent = card.name;
-    document.getElementById('storyText').innerHTML = card.story || '';
+// Функция показа истории карточки
+function showCardStory(id, name, emoji, story) {
+    document.getElementById('storyIcon').innerHTML = emoji;
+    document.getElementById('storyTitle').textContent = name;
+    document.getElementById('storyText').innerHTML = story;
     document.getElementById('storyModal').style.display = 'flex';
-};
+}
 
 // Обработчики вкладок
 document.querySelectorAll('.collection-tab').forEach(t => {
@@ -2341,7 +2221,12 @@ document.getElementById('syncNowBtn')?.addEventListener('click', async () => {
 
 <script>
 // Глобальные функции
-// Удален дубликат showCardStory
+window.showCardStory = function(id, name, emoji, story) {
+    document.getElementById('storyIcon').innerHTML = emoji;
+    document.getElementById('storyTitle').textContent = name;
+    document.getElementById('storyText').innerHTML = story;
+    document.getElementById('storyModal').style.display = 'flex';
+};
 
 window.showAchievementStory = function(id) {
     const ach = ALL_ACHIEVEMENTS_FULL.find(a => a.id === id); 
@@ -2365,8 +2250,8 @@ window.closeAuthModal = function() {
 };
 
 // Обновление всех UI
-function updateAllUI(isFirstLoad = false) {
-    if (!isFirstLoad) showXPPopup();
+function updateAllUI() {
+    showXPPopup();
     if (typeof updateKhatmUI === 'function') updateKhatmUI();
     if (typeof updateTaubaUI === 'function') updateTaubaUI();
     if (typeof updateStarsUI === 'function') updateStarsUI();
@@ -2375,7 +2260,8 @@ function updateAllUI(isFirstLoad = false) {
     if (typeof updateAccountInfo === 'function') updateAccountInfo();
 }
 
-// Переключение модулей (расширенная версия)
+// Переключение модулей
+const originalSwitch = switchModule;
 switchModule = function(moduleId) {
     document.querySelectorAll('.module').forEach(m => m.classList.remove('active-module'));
     document.getElementById(`module-${moduleId}`)?.classList.add('active-module');
