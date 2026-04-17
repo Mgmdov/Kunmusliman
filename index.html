@@ -479,7 +479,7 @@
         document.querySelector(`[data-module="${moduleId}"]`)?.classList.add('active');
         currentModule = moduleId;
     }
-    function updateAllUI() { showXPPopup(); if (typeof updateKhatmUI === 'function') updateKhatmUI(); if (typeof updateTaubaUI === 'function') updateTaubaUI(); }
+    // updateAllUI определена ниже (полная версия)
 
     document.querySelectorAll('.nav-btn').forEach(b => b.addEventListener('click', () => switchModule(b.dataset.module)));
 
@@ -1566,7 +1566,7 @@ document.getElementById('mysteryCards')?.addEventListener('click', (e) => {
         userData.jumaCards.push(selected);
     }
     if (!userData.unlockedCards.includes(selected.id)) {
-        userData.unlockedCards.push(selected);
+        userData.unlockedCards.push(selected.id);
     }
     
     const weekKey = `juma_claimed_${getWeekNumber()}`;
@@ -2260,8 +2260,7 @@ function updateAllUI() {
     if (typeof updateAccountInfo === 'function') updateAccountInfo();
 }
 
-// Переключение модулей
-const originalSwitch = switchModule;
+// Переключение модулей (расширенная версия)
 switchModule = function(moduleId) {
     document.querySelectorAll('.module').forEach(m => m.classList.remove('active-module'));
     document.getElementById(`module-${moduleId}`)?.classList.add('active-module');
