@@ -3963,7 +3963,7 @@ function displayAyah(index) { const ayah = AYATS[index]; document.getElementById
 function refreshAyah() { const randomIndex = Math.floor(Math.random() * AYATS.length); const today = new Date().toDateString(); localStorage.setItem('daily_ayah', JSON.stringify({ date: today, ayah: randomIndex })); displayAyah(randomIndex); }
 document.getElementById('refreshAyahBtn')?.addEventListener('click', refreshAyah);
 setTimeout(() => displayAyah(getDailyAyah()), 300);
-</script><!-- ========== МОДУЛЬ: НАСТРОЙКИ (БЕЗ ПРИВАТНОСТИ И РЕЙТИНГА) ========== -->
+</script><!-- ========== МОДУЛЬ: НАСТРОЙКИ (С СИНХРОНИЗАЦИЕЙ С GITHUB) ========== -->
 <div class="module-screen" id="module-settings">
     <div class="ios-card">
         <div class="ios-card-title"><i class="fas fa-gear"></i> Настройки</div>
@@ -4016,8 +4016,12 @@ setTimeout(() => displayAyah(getDailyAyah()), 300);
                 <button class="ios-button secondary" id="exportDataBtn"><i class="fas fa-download"></i> Скачать резервную копию</button>
                 <input type="file" id="importFileInput" accept=".json" style="display: none;">
                 <button class="ios-button secondary" id="importDataBtn"><i class="fas fa-upload"></i> Загрузить резервную копию</button>
-                <button class="ios-button" id="syncNowBtn"><i class="fas fa-sync-alt"></i> Синхронизировать сейчас</button>
+                <button class="ios-button" id="syncNowBtn"><i class="fas fa-sync-alt"></i> Синхронизировать с Firebase</button>
+                <button class="ios-button" id="syncFromGitHubBtn" style="background: #007AFF;"><i class="fab fa-github"></i> Синхронизировать с GitHub</button>
             </div>
+            <p style="font-size: 0.7rem; color: #8E8E93; margin-top: 8px; text-align: center;" id="lastSyncText">
+                <i class="far fa-clock"></i> <span id="lastSyncTime">Синхронизация не выполнялась</span>
+            </p>
         </div>
         
         <button class="ios-button" id="saveSettingsBtn" style="width: 100%; margin-bottom: 16px; background: #34C759;"><i class="fas fa-save"></i> Сохранить настройки</button>
@@ -4032,6 +4036,20 @@ setTimeout(() => displayAyah(getDailyAyah()), 300);
 
 <script>
 let notificationInterval = null;
+
+// Обновление времени последней синхронизации
+function updateLastSyncTime() {
+    const lastSync = localStorage.getItem('last_sync');
+    const span = document.getElementById('lastSyncTime');
+    if (span) {
+        if (lastSync) {
+            const date = new Date(lastSync);
+            span.textContent = `Последняя синхронизация: ${date.toLocaleDateString()} ${date.toLocaleTimeString().slice(0,5)}`;
+        } else {
+            span.textContent = 'Синхронизация не выполнялась';
+        }
+    }
+}
 
 function updateAccountInfo() {
     const statusEl = document.getElementById('settingsStatus'), emailEl = document.getElementById('settingsEmail'), signOutBtn = document.getElementById('signOutBtnSettings'), loginBtn = document.getElementById('loginBtnSettings');
@@ -4051,13 +4069,13 @@ function updateAccountInfo() {
 function loadSettingsUI() { 
     const sel = document.getElementById('notificationInterval'); 
     if (sel && userData.settings) sel.value = userData.settings.zikrNotificationInterval || 0; 
-    // Загрузка настройки скрытия виджета
     const hideAyahCheck = document.getElementById('hideAyahWidgetCheck');
     if (hideAyahCheck) {
         hideAyahCheck.checked = userData.settings?.hideAyahWidget || false;
     }
     updateAccountInfo(); 
     loadSavedTheme(); 
+    updateLastSyncTime();
 }
 
 function loadSavedTheme() { 
@@ -4082,7 +4100,6 @@ function saveAllSettings() {
     userData.settings.hideAyahWidget = document.getElementById('hideAyahWidgetCheck').checked;
     saveUserData();
     
-    // Применяем скрытие виджета сразу
     const ayahWidget = document.getElementById('ayahWidget');
     if (ayahWidget) {
         ayahWidget.style.display = userData.settings.hideAyahWidget ? 'none' : 'block';
@@ -4179,23 +4196,220 @@ document.getElementById('syncNowBtn')?.addEventListener('click', async () => {
     try { 
         await saveUserData(); 
         await loadUserData(); 
-        showNotification('🔄 Синхронизировано!'); 
+        showNotification('🔄 Синхронизировано с Firebase!'); 
         updateAllUI(); 
     } catch (e) { 
         showNotification('❌ Ошибка'); 
     } 
 });
 
+// ========== СИНХРОНИЗАЦИЯ С GITHUB ==========
+document.getElementById('syncFromGitHubBtn')?.addEventListener('click', async () => {
+    if (confirm('Загрузить свежие данные с GitHub? Это обновит вопросы, азкары и карточки.')) {
+        showNotification('🔄 Загрузка данных с GitHub...');
+        if (typeof manualSync === 'function') {
+            await manualSync();
+        } else if (typeof syncAllDataFromGitHub === 'function') {
+            await syncAllDataFromGitHub();
+        }
+        updateLastSyncTime();
+        if (typeof renderCollection === 'function') renderCollection();
+        if (typeof renderAzkar === 'function') { checkAndResetAzkarDate(); renderAzkar(); }
+        if (typeof renderNamesOfAllah === 'function') renderNamesOfAllah();
+        showNotification('✅ Данные с GitHub обновлены!');
+    }
+});
+
 setTimeout(() => { 
     loadSettingsUI(); 
     restoreNotificationInterval(); 
+    updateLastSyncTime();
 }, 300);
 </script>
 
-<!-- ========== ГЛОБАЛЬНЫЕ СКРИПТЫ И НАВИГАЦИЯ (ИСПРАВЛЕНО) ========== -->
+<!-- ========== ГЛОБАЛЬНЫЕ СКРИПТЫ И НАВИГАЦИЯ (С ЗАГРУЗКОЙ ИЗ GITHUB) ========== -->
 <script>
 let navigationHistory = [], currentScreen = 'home';
 
+// ========== ЗАГРУЗКА ДАННЫХ ИЗ GITHUB ==========
+const GITHUB_RAW = 'https://raw.githubusercontent.com/Mgmdov/Kunmusliman/main/data/';
+const APP_VERSION = '6.0.0';
+
+// Загрузка JSON-файла с GitHub
+async function loadJSONFromGitHub(filename) {
+    try {
+        const response = await fetch(GITHUB_RAW + filename);
+        if (!response.ok) throw new Error('Файл не найден');
+        const data = await response.json();
+        console.log(`✅ Загружен ${filename}`);
+        return data;
+    } catch (e) {
+        console.warn(`⚠️ Ошибка загрузки ${filename}:`, e);
+        return null;
+    }
+}
+
+// Сохранение данных в localStorage
+function saveDataToLocal(key, data) {
+    localStorage.setItem(key, JSON.stringify(data));
+}
+
+// Загрузка данных из localStorage
+function loadDataFromLocal(key) {
+    const saved = localStorage.getItem(key);
+    return saved ? JSON.parse(saved) : null;
+}
+
+// Проверка и загрузка всех данных
+async function syncAllDataFromGitHub() {
+    showNotification('🔄 Синхронизация данных...');
+    
+    // Загружаем конфиг
+    const config = await loadJSONFromGitHub('config.json');
+    if (config) {
+        saveDataToLocal('app_config', config);
+        console.log('📋 Конфиг загружен, версия:', config.version);
+    }
+    
+    // Загружаем вопросы викторины
+    const questions = await loadJSONFromGitHub('questions.json');
+    if (questions) {
+        saveDataToLocal('quiz_questions', questions);
+        if (typeof QUIZ_QUESTIONS_RAW !== 'undefined') {
+            Object.assign(QUIZ_QUESTIONS_RAW, questions);
+        }
+        console.log('📝 Вопросы викторины обновлены');
+    }
+    
+    // Загружаем азкары
+    const azkar = await loadJSONFromGitHub('azkar.json');
+    if (azkar) {
+        saveDataToLocal('azkar_data', azkar);
+        if (azkar.morning && azkar.morning.length > 0) {
+            window.MORNING_AZKAR_FULL = azkar.morning;
+            console.log('🌅 Утренние азкары обновлены:', azkar.morning.length);
+        }
+        if (azkar.evening && azkar.evening.length > 0) {
+            window.EVENING_AZKAR_FULL = azkar.evening;
+            console.log('🌙 Вечерние азкары обновлены:', azkar.evening.length);
+        }
+    }
+    
+    // Загружаем 99 имён
+    const names = await loadJSONFromGitHub('names.json');
+    if (names && names.names) {
+        saveDataToLocal('names_data', names);
+        if (typeof NAMES_OF_ALLAH !== 'undefined') {
+            // Дополняем имена
+            names.names.forEach(n => {
+                if (!NAMES_OF_ALLAH.find(ex => ex.num === n.num)) {
+                    NAMES_OF_ALLAH.push(n);
+                }
+            });
+        }
+        console.log('📜 Имена Аллаха обновлены:', names.names.length);
+    }
+    
+    // Загружаем достижения
+    const achievements = await loadJSONFromGitHub('achievements.json');
+    if (achievements) {
+        saveDataToLocal('achievements_data', achievements);
+        console.log('🏆 Достижения обновлены');
+    }
+    
+    // Загружаем битвы
+    const battles = await loadJSONFromGitHub('battles.json');
+    if (battles) {
+        saveDataToLocal('battles_data', battles);
+        if (typeof BATTLE_DATA !== 'undefined' && battles.battles) {
+            battles.battles.forEach(b => {
+                if (!BATTLE_DATA.find(ex => ex.id === b.id)) {
+                    BATTLE_DATA.push(b);
+                }
+            });
+        }
+        console.log('⚔️ Битвы обновлены');
+    }
+    
+    // Загружаем уровни
+    const levels = await loadJSONFromGitHub('levels.json');
+    if (levels) {
+        saveDataToLocal('levels_data', levels);
+        if (levels.xp_levels && typeof XP_LEVELS !== 'undefined') {
+            window.XP_LEVELS = levels.xp_levels;
+            console.log('📊 Уровни XP обновлены');
+        }
+    }
+    
+    // Загружаем карточки
+    const cards = await loadJSONFromGitHub('cards.json');
+    if (cards) {
+        saveDataToLocal('cards_data', cards);
+        if (cards.cards && typeof ALL_COLLECTION_CARDS !== 'undefined') {
+            cards.cards.forEach(card => {
+                if (!ALL_COLLECTION_CARDS.find(c => c.id === card.id)) {
+                    ALL_COLLECTION_CARDS.push(card);
+                }
+            });
+        }
+        console.log('🎴 Карточки обновлены');
+    }
+    
+    // Загружаем настройки
+    const settings = await loadJSONFromGitHub('settings.json');
+    if (settings) {
+        saveDataToLocal('default_settings', settings);
+        console.log('⚙️ Настройки обновлены');
+    }
+    
+    localStorage.setItem('last_sync', new Date().toISOString());
+    showNotification('✅ Данные обновлены!');
+    console.log('🎉 Синхронизация завершена');
+}
+
+// Проверка обновлений при запуске
+async function checkForUpdatesOnStart() {
+    const lastSync = localStorage.getItem('last_sync');
+    const config = loadDataFromLocal('app_config');
+    
+    if (!lastSync || !config) {
+        await syncAllDataFromGitHub();
+        return;
+    }
+    
+    const lastSyncDate = new Date(lastSync);
+    const now = new Date();
+    const daysSinceSync = (now - lastSyncDate) / (1000 * 60 * 60 * 24);
+    
+    if (daysSinceSync > 1) {
+        console.log('🔄 Прошло больше дня, проверяем обновления...');
+        const remoteConfig = await loadJSONFromGitHub('config.json');
+        if (remoteConfig && remoteConfig.version !== config.version) {
+            console.log('🆕 Найдена новая версия!');
+            await syncAllDataFromGitHub();
+        } else {
+            localStorage.setItem('last_sync', new Date().toISOString());
+            console.log('✅ Версия актуальна');
+        }
+    }
+}
+
+// Ручная синхронизация
+async function manualSync() {
+    await syncAllDataFromGitHub();
+    if (typeof renderCollection === 'function') renderCollection();
+    if (typeof renderAchievements === 'function') renderAchievements();
+    if (typeof renderAzkar === 'function') renderAzkar();
+    if (typeof renderNamesOfAllah === 'function') renderNamesOfAllah();
+    updateHomeWidgets();
+}
+
+// Запускаем проверку при загрузке
+setTimeout(() => {
+    checkForUpdatesOnStart();
+}, 2000);
+
+// ========== ФУНКЦИИ НАВИГАЦИИ ==========
 function openModule(moduleId) {
     document.getElementById('homeScreen').classList.add('hidden');
     document.getElementById('navBar').classList.remove('hidden');
@@ -4290,7 +4504,6 @@ document.addEventListener('touchend', e => {
     const diffX = touchEndX - touchStartX;
     const diffY = Math.abs(touchEndY - touchStartY);
     
-    // Только если горизонтальное движение больше вертикального
     if (diffX > 80 && diffX > diffY) {
         if (navigationHistory.length > 1) { 
             navigationHistory.pop(); 
@@ -4337,6 +4550,11 @@ function showNotification(t) {
     document.body.appendChild(n); 
     setTimeout(() => n.remove(), 3000); 
 }
+
+// Экспорт функций синхронизации
+window.syncAllDataFromGitHub = syncAllDataFromGitHub;
+window.manualSync = manualSync;
+window.checkForUpdatesOnStart = checkForUpdatesOnStart;
 
 window.openModule = openModule; 
 window.goHome = goHome; 
