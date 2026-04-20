@@ -1484,7 +1484,7 @@ cleanupOldTaubaData();
 updateTaubaUI();
 </script>
 
-<!-- ========== МОДУЛЬ: 99 ИМЁН ========== -->
+<!-- ========== МОДУЛЬ: 99 ИМЁН АЛЛАХА (ПОЛНЫЙ, С КАРТОЧКАМИ) ========== -->
 <div class="module-screen" id="module-names">
     <div class="ios-card">
         <div class="ios-card-title"><i class="fas fa-scroll"></i> 99 Прекрасных Имён Аллаха</div>
@@ -1499,6 +1499,52 @@ updateTaubaUI();
 </div>
 
 <script>
+// ========== КАРТОЧКИ ИМЁН АЛЛАХА ==========
+const NAMES_CARDS = [
+    { id: 'name1', name: 'Ар-Рахман', title: 'Милостивый', emoji: '🌟', type: 'names', rarity: 'rare', story: 'Ар-Рохма́н — Милостивый ко всем на этом свете.', condition: 'names_1', conditionText: 'Выучить 1 имя' },
+    { id: 'name2', name: 'Ар-Рахим', title: 'Милосердный', emoji: '💚', type: 'names', rarity: 'rare', story: 'Ар-Рохи́м — Милостивый на том свете только к верующим.', condition: 'names_2', conditionText: 'Выучить 2 имени' },
+    { id: 'name3', name: 'Аль-Малик', title: 'Владыка', emoji: '👑', type: 'names', rarity: 'rare', story: 'Аль-Малик — Владыка всего.', condition: 'names_3', conditionText: 'Выучить 3 имени' },
+    { id: 'name4', name: 'Аль-Куддус', title: 'Святой', emoji: '✨', type: 'names', rarity: 'rare', story: 'Аль-Къудду́с — Свободный от недостатков.', condition: 'names_4', conditionText: 'Выучить 4 имени' },
+    { id: 'name5', name: 'Ас-Салям', title: 'Миротворящий', emoji: '🕊️', type: 'names', rarity: 'rare', story: 'Ас-Саля́м — Дающий безопасность.', condition: 'names_5', conditionText: 'Выучить 5 имён' },
+    { id: 'name6', name: 'Аль-Мумин', title: 'Верный', emoji: '🛡️', type: 'names', rarity: 'rare', story: 'Аль-Муъмин — Дающий надёжность и безопасность.', condition: 'names_6', conditionText: 'Выучить 6 имён' },
+    { id: 'name7', name: 'Аль-Мухаймин', title: 'Хранитель', emoji: '👁️', type: 'names', rarity: 'rare', story: 'Аль-Мухаймин — Оберегающий и Свидетельствующий.', condition: 'names_7', conditionText: 'Выучить 7 имён' },
+    { id: 'name8', name: 'Аль-Азиз', title: 'Могущественный', emoji: '💪', type: 'names', rarity: 'rare', story: 'Аль-1ази́з — Великий, Непобедимый.', condition: 'names_8', conditionText: 'Выучить 8 имён' },
+    { id: 'name9', name: 'Аль-Джаббар', title: 'Могучий', emoji: '🌋', type: 'names', rarity: 'rare', story: 'Аль-Джабба́р — Обладающий силой.', condition: 'names_9', conditionText: 'Выучить 9 имён' },
+    { id: 'name10', name: '10 Имён', title: 'Первые 10', emoji: '📜', type: 'names', rarity: 'epic', story: 'Вы выучили 10 Прекрасных Имён Аллаха!', condition: 'names_10', conditionText: 'Выучить 10 имён' },
+    { id: 'name20', name: '20 Имён', title: 'Знающий', emoji: '📚', type: 'names', rarity: 'epic', story: '20 Имён Аллаха выучено!', condition: 'names_20', conditionText: 'Выучить 20 имён' },
+    { id: 'name30', name: '30 Имён', title: 'Углублённый', emoji: '🔮', type: 'names', rarity: 'epic', story: '30 Имён Аллаха! Вы углубляетесь в познание.', condition: 'names_30', conditionText: 'Выучить 30 имён' },
+    { id: 'name40', name: '40 Имён', title: 'Постоянный', emoji: '🌙', type: 'names', rarity: 'epic', story: '40 Имён Аллаха! Ваше постоянство впечатляет.', condition: 'names_40', conditionText: 'Выучить 40 имён' },
+    { id: 'name50', name: '50 Имён', title: 'Усердный', emoji: '🏅', type: 'names', rarity: 'legendary', story: 'Половина Имён Аллаха!', condition: 'names_50', conditionText: 'Выучить 50 имён' },
+    { id: 'name60', name: '60 Имён', title: 'Посвящённый', emoji: '🎯', type: 'names', rarity: 'legendary', story: '60 Имён Аллаха! Вы посвящены в тайны.', condition: 'names_60', conditionText: 'Выучить 60 имён' },
+    { id: 'name70', name: '70 Имён', title: 'Просветлённый', emoji: '💡', type: 'names', rarity: 'legendary', story: '70 Имён Аллаха! Свет знания наполняет вас.', condition: 'names_70', conditionText: 'Выучить 70 имён' },
+    { id: 'name75', name: '75 Имён', title: 'Преданный', emoji: '💫', type: 'names', rarity: 'legendary', story: '75 Имён Аллаха!', condition: 'names_75', conditionText: 'Выучить 75 имён' },
+    { id: 'name80', name: '80 Имён', title: 'Возвышенный', emoji: '⬆️', type: 'names', rarity: 'legendary', story: '80 Имён Аллаха! Вы возвышаетесь в знании.', condition: 'names_80', conditionText: 'Выучить 80 имён' },
+    { id: 'name90', name: '90 Имён', title: 'Приближенный', emoji: '🤲', type: 'names', rarity: 'legendary', story: '90 Имён Аллаха! Вы приближаетесь к завершению.', condition: 'names_90', conditionText: 'Выучить 90 имён' },
+    { id: 'name99', name: '99 Имён', title: 'Хранитель', emoji: '👑', type: 'names', rarity: 'mythic', story: 'Все 99 Прекрасных Имён Аллаха! Вы — хранитель знаний.', condition: 'names_99', conditionText: 'Выучить все 99 имён' }
+];
+
+// Добавляем карточки в общий массив, если они ещё не добавлены
+setTimeout(() => {
+    if (typeof ALL_COLLECTION_CARDS !== 'undefined') {
+        NAMES_CARDS.forEach(card => {
+            if (!ALL_COLLECTION_CARDS.find(c => c.id === card.id)) {
+                ALL_COLLECTION_CARDS.push(card);
+            }
+        });
+        console.log('✅ Карточки имён добавлены в ALL_COLLECTION_CARDS');
+    }
+    
+    // Также добавляем в ALL_CARDS, если он есть
+    if (typeof ALL_CARDS !== 'undefined') {
+        NAMES_CARDS.forEach(card => {
+            if (!ALL_CARDS.find(c => c.id === card.id)) {
+                ALL_CARDS.push(card);
+            }
+        });
+    }
+}, 100);
+
+// ========== СПИСОК 99 ИМЁН ==========
 const NAMES_OF_ALLAH = [
     {num:1,arabic:"الرَّحْمَنُ",translit:"Ар-Рохма́н",translation:"Милостивый ко всем на этом свете",chechen:"Дуьненчохь бусулбанах,керстанах а цхьатерра къинхетам беш Верг"},
     {num:2,arabic:"الرَّحِيمُ",translit:"Ар-Рохи́м",translation:"Милостивый на том свете только к верующим",chechen:"Къинхетам дукха болуш, эхартахь къаьсттина бусулба нахах къинхетам бийр болуш Верг"},
@@ -1622,24 +1668,60 @@ function renderNamesOfAllah() {
     c.innerHTML = h;
     document.querySelectorAll('.name-learned-check').forEach(cb => cb.addEventListener('change', e => {
         const num = parseInt(cb.dataset.num);
-        if (cb.checked) { if (!userData.namesLearned.includes(num)) { userData.namesLearned.push(num); addXP(20); } }
-        else { userData.namesLearned = userData.namesLearned.filter(n => n !== num); }
-        saveUserData(); renderNamesOfAllah(); checkNamesCards(); updateHomeWidgets();
+        if (cb.checked) { 
+            if (!userData.namesLearned.includes(num)) { 
+                userData.namesLearned.push(num); 
+                addXP(20); 
+            } 
+        } else { 
+            userData.namesLearned = userData.namesLearned.filter(n => n !== num); 
+        }
+        saveUserData(); 
+        renderNamesOfAllah(); 
+        checkNamesCards(); 
+        updateHomeWidgets();
     }));
 }
 
 function checkNamesCards() {
     const learned = userData.namesLearned?.length || 0;
-    if (learned >= 1) unlockCardIfNotHave('name1');
-    if (learned >= 2) unlockCardIfNotHave('name2');
-    if (learned >= 3) unlockCardIfNotHave('name3');
-    if (learned >= 4) unlockCardIfNotHave('name4');
-    if (learned >= 5) unlockCardIfNotHave('name5');
-    if (learned >= 10) unlockCardIfNotHave('name10');
-    if (learned >= 20) unlockCardIfNotHave('name20');
-    if (learned >= 50) unlockCardIfNotHave('name50');
-    if (learned >= 75) unlockCardIfNotHave('name75');
-    if (learned >= 99) unlockCardIfNotHave('name99');
+    if (!userData.unlockedCards) userData.unlockedCards = [];
+    
+    // Разблокируем карточки по количеству имён
+    const milestones = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 75, 80, 90, 99];
+    milestones.forEach(m => {
+        if (learned >= m) {
+            const cardId = `name${m}`;
+            if (!userData.unlockedCards.includes(cardId)) {
+                userData.unlockedCards.push(cardId);
+                showNotification(`🎴 Карточка «${m} Имён» добавлена в коллекцию!`);
+            }
+        }
+    });
+    
+    saveUserData();
+    
+    if (typeof updateCollectionBadge === 'function') {
+        updateCollectionBadge();
+    }
+    
+    if (typeof currentScreen !== 'undefined' && currentScreen === 'collection' && typeof renderCollection === 'function') {
+        renderCollection();
+    }
+}
+
+// Функция разблокировки карточки
+if (typeof unlockCardIfNotHave !== 'function') {
+    window.unlockCardIfNotHave = function(cardId) {
+        if (!userData.unlockedCards) userData.unlockedCards = [];
+        if (!userData.unlockedCards.includes(cardId)) {
+            userData.unlockedCards.push(cardId);
+            saveUserData();
+            showNotification(`🎴 Новая карточка в коллекции!`);
+            if (typeof updateCollectionBadge === 'function') updateCollectionBadge();
+            if (typeof currentScreen !== 'undefined' && currentScreen === 'collection' && typeof renderCollection === 'function') renderCollection();
+        }
+    };
 }
 
 document.getElementById('namesSearchInput')?.addEventListener('input', e => {
@@ -1648,9 +1730,11 @@ document.getElementById('namesSearchInput')?.addEventListener('input', e => {
 });
 
 document.getElementById('toggleChechenBtn')?.addEventListener('click', () => {
-    showChechen = !showChechen; userData.settings.showChechen = showChechen;
+    showChechen = !showChechen; 
+    userData.settings.showChechen = showChechen;
     document.getElementById('toggleChechenText').textContent = showChechen ? 'Скрыть чеченский перевод' : 'Показать чеченский перевод';
-    renderNamesOfAllah(); saveUserData();
+    renderNamesOfAllah(); 
+    saveUserData();
 });
 
 setTimeout(() => renderNamesOfAllah(), 200);
