@@ -1,0 +1,9 @@
+{
+  "zikrNotificationInterval": 0,
+  "showChechen": true,
+  "hideAyahWidget": false,
+  "theme": "light",
+  "arabicFont": "Amiri",
+  "fontSize": 24,
+  "audioReciter": "ar.alafasy"
+}
