@@ -3225,7 +3225,173 @@ setTimeout(() => {
     renderBattleContent('badr');
     updateBattlesProgress();
 }, 300);
-</script><!-- ========== МОДУЛЬ: ВИКТОРИНА (50+ ВОПРОСОВ, 12 СЛУЧАЙНЫХ, КНОПКА "НЕ ЗНАЮ") ========== -->
+</script> <!-- ========== МОДУЛЬ: КОЛЛЕКЦИЯ ========== -->
+<div class="module-screen" id="module-collection">
+    <div class="ios-card">
+        <div class="ios-card-title"><i class="fas fa-layer-group"></i> Моя коллекция <span style="color: #FFD700;">✨</span></div>
+        <div style="display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap;">
+            <button class="collection-tab active" data-collection="all" style="padding: 8px 12px; border-radius: 30px; border: none; background: #007AFF; color: white; font-weight: 600; font-size: 0.75rem;">📦 Все</button>
+            <button class="collection-tab" data-collection="sahabi" style="padding: 8px 12px; border-radius: 30px; border: none; background: #F2F2F7; color: #1C1C1E; font-weight: 600; font-size: 0.75rem;">👳 Сподвижники</button>
+            <button class="collection-tab" data-collection="surah" style="padding: 8px 12px; border-radius: 30px; border: none; background: #F2F2F7; color: #1C1C1E; font-weight: 600; font-size: 0.75rem;">📖 Суры</button>
+            <button class="collection-tab" data-collection="prophet" style="padding: 8px 12px; border-radius: 30px; border: none; background: #F2F2F7; color: #1C1C1E; font-weight: 600; font-size: 0.75rem;">🕋 Пророки</button>
+            <button class="collection-tab" data-collection="names" style="padding: 8px 12px; border-radius: 30px; border: none; background: #F2F2F7; color: #1C1C1E; font-weight: 600; font-size: 0.75rem;">📜 99 Имён</button>
+            <button class="collection-tab" data-collection="battle" style="padding: 8px 12px; border-radius: 30px; border: none; background: #F2F2F7; color: #1C1C1E; font-weight: 600; font-size: 0.75rem;">⚔️ Битвы</button>
+            <button class="collection-tab" data-collection="miracle" style="padding: 8px 12px; border-radius: 30px; border: none; background: #F2F2F7; color: #1C1C1E; font-weight: 600; font-size: 0.75rem;">✨ Чудеса</button>
+            <button class="collection-tab" data-collection="juma" style="padding: 8px 12px; border-radius: 30px; border: none; background: #F2F2F7; color: #1C1C1E; font-weight: 600; font-size: 0.75rem;">🎴 Джума</button>
+            <button class="collection-tab" data-collection="rare" style="padding: 8px 12px; border-radius: 30px; border: none; background: #F2F2F7; color: #1C1C1E; font-weight: 600; font-size: 0.75rem;">💎 Редкие</button>
+            <button class="collection-tab" data-collection="achievement" style="padding: 8px 12px; border-radius: 30px; border: none; background: #F2F2F7; color: #1C1C1E; font-weight: 600; font-size: 0.75rem;">🏆 Достижения</button>
+        </div>
+        <div id="collectionGrid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+            <div style="text-align:center;padding:40px;color:#8E8E93;grid-column:1/-1;">
+                <i class="fas fa-spinner fa-pulse"></i> Загрузка коллекции...
+            </div>
+        </div>
+        <button class="ios-button secondary" id="refreshCollectionBtn" style="width: 100%; margin-top: 16px;">
+            <i class="fas fa-sync-alt"></i> Обновить коллекцию
+        </button>
+    </div>
+</div>
+
+<script>
+// Генерация карточек сур
+function generateSurahCards() {
+    const cards = [];
+    for (let i = 1; i <= 114; i++) {
+        const story = SURAH_STORIES[i] || `Сура «${SURA_NAMES_RU[i-1]}» — ${i}-я сура Корана.`;
+        cards.push({ 
+            id: `su${i}`, 
+            name: SURA_NAMES_RU[i-1], 
+            title: `${i}-я сура`, 
+            emoji: i === 1 ? '🌟' : (i === 36 ? '💚' : '📖'), 
+            type: 'surah', 
+            rarity: i === 1 ? 'legendary' : (i === 36 ? 'legendary' : 'rare'), 
+            story: story, 
+            condition: `surah_${i}`, 
+            conditionText: `Прочитать суру «${SURA_NAMES_RU[i-1]}»` 
+        });
+    }
+    return cards;
+}
+
+// Генерация карточек пророков
+function generateProphetCards() {
+    return PROPHETS_DATA.map(p => ({ 
+        id: `p${p.id}`, 
+        name: p.name, 
+        title: p.title, 
+        emoji: '🕋', 
+        type: 'prophet', 
+        rarity: p.id === 24 ? 'mythic' : (p.id <= 6 ? 'legendary' : 'rare'), 
+        story: p.story, 
+        condition: `prophet_${p.id}`, 
+        conditionText: `Открыть пророка ${p.name}` 
+    }));
+}
+
+// Объединяем все карточки
+const ALL_COLLECTION_CARDS = [...(typeof ALL_CARDS !== 'undefined' ? ALL_CARDS : []), ...generateSurahCards(), ...generateProphetCards()];
+
+// Функция отрисовки коллекции
+function renderCollection() {
+    const c = document.getElementById('collectionGrid'); 
+    if (!c) return;
+    
+    const activeTab = document.querySelector('.collection-tab.active')?.dataset.collection || 'all';
+    const unlockedIds = userData.unlockedCards || [];
+    
+    console.log('📦 Всего открыто карточек:', unlockedIds.length);
+    
+    let cards = [];
+    if (activeTab === 'rare') {
+        cards = ALL_COLLECTION_CARDS.filter(card => 
+            unlockedIds.includes(card.id) && ['legendary', 'epic', 'mythic'].includes(card.rarity)
+        );
+    } else if (activeTab === 'all') {
+        cards = ALL_COLLECTION_CARDS.filter(c => unlockedIds.includes(c.id));
+    } else {
+        cards = ALL_COLLECTION_CARDS.filter(c => 
+            c.type === activeTab && unlockedIds.includes(c.id)
+        );
+    }
+    
+    const uniqueCards = [...new Map(cards.map(c => [c.id, c])).values()];
+    
+    if (uniqueCards.length === 0) { 
+        c.innerHTML = `<div style="text-align:center;padding:40px;color:#8E8E93;grid-column:1/-1;">
+            <i class="fas fa-box-open"></i> 
+            <p>Пока нет открытых карт в этой категории</p>
+        </div>`; 
+        return; 
+    }
+    
+    c.innerHTML = uniqueCards.map(card => {
+        const isUnlocked = unlockedIds.includes(card.id);
+        const isRainbow = card.id === 'zamzam' || card.id === 'muhammad' || card.rarity === 'mythic';
+        const onclickAction = isUnlocked ? 
+            `showCardStory('${card.id}', '${card.name}', '${card.emoji}', \`${card.story || ''}\`)` : 
+            `alert('🔒 ${card.conditionText || 'Ещё не открыто'}')`;
+        
+        return `<div style="background: ${isRainbow && isUnlocked ? 'transparent' : '#FFFFFF'}; border-radius: 16px; padding: 16px; text-align: center; cursor: pointer; border: 1px solid ${isUnlocked ? '#FFD700' : '#E5E5EA'}; ${isRainbow && isUnlocked ? 'position:relative;overflow:hidden;' : ''}" onclick="${onclickAction}">
+            ${isRainbow && isUnlocked ? '<div style="position:absolute;top:-2px;left:-2px;right:-2px;bottom:-2px;background:linear-gradient(45deg,#ff0000,#ff9900,#ffff00,#33cc33,#3399ff,#6633cc,#ff33cc,#ff0000);background-size:300% 300%;border-radius:18px;z-index:-1;animation:rainbowFlow 4s ease infinite;"></div>' : ''}
+            <div style="font-size: 2.5rem;">${card.emoji}</div>
+            <div style="font-weight: 600; color: ${isRainbow && isUnlocked ? '#FFD700' : '#1C1C1E'}; margin: 8px 0;">${card.name}</div>
+            ${card.rarity ? `<div style="font-size:0.6rem;padding:4px 8px;border-radius:20px;display:inline-block;margin-top:8px;background:${card.rarity==='mythic'?'#FFD700':card.rarity==='legendary'?'#FF9500':card.rarity==='epic'?'#AF52DE':'#007AFF'};color:white;">${card.rarity==='mythic'?'💫 Мифическая':card.rarity==='legendary'?'✨ Легендарная':card.rarity==='epic'?'💫 Эпическая':'🔷 Редкая'}</div>` : ''}
+            ${card.isJanna ? '<div style="font-size:0.6rem;margin-top:5px;color:#FFD700;"><i class="fas fa-crown"></i> Обрадован Раем</div>' : ''}
+        </div>`;
+    }).join('');
+    
+    updateCollectionBadge();
+}
+
+// Обновление значка коллекции
+function updateCollectionBadge() {
+    const total = (userData.unlockedCards || []).length;
+    const badge = document.getElementById('collectionBadge');
+    if (badge) badge.textContent = total;
+}
+
+// Переключение вкладок
+document.querySelectorAll('.collection-tab').forEach(t => { 
+    t.addEventListener('click', function(e) {
+        e.preventDefault(); 
+        e.stopPropagation();
+        document.querySelectorAll('.collection-tab').forEach(x => { 
+            x.style.background = '#F2F2F7'; 
+            x.style.color = '#1C1C1E'; 
+            x.classList.remove('active'); 
+        });
+        this.style.background = '#007AFF'; 
+        this.style.color = 'white'; 
+        this.classList.add('active');
+        renderCollection();
+    });
+});
+
+// Кнопка обновления
+document.getElementById('refreshCollectionBtn')?.addEventListener('click', () => {
+    renderCollection();
+    showNotification('🔄 Коллекция обновлена!');
+});
+
+// Авторазблокировка сур
+function autoUnlockSurahsUpTo(currentSura) {
+    if (!userData.unlockedSurahs) userData.unlockedSurahs = []; 
+    if (!userData.unlockedCards) userData.unlockedCards = [];
+    for (let i = 1; i <= currentSura; i++) { 
+        if (!userData.unlockedSurahs.includes(i)) userData.unlockedSurahs.push(i); 
+        const cardId = `su${i}`; 
+        if (!userData.unlockedCards.includes(cardId)) userData.unlockedCards.push(cardId); 
+    }
+    saveUserData();
+}
+
+// Запуск при загрузке
+setTimeout(() => { 
+    const currentSura = userData.khatm?.currentSura || 1; 
+    autoUnlockSurahsUpTo(currentSura); 
+    renderCollection(); 
+}, 500);
+</script><!--========== МОДУЛЬ: ВИКТОРИНА (50+ ВОПРОСОВ, 12 СЛУЧАЙНЫХ, КНОПКА "НЕ ЗНАЮ") ========== -->
 <div class="module-screen" id="module-quiz">
     <div class="ios-card">
         <div class="ios-card-title"><i class="fas fa-question-circle"></i> Викторина</div>
