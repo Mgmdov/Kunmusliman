@@ -3969,7 +3969,7 @@ document.getElementById('refreshAyahBtn')?.addEventListener('click', refreshAyah
 setTimeout(() => displayAyah(getDailyAyah()), 300);
 </script>
 
-<!-- ========== МОДУЛЬ: НАСТРОЙКИ (С КНОПКОЙ КАРТИНКИ БАДРА) ========== -->
+<!-- ========== МОДУЛЬ: НАСТРОЙКИ (С КНОПКОЙ ИСПРАВИТЬ ВСЕ КАРТИНКИ) ========== -->
 <div class="module-screen" id="module-settings">
     <div class="ios-card">
         <div class="ios-card-title"><i class="fas fa-gear"></i> Настройки</div>
@@ -4025,7 +4025,7 @@ setTimeout(() => displayAyah(getDailyAyah()), 300);
                 <button class="ios-button" id="syncNowBtn"><i class="fas fa-sync-alt"></i> Синхронизировать с Firebase</button>
                 <button class="ios-button" id="syncFromGitHubBtn" style="background: #007AFF;"><i class="fab fa-github"></i> Синхронизировать с GitHub</button>
                 <button class="ios-button secondary" id="clearImageCacheBtn" style="background: #FF9500;"><i class="fas fa-image"></i> Обновить картинки (очистить кеш)</button>
-                <button class="ios-button" id="forceBadrImageBtn" style="background: #34C759; margin-top: 8px;"><i class="fas fa-image"></i> Показать картинку Бадра</button>
+                <button class="ios-button" id="fixAllImagesBtn" style="background: #34C759; margin-top: 8px;"><i class="fas fa-images"></i> Исправить все картинки</button>
             </div>
             <p style="font-size: 0.7rem; color: #8E8E93; margin-top: 8px; text-align: center;" id="lastSyncText">
                 <i class="far fa-clock"></i> <span id="lastSyncTime">Синхронизация не выполнялась</span>
@@ -4224,32 +4224,55 @@ document.getElementById('clearImageCacheBtn')?.addEventListener('click', () => {
     if (confirm('Очистить кеш картинок?')) clearImageCache();
 });
 
-document.getElementById('forceBadrImageBtn')?.addEventListener('click', () => {
-    if (typeof ALL_COLLECTION_CARDS === 'undefined') window.ALL_COLLECTION_CARDS = [];
+// ========== ИСПРАВИТЬ ВСЕ КАРТИНКИ ==========
+document.getElementById('fixAllImagesBtn')?.addEventListener('click', async () => {
+    if (!confirm('Загрузить картинки для всех карточек из GitHub?')) return;
     
-    let badrCard = ALL_COLLECTION_CARDS.find(c => c.id === 'battle_badr');
+    showNotification('🔄 Загрузка карточек...');
     
-    if (!badrCard) {
-        badrCard = {
-            id: 'battle_badr',
-            name: 'Битва при Бадре',
-            title: '2 г.х.',
-            emoji: '⚔️',
-            type: 'battle',
-            rarity: 'legendary',
-            story: 'Первое крупное сражение мусульман. 313 мусульман против 1000 курайшитов. Аллах ниспослал ангелов в помощь, и мусульмане одержали решительную победу.'
-        };
-        ALL_COLLECTION_CARDS.push(badrCard);
+    try {
+        const response = await fetch('https://raw.githubusercontent.com/Mgmdov/Kunmusliman/main/data/cards.json');
+        const cardsData = await response.json();
+        
+        if (!cardsData || !cardsData.cards) {
+            showNotification('❌ Не удалось загрузить cards.json');
+            return;
+        }
+        
+        if (typeof ALL_COLLECTION_CARDS === 'undefined') window.ALL_COLLECTION_CARDS = [];
+        if (!userData.unlockedCards) userData.unlockedCards = [];
+        
+        let fixedCount = 0;
+        
+        cardsData.cards.forEach(jsonCard => {
+            if (jsonCard.image) {
+                let card = ALL_COLLECTION_CARDS.find(c => c.id === jsonCard.id);
+                
+                if (!card) {
+                    card = { ...jsonCard };
+                    ALL_COLLECTION_CARDS.push(card);
+                }
+                
+                card.image = jsonCard.image.split('?')[0] + '?t=' + Date.now();
+                
+                if (!userData.unlockedCards.includes(jsonCard.id)) {
+                    userData.unlockedCards.push(jsonCard.id);
+                }
+                
+                fixedCount++;
+                console.log('✅ Исправлена карточка:', jsonCard.id);
+            }
+        });
+        
+        saveUserData();
+        if (typeof renderCollection === 'function') renderCollection();
+        updateCollectionBadge();
+        
+        showNotification(`✅ Исправлено ${fixedCount} карточек!`);
+    } catch (e) {
+        showNotification('❌ Ошибка загрузки');
+        console.error(e);
     }
-    
-    badrCard.image = 'https://raw.githubusercontent.com/Mgmdov/Kunmusliman/main/images/cards/badr-battle.png?t=' + Date.now();
-    
-    if (!userData.unlockedCards) userData.unlockedCards = [];
-    if (!userData.unlockedCards.includes('battle_badr')) userData.unlockedCards.push('battle_badr');
-    
-    saveUserData();
-    if (typeof renderCollection === 'function') renderCollection();
-    showNotification('🖼️ Картинка Бадра добавлена! Проверь коллекцию → Битвы');
 });
 
 setTimeout(() => { 
