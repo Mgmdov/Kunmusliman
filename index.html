@@ -4257,6 +4257,8 @@ document.getElementById('fixAllImagesBtn')?.addEventListener('click', async () =
             }
         });
         
+        // СОХРАНЯЕМ карточки в localStorage
+        localStorage.setItem('all_collection_cards', JSON.stringify(ALL_COLLECTION_CARDS));
         saveUserData();
         if (typeof renderCollection === 'function') renderCollection();
         updateCollectionBadge();
@@ -4281,6 +4283,25 @@ let navigationHistory = [], currentScreen = 'home';
 
 const GITHUB_RAW = 'https://raw.githubusercontent.com/Mgmdov/Kunmusliman/main/data/';
 const APP_VERSION = '6.0.0';
+
+// ========== ЗАГРУЗКА СОХРАНЁННЫХ КАРТОЧЕК ПРИ СТАРТЕ ==========
+(function() {
+    try {
+        const savedCards = localStorage.getItem('all_collection_cards');
+        if (savedCards) {
+            const parsed = JSON.parse(savedCards);
+            if (Array.isArray(parsed)) {
+                window.ALL_COLLECTION_CARDS = parsed;
+                console.log('📦 Загружено сохранённых карточек:', parsed.length);
+                return;
+            }
+        }
+    } catch (e) {
+        console.warn('Ошибка загрузки карточек:', e);
+    }
+    window.ALL_COLLECTION_CARDS = [];
+    console.log('📦 Создан пустой массив карточек');
+})();
 
 async function loadJSONFromGitHub(filename) {
     try {
@@ -4371,14 +4392,27 @@ async function syncAllDataFromGitHub() {
     }
     
     const cards = await loadJSONFromGitHub('cards.json');
-    if (cards) {
+    if (cards && cards.cards) {
         saveDataToLocal('cards_data', cards);
-        if (cards.cards && typeof ALL_COLLECTION_CARDS !== 'undefined') {
-            cards.cards.forEach(card => {
-                if (!ALL_COLLECTION_CARDS.find(c => c.id === card.id)) ALL_COLLECTION_CARDS.push(card);
-            });
-        }
-        console.log('🎴 Карточки обновлены');
+        
+        if (typeof ALL_COLLECTION_CARDS === 'undefined') window.ALL_COLLECTION_CARDS = [];
+        
+        cards.cards.forEach(jsonCard => {
+            let card = ALL_COLLECTION_CARDS.find(c => c.id === jsonCard.id);
+            
+            if (!card) {
+                card = { ...jsonCard };
+                ALL_COLLECTION_CARDS.push(card);
+            }
+            
+            if (jsonCard.image) {
+                card.image = jsonCard.image;
+            }
+        });
+        
+        // СОХРАНЯЕМ карточки в localStorage
+        localStorage.setItem('all_collection_cards', JSON.stringify(ALL_COLLECTION_CARDS));
+        console.log('🎴 Карточки сохранены, всего:', ALL_COLLECTION_CARDS.length);
     }
     
     const settings = await loadJSONFromGitHub('settings.json');
@@ -4388,6 +4422,7 @@ async function syncAllDataFromGitHub() {
     }
     
     localStorage.setItem('last_sync', new Date().toISOString());
+    saveUserData();
     showNotification('✅ Данные обновлены!');
     console.log('🎉 Синхронизация завершена');
 }
