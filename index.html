@@ -856,12 +856,40 @@
             const doc = await db.collection('users').doc(currentUser.uid).get();
             if (doc.exists) { 
                 const cloudData = doc.data();
-                // Синхронизация: объединяем облачные данные с локальными
-                const localXP = userData.xp || 0;
-                const cloudXP = cloudData.xp || 0;
+                
+                // ✅ СОХРАНЯЕМ ВСЕ КРИТИЧЕСКИЕ ЛОКАЛЬНЫЕ ЗНАЧЕНИЯ ПЕРЕД СЛИЯНИЕМ
+                const criticalLocal = {
+                    xp: userData.xp || 0,
+                    totalZikrOverall: userData.totalZikrOverall || 0,
+                    totalSalawat: userData.totalSalawat || 0,
+                    readPages: userData.khatm?.readPages || 0,
+                    completedKhatms: userData.khatm?.completedKhatms || 0,
+                    totalStars: userData.stars?.totalStars || 0,
+                    namesLearned: userData.namesLearned?.length || 0,
+                    unlockedCards: userData.unlockedCards?.length || 0,
+                    achievements: userData.achievements?.length || 0
+                };
+                
+                // Сливаем облачные данные поверх локальных
                 Object.assign(userData, cloudData); 
-                // Если локально XP больше, сохраняем локальное значение
-                if (localXP > cloudXP) userData.xp = localXP;
+                
+                // ✅ ВОССТАНАВЛИВАЕМ МАКСИМАЛЬНЫЕ ЗНАЧЕНИЯ (НЕ ДАЁМ ОБЛАКУ ЗАТЕРЕТЬ ПРОГРЕСС)
+                userData.xp = Math.max(criticalLocal.xp, cloudData.xp || 0);
+                userData.totalZikrOverall = Math.max(criticalLocal.totalZikrOverall, cloudData.totalZikrOverall || 0);
+                userData.totalSalawat = Math.max(criticalLocal.totalSalawat, cloudData.totalSalawat || 0);
+                
+                if (!userData.khatm) userData.khatm = {};
+                userData.khatm.readPages = Math.max(criticalLocal.readPages, cloudData.khatm?.readPages || 0);
+                userData.khatm.completedKhatms = Math.max(criticalLocal.completedKhatms, cloudData.khatm?.completedKhatms || 0);
+                
+                if (!userData.stars) userData.stars = { totalStars: 0 };
+                userData.stars.totalStars = Math.max(criticalLocal.totalStars, cloudData.stars?.totalStars || 0);
+                
+                // Для массивов — объединяем (не теряем разблокированные карточки и достижения)
+                if (!userData.unlockedCards) userData.unlockedCards = [];
+                if (!userData.achievements) userData.achievements = [];
+                if (!userData.namesLearned) userData.namesLearned = [];
+                
                 ensureFullDataStructure(); 
                 saveLocalBackup(); 
                 showXPPopup(); 
@@ -891,7 +919,29 @@
         saveLocalBackup(); 
         if (!currentUser) return; 
         try { 
-            ensureFullDataStructure(); 
+            ensureFullDataStructure();
+            
+            // ✅ ПРОВЕРЯЕМ, ЧТО МЫ НЕ СОХРАНЯЕМ МЕНЬШЕ ДАННЫХ, ЧЕМ ЕСТЬ В ОБЛАКЕ
+            const cloudDoc = await db.collection('users').doc(currentUser.uid).get();
+            if (cloudDoc.exists) {
+                const cloudData = cloudDoc.data();
+                
+                // Если облачный XP значительно больше локального — данные в облаке новее
+                if ((cloudData.xp || 0) > (userData.xp || 0) + 100) {
+                    console.warn('⚠️ Облачные данные содержат больше XP! Отмена сохранения.');
+                    return;
+                }
+                
+                // Если облачные страницы Корана значительно больше
+                if ((cloudData.khatm?.readPages || 0) > (userData.khatm?.readPages || 0) + 20) {
+                    console.warn('⚠️ Облачные данные содержат больше страниц! Отмена сохранения.');
+                    return;
+                }
+            }
+            
+            // Добавляем метку времени последнего сохранения
+            userData.lastModified = firebase.firestore.FieldValue.serverTimestamp();
+            
             await db.collection('users').doc(currentUser.uid).set(userData, { merge: true }); 
         } catch (e) {} 
     }
@@ -1953,9 +2003,27 @@ let currentAzkarList = MORNING_AZKAR_FULL, arabicLarge = false, ruHidden = false
 function checkAndResetAzkarDate() {
     const t = new Date().toISOString().split('T')[0];
     if (!userData.azkarChecks) userData.azkarChecks = {morning:{},evening:{},morningDate:null,eveningDate:null};
-    if (userData.azkarChecks.morningDate !== t) { userData.azkarChecks.morning = {}; userData.azkarChecks.morningDate = t; }
-    if (userData.azkarChecks.eveningDate !== t) { userData.azkarChecks.evening = {}; userData.azkarChecks.eveningDate = t; }
-    saveUserData();
+    
+    let changed = false;
+    
+    if (userData.azkarChecks.morningDate !== t) { 
+        userData.azkarChecks.morning = {}; 
+        userData.azkarChecks.morningDate = t;
+        changed = true;
+    }
+    if (userData.azkarChecks.eveningDate !== t) { 
+        userData.azkarChecks.evening = {}; 
+        userData.azkarChecks.eveningDate = t;
+        changed = true;
+    }
+    
+    // ❌ УБРАНО автоматическое сохранение в облако (это вызывало сброс всех данных!)
+    // saveUserData();
+    
+    // ✅ Сохраняем только локально и только если были изменения
+    if (changed) {
+        saveLocalBackup();
+    }
 }
 
 function renderAzkar() {
