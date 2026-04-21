@@ -17,6 +17,16 @@
       "type": "sahabi",
       "rarity": "legendary",
       "story": "Второй халиф, различающий истину. Один из десяти обрадованных Раем."
+    },
+    {
+      "id": "battle_badr",
+      "name": "Битва при Бадре",
+      "title": "2 г.х.",
+      "emoji": "⚔️",
+      "image": "https://raw.githubusercontent.com/Mgmdov/Kunmusliman/main/images/cards/badr.jpg.jpg",
+      "type": "battle",
+      "rarity": "legendary",
+      "story": "Первое крупное сражение мусульман. 313 мусульман против 1000 курайшитов. Аллах ниспослал ангелов в помощь, и мусульмане одержали решительную победу."
     }
   ]
 }
