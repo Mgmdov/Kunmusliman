@@ -3967,7 +3967,9 @@ function displayAyah(index) { const ayah = AYATS[index]; document.getElementById
 function refreshAyah() { const randomIndex = Math.floor(Math.random() * AYATS.length); const today = new Date().toDateString(); localStorage.setItem('daily_ayah', JSON.stringify({ date: today, ayah: randomIndex })); displayAyah(randomIndex); }
 document.getElementById('refreshAyahBtn')?.addEventListener('click', refreshAyah);
 setTimeout(() => displayAyah(getDailyAyah()), 300);
-</script><!-- ========== МОДУЛЬ: НАСТРОЙКИ (С СИНХРОНИЗАЦИЕЙ И ОЧИСТКОЙ КЕША) ========== -->
+</script>
+
+<!-- ========== МОДУЛЬ: НАСТРОЙКИ (С КНОПКОЙ КАРТИНКИ БАДРА) ========== -->
 <div class="module-screen" id="module-settings">
     <div class="ios-card">
         <div class="ios-card-title"><i class="fas fa-gear"></i> Настройки</div>
@@ -4023,6 +4025,7 @@ setTimeout(() => displayAyah(getDailyAyah()), 300);
                 <button class="ios-button" id="syncNowBtn"><i class="fas fa-sync-alt"></i> Синхронизировать с Firebase</button>
                 <button class="ios-button" id="syncFromGitHubBtn" style="background: #007AFF;"><i class="fab fa-github"></i> Синхронизировать с GitHub</button>
                 <button class="ios-button secondary" id="clearImageCacheBtn" style="background: #FF9500;"><i class="fas fa-image"></i> Обновить картинки (очистить кеш)</button>
+                <button class="ios-button" id="forceBadrImageBtn" style="background: #34C759; margin-top: 8px;"><i class="fas fa-image"></i> Показать картинку Бадра</button>
             </div>
             <p style="font-size: 0.7rem; color: #8E8E93; margin-top: 8px; text-align: center;" id="lastSyncText">
                 <i class="far fa-clock"></i> <span id="lastSyncTime">Синхронизация не выполнялась</span>
@@ -4042,7 +4045,6 @@ setTimeout(() => displayAyah(getDailyAyah()), 300);
 <script>
 let notificationInterval = null;
 
-// Обновление времени последней синхронизации
 function updateLastSyncTime() {
     const lastSync = localStorage.getItem('last_sync');
     const span = document.getElementById('lastSyncTime');
@@ -4056,30 +4058,19 @@ function updateLastSyncTime() {
     }
 }
 
-// ========== ОЧИСТКА КЕША КАРТИНОК ==========
 function clearImageCache() {
-    // Очищаем кеш через перезагрузку всех изображений в коллекции
     if (typeof ALL_COLLECTION_CARDS !== 'undefined') {
         ALL_COLLECTION_CARDS.forEach(card => {
             if (card.image) {
-                // Добавляем случайный параметр к URL, чтобы браузер загрузил заново
                 const oldUrl = card.image;
                 const newUrl = oldUrl.split('?')[0] + '?v=' + Date.now();
                 card.image = newUrl;
             }
         });
     }
-    
-    // Сохраняем обновлённые карточки
     saveUserData();
-    
-    // Перерисовываем коллекцию
-    if (typeof renderCollection === 'function') {
-        renderCollection();
-    }
-    
+    if (typeof renderCollection === 'function') renderCollection();
     showNotification('🖼️ Кеш картинок очищен!');
-    console.log('✅ Кеш изображений очищен');
 }
 
 function updateAccountInfo() {
@@ -4101,9 +4092,7 @@ function loadSettingsUI() {
     const sel = document.getElementById('notificationInterval'); 
     if (sel && userData.settings) sel.value = userData.settings.zikrNotificationInterval || 0; 
     const hideAyahCheck = document.getElementById('hideAyahWidgetCheck');
-    if (hideAyahCheck) {
-        hideAyahCheck.checked = userData.settings?.hideAyahWidget || false;
-    }
+    if (hideAyahCheck) hideAyahCheck.checked = userData.settings?.hideAyahWidget || false;
     updateAccountInfo(); 
     loadSavedTheme(); 
     updateLastSyncTime();
@@ -4130,12 +4119,8 @@ function saveAllSettings() {
     userData.settings.zikrNotificationInterval = parseInt(document.getElementById('notificationInterval').value);
     userData.settings.hideAyahWidget = document.getElementById('hideAyahWidgetCheck').checked;
     saveUserData();
-    
     const ayahWidget = document.getElementById('ayahWidget');
-    if (ayahWidget) {
-        ayahWidget.style.display = userData.settings.hideAyahWidget ? 'none' : 'block';
-    }
-    
+    if (ayahWidget) ayahWidget.style.display = userData.settings.hideAyahWidget ? 'none' : 'block';
     restoreNotificationInterval();
     showNotification('✅ Настройки сохранены!');
 }
@@ -4165,14 +4150,10 @@ document.getElementById('requestNotificationPermission')?.addEventListener('clic
 });
 
 document.getElementById('saveSettingsBtn')?.addEventListener('click', saveAllSettings);
-
 document.getElementById('loginBtnSettings')?.addEventListener('click', () => openAuthModal());
 
 document.getElementById('signOutBtnSettings')?.addEventListener('click', async () => { 
-    if (!currentUser || currentUser.isAnonymous) { 
-        showNotification('👤 Вы не вошли'); 
-        return; 
-    } 
+    if (!currentUser || currentUser.isAnonymous) { showNotification('👤 Вы не вошли'); return; } 
     if (confirm('Выйти?')) { 
         await saveUserData(); 
         await auth.signOut(); 
@@ -4197,8 +4178,7 @@ document.getElementById('exportDataBtn')?.addEventListener('click', () => {
 document.getElementById('importDataBtn')?.addEventListener('click', () => document.getElementById('importFileInput').click());
 
 document.getElementById('importFileInput')?.addEventListener('change', e => { 
-    const f = e.target.files[0]; 
-    if (!f) return; 
+    const f = e.target.files[0]; if (!f) return; 
     const r = new FileReader(); 
     r.onload = ev => { 
         try { 
@@ -4211,38 +4191,27 @@ document.getElementById('importFileInput')?.addEventListener('change', e => {
             saveUserData(); 
             showNotification('✅ Импортировано!'); 
             setTimeout(() => updateAllUI(), 300); 
-        } catch (err) { 
-            alert('Ошибка формата'); 
-        } 
+        } catch (err) { alert('Ошибка формата'); } 
     }; 
     r.readAsText(f); 
     e.target.value = ''; 
 });
 
 document.getElementById('syncNowBtn')?.addEventListener('click', async () => { 
-    if (!currentUser || currentUser.isAnonymous) { 
-        showNotification('⚠️ Войдите в аккаунт'); 
-        return; 
-    } 
+    if (!currentUser || currentUser.isAnonymous) { showNotification('⚠️ Войдите в аккаунт'); return; } 
     try { 
         await saveUserData(); 
         await loadUserData(); 
         showNotification('🔄 Синхронизировано с Firebase!'); 
         updateAllUI(); 
-    } catch (e) { 
-        showNotification('❌ Ошибка'); 
-    } 
+    } catch (e) { showNotification('❌ Ошибка'); } 
 });
 
-// ========== СИНХРОНИЗАЦИЯ С GITHUB ==========
 document.getElementById('syncFromGitHubBtn')?.addEventListener('click', async () => {
-    if (confirm('Загрузить свежие данные с GitHub? Это обновит вопросы, азкары и карточки.')) {
+    if (confirm('Загрузить свежие данные с GitHub?')) {
         showNotification('🔄 Загрузка данных с GitHub...');
-        if (typeof manualSync === 'function') {
-            await manualSync();
-        } else if (typeof syncAllDataFromGitHub === 'function') {
-            await syncAllDataFromGitHub();
-        }
+        if (typeof manualSync === 'function') await manualSync();
+        else if (typeof syncAllDataFromGitHub === 'function') await syncAllDataFromGitHub();
         updateLastSyncTime();
         if (typeof renderCollection === 'function') renderCollection();
         if (typeof renderAzkar === 'function') { checkAndResetAzkarDate(); renderAzkar(); }
@@ -4251,11 +4220,36 @@ document.getElementById('syncFromGitHubBtn')?.addEventListener('click', async ()
     }
 });
 
-// ========== ОЧИСТКА КЕША КАРТИНОК ==========
 document.getElementById('clearImageCacheBtn')?.addEventListener('click', () => {
-    if (confirm('Очистить кеш картинок? Это обновит все изображения в коллекции.')) {
-        clearImageCache();
+    if (confirm('Очистить кеш картинок?')) clearImageCache();
+});
+
+document.getElementById('forceBadrImageBtn')?.addEventListener('click', () => {
+    if (typeof ALL_COLLECTION_CARDS === 'undefined') window.ALL_COLLECTION_CARDS = [];
+    
+    let badrCard = ALL_COLLECTION_CARDS.find(c => c.id === 'battle_badr');
+    
+    if (!badrCard) {
+        badrCard = {
+            id: 'battle_badr',
+            name: 'Битва при Бадре',
+            title: '2 г.х.',
+            emoji: '⚔️',
+            type: 'battle',
+            rarity: 'legendary',
+            story: 'Первое крупное сражение мусульман. 313 мусульман против 1000 курайшитов. Аллах ниспослал ангелов в помощь, и мусульмане одержали решительную победу.'
+        };
+        ALL_COLLECTION_CARDS.push(badrCard);
     }
+    
+    badrCard.image = 'https://raw.githubusercontent.com/Mgmdov/Kunmusliman/main/images/cards/badr-battle.png?t=' + Date.now();
+    
+    if (!userData.unlockedCards) userData.unlockedCards = [];
+    if (!userData.unlockedCards.includes('battle_badr')) userData.unlockedCards.push('battle_badr');
+    
+    saveUserData();
+    if (typeof renderCollection === 'function') renderCollection();
+    showNotification('🖼️ Картинка Бадра добавлена! Проверь коллекцию → Битвы');
 });
 
 setTimeout(() => { 
@@ -4269,11 +4263,9 @@ setTimeout(() => {
 <script>
 let navigationHistory = [], currentScreen = 'home';
 
-// ========== ЗАГРУЗКА ДАННЫХ ИЗ GITHUB ==========
 const GITHUB_RAW = 'https://raw.githubusercontent.com/Mgmdov/Kunmusliman/main/data/';
 const APP_VERSION = '6.0.0';
 
-// Загрузка JSON-файла с GitHub
 async function loadJSONFromGitHub(filename) {
     try {
         const response = await fetch(GITHUB_RAW + filename);
@@ -4287,39 +4279,31 @@ async function loadJSONFromGitHub(filename) {
     }
 }
 
-// Сохранение данных в localStorage
 function saveDataToLocal(key, data) {
     localStorage.setItem(key, JSON.stringify(data));
 }
 
-// Загрузка данных из localStorage
 function loadDataFromLocal(key) {
     const saved = localStorage.getItem(key);
     return saved ? JSON.parse(saved) : null;
 }
 
-// Проверка и загрузка всех данных
 async function syncAllDataFromGitHub() {
     showNotification('🔄 Синхронизация данных...');
     
-    // Загружаем конфиг
     const config = await loadJSONFromGitHub('config.json');
     if (config) {
         saveDataToLocal('app_config', config);
         console.log('📋 Конфиг загружен, версия:', config.version);
     }
     
-    // Загружаем вопросы викторины
     const questions = await loadJSONFromGitHub('questions.json');
     if (questions) {
         saveDataToLocal('quiz_questions', questions);
-        if (typeof QUIZ_QUESTIONS_RAW !== 'undefined') {
-            Object.assign(QUIZ_QUESTIONS_RAW, questions);
-        }
+        if (typeof QUIZ_QUESTIONS_RAW !== 'undefined') Object.assign(QUIZ_QUESTIONS_RAW, questions);
         console.log('📝 Вопросы викторины обновлены');
     }
     
-    // Загружаем азкары
     const azkar = await loadJSONFromGitHub('azkar.json');
     if (azkar) {
         saveDataToLocal('azkar_data', azkar);
@@ -4333,43 +4317,34 @@ async function syncAllDataFromGitHub() {
         }
     }
     
-    // Загружаем 99 имён
     const names = await loadJSONFromGitHub('names.json');
     if (names && names.names) {
         saveDataToLocal('names_data', names);
         if (typeof NAMES_OF_ALLAH !== 'undefined') {
-            // Дополняем имена
             names.names.forEach(n => {
-                if (!NAMES_OF_ALLAH.find(ex => ex.num === n.num)) {
-                    NAMES_OF_ALLAH.push(n);
-                }
+                if (!NAMES_OF_ALLAH.find(ex => ex.num === n.num)) NAMES_OF_ALLAH.push(n);
             });
         }
         console.log('📜 Имена Аллаха обновлены:', names.names.length);
     }
     
-    // Загружаем достижения
     const achievements = await loadJSONFromGitHub('achievements.json');
     if (achievements) {
         saveDataToLocal('achievements_data', achievements);
         console.log('🏆 Достижения обновлены');
     }
     
-    // Загружаем битвы
     const battles = await loadJSONFromGitHub('battles.json');
     if (battles) {
         saveDataToLocal('battles_data', battles);
         if (typeof BATTLE_DATA !== 'undefined' && battles.battles) {
             battles.battles.forEach(b => {
-                if (!BATTLE_DATA.find(ex => ex.id === b.id)) {
-                    BATTLE_DATA.push(b);
-                }
+                if (!BATTLE_DATA.find(ex => ex.id === b.id)) BATTLE_DATA.push(b);
             });
         }
         console.log('⚔️ Битвы обновлены');
     }
     
-    // Загружаем уровни
     const levels = await loadJSONFromGitHub('levels.json');
     if (levels) {
         saveDataToLocal('levels_data', levels);
@@ -4379,21 +4354,17 @@ async function syncAllDataFromGitHub() {
         }
     }
     
-    // Загружаем карточки
     const cards = await loadJSONFromGitHub('cards.json');
     if (cards) {
         saveDataToLocal('cards_data', cards);
         if (cards.cards && typeof ALL_COLLECTION_CARDS !== 'undefined') {
             cards.cards.forEach(card => {
-                if (!ALL_COLLECTION_CARDS.find(c => c.id === card.id)) {
-                    ALL_COLLECTION_CARDS.push(card);
-                }
+                if (!ALL_COLLECTION_CARDS.find(c => c.id === card.id)) ALL_COLLECTION_CARDS.push(card);
             });
         }
         console.log('🎴 Карточки обновлены');
     }
     
-    // Загружаем настройки
     const settings = await loadJSONFromGitHub('settings.json');
     if (settings) {
         saveDataToLocal('default_settings', settings);
@@ -4405,7 +4376,6 @@ async function syncAllDataFromGitHub() {
     console.log('🎉 Синхронизация завершена');
 }
 
-// Проверка обновлений при запуске
 async function checkForUpdatesOnStart() {
     const lastSync = localStorage.getItem('last_sync');
     const config = loadDataFromLocal('app_config');
@@ -4432,7 +4402,6 @@ async function checkForUpdatesOnStart() {
     }
 }
 
-// Ручная синхронизация
 async function manualSync() {
     await syncAllDataFromGitHub();
     if (typeof renderCollection === 'function') renderCollection();
@@ -4442,12 +4411,8 @@ async function manualSync() {
     updateHomeWidgets();
 }
 
-// Запускаем проверку при загрузке
-setTimeout(() => {
-    checkForUpdatesOnStart();
-}, 2000);
+setTimeout(() => { checkForUpdatesOnStart(); }, 2000);
 
-// ========== ФУНКЦИИ НАВИГАЦИИ ==========
 function openModule(moduleId) {
     document.getElementById('homeScreen').classList.add('hidden');
     document.getElementById('navBar').classList.remove('hidden');
@@ -4464,7 +4429,6 @@ function openModule(moduleId) {
     currentScreen = moduleId;
     updateTabBarActive(moduleId);
     
-    // Вызов функций обновления для модулей
     if (moduleId === 'khatm' && typeof updateKhatmUI === 'function') updateKhatmUI();
     if (moduleId === 'tauba' && typeof updateTaubaUI === 'function') updateTaubaUI();
     if (moduleId === 'names' && typeof renderNamesOfAllah === 'function') renderNamesOfAllah();
@@ -4527,7 +4491,6 @@ function updateTabBarActive(id) {
 
 document.querySelectorAll('.icon-item[data-module]').forEach(i => i.addEventListener('click', () => openModule(i.dataset.module)));
 
-// Свайп назад (только горизонтальный)
 let touchStartX = 0;
 let touchStartY = 0;
 document.addEventListener('touchstart', e => {
@@ -4589,7 +4552,6 @@ function showNotification(t) {
     setTimeout(() => n.remove(), 3000); 
 }
 
-// Экспорт функций синхронизации
 window.syncAllDataFromGitHub = syncAllDataFromGitHub;
 window.manualSync = manualSync;
 window.checkForUpdatesOnStart = checkForUpdatesOnStart;
