@@ -3383,8 +3383,6 @@ function renderCollection() {
     const activeTab = document.querySelector('.collection-tab.active')?.dataset.collection || 'all';
     const unlockedIds = userData.unlockedCards || [];
     
-    console.log('📦 Всего открыто карточек:', unlockedIds.length);
-    
     let cards = [];
     if (activeTab === 'rare') {
         cards = ALL_COLLECTION_CARDS.filter(card => 
@@ -3415,9 +3413,15 @@ function renderCollection() {
             `showCardStory('${card.id}', '${card.name}', '${card.emoji}', \`${card.story || ''}\`)` : 
             `alert('🔒 ${card.conditionText || 'Ещё не открыто'}')`;
         
+        // Определяем, что показывать: картинку или эмодзи
+        const imageHtml = card.image ? 
+            `<img src="${card.image}" style="width:100%;height:100px;object-fit:contain;border-radius:12px;margin-bottom:8px;" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">` : '';
+        const emojiHtml = `<div style="font-size:2.5rem;${card.image ? 'display:none;' : ''}">${card.emoji}</div>`;
+        
         return `<div style="background: ${isRainbow && isUnlocked ? 'transparent' : '#FFFFFF'}; border-radius: 16px; padding: 16px; text-align: center; cursor: pointer; border: 1px solid ${isUnlocked ? '#FFD700' : '#E5E5EA'}; ${isRainbow && isUnlocked ? 'position:relative;overflow:hidden;' : ''}" onclick="${onclickAction}">
             ${isRainbow && isUnlocked ? '<div style="position:absolute;top:-2px;left:-2px;right:-2px;bottom:-2px;background:linear-gradient(45deg,#ff0000,#ff9900,#ffff00,#33cc33,#3399ff,#6633cc,#ff33cc,#ff0000);background-size:300% 300%;border-radius:18px;z-index:-1;animation:rainbowFlow 4s ease infinite;"></div>' : ''}
-            <div style="font-size: 2.5rem;">${card.emoji}</div>
+            ${imageHtml}
+            ${emojiHtml}
             <div style="font-weight: 600; color: ${isRainbow && isUnlocked ? '#FFD700' : '#1C1C1E'}; margin: 8px 0;">${card.name}</div>
             ${card.rarity ? `<div style="font-size:0.6rem;padding:4px 8px;border-radius:20px;display:inline-block;margin-top:8px;background:${card.rarity==='mythic'?'#FFD700':card.rarity==='legendary'?'#FF9500':card.rarity==='epic'?'#AF52DE':'#007AFF'};color:white;">${card.rarity==='mythic'?'💫 Мифическая':card.rarity==='legendary'?'✨ Легендарная':card.rarity==='epic'?'💫 Эпическая':'🔷 Редкая'}</div>` : ''}
             ${card.isJanna ? '<div style="font-size:0.6rem;margin-top:5px;color:#FFD700;"><i class="fas fa-crown"></i> Обрадован Раем</div>' : ''}
