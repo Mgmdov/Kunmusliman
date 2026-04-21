@@ -3969,7 +3969,7 @@ document.getElementById('refreshAyahBtn')?.addEventListener('click', refreshAyah
 setTimeout(() => displayAyah(getDailyAyah()), 300);
 </script>
 
-<!-- ========== МОДУЛЬ: НАСТРОЙКИ (С КНОПКОЙ СБРОСА МУХАММАДА ﷺ) ========== -->
+<!-- ========== МОДУЛЬ: НАСТРОЙКИ (ЧИСТЫЙ) ========== -->
 <div class="module-screen" id="module-settings">
     <div class="ios-card">
         <div class="ios-card-title"><i class="fas fa-gear"></i> Настройки</div>
@@ -4025,8 +4025,7 @@ setTimeout(() => displayAyah(getDailyAyah()), 300);
                 <button class="ios-button" id="syncNowBtn"><i class="fas fa-sync-alt"></i> Синхронизировать с Firebase</button>
                 <button class="ios-button" id="syncFromGitHubBtn" style="background: #007AFF;"><i class="fab fa-github"></i> Синхронизировать с GitHub</button>
                 <button class="ios-button secondary" id="clearImageCacheBtn" style="background: #FF9500;"><i class="fas fa-image"></i> Обновить картинки (очистить кеш)</button>
-                <button class="ios-button" id="fixAllImagesBtn" style="background: #34C759; margin-top: 8px;"><i class="fas fa-images"></i> Исправить все картинки</button>
-                <button class="ios-button danger" id="resetMuhammadCardBtn" style="margin-top: 8px;"><i class="fas fa-undo-alt"></i> Сбросить карту Мухаммада ﷺ</button>
+                <button class="ios-button" id="fixAllImagesBtn" style="background: #34C759; margin-top: 8px;"><i class="fas fa-images"></i> Исправить картинки</button>
             </div>
             <p style="font-size: 0.7rem; color: #8E8E93; margin-top: 8px; text-align: center;" id="lastSyncText">
                 <i class="far fa-clock"></i> <span id="lastSyncTime">Синхронизация не выполнялась</span>
@@ -4225,7 +4224,7 @@ document.getElementById('clearImageCacheBtn')?.addEventListener('click', () => {
     if (confirm('Очистить кеш картинок?')) clearImageCache();
 });
 
-// ========== ИСПРАВИТЬ ВСЕ КАРТИНКИ (БЕЗ РАЗБЛОКИРОВКИ) ==========
+// ========== ИСПРАВИТЬ КАРТИНКИ ==========
 document.getElementById('fixAllImagesBtn')?.addEventListener('click', async () => {
     if (!confirm('Загрузить картинки для всех карточек из GitHub?')) return;
     
@@ -4249,16 +4248,12 @@ document.getElementById('fixAllImagesBtn')?.addEventListener('click', async () =
                 let card = ALL_COLLECTION_CARDS.find(c => c.id === jsonCard.id);
                 
                 if (!card) {
-                    // Создаём карточку, но НЕ разблокируем
                     card = { ...jsonCard };
                     ALL_COLLECTION_CARDS.push(card);
                 }
                 
-                // Обновляем картинку
                 card.image = jsonCard.image.split('?')[0] + '?t=' + Date.now();
-                
                 fixedCount++;
-                console.log('✅ Обновлена картинка:', jsonCard.id);
             }
         });
         
@@ -4271,27 +4266,6 @@ document.getElementById('fixAllImagesBtn')?.addEventListener('click', async () =
         showNotification('❌ Ошибка загрузки');
         console.error(e);
     }
-});
-
-// ========== СБРОС КАРТЫ МУХАММАДА ﷺ ==========
-document.getElementById('resetMuhammadCardBtn')?.addEventListener('click', () => {
-    if (!confirm('Сбросить карту Мухаммада ﷺ? Ты сможешь получить её заново в пятницу за 1000+ салаватов.')) return;
-    
-    // Удаляем из разблокированных
-    if (userData.unlockedCards) {
-        userData.unlockedCards = userData.unlockedCards.filter(id => id !== 'muhammad');
-    }
-    
-    // Удаляем из коллекции
-    if (typeof ALL_COLLECTION_CARDS !== 'undefined') {
-        ALL_COLLECTION_CARDS = ALL_COLLECTION_CARDS.filter(c => c.id !== 'muhammad');
-    }
-    
-    saveUserData();
-    if (typeof renderCollection === 'function') renderCollection();
-    updateCollectionBadge();
-    
-    showNotification('🔄 Карта Мухаммада ﷺ сброшена. Получи её честно в пятницу!');
 });
 
 setTimeout(() => { 
