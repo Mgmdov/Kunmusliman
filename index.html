@@ -16,6 +16,89 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
     <style>
+/* ========== 📖 КОРАН v3 ========== */
+        #quranOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 99999; display: none; flex-direction: column;
+        }
+        #quranOverlay.active { display: flex; }
+        
+        /* Шапка */
+        #quranHeader {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 16px; background: rgba(0,0,0,0.95);
+            transition: transform 0.3s;
+        }
+        #quranHeader.hidden { transform: translateY(-100%); position: absolute; width: 100%; }
+        #quranHeader span, #quranHeader button { color: #FFFFFF !important; }
+        
+        /* Текст */
+        #quranTextContainer {
+            flex: 1; overflow-y: auto; padding: 20px;
+            -webkit-user-select: none; user-select: none;
+        }
+        #quranText {
+            font-family: 'Amiri', serif; font-size: 28px; color: #FFD700;
+            line-height: 2.5; text-align: right; direction: rtl;
+        }
+        #quranText.tajweed-mode { color: #FFFFFF !important; }
+        
+        /* Таджвид */
+        .tajweed-madd { color: #FF4444; }
+        .tajweed-ghunna { color: #44FF44; }
+        .tajweed-ikhfa { color: #4488FF; }
+        .tajweed-idgham { color: #44FF88; }
+        .tajweed-qalqala { color: #FF44FF; }
+        
+        /* Нижний бар */
+        #quranFooter {
+            display: flex; align-items: center; justify-content: center;
+            gap: 20px; padding: 12px 16px 24px;
+            background: rgba(0,0,0,0.95);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            transition: transform 0.3s;
+        }
+        #quranFooter.hidden { transform: translateY(100%); position: absolute; width: 100%; bottom: 0; }
+        #quranFooter button {
+            background: rgba(255,255,255,0.1); border: none; color: #FFFFFF;
+            font-size: 1rem; padding: 10px 20px; border-radius: 20px; cursor: pointer;
+        }
+        #quranFooter button.active { background: rgba(255,255,255,0.25); }
+        
+        /* Список сур */
+        #surahList {
+            position: fixed; bottom: 0; left: 0; width: 100%; max-height: 60vh;
+            background: rgba(20,20,30,0.98); border-radius: 24px 24px 0 0;
+            z-index: 100001; display: none; overflow-y: auto; padding: 20px;
+        }
+        #surahList.active { display: block; }
+        .surah-list-item {
+            padding: 12px; color: #FFF; border-bottom: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer; display: flex; justify-content: space-between;
+        }
+        
+        /* Настройки */
+        #quranSettings {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: rgba(20,20,30,0.98); border-radius: 24px 24px 0 0;
+            padding: 24px; z-index: 100001; display: none;
+        }
+        #quranSettings.active { display: block; }
+        #quranSettings h3, #quranSettings label, #quranSettings span { color: #FFFFFF !important; }
+        #quranSettings select, #quranSettings input {
+            width: 100%; padding: 12px; border-radius: 12px;
+            background: rgba(255,255,255,0.1); color: #FFF; border: none; margin: 6px 0 12px;
+        }
+        
+        /* Закладки */
+        #quranBookmarks {
+            position: fixed; bottom: 0; left: 0; width: 100%; max-height: 50vh;
+            background: rgba(20,20,30,0.98); border-radius: 24px 24px 0 0;
+            padding: 24px; z-index: 100001; display: none; overflow-y: auto;
+        }
+        #quranBookmarks.active { display: block; }
+        #quranBookmarks h3 { color: #FFFFFF !important; }
+
         /* ========== 🌙 ДВЕ ЛУНЫ + НАЗВАНИЕ ========== */
         
         .title-moon {
@@ -2188,7 +2271,7 @@ body.theme-sunset textarea {
         </div>
         
         <!-- Виджет: Аят дня -->
-        <div class="widget" id="ayahWidget" onclick="openModule('quran')" style="display: block;">
+        <div class="widget" id="ayahWidget" onclick="openQuran()" style="display: block;">
             <div class="widget-header">
                 <span class="widget-title"><i class="fas fa-book"></i> Аят дня</span>
                 <span style="color: #007AFF; font-size: 0.8rem;"><i class="fas fa-chevron-right"></i></span>
@@ -2236,6 +2319,10 @@ body.theme-sunset textarea {
             <div class="icon-item" data-module="names" onclick="openModule('names')">
                 <div class="icon-circle icon-names"><i class="fas fa-scroll"></i><span class="icon-badge-count" id="namesBadge">99</span></div>
                 <span class="icon-label">99 Имён</span>
+            </div>
+            <div class="icon-item" data-module="quran" onclick="openQuran()">
+                <div class="icon-circle icon-quran"><i class="fas fa-quran"></i></div>
+                <span class="icon-label">Коран</span>
             </div>
         </div>
         
@@ -2317,10 +2404,6 @@ body.theme-sunset textarea {
                 <div class="icon-circle icon-settings"><i class="fas fa-gear"></i></div>
                 <span class="icon-label">Настройки</span>
             </div>
-            <div class="icon-item" data-module="quran" onclick="openModule('quran')">
-                <div class="icon-circle icon-quran"><i class="fas fa-quran"></i></div>
-                <span class="icon-label">Аят дня</span>
-            </div>
         </div>
         
         <!-- Футер главного экрана -->
@@ -2329,7 +2412,7 @@ body.theme-sunset textarea {
         </div>
     </div>
 
-    <!-- ========== НИЖНИЙ TAB BAR (АЗКАРЫ ДОБАВЛЕНЫ, КОРАН УБРАН) ========== -->
+    <!-- ========== НИЖНИЙ TAB BAR ========== -->
     <div class="tab-bar">
         <button class="tab-item active" data-tab="home"><span class="tab-icon"><i class="fas fa-home"></i></span><span class="tab-label">Главная</span></button>
         <button class="tab-item" data-tab="zikr"><span class="tab-icon"><i class="fas fa-fingerprint"></i></span><span class="tab-label">Зикр</span></button>
@@ -2388,8 +2471,71 @@ body.theme-sunset textarea {
             </div>
             <p id="authError" style="color: #FF3B30; font-size: 0.8rem; margin-top: 15px; text-align: center;"></p>
         </div>
-    </div><!-- ========== СКРИПТ FIREBASE И ОСНОВНЫЕ ДАННЫЕ ========== -->
-    <script>
+    </div>
+
+    <!-- 📖 КОРАН v3 -->
+    <div id="quranOverlay">
+        <div id="quranHeader">
+    <button onclick="closeQuran()" style="color:#FFF;background:none;border:none;font-size:1.3rem;">✕</button>
+    <span style="color:#FFF;font-weight:600;" id="quranSurahName">Аль-Фатиха</span>
+    <div>
+        <button onclick="toggleQuranSettings()" style="color:#FFF;background:none;border:none;font-size:1.2rem;">⚙️</button>
+        <button onclick="toggleQuranBookmarks()" style="color:#FFF;background:none;border:none;font-size:1.2rem;">🔖</button>
+    </div>
+</div>
+        <div id="quranTextContainer" onclick="showQuranControls()">
+            <div id="quranText"></div>
+        </div>
+        <div id="quranFooter">
+            <button onclick="prevSurah()">◀ Сура</button>
+            <button onclick="toggleSurahList()">📋 Список</button>
+            <button onclick="nextSurah()">Сура ▶</button>
+        </div>
+    </div>
+    
+    <!-- Список сур -->
+    <div id="surahList">
+        <h3 style="color:#FFF;margin-bottom:16px;">📋 Список сур</h3>
+        <div id="surahListContent"></div>
+        <button onclick="toggleSurahList()" style="margin-top:12px;width:100%;background:rgba(255,255,255,0.1);color:#FFF;border:none;padding:14px;border-radius:14px;">Закрыть</button>
+    </div>
+    
+    <!-- Настройки -->
+    <div id="quranSettings">
+        <h3 style="color:#FFF;margin-bottom:16px;">⚙️ Настройки</h3>
+        <label style="color:#FFF;">🔤 Шрифт</label>
+        <select id="quranFontSelect" onchange="changeQuranFont()">
+            <option value="Amiri">Amiri</option>
+            <option value="Scheherazade">Scheherazade</option>
+            <option value="Uthmani">Uthmani</option>
+        </select>
+        <label style="color:#FFF;">📏 Размер: <span id="quranSizeValue" style="color:#FFD700;">28px</span></label>
+        <input type="range" id="quranFontSize" min="16" max="72" value="28" oninput="changeQuranSize()">
+        <label style="color:#FFF;">🎨 Цвет текста</label>
+        <select id="quranColorSelect" onchange="changeQuranColor()">
+            <option value="#FFD700">Золотой</option>
+            <option value="#FFFFFF">Белый</option>
+            <option value="#00FF88">Зелёный</option>
+        </select>
+        <label style="color:#FFF;">🟢 Таджвид (цветные правила)</label>
+        <select id="quranTajweedSelect" onchange="toggleTajweed()">
+            <option value="off">Выключен</option>
+            <option value="on">Включен</option>
+        </select>
+        <button onclick="closeQuranSettings()" style="margin-top:16px;width:100%;background:#FFD700;color:#000;border:none;padding:14px;border-radius:14px;font-weight:600;">Сохранить</button>
+    </div>
+    
+    <!-- Закладки -->
+    <div id="quranBookmarks">
+        <h3 style="color:#FFF;margin-bottom:16px;">🔖 Закладки</h3>
+        <div id="quranBookmarksList"></div>
+        <button onclick="toggleQuranBookmarks()" style="margin-top:12px;width:100%;background:rgba(255,255,255,0.1);color:#FFF;border:none;padding:14px;border-radius:14px;">Закрыть</button>
+    </div>
+
+</div> <!-- .app-container -->
+
+<!-- ========== СКРИПТ FIREBASE И ОСНОВНЫЕ ДАННЫЕ ========== -->
+<script>
     const firebaseConfig = {
         apiKey: "AIzaSyCUiXHBbxlSn1DladBWj5ODfEs-FXJXyTI",
         authDomain: "muslim-tracker-2d567.firebaseapp.com",
@@ -7415,6 +7561,249 @@ console.log('💧 Водные иконки активированы!');
     }, 2500);
     
 })();
+</script>
+
+<!-- 📖 КОРАН v3 — СКРИПТ (ФИНАЛЬНЫЙ) -->
+<script>
+var quranFullData = null, quranCurrentSurah = 1, quranCurrentAyah = 1, quranBookmarks = [], quranTajweed = false;
+var currentVisibleAyah = 1;
+var arabicNums = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+function toArabic(n) { return String(n).split('').map(function(d) { return arabicNums[parseInt(d)]; }).join(''); }
+
+async function loadQuranData() {
+    try {
+        var saved = localStorage.getItem('quran_full_data');
+        if (saved) { quranFullData = JSON.parse(saved); return; }
+        var r = await fetch('https://api.alquran.cloud/v1/quran/quran-uthmani');
+        var d = await r.json();
+        quranFullData = d.data;
+        localStorage.setItem('quran_full_data', JSON.stringify(quranFullData));
+    } catch(e) {}
+}
+
+function openQuran(surah, ayah) {
+    document.getElementById('quranOverlay').classList.add('active');
+    if (!quranFullData) {
+        loadQuranData().then(function() {
+            showSurah(surah || 1, ayah || 1);
+        });
+    } else {
+        showSurah(surah || 1, ayah || 1);
+    }
+}
+
+function scrollToAyah(ayah) {
+    currentVisibleAyah = ayah;
+    quranCurrentAyah = ayah;
+    setTimeout(function() {
+        var container = document.getElementById('quranTextContainer');
+        var text = document.getElementById('quranText').innerHTML;
+        var marker = '﴿' + toArabic(ayah) + '﴾';
+        var index = text.indexOf(marker);
+        if (index > 0) {
+            container.scrollTop = (index / text.length) * container.scrollHeight - container.clientHeight / 3;
+        }
+    }, 400);
+}
+
+function closeQuran() {
+    document.getElementById('quranOverlay').classList.remove('active');
+    document.getElementById('surahList').classList.remove('active');
+    document.getElementById('quranSettings').classList.remove('active');
+    document.getElementById('quranBookmarks').classList.remove('active');
+}
+
+function showQuranControls() {
+    var h = document.getElementById('quranHeader');
+    var f = document.getElementById('quranFooter');
+    if (h.classList.contains('hidden')) {
+        h.classList.remove('hidden');
+        f.classList.remove('hidden');
+        setTimeout(function() { h.classList.add('hidden'); f.classList.add('hidden'); }, 3000);
+    }
+}
+
+function showSurah(surah, ayah) {
+    if (!quranFullData) return;
+    quranCurrentSurah = surah;
+    currentVisibleAyah = ayah || 1;
+    quranCurrentAyah = ayah || 1;
+    var s = quranFullData.surahs[surah-1];
+    document.getElementById('quranSurahName').textContent = s.englishName;
+    var txt = '';
+    s.ayahs.forEach(function(a) {
+        txt += a.text + ' ﴿' + toArabic(a.numberInSurah) + '﴾ ';
+    });
+    document.getElementById('quranText').innerHTML = txt;
+    document.getElementById('quranText').style.color = document.getElementById('quranColorSelect').value;
+    if (quranTajweed) applyTajweed();
+    document.getElementById('quranTextContainer').scrollTop = 0;
+    if (ayah && ayah > 1) scrollToAyah(ayah);
+}
+
+function applyTajweed() {
+    var text = document.getElementById('quranText').innerHTML;
+    text = text.replace(/(ٓ|ٰ|۟|۠|ۡ|ۢ|ۣ|ۤ|ۥ|ۦ|ۧ|ۨ|۩|۪|۫|۬|ۭ)/g, '<span class="tajweed-madd">$&</span>');
+    text = text.replace(/(مّ|نّ)/g, '<span class="tajweed-ghunna">$&</span>');
+    document.getElementById('quranText').innerHTML = text;
+}
+
+function toggleTajweed() {
+    quranTajweed = document.getElementById('quranTajweedSelect').value === 'on';
+    if (quranTajweed) {
+        document.getElementById('quranText').classList.add('tajweed-mode');
+    } else {
+        document.getElementById('quranText').classList.remove('tajweed-mode');
+    }
+    showSurah(quranCurrentSurah, currentVisibleAyah);
+}
+
+function toggleSurahList() {
+    var list = document.getElementById('surahList');
+    if (list.classList.contains('active')) {
+        list.classList.remove('active');
+    } else {
+        buildSurahList();
+        list.classList.add('active');
+    }
+}
+
+function buildSurahList() {
+    if (!quranFullData) return;
+    var html = '';
+    quranFullData.surahs.forEach(function(s) {
+        html += '<div class="surah-list-item" onclick="selectSurah('+s.number+')"><span>'+s.number+'. '+s.englishName+'</span><span style="color:#999;">'+s.name+'</span></div>';
+    });
+    document.getElementById('surahListContent').innerHTML = html;
+}
+
+function selectSurah(n) {
+    toggleSurahList();
+    showSurah(n, 1);
+}
+
+function nextSurah() {
+    if (quranCurrentSurah < 114) showSurah(quranCurrentSurah + 1, 1);
+    else showSurah(1, 1);
+}
+
+function prevSurah() {
+    if (quranCurrentSurah > 1) showSurah(quranCurrentSurah - 1, 1);
+    else showSurah(114, 1);
+}
+
+function toggleQuranBookmarks() {
+    var b = document.getElementById('quranBookmarks');
+    if (b.classList.contains('active')) { b.classList.remove('active'); }
+    else { loadBookmarks(); b.classList.add('active'); }
+}
+
+function addBookmark() {
+    var s = quranFullData.surahs[quranCurrentSurah-1];
+    quranCurrentAyah = currentVisibleAyah;
+    var ayahText = s.ayahs[currentVisibleAyah-1].text.substring(0, 80);
+    
+    var exists = quranBookmarks.find(function(b) {
+        return b.surah === quranCurrentSurah && b.ayah === currentVisibleAyah;
+    });
+    if (exists) return;
+    
+    quranBookmarks.push({
+        surah: quranCurrentSurah,
+        ayah: currentVisibleAyah,
+        surahName: s.englishName,
+        ayahPreview: ayahText
+    });
+    localStorage.setItem('quran_bookmarks', JSON.stringify(quranBookmarks));
+    loadBookmarks();
+    
+    var notif = document.createElement('div');
+    notif.textContent = '🔖 Аят ' + toArabic(currentVisibleAyah) + ' сохранён!';
+    notif.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#FFD700;color:#000;padding:10px 20px;border-radius:20px;z-index:999999;font-weight:bold;';
+    document.body.appendChild(notif);
+    setTimeout(function() { notif.remove(); }, 2000);
+}
+
+function loadBookmarks() {
+    var saved = localStorage.getItem('quran_bookmarks');
+    if (saved) quranBookmarks = JSON.parse(saved);
+    var list = document.getElementById('quranBookmarksList');
+    if (!quranBookmarks.length) { list.innerHTML = '<p style="color:#999;">Нет закладок</p>'; return; }
+    list.innerHTML = quranBookmarks.map(function(b, i) {
+        return '<div onclick="openQuran('+b.surah+','+b.ayah+');toggleQuranBookmarks();" style="padding:12px;background:rgba(255,255,255,0.1);border-radius:12px;margin-bottom:8px;color:#FFF;cursor:pointer;">' +
+            '📌 <b>'+b.surahName+'</b> — Аят '+toArabic(b.ayah)+'<br>' +
+            '<small style="color:#999;">'+b.ayahPreview+'...</small>' +
+            '<button onclick="event.stopPropagation();deleteBookmark('+i+')" style="float:right;background:none;border:none;color:#F44;font-size:1.2rem;">✕</button>' +
+        '</div>';
+    }).join('');
+}
+
+function deleteBookmark(i) {
+    quranBookmarks.splice(i, 1);
+    localStorage.setItem('quran_bookmarks', JSON.stringify(quranBookmarks));
+    loadBookmarks();
+}
+
+// Отслеживание видимого аята при скролле
+document.getElementById('quranTextContainer').addEventListener('scroll', function() {
+    var container = this;
+    var scrollRatio = container.scrollTop / (container.scrollHeight - container.clientHeight);
+    var totalAyahs = quranFullData.surahs[quranCurrentSurah-1].ayahs.length;
+    currentVisibleAyah = Math.max(1, Math.min(totalAyahs, Math.floor(scrollRatio * totalAyahs) + 1));
+});
+
+// Долгое нажатие = закладка
+var pressTimer;
+document.getElementById('quranTextContainer').addEventListener('touchstart', function(e) {
+    pressTimer = setTimeout(function() {
+        addBookmark();
+        navigator.vibrate && navigator.vibrate(50);
+    }, 800);
+});
+document.getElementById('quranTextContainer').addEventListener('touchend', function() { clearTimeout(pressTimer); });
+document.getElementById('quranTextContainer').addEventListener('touchmove', function() { clearTimeout(pressTimer); });
+
+function toggleQuranSettings() {
+    document.getElementById('quranSettings').classList.toggle('active');
+}
+function closeQuranSettings() {
+    document.getElementById('quranSettings').classList.remove('active');
+}
+
+function changeQuranFont() {
+    var f = document.getElementById('quranFontSelect').value;
+    document.getElementById('quranText').style.fontFamily = f;
+    localStorage.setItem('quran_font', f);
+}
+
+function changeQuranSize() {
+    var s = document.getElementById('quranFontSize').value;
+    document.getElementById('quranText').style.fontSize = s + 'px';
+    document.getElementById('quranSizeValue').textContent = s + 'px';
+    localStorage.setItem('quran_size', s);
+}
+
+function changeQuranColor() {
+    var c = document.getElementById('quranColorSelect').value;
+    document.getElementById('quranText').style.color = c;
+    localStorage.setItem('quran_color', c);
+}
+
+function loadQuranSettings() {
+    var f = localStorage.getItem('quran_font') || 'Amiri';
+    var s = localStorage.getItem('quran_size') || '28';
+    var c = localStorage.getItem('quran_color') || '#FFD700';
+    document.getElementById('quranFontSelect').value = f;
+    document.getElementById('quranFontSize').value = s;
+    document.getElementById('quranColorSelect').value = c;
+    document.getElementById('quranText').style.fontFamily = f;
+    document.getElementById('quranText').style.fontSize = s + 'px';
+    document.getElementById('quranText').style.color = c;
+    document.getElementById('quranSizeValue').textContent = s + 'px';
+}
+
+loadQuranSettings();
+loadQuranData();
 </script>
 
 <!-- ========== ФУТЕР ========== -->
