@@ -712,6 +712,19 @@
         { id: 'mira_moon', name: 'Раскол луны', title: 'Знамение', emoji: '🌙', type: 'miracle', rarity: 'legendary', story: 'По просьбе курайшитов Пророк ﷺ указал на луну, и она раскололась на две половины.', condition: 'zikr_50000', conditionText: '50 000 зикров' },
         { id: 'zamzam', name: 'Зам-Зам', title: 'Благословенный источник', emoji: '💧', type: 'miracle', rarity: 'mythic', story: 'Когда Хаджар искала воду для маленького Исмаила, по воле Аллаха забил источник Зам-Зам. «Вода Зам-Зама для того, для чего её пьют».', condition: 'secret', conditionText: '???' }
     ];
+// Добавляем карточки Джума в общий массив
+ALL_CARDS.push(
+    { id: 'j1', name: 'Пятничная', title: 'Благословение', emoji: '🌟', type: 'juma', rarity: 'rare', story: 'Особая пятничная карта', ayah: '«И стремитесь к поминанию Аллаха» (62:9)' },
+    { id: 'j2', name: 'Пятничная', title: 'Свет', emoji: '💡', type: 'juma', rarity: 'epic', story: 'Свет между двумя пятницами', ayah: '«Аллах — Свет небес и земли» (24:35)' },
+    { id: 'j3', name: 'Пятничная', title: 'Милость', emoji: '🌙', type: 'juma', rarity: 'legendary', story: 'Милость Аллаха безгранична', ayah: '«Милость Моя объемлет всякую вещь» (7:156)' },
+    { id: 'j4', name: 'Пятничная', title: 'Прощение', emoji: '🤲', type: 'juma', rarity: 'epic', story: 'В пятницу есть час, когда дуа принимается', ayah: '«Просите Аллаха о прощении» (71:10)' },
+    { id: 'j5', name: 'Пятничная', title: 'Саджда', emoji: '🕌', type: 'juma', rarity: 'rare', story: 'Земной поклон — высшее проявление покорности', ayah: '«Падите ниц перед Аллахом и поклоняйтесь» (53:62)' },
+    { id: 'j6', name: 'Пятничная', title: 'Барака', emoji: '✨', type: 'juma', rarity: 'legendary', story: 'Благословение пятницы', ayah: '«Это — благословенное Писание» (6:92)' },
+    { id: 'j7', name: 'Пятничная', title: 'Сабр', emoji: '🌴', type: 'juma', rarity: 'epic', story: 'Терпение — ключ к успеху', ayah: '«О те, которые уверовали! Обратитесь за помощью к терпению и намазу» (2:153)' },
+    { id: 'j8', name: 'Пятничная', title: 'Шукр', emoji: '🙏', type: 'juma', rarity: 'rare', story: 'Благодарность Аллаху', ayah: '«Если вы будете благодарны, Я одарю вас ещё большим» (14:7)' },
+    { id: 'j9', name: 'Пятничная', title: 'Таваккуль', emoji: '🤲', type: 'juma', rarity: 'epic', story: 'Упование на Аллаха', ayah: '«И на Аллаха пусть уповают верующие» (3:122)' },
+    { id: 'j10', name: 'Пятничная', title: 'Ихлас', emoji: '💚', type: 'juma', rarity: 'legendary', story: 'Искренность в вере', ayah: '«Скажи: Он — Аллах Единый» (112:1)' }
+);
 
     const TOTAL_PAGES = 604;
     let currentMysteryCards = [];
@@ -3443,8 +3456,10 @@ function generateProphetCards() {
     }));
 }
 
-// Объединяем все карточки
-const ALL_COLLECTION_CARDS = [...(typeof ALL_CARDS !== 'undefined' ? ALL_CARDS : []), ...generateSurahCards(), ...generateProphetCards()];
+// Инициализация ALL_COLLECTION_CARDS с учётом всех уже добавленных карточек
+if (typeof window.ALL_COLLECTION_CARDS === 'undefined' || window.ALL_COLLECTION_CARDS.length === 0) {
+    window.ALL_COLLECTION_CARDS = [...(typeof ALL_CARDS !== 'undefined' ? ALL_CARDS : []), ...generateSurahCards(), ...generateProphetCards()];
+}
 
 // Функция отрисовки коллекции
 function renderCollection() {
