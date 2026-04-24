@@ -668,52 +668,20 @@
     ];
 
     const ALL_CARDS = [
-        { id: 's1', name: 'Абу Бакр', title: 'ас-Сиддик', emoji: '👑', type: 'sahabi', rarity: 'legendary', story: 'Первый халиф, ближайший друг Пророка ﷺ. Один из десяти обрадованных Раем.', condition: 'stars_1000', conditionText: '1000 звёзд', isJanna: true },
-        { id: 's2', name: 'Умар', title: 'аль-Фарук', emoji: '⚔️', type: 'sahabi', rarity: 'legendary', story: 'Второй халиф, различающий истину. Один из десяти обрадованных Раем.', condition: 'stars_500', conditionText: '500 звёзд', isJanna: true },
-        { id: 's3', name: 'Усман', title: 'Зун-Нурайн', emoji: '📖', type: 'sahabi', rarity: 'epic', story: 'Третий халиф, обладатель двух светочей. Один из десяти обрадованных Раем.', condition: 'stars_300', conditionText: '300 звёзд', isJanna: true },
-        { id: 's4', name: 'Али', title: 'Абу Тураб', emoji: '🦁', type: 'sahabi', rarity: 'legendary', story: 'Четвёртый халиф, лев Аллаха. Один из десяти обрадованных Раем.', condition: 'stars_750', conditionText: '750 звёзд', isJanna: true },
-        { id: 's5', name: 'Тальха', title: 'Тальха добра', emoji: '🌴', type: 'sahabi', rarity: 'epic', story: 'Один из десяти обещанных Рая. Защищал Пророка ﷺ в битве при Ухуде.', condition: 'stars_400', conditionText: '400 звёзд', isJanna: true },
-        { id: 's6', name: 'Зубайр', title: 'Апостол Пророка', emoji: '⭐', type: 'sahabi', rarity: 'epic', story: 'Один из десяти обещанных Рая. Пророк ﷺ назвал его своим апостолом.', condition: 'stars_400', conditionText: '400 звёзд', isJanna: true },
-        { id: 's7', name: 'Абдуррахман', title: 'Честный уммы', emoji: '💼', type: 'sahabi', rarity: 'epic', story: 'Один из десяти обещанных Рая. Очень богатый и щедрый.', condition: 'stars_350', conditionText: '350 звёзд', isJanna: true },
-        { id: 's8', name: 'Саад', title: 'Всадник Ислама', emoji: '🏹', type: 'sahabi', rarity: 'epic', story: 'Один из десяти обещанных Рая. Первый, кто выпустил стрелу на пути Аллаха.', condition: 'stars_350', conditionText: '350 звёзд', isJanna: true },
-        { id: 's9', name: 'Саид', title: 'Отец одноглазого', emoji: '🌙', type: 'sahabi', rarity: 'epic', story: 'Один из десяти обещанных Рая. Его молитва принималась.', condition: 'stars_300', conditionText: '300 звёзд', isJanna: true },
-        { id: 's10', name: 'Абу Убайда', title: 'Честный уммы', emoji: '🛡️', type: 'sahabi', rarity: 'epic', story: 'Один из десяти обещанных Рая. Пророк ﷺ назвал его «честным уммы».', condition: 'stars_300', conditionText: '300 звёзд', isJanna: true },
-        { id: 's11', name: 'Халид', title: 'Сайфуллах', emoji: '⚔️', type: 'sahabi', rarity: 'legendary', story: 'Меч Аллаха, непобеждённый полководец.', condition: 'stars_600', conditionText: '600 звёзд', isJanna: false },
-        { id: 's12', name: 'Билял', title: 'Муэдзин', emoji: '🎙️', type: 'sahabi', rarity: 'legendary', story: 'Первый муэдзин в Исламе. Эфиопский раб, подвергшийся пыткам.', condition: 'stars_500', conditionText: '500 звёзд', isJanna: false },
-        { id: 'muhammad', name: 'Мухаммад', title: 'ﷺ Печать пророков', emoji: '🕌', type: 'prophet', rarity: 'mythic', story: 'Мухаммад ﷺ — последний пророк, печать пророков. Ему ниспослан Коран. Лучший пример для верующих.', condition: 'secret', conditionText: '???' },
-        // ДОПОЛНИТЕЛЬНЫЕ КАРТОЧКИ ДЖУМА (МНОГО)
-        { id: 'j1', name: 'Пятничная', title: 'Благословение', emoji: '🌟', type: 'juma', rarity: 'rare', story: 'Особая пятничная карта', ayah: '«И стремитесь к поминанию Аллаха» (62:9)' },
-        { id: 'j2', name: 'Пятничная', title: 'Свет', emoji: '💡', type: 'juma', rarity: 'epic', story: 'Свет между двумя пятницами', ayah: '«Аллах — Свет небес и земли» (24:35)' },
-        { id: 'j3', name: 'Пятничная', title: 'Милость', emoji: '🌙', type: 'juma', rarity: 'legendary', story: 'Милость Аллаха безгранична', ayah: '«Милость Моя объемлет всякую вещь» (7:156)' },
-        { id: 'j4', name: 'Пятничная', title: 'Прощение', emoji: '🤲', type: 'juma', rarity: 'epic', story: 'В пятницу есть час, когда дуа принимается', ayah: '«Просите Аллаха о прощении» (71:10)' },
-        { id: 'j5', name: 'Пятничная', title: 'Саджда', emoji: '🕌', type: 'juma', rarity: 'rare', story: 'Земной поклон — высшее проявление покорности', ayah: '«Падите ниц перед Аллахом и поклоняйтесь» (53:62)' },
-        { id: 'j6', name: 'Пятничная', title: 'Барака', emoji: '✨', type: 'juma', rarity: 'legendary', story: 'Благословение пятницы', ayah: '«Это — благословенное Писание» (6:92)' },
-        { id: 'j7', name: 'Пятничная', title: 'Сабр', emoji: '🌴', type: 'juma', rarity: 'epic', story: 'Терпение — ключ к успеху', ayah: '«О те, которые уверовали! Обратитесь за помощью к терпению и намазу» (2:153)' },
-        { id: 'j8', name: 'Пятничная', title: 'Шукр', emoji: '🙏', type: 'juma', rarity: 'rare', story: 'Благодарность Аллаху', ayah: '«Если вы будете благодарны, Я одарю вас ещё большим» (14:7)' },
-        { id: 'j9', name: 'Пятничная', title: 'Таваккуль', emoji: '🤲', type: 'juma', rarity: 'epic', story: 'Упование на Аллаха', ayah: '«И на Аллаха пусть уповают верующие» (3:122)' },
-        { id: 'j10', name: 'Пятничная', title: 'Ихлас', emoji: '💚', type: 'juma', rarity: 'legendary', story: 'Искренность в вере', ayah: '«Скажи: Он — Аллах Единый» (112:1)' },
-        // КАРТОЧКИ БИТВ
-        ...BATTLE_DATA.map(b => ({ id: `battle_${b.id}`, name: b.name, title: b.year, emoji: b.emoji, image: b.image || null, type: 'battle', rarity: b.cardRarity, story: `${b.story} Результат: ${b.result}`, condition: `battle_${b.id}`, conditionText: `Прочитать о битве` })),
-        { id: 'z1', name: 'Зикр', title: '50 тысяч', emoji: '📿', type: 'achievement', rarity: 'epic', story: '50 000 зикров', condition: 'zikr_50000', conditionText: '50 000 зикров' },
-        { id: 'z2', name: 'Зикр', title: '100 тысяч', emoji: '📿', type: 'achievement', rarity: 'legendary', story: '100 000 зикров', condition: 'zikr_100000', conditionText: '100 000 зикров' },
-        { id: 'z3', name: 'Зикр', title: '500 тысяч', emoji: '🔥', type: 'achievement', rarity: 'legendary', story: '500 000 зикров', condition: 'zikr_500000', conditionText: '500 000 зикров' },
-        { id: 'z4', name: 'Зикр', title: '1 миллион', emoji: '🏆', type: 'achievement', rarity: 'mythic', story: '1 000 000 зикров', condition: 'zikr_1000000', conditionText: '1 000 000 зикров' },
-        { id: 'sal1', name: 'Салават', title: '50 тысяч', emoji: '🌹', type: 'achievement', rarity: 'epic', story: '50 000 салаватов', condition: 'salawat_50000', conditionText: '50 000 салаватов' },
-        { id: 'sal2', name: 'Салават', title: '100 тысяч', emoji: '🌹', type: 'achievement', rarity: 'legendary', story: '100 000 салаватов', condition: 'salawat_100000', conditionText: '100 000 салаватов' },
-        { id: 'sal3', name: 'Салават', title: '500 тысяч', emoji: '🔥', type: 'achievement', rarity: 'legendary', story: '500 000 салаватов', condition: 'salawat_500000', conditionText: '500 000 салаватов' },
-        { id: 'sal4', name: 'Салават', title: '1 миллион', emoji: '🏆', type: 'achievement', rarity: 'mythic', story: '1 000 000 салаватов', condition: 'salawat_1000000', conditionText: '1 000 000 салаватов' },
-        { id: 'k10', name: 'Хатм', title: '10 хатмов', emoji: '📖', type: 'achievement', rarity: 'epic', story: '10 завершённых хатмов', condition: 'khatm_10', conditionText: '10 хатмов' },
-        { id: 'k25', name: 'Хатм', title: '25 хатмов', emoji: '💫', type: 'achievement', rarity: 'legendary', story: '25 завершённых хатмов', condition: 'khatm_25', conditionText: '25 хатмов' },
-        { id: 'k50', name: 'Хатм', title: '50 хатмов', emoji: '👑', type: 'achievement', rarity: 'legendary', story: '50 завершённых хатмов', condition: 'khatm_50', conditionText: '50 хатмов' },
-        { id: 'k100', name: 'Хатм', title: '100 хатмов', emoji: '🕋', type: 'achievement', rarity: 'mythic', story: '100 завершённых хатмов', condition: 'khatm_100', conditionText: '100 хатмов' },
-        { id: 'name1', name: 'Ар-Рахман', title: 'Милостивый', emoji: '🌟', type: 'names', rarity: 'rare', story: 'Ар-Рохма́н — Милостивый ко всем на этом свете.', condition: 'names_1', conditionText: 'Выучить 1 имя' },
-        { id: 'name99', name: '99 Имён', title: 'Хранитель', emoji: '👑', type: 'names', rarity: 'mythic', story: 'Все 99 Прекрасных Имён Аллаха!', condition: 'names_99', conditionText: 'Выучить все 99 имён' },
-        { id: 'mira_isra', name: 'Исра и Мирадж', title: 'Ночное перенесение', emoji: '🚀', type: 'miracle', rarity: 'legendary', story: 'Пророк ﷺ был перенесён из Мекки в Иерусалим и вознесён на небеса, где ему были показаны знамения Аллаха и предписан пятикратный намаз.', condition: 'khatm_1', conditionText: 'Завершить 1 хатм' },
-        { id: 'mira_moon', name: 'Раскол луны', title: 'Знамение', emoji: '🌙', type: 'miracle', rarity: 'legendary', story: 'По просьбе курайшитов Пророк ﷺ указал на луну, и она раскололась на две половины.', condition: 'zikr_50000', conditionText: '50 000 зикров' },
-        { id: 'zamzam', name: 'Зам-Зам', title: 'Благословенный источник', emoji: '💧', type: 'miracle', rarity: 'mythic', story: 'Когда Хаджар искала воду для маленького Исмаила, по воле Аллаха забил источник Зам-Зам. «Вода Зам-Зама для того, для чего её пьют».', condition: 'secret', conditionText: '???' }
-    ];
-// Добавляем карточки Джума в общий массив
-ALL_CARDS.push(
+    { id: 's1', name: 'Абу Бакр', title: 'ас-Сиддик', emoji: '👑', type: 'sahabi', rarity: 'legendary', story: 'Первый халиф, ближайший друг Пророка ﷺ. Один из десяти обрадованных Раем.', condition: 'stars_1000', conditionText: '1000 звёзд', isJanna: true },
+    { id: 's2', name: 'Умар', title: 'аль-Фарук', emoji: '⚔️', type: 'sahabi', rarity: 'legendary', story: 'Второй халиф, различающий истину. Один из десяти обрадованных Раем.', condition: 'stars_500', conditionText: '500 звёзд', isJanna: true },
+    { id: 's3', name: 'Усман', title: 'Зун-Нурайн', emoji: '📖', type: 'sahabi', rarity: 'epic', story: 'Третий халиф, обладатель двух светочей. Один из десяти обрадованных Раем.', condition: 'stars_300', conditionText: '300 звёзд', isJanna: true },
+    { id: 's4', name: 'Али', title: 'Абу Тураб', emoji: '🦁', type: 'sahabi', rarity: 'legendary', story: 'Четвёртый халиф, лев Аллаха. Один из десяти обрадованных Раем.', condition: 'stars_750', conditionText: '750 звёзд', isJanna: true },
+    { id: 's5', name: 'Тальха', title: 'Тальха добра', emoji: '🌴', type: 'sahabi', rarity: 'epic', story: 'Один из десяти обещанных Рая. Защищал Пророка ﷺ в битве при Ухуде.', condition: 'stars_400', conditionText: '400 звёзд', isJanna: true },
+    { id: 's6', name: 'Зубайр', title: 'Апостол Пророка', emoji: '⭐', type: 'sahabi', rarity: 'epic', story: 'Один из десяти обещанных Рая. Пророк ﷺ назвал его своим апостолом.', condition: 'stars_400', conditionText: '400 звёзд', isJanna: true },
+    { id: 's7', name: 'Абдуррахман', title: 'Честный уммы', emoji: '💼', type: 'sahabi', rarity: 'epic', story: 'Один из десяти обещанных Рая. Очень богатый и щедрый.', condition: 'stars_350', conditionText: '350 звёзд', isJanna: true },
+    { id: 's8', name: 'Саад', title: 'Всадник Ислама', emoji: '🏹', type: 'sahabi', rarity: 'epic', story: 'Один из десяти обещанных Рая. Первый, кто выпустил стрелу на пути Аллаха.', condition: 'stars_350', conditionText: '350 звёзд', isJanna: true },
+    { id: 's9', name: 'Саид', title: 'Отец одноглазого', emoji: '🌙', type: 'sahabi', rarity: 'epic', story: 'Один из десяти обещанных Рая. Его молитва принималась.', condition: 'stars_300', conditionText: '300 звёзд', isJanna: true },
+    { id: 's10', name: 'Абу Убайда', title: 'Честный уммы', emoji: '🛡️', type: 'sahabi', rarity: 'epic', story: 'Один из десяти обещанных Рая. Пророк ﷺ назвал его «честным уммы».', condition: 'stars_300', conditionText: '300 звёзд', isJanna: true },
+    { id: 's11', name: 'Халид', title: 'Сайфуллах', emoji: '⚔️', type: 'sahabi', rarity: 'legendary', story: 'Меч Аллаха, непобеждённый полководец.', condition: 'stars_600', conditionText: '600 звёзд', isJanna: false },
+    { id: 's12', name: 'Билял', title: 'Муэдзин', emoji: '🎙️', type: 'sahabi', rarity: 'legendary', story: 'Первый муэдзин в Исламе. Эфиопский раб, подвергшийся пыткам.', condition: 'stars_500', conditionText: '500 звёзд', isJanna: false },
+    { id: 'muhammad', name: 'Мухаммад', title: 'ﷺ Печать пророков', emoji: '🕌', type: 'prophet', rarity: 'mythic', story: 'Мухаммад ﷺ — последний пророк, печать пророков. Ему ниспослан Коран. Лучший пример для верующих.', condition: 'secret', conditionText: '???' },
+    // КАРТОЧКИ ДЖУМА
     { id: 'j1', name: 'Пятничная', title: 'Благословение', emoji: '🌟', type: 'juma', rarity: 'rare', story: 'Особая пятничная карта', ayah: '«И стремитесь к поминанию Аллаха» (62:9)' },
     { id: 'j2', name: 'Пятничная', title: 'Свет', emoji: '💡', type: 'juma', rarity: 'epic', story: 'Свет между двумя пятницами', ayah: '«Аллах — Свет небес и земли» (24:35)' },
     { id: 'j3', name: 'Пятничная', title: 'Милость', emoji: '🌙', type: 'juma', rarity: 'legendary', story: 'Милость Аллаха безгранична', ayah: '«Милость Моя объемлет всякую вещь» (7:156)' },
@@ -723,156 +691,260 @@ ALL_CARDS.push(
     { id: 'j7', name: 'Пятничная', title: 'Сабр', emoji: '🌴', type: 'juma', rarity: 'epic', story: 'Терпение — ключ к успеху', ayah: '«О те, которые уверовали! Обратитесь за помощью к терпению и намазу» (2:153)' },
     { id: 'j8', name: 'Пятничная', title: 'Шукр', emoji: '🙏', type: 'juma', rarity: 'rare', story: 'Благодарность Аллаху', ayah: '«Если вы будете благодарны, Я одарю вас ещё большим» (14:7)' },
     { id: 'j9', name: 'Пятничная', title: 'Таваккуль', emoji: '🤲', type: 'juma', rarity: 'epic', story: 'Упование на Аллаха', ayah: '«И на Аллаха пусть уповают верующие» (3:122)' },
-    { id: 'j10', name: 'Пятничная', title: 'Ихлас', emoji: '💚', type: 'juma', rarity: 'legendary', story: 'Искренность в вере', ayah: '«Скажи: Он — Аллах Единый» (112:1)' }
-);
+    { id: 'j10', name: 'Пятничная', title: 'Ихлас', emoji: '💚', type: 'juma', rarity: 'legendary', story: 'Искренность в вере', ayah: '«Скажи: Он — Аллах Единый» (112:1)' },
+    // КАРТОЧКИ БИТВ
+    ...BATTLE_DATA.map(b => ({ id: `battle_${b.id}`, name: b.name, title: b.year, emoji: b.emoji, image: b.image || null, type: 'battle', rarity: b.cardRarity, story: `${b.story} Результат: ${b.result}`, condition: `battle_${b.id}`, conditionText: `Прочитать о битве` })),
+    { id: 'z1', name: 'Зикр', title: '50 тысяч', emoji: '📿', type: 'achievement', rarity: 'epic', story: '50 000 зикров', condition: 'zikr_50000', conditionText: '50 000 зикров' },
+    { id: 'z2', name: 'Зикр', title: '100 тысяч', emoji: '📿', type: 'achievement', rarity: 'legendary', story: '100 000 зикров', condition: 'zikr_100000', conditionText: '100 000 зикров' },
+    { id: 'z3', name: 'Зикр', title: '500 тысяч', emoji: '🔥', type: 'achievement', rarity: 'legendary', story: '500 000 зикров', condition: 'zikr_500000', conditionText: '500 000 зикров' },
+    { id: 'z4', name: 'Зикр', title: '1 миллион', emoji: '🏆', type: 'achievement', rarity: 'mythic', story: '1 000 000 зикров', condition: 'zikr_1000000', conditionText: '1 000 000 зикров' },
+    { id: 'sal1', name: 'Салават', title: '50 тысяч', emoji: '🌹', type: 'achievement', rarity: 'epic', story: '50 000 салаватов', condition: 'salawat_50000', conditionText: '50 000 салаватов' },
+    { id: 'sal2', name: 'Салават', title: '100 тысяч', emoji: '🌹', type: 'achievement', rarity: 'legendary', story: '100 000 салаватов', condition: 'salawat_100000', conditionText: '100 000 салаватов' },
+    { id: 'sal3', name: 'Салават', title: '500 тысяч', emoji: '🔥', type: 'achievement', rarity: 'legendary', story: '500 000 салаватов', condition: 'salawat_500000', conditionText: '500 000 салаватов' },
+    { id: 'sal4', name: 'Салават', title: '1 миллион', emoji: '🏆', type: 'achievement', rarity: 'mythic', story: '1 000 000 салаватов', condition: 'salawat_1000000', conditionText: '1 000 000 салаватов' },
+    { id: 'k10', name: 'Хатм', title: '10 хатмов', emoji: '📖', type: 'achievement', rarity: 'epic', story: '10 завершённых хатмов', condition: 'khatm_10', conditionText: '10 хатмов' },
+    { id: 'k25', name: 'Хатм', title: '25 хатмов', emoji: '💫', type: 'achievement', rarity: 'legendary', story: '25 завершённых хатмов', condition: 'khatm_25', conditionText: '25 хатмов' },
+    { id: 'k50', name: 'Хатм', title: '50 хатмов', emoji: '👑', type: 'achievement', rarity: 'legendary', story: '50 завершённых хатмов', condition: 'khatm_50', conditionText: '50 хатмов' },
+    { id: 'k100', name: 'Хатм', title: '100 хатмов', emoji: '🕋', type: 'achievement', rarity: 'mythic', story: '100 завершённых хатмов', condition: 'khatm_100', conditionText: '100 хатмов' },
+    { id: 'name1', name: 'Ар-Рахман', title: 'Милостивый', emoji: '🌟', type: 'names', rarity: 'rare', story: 'Ар-Рохма́н — Милостивый ко всем на этом свете.', condition: 'names_1', conditionText: 'Выучить 1 имя' },
+    { id: 'name99', name: '99 Имён', title: 'Хранитель', emoji: '👑', type: 'names', rarity: 'mythic', story: 'Все 99 Прекрасных Имён Аллаха!', condition: 'names_99', conditionText: 'Выучить все 99 имён' },
+    { id: 'mira_isra', name: 'Исра и Мирадж', title: 'Ночное перенесение', emoji: '🚀', type: 'miracle', rarity: 'legendary', story: 'Пророк ﷺ был перенесён из Мекки в Иерусалим и вознесён на небеса, где ему были показаны знамения Аллаха и предписан пятикратный намаз.', condition: 'khatm_1', conditionText: 'Завершить 1 хатм' },
+    { id: 'mira_moon', name: 'Раскол луны', title: 'Знамение', emoji: '🌙', type: 'miracle', rarity: 'legendary', story: 'По просьбе курайшитов Пророк ﷺ указал на луну, и она раскололась на две половины.', condition: 'zikr_50000', conditionText: '50 000 зикров' },
+    { id: 'zamzam', name: 'Зам-Зам', title: 'Благословенный источник', emoji: '💧', type: 'miracle', rarity: 'mythic', story: 'Когда Хаджар искала воду для маленького Исмаила, по воле Аллаха забил источник Зам-Зам. «Вода Зам-Зама для того, для чего её пьют».', condition: 'secret', conditionText: '???' }
+];
 
-    const TOTAL_PAGES = 604;
-    let currentMysteryCards = [];
-
-    // ========== ПОЛНОЕ ИСПРАВЛЕНИЕ ВЫДАЧИ КАРТОЧЕК ДЖУМА ==========
-    // Удаляем старые обработчики с mysteryCards
-    var mysteryEl = document.getElementById('mysteryCards');
-    var newMysteryEl = mysteryEl.cloneNode(true);
-    mysteryEl.parentNode.replaceChild(newMysteryEl, mysteryEl);
+// ========== ИНИЦИАЛИЗАЦИЯ ALL_COLLECTION_CARDS (ТОЛЬКО ОДИН РАЗ) ==========
+function initializeAllCollectionCards() {
+    // 1. Пробуем загрузить из localStorage
+    const savedCards = localStorage.getItem('all_collection_cards');
+    if (savedCards) {
+        try {
+            const parsed = JSON.parse(savedCards);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                console.log('📦 Загружено из localStorage:', parsed.length, 'карточек');
+                return parsed;
+            }
+        } catch (e) {
+            console.warn('Ошибка загрузки из localStorage:', e);
+        }
+    }
     
-    // Новый обработчик клика по мистери-картам
-    newMysteryEl.addEventListener('click', function(e) {
-        var card = e.target.closest('.mystery-card');
-        if (!card) return;
-        
-        var index = parseInt(card.dataset.index);
-        var selected = currentMysteryCards[index];
-        if (!selected) return;
-        
-        console.log('🎴 ВЫБРАНА КАРТОЧКА:', selected.name, selected.title, selected.id);
-        
-        // Инициализируем массивы
-        if (!userData.jumaCards) userData.jumaCards = [];
-        if (!userData.unlockedCards) userData.unlockedCards = [];
-        
-        // Добавляем карточку
-        if (!userData.jumaCards.find(function(c) { return c.id === selected.id; })) {
-            userData.jumaCards.push(selected);
-            console.log('✅ Добавлена в jumaCards');
+    // 2. Собираем все карточки из разных источников
+    const allCards = [...ALL_CARDS];
+    
+    // Добавляем карточки сур
+    for (let i = 1; i <= 114; i++) {
+        const story = SURAH_STORIES[i] || `Сура «${SURA_NAMES_RU[i-1]}» — ${i}-я сура Корана.`;
+        allCards.push({ 
+            id: `su${i}`, 
+            name: SURA_NAMES_RU[i-1], 
+            title: `${i}-я сура`, 
+            emoji: i === 1 ? '🌟' : (i === 36 ? '💚' : '📖'), 
+            type: 'surah', 
+            rarity: i === 1 ? 'legendary' : (i === 36 ? 'legendary' : 'rare'), 
+            story: story,
+            image: `https://raw.githubusercontent.com/Mgmdov/Kunmusliman/main/images/surah/${i}.png`,
+            condition: `surah_${i}`, 
+            conditionText: `Прочитать суру «${SURA_NAMES_RU[i-1]}»` 
+        });
+    }
+    
+    // Добавляем карточки пророков
+    PROPHETS_DATA.forEach(p => {
+        allCards.push({ 
+            id: `p${p.id}`, 
+            name: p.name, 
+            title: p.title, 
+            emoji: '🕋', 
+            type: 'prophet', 
+            rarity: p.id === 24 ? 'mythic' : (p.id <= 6 ? 'legendary' : 'rare'), 
+            story: p.story,
+            image: `https://raw.githubusercontent.com/Mgmdov/Kunmusliman/main/images/prophets/${p.id}.png`,
+            condition: `prophet_${p.id}`, 
+            conditionText: `Открыть пророка ${p.name}` 
+        });
+    });
+    
+    // Добавляем карточки достижений если есть ACHIEVEMENT_CARDS
+    if (typeof ACHIEVEMENT_CARDS !== 'undefined') {
+        Object.values(ACHIEVEMENT_CARDS).forEach(card => {
+            if (!allCards.find(c => c.id === card.id)) {
+                allCards.push(card);
+            }
+        });
+    }
+    
+    // Удаляем дубликаты по id
+    const uniqueCards = [...new Map(allCards.map(c => [c.id, c])).values()];
+    
+    console.log('📦 Собрано всего карточек:', uniqueCards.length);
+    return uniqueCards;
+}
+
+// Инициализируем ОДИН раз
+window.ALL_COLLECTION_CARDS = initializeAllCollectionCards();
+
+// Сохраняем в localStorage
+localStorage.setItem('all_collection_cards', JSON.stringify(window.ALL_COLLECTION_CARDS));
+
+console.log('✅ ALL_COLLECTION_CARDS готов, всего:', window.ALL_COLLECTION_CARDS.length);
+
+// ========== ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ КАРТОЧЕК ==========
+function getAllCollectionCards() {
+    if (!window.ALL_COLLECTION_CARDS || window.ALL_COLLECTION_CARDS.length === 0) {
+        window.ALL_COLLECTION_CARDS = initializeAllCollectionCards();
+        localStorage.setItem('all_collection_cards', JSON.stringify(window.ALL_COLLECTION_CARDS));
+    }
+    return window.ALL_COLLECTION_CARDS;
+}
+
+const TOTAL_PAGES = 604;
+let currentMysteryCards = [];
+
+// ========== ПОЛНОЕ ИСПРАВЛЕНИЕ ВЫДАЧИ КАРТОЧЕК ДЖУМА ==========
+// Удаляем старые обработчики с mysteryCards
+var mysteryEl = document.getElementById('mysteryCards');
+var newMysteryEl = mysteryEl.cloneNode(true);
+mysteryEl.parentNode.replaceChild(newMysteryEl, mysteryEl);
+
+// Новый обработчик клика по мистери-картам
+newMysteryEl.addEventListener('click', function(e) {
+    var card = e.target.closest('.mystery-card');
+    if (!card) return;
+    
+    var index = parseInt(card.dataset.index);
+    var selected = currentMysteryCards[index];
+    if (!selected) return;
+    
+    console.log('🎴 ВЫБРАНА КАРТОЧКА:', selected.name, selected.title, selected.id);
+    
+    // Инициализируем массивы
+    if (!userData.jumaCards) userData.jumaCards = [];
+    if (!userData.unlockedCards) userData.unlockedCards = [];
+    
+    // Добавляем карточку
+    if (!userData.jumaCards.find(function(c) { return c.id === selected.id; })) {
+        userData.jumaCards.push(selected);
+        console.log('✅ Добавлена в jumaCards');
+    }
+    if (!userData.unlockedCards.includes(selected.id)) {
+        userData.unlockedCards.push(selected.id);
+        console.log('✅ ID добавлен в unlockedCards');
+    }
+    
+    // Сохраняем
+    saveUserData();
+    saveLocalBackup();
+    
+    // Отмечаем получение на этой неделе
+    localStorage.setItem('juma_claimed_' + getWeekNumber(), 'true');
+    hasClaimedThisWeek = true;
+    
+    // Закрываем оверлей
+    document.getElementById('mysteryOverlay').classList.remove('active');
+    
+    // Показываем уведомления
+    showFirework('🎉 ' + selected.name + ' ' + selected.title + '!');
+    showNotification('🎴 Карточка «' + selected.name + ' — ' + selected.title + '» в коллекции!');
+    
+    // Обновляем коллекцию
+    if (typeof renderCollection === 'function') {
+        setTimeout(function() { renderCollection(); }, 300);
+    }
+    updateCollectionBadge();
+    
+    // Показываем историю
+    setTimeout(function() {
+        alert('📜 ' + (selected.story || selected.ayah || 'Благословенная пятничная карта'));
+    }, 600);
+    
+    console.log('📊 Статистика: jumaCards=' + userData.jumaCards.length + ', unlockedCards=' + userData.unlockedCards.length);
+});
+
+// Переопределяем showMysteryCards
+window.showMysteryCards = function() {
+    console.log('🎲 showMysteryCards вызвана');
+    
+    var allCards = getAllCollectionCards();
+    
+    // Ищем доступные карточки Джума
+    var jumaAvail = allCards.filter(function(c) {
+        return c.type === 'juma' && !(userData.jumaCards || []).find(function(jc) { return jc.id === c.id; });
+    });
+    
+    console.log('🎴 Доступно карточек Джума:', jumaAvail.length);
+    
+    var cardsToShow = [];
+    
+    if (jumaAvail.length >= 3) {
+        cardsToShow = jumaAvail.sort(function() { return Math.random() - 0.5; }).slice(0, 3);
+    } else if (jumaAvail.length > 0) {
+        var other = allCards.filter(function(c) {
+            return !(userData.jumaCards || []).find(function(jc) { return jc.id === c.id; }) && c.type !== 'juma';
+        });
+        cardsToShow = jumaAvail.concat(other.sort(function() { return Math.random() - 0.5; }).slice(0, 3 - jumaAvail.length));
+    } else {
+        var allOther = allCards.filter(function(c) {
+            return !(userData.jumaCards || []).find(function(jc) { return jc.id === c.id; });
+        });
+        cardsToShow = allOther.sort(function() { return Math.random() - 0.5; }).slice(0, 3);
+    }
+    
+    currentMysteryCards = cardsToShow;
+    console.log('🃏 Показываем:', cardsToShow.map(function(c) { return c.name + ' ' + c.title + ' (' + c.type + ')'; }));
+    
+    var container = document.getElementById('mysteryCards');
+    container.innerHTML = cardsToShow.map(function(c, i) {
+        return '<div class="mystery-card" data-index="' + i + '">' +
+               '<div class="mystery-ayah">' + (c.ayah || '«Поистине, Аллах любит творящих добро» (2:195)') + '</div>' +
+               '</div>';
+    }).join('');
+    
+    document.getElementById('mysteryOverlay').classList.add('active');
+};
+
+// Функция для ручного добавления карточек (вызовите в консоли: addMissingJumaCards())
+window.addMissingJumaCards = function() {
+    if (!userData.jumaCards) userData.jumaCards = [];
+    if (!userData.unlockedCards) userData.unlockedCards = [];
+    
+    var allCards = getAllCollectionCards();
+    var jumaCards = allCards.filter(function(c) { return c.type === 'juma'; });
+    console.log('📊 Всего карточек Джума в системе:', jumaCards.length);
+    
+    var added = 0;
+    jumaCards.slice(0, 3).forEach(function(card) {
+        if (!userData.unlockedCards.includes(card.id)) {
+            userData.unlockedCards.push(card.id);
+            if (!userData.jumaCards.find(function(c) { return c.id === card.id; })) {
+                userData.jumaCards.push(card);
+            }
+            added++;
+            console.log('✅ Добавлена:', card.name, card.title, '(' + card.rarity + ')');
         }
-        if (!userData.unlockedCards.includes(selected.id)) {
-            userData.unlockedCards.push(selected.id);
-            console.log('✅ ID добавлен в unlockedCards');
-        }
-        
-        // Сохраняем
+    });
+    
+    if (added > 0) {
         saveUserData();
         saveLocalBackup();
         
-        // Отмечаем получение на этой неделе
-        localStorage.setItem('juma_claimed_' + getWeekNumber(), 'true');
-        hasClaimedThisWeek = true;
+        localStorage.removeItem('juma_claimed_' + getWeekNumber());
         
-        // Закрываем оверлей
-        document.getElementById('mysteryOverlay').classList.remove('active');
-        
-        // Показываем уведомления
-        showFirework('🎉 ' + selected.name + ' ' + selected.title + '!');
-        showNotification('🎴 Карточка «' + selected.name + ' — ' + selected.title + '» в коллекции!');
-        
-        // Обновляем коллекцию
-        if (typeof renderCollection === 'function') {
-            setTimeout(function() { renderCollection(); }, 300);
-        }
+        if (typeof renderCollection === 'function') renderCollection();
         updateCollectionBadge();
         
-        // Показываем историю
-        setTimeout(function() {
-            alert('📜 ' + (selected.story || selected.ayah || 'Благословенная пятничная карта'));
-        }, 600);
-        
-        console.log('📊 Статистика: jumaCards=' + userData.jumaCards.length + ', unlockedCards=' + userData.unlockedCards.length);
-    });
-    
-    // Переопределяем showMysteryCards
-    window.showMysteryCards = function() {
-        console.log('🎲 showMysteryCards вызвана');
-        
-        // Ищем доступные карточки Джума
-        var jumaAvail = ALL_CARDS.filter(function(c) {
-            return c.type === 'juma' && !(userData.jumaCards || []).find(function(jc) { return jc.id === c.id; });
-        });
-        
-        console.log('🎴 Доступно карточек Джума:', jumaAvail.length);
-        
-        var cardsToShow = [];
-        
-        if (jumaAvail.length >= 3) {
-            // Если доступно 3 или больше карточек Джума - показываем только их
-            cardsToShow = jumaAvail.sort(function() { return Math.random() - 0.5; }).slice(0, 3);
-        } else if (jumaAvail.length > 0) {
-            // Если доступно 1-2 карточки Джума - добавляем другие
-            var other = ALL_CARDS.filter(function(c) {
-                return !(userData.jumaCards || []).find(function(jc) { return jc.id === c.id; }) && c.type !== 'juma';
-            });
-            cardsToShow = jumaAvail.concat(other.sort(function() { return Math.random() - 0.5; }).slice(0, 3 - jumaAvail.length));
-        } else {
-            // Если карточек Джума не осталось - показываем любые
-            var allOther = ALL_CARDS.filter(function(c) {
-                return !(userData.jumaCards || []).find(function(jc) { return jc.id === c.id; });
-            });
-            cardsToShow = allOther.sort(function() { return Math.random() - 0.5; }).slice(0, 3);
-        }
-        
-        currentMysteryCards = cardsToShow;
-        console.log('🃏 Показываем:', cardsToShow.map(function(c) { return c.name + ' ' + c.title + ' (' + c.type + ')'; }));
-        
-        var container = document.getElementById('mysteryCards');
-        container.innerHTML = cardsToShow.map(function(c, i) {
-            return '<div class="mystery-card" data-index="' + i + '">' +
-                   '<div class="mystery-ayah">' + (c.ayah || '«Поистине, Аллах любит творящих добро» (2:195)') + '</div>' +
-                   '</div>';
-        }).join('');
-        
-        document.getElementById('mysteryOverlay').classList.add('active');
-    };
-    
-    // Функция для ручного добавления карточек (вызовите в консоли: addMissingJumaCards())
-    window.addMissingJumaCards = function() {
-        if (!userData.jumaCards) userData.jumaCards = [];
-        if (!userData.unlockedCards) userData.unlockedCards = [];
-        
-        var jumaCards = ALL_CARDS.filter(function(c) { return c.type === 'juma'; });
-        console.log('📊 Всего карточек Джума в системе:', jumaCards.length);
-        
-        var added = 0;
-        jumaCards.slice(0, 3).forEach(function(card) {
-            if (!userData.unlockedCards.includes(card.id)) {
-                userData.unlockedCards.push(card.id);
-                if (!userData.jumaCards.find(function(c) { return c.id === card.id; })) {
-                    userData.jumaCards.push(card);
-                }
-                added++;
-                console.log('✅ Добавлена:', card.name, card.title, '(' + card.rarity + ')');
-            }
-        });
-        
-        if (added > 0) {
-            saveUserData();
-            saveLocalBackup();
-            
-            // Сбрасываем блокировку "уже получил сегодня"
-            localStorage.removeItem('juma_claimed_' + getWeekNumber());
-            
-            if (typeof renderCollection === 'function') renderCollection();
-            updateCollectionBadge();
-            
-            alert('✅ Добавлено ' + added + ' карточек Джума!\n\nПроверьте: Коллекция → вкладка "🎴 Джума"');
-            showNotification('🎴 ' + added + ' карточек Джума добавлены!');
-        } else {
-            alert('⚠️ Все карточки Джума уже есть в коллекции.\n\nПроверьте вкладку "🎴 Джума"');
-        }
-    };
-    
-    console.log('✅ СИСТЕМА КАРТОЧЕК ДЖУМА ИСПРАВЛЕНА!');
-    console.log('💡 Для добавления карточек выполните: addMissingJumaCards()');
+        alert('✅ Добавлено ' + added + ' карточек Джума!\n\nПроверьте: Коллекция → вкладка "🎴 Джума"');
+        showNotification('🎴 ' + added + ' карточек Джума добавлены!');
+    } else {
+        alert('⚠️ Все карточки Джума уже есть в коллекции.\n\nПроверьте вкладку "🎴 Джума"');
+    }
+};
 
-    // ========== ФУНКЦИИ ЗАГРУЗКИ И СОХРАНЕНИЯ (С ИСПРАВЛЕННОЙ СИНХРОНИЗАЦИЕЙ) ==========
+console.log('✅ СИСТЕМА КАРТОЧЕК ИСПРАВЛЕНА!');
+console.log('💡 Всего карточек в коллекции:', window.ALL_COLLECTION_CARDS.length);
+console.log('💡 Для добавления карточек Джума выполните: addMissingJumaCards()');
+
+// ========== ФУНКЦИИ ЗАГРУЗКИ И СОХРАНЕНИЯ (С ИСПРАВЛЕННОЙ СИНХРОНИЗАЦИЕЙ) ==========
     function loadLocalBackup() {
         try {
             const backup = localStorage.getItem('muslim_tracker_backup');
