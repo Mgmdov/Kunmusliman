@@ -728,120 +728,149 @@ ALL_CARDS.push(
 
     const TOTAL_PAGES = 604;
     let currentMysteryCards = [];
-// ========== ИСПРАВЛЕНИЕ ВЫДАЧИ КАРТОЧЕК ДЖУМА ==========
-    // Удаляем старый обработчик и вешаем новый
-    const mysteryCardsEl = document.getElementById('mysteryCards');
-    if (mysteryCardsEl) {
-        const newMysteryCards = mysteryCardsEl.cloneNode(true);
-        mysteryCardsEl.parentNode.replaceChild(newMysteryCards, mysteryCardsEl);
-        
-        newMysteryCards.addEventListener('click', function(e) {
-            const card = e.target.closest('.mystery-card');
-            if (!card) return;
-            const index = parseInt(card.dataset.index);
-            const selected = currentMysteryCards[index];
-            if (!selected) return;
-            
-            console.log('🎴 Выбрана карточка:', selected.name, selected.title);
-            
-            if (!userData.jumaCards) userData.jumaCards = [];
-            if (!userData.unlockedCards) userData.unlockedCards = [];
-            
-            if (!userData.jumaCards.find(c => c.id === selected.id)) {
-                userData.jumaCards.push(selected);
-            }
-            if (!userData.unlockedCards.includes(selected.id)) {
-                userData.unlockedCards.push(selected.id);
-            }
-            
-            saveUserData();
-            saveLocalBackup();
-            
-            localStorage.setItem('juma_claimed_' + getWeekNumber(), 'true');
-            
-            document.getElementById('mysteryOverlay').classList.remove('active');
-            showFirework('🎉 ' + selected.name + ' ' + selected.title + '!');
-            showNotification('🎴 Карточка добавлена в коллекцию!');
-            
-            if (typeof renderCollection === 'function') renderCollection();
-            updateCollectionBadge();
-            
-            setTimeout(function() {
-                alert('📜 ' + (selected.story || selected.ayah || ''));
-            }, 500);
-        });
-    }
 
+    // ========== ПОЛНОЕ ИСПРАВЛЕНИЕ ВЫДАЧИ КАРТОЧЕК ДЖУМА ==========
+    // Удаляем старые обработчики с mysteryCards
+    var mysteryEl = document.getElementById('mysteryCards');
+    var newMysteryEl = mysteryEl.cloneNode(true);
+    mysteryEl.parentNode.replaceChild(newMysteryEl, mysteryEl);
+    
+    // Новый обработчик клика по мистери-картам
+    newMysteryEl.addEventListener('click', function(e) {
+        var card = e.target.closest('.mystery-card');
+        if (!card) return;
+        
+        var index = parseInt(card.dataset.index);
+        var selected = currentMysteryCards[index];
+        if (!selected) return;
+        
+        console.log('🎴 ВЫБРАНА КАРТОЧКА:', selected.name, selected.title, selected.id);
+        
+        // Инициализируем массивы
+        if (!userData.jumaCards) userData.jumaCards = [];
+        if (!userData.unlockedCards) userData.unlockedCards = [];
+        
+        // Добавляем карточку
+        if (!userData.jumaCards.find(function(c) { return c.id === selected.id; })) {
+            userData.jumaCards.push(selected);
+            console.log('✅ Добавлена в jumaCards');
+        }
+        if (!userData.unlockedCards.includes(selected.id)) {
+            userData.unlockedCards.push(selected.id);
+            console.log('✅ ID добавлен в unlockedCards');
+        }
+        
+        // Сохраняем
+        saveUserData();
+        saveLocalBackup();
+        
+        // Отмечаем получение на этой неделе
+        localStorage.setItem('juma_claimed_' + getWeekNumber(), 'true');
+        hasClaimedThisWeek = true;
+        
+        // Закрываем оверлей
+        document.getElementById('mysteryOverlay').classList.remove('active');
+        
+        // Показываем уведомления
+        showFirework('🎉 ' + selected.name + ' ' + selected.title + '!');
+        showNotification('🎴 Карточка «' + selected.name + ' — ' + selected.title + '» в коллекции!');
+        
+        // Обновляем коллекцию
+        if (typeof renderCollection === 'function') {
+            setTimeout(function() { renderCollection(); }, 300);
+        }
+        updateCollectionBadge();
+        
+        // Показываем историю
+        setTimeout(function() {
+            alert('📜 ' + (selected.story || selected.ayah || 'Благословенная пятничная карта'));
+        }, 600);
+        
+        console.log('📊 Статистика: jumaCards=' + userData.jumaCards.length + ', unlockedCards=' + userData.unlockedCards.length);
+    });
+    
     // Переопределяем showMysteryCards
     window.showMysteryCards = function() {
-        console.log('🎲 Показываем мистери-карты');
+        console.log('🎲 showMysteryCards вызвана');
         
-        const jumaAvailable = ALL_CARDS.filter(function(c) {
+        // Ищем доступные карточки Джума
+        var jumaAvail = ALL_CARDS.filter(function(c) {
             return c.type === 'juma' && !(userData.jumaCards || []).find(function(jc) { return jc.id === c.id; });
         });
         
-        console.log('🎴 Доступно карточек Джума:', jumaAvailable.length);
+        console.log('🎴 Доступно карточек Джума:', jumaAvail.length);
         
         var cardsToShow = [];
-        if (jumaAvailable.length >= 3) {
-            cardsToShow = jumaAvailable.sort(function() { return Math.random() - 0.5; }).slice(0, 3);
+        
+        if (jumaAvail.length >= 3) {
+            // Если доступно 3 или больше карточек Джума - показываем только их
+            cardsToShow = jumaAvail.sort(function() { return Math.random() - 0.5; }).slice(0, 3);
+        } else if (jumaAvail.length > 0) {
+            // Если доступно 1-2 карточки Джума - добавляем другие
+            var other = ALL_CARDS.filter(function(c) {
+                return !(userData.jumaCards || []).find(function(jc) { return jc.id === c.id; }) && c.type !== 'juma';
+            });
+            cardsToShow = jumaAvail.concat(other.sort(function() { return Math.random() - 0.5; }).slice(0, 3 - jumaAvail.length));
         } else {
-            var allAvailable = ALL_CARDS.filter(function(c) {
+            // Если карточек Джума не осталось - показываем любые
+            var allOther = ALL_CARDS.filter(function(c) {
                 return !(userData.jumaCards || []).find(function(jc) { return jc.id === c.id; });
             });
-            cardsToShow = allAvailable.sort(function() { return Math.random() - 0.5; }).slice(0, Math.min(3, allAvailable.length));
+            cardsToShow = allOther.sort(function() { return Math.random() - 0.5; }).slice(0, 3);
         }
         
         currentMysteryCards = cardsToShow;
-        console.log('🃏 Карточки:', cardsToShow.map(function(c) { return c.name + ' ' + c.title; }));
+        console.log('🃏 Показываем:', cardsToShow.map(function(c) { return c.name + ' ' + c.title + ' (' + c.type + ')'; }));
         
         var container = document.getElementById('mysteryCards');
-        if (!container) return;
-        
         container.innerHTML = cardsToShow.map(function(c, i) {
-            return '<div class="mystery-card" data-index="' + i + '"><div class="mystery-ayah">' + (c.ayah || '«Поистине, Аллах любит творящих добро» (2:195)') + '</div></div>';
+            return '<div class="mystery-card" data-index="' + i + '">' +
+                   '<div class="mystery-ayah">' + (c.ayah || '«Поистине, Аллах любит творящих добро» (2:195)') + '</div>' +
+                   '</div>';
         }).join('');
         
         document.getElementById('mysteryOverlay').classList.add('active');
     };
-
-    // Функция для ручного добавления карточек Джума
-    window.fixJumaCards = function() {
+    
+    // Функция для ручного добавления карточек (вызовите в консоли: addMissingJumaCards())
+    window.addMissingJumaCards = function() {
         if (!userData.jumaCards) userData.jumaCards = [];
         if (!userData.unlockedCards) userData.unlockedCards = [];
         
         var jumaCards = ALL_CARDS.filter(function(c) { return c.type === 'juma'; });
-        console.log('📊 Найдено карточек Джума:', jumaCards.length);
-        
-        if (jumaCards.length === 0) {
-            alert('❌ Карточки Джума не найдены в ALL_CARDS!');
-            return;
-        }
+        console.log('📊 Всего карточек Джума в системе:', jumaCards.length);
         
         var added = 0;
         jumaCards.slice(0, 3).forEach(function(card) {
             if (!userData.unlockedCards.includes(card.id)) {
                 userData.unlockedCards.push(card.id);
-                userData.jumaCards.push(card);
+                if (!userData.jumaCards.find(function(c) { return c.id === card.id; })) {
+                    userData.jumaCards.push(card);
+                }
                 added++;
-                console.log('✅ Добавлена:', card.name, card.title);
+                console.log('✅ Добавлена:', card.name, card.title, '(' + card.rarity + ')');
             }
         });
         
-        if (added === 0) {
-            alert('⚠️ Все карточки уже в коллекции');
-        } else {
+        if (added > 0) {
             saveUserData();
             saveLocalBackup();
+            
+            // Сбрасываем блокировку "уже получил сегодня"
             localStorage.removeItem('juma_claimed_' + getWeekNumber());
+            
             if (typeof renderCollection === 'function') renderCollection();
             updateCollectionBadge();
+            
+            alert('✅ Добавлено ' + added + ' карточек Джума!\n\nПроверьте: Коллекция → вкладка "🎴 Джума"');
             showNotification('🎴 ' + added + ' карточек Джума добавлены!');
+        } else {
+            alert('⚠️ Все карточки Джума уже есть в коллекции.\n\nПроверьте вкладку "🎴 Джума"');
         }
     };
     
-    console.log('✅ Исправление карточек Джума активировано!');
-    console.log('💡 Для добавления карточек выполните в консоли: fixJumaCards()');
+    console.log('✅ СИСТЕМА КАРТОЧЕК ДЖУМА ИСПРАВЛЕНА!');
+    console.log('💡 Для добавления карточек выполните: addMissingJumaCards()');
 
     // ========== ФУНКЦИИ ЗАГРУЗКИ И СОХРАНЕНИЯ (С ИСПРАВЛЕННОЙ СИНХРОНИЗАЦИЕЙ) ==========
     function loadLocalBackup() {
