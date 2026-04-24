@@ -16,6 +16,418 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
     <style>
+        /* ========== 🌙 ДВЕ ЛУНЫ + НАЗВАНИЕ ========== */
+        
+        .title-moon {
+            display: inline-block;
+            font-size: 2.2rem;
+            animation: moonEntrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, moonFloat 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.7));
+            position: relative;
+        }
+        .title-moon.left { animation-delay: 0s; }
+        .title-moon.right { animation-delay: 0.4s; transform: scaleX(-1); }
+        
+        @keyframes moonEntrance {
+            0% { opacity: 0; transform: scale(0) rotate(-180deg); }
+            60% { opacity: 1; transform: scale(1.3) rotate(10deg); }
+            100% { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+        @keyframes moonFloat {
+            0%, 100% { transform: translateY(0); filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.7)); }
+            50% { transform: translateY(-6px); filter: drop-shadow(0 0 25px rgba(255, 215, 0, 1)); }
+        }
+        
+        .moon-star {
+            position: absolute;
+            font-size: 0.7rem;
+            animation: moonStarTwinkle 1.5s ease-in-out infinite;
+        }
+        .moon-star.top { top: -5px; right: -5px; animation-delay: 0s; }
+        .moon-star.bottom { bottom: 0; left: -8px; animation-delay: 0.8s; }
+        
+        @keyframes moonStarTwinkle {
+            0%, 100% { opacity: 0.2; transform: scale(0.6); }
+            50% { opacity: 1; transform: scale(1.3); }
+        }
+        
+        .title-main {
+            display: inline-block;
+            vertical-align: middle;
+            margin: 0 12px;
+            font-size: 1.7rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #FFD700, #FFA500, #FFD700, #FF8C00, #FFD700);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleShine 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+        }
+        
+        @keyframes titleShine {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .title-arabic {
+            font-family: 'Amiri', serif;
+            font-size: 1rem;
+            color: #FFD700;
+            direction: rtl;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+
+        /* ========== 📱 ЭКРАН ЗАГРУЗКИ ========== */
+        #splashScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a2f1a 0%, #1a4a2a 30%, #0d3b1f 60%, #0a1a0a 100%);
+            z-index: 999999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        
+        #splashScreen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .splash-moon {
+            font-size: 5rem;
+            animation: splashFloat 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.5));
+        }
+        
+        @keyframes splashFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .splash-stars {
+            position: absolute;
+            font-size: 1.5rem;
+            animation: splashTwinkle 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes splashTwinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        
+        .splash-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #FFD700;
+            margin: 20px 0 10px;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        .splash-subtitle {
+            font-size: 0.9rem;
+            color: #81C784;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .splash-progress {
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .splash-progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        
+        .splash-loading-text {
+            color: #A5D6A7;
+            font-size: 0.8rem;
+            margin-bottom: 30px;
+        }
+        
+        .splash-ayah {
+            font-family: 'Amiri', serif;
+            font-size: 1.3rem;
+            color: #FFD700;
+            direction: rtl;
+            margin-bottom: 8px;
+        }
+        
+        .splash-ayah-translation {
+            color: #81C784;
+            font-size: 0.75rem;
+            font-style: italic;
+            text-align: center;
+            max-width: 250px;
+            line-height: 1.4;
+        }
+        
+        .splash-particles {
+            position: absolute;
+            pointer-events: none;
+        }
+        
+        @keyframes splashParticle {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-100px) scale(0); }
+        }
+        
+        .splash-particle {
+            position: absolute;
+            animation: splashParticle 2s ease-out infinite;
+        }
+        /* ========== 💧 ИКОНКИ С ВОДНЫМ ЭФФЕКТОМ ========== */
+        
+        /* Контейнер иконки */
+        .icon-item {
+            position: relative;
+            overflow: visible !important;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Сама иконка */
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            font-size: 1.6rem;
+            color: white;
+            transition: transform 0.2s ease;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        /* Цвета для разных модулей */
+        .icon-khatm { background: linear-gradient(135deg, #34C759, #30B0C0); }
+        .icon-tauba { background: linear-gradient(135deg, #007AFF, #5856D6); }
+        .icon-names { background: linear-gradient(135deg, #FFD700, #FF9500); }
+        .icon-zikr { background: linear-gradient(135deg, #AF52DE, #FF2D55); }
+        .icon-tasbih { background: linear-gradient(135deg, #5AC8FA, #007AFF); }
+        .icon-fasting { background: linear-gradient(135deg, #1a1a2e, #16213e); }
+        .icon-prayer { background: linear-gradient(135deg, #0a2f1a, #1a5a2a); }
+        .icon-juma { background: linear-gradient(135deg, #2a6e3f, #1d5a34); }
+        .icon-stars { background: linear-gradient(135deg, #FFD700, #FF6B00); }
+        .icon-achievements { background: linear-gradient(135deg, #FF2D55, #FF3B30); }
+        .icon-collection { background: linear-gradient(135deg, #5856D6, #AF52DE); }
+        .icon-quiz { background: linear-gradient(135deg, #FF9500, #FF3B30); }
+        .icon-dictionary { background: linear-gradient(135deg, #8B4513, #A0522D); }
+        .icon-pillars-iman { background: linear-gradient(135deg, #0d3b1f, #1a4a2a); }
+        .icon-pillars-islam { background: linear-gradient(135deg, #0a2f1a, #1a5a2a); }
+        .icon-prophet-story { background: linear-gradient(135deg, #1a4a2a, #0d3b1f); }
+        .icon-battles { background: linear-gradient(135deg, #8B0000, #A52A2A); }
+        .icon-settings { background: linear-gradient(135deg, #8E8E93, #636366); }
+        .icon-quran { background: linear-gradient(135deg, #34C759, #007AFF); }
+        .icon-social { background: linear-gradient(135deg, #007AFF, #00C6FF); }
+        
+        /* Водный эффект */
+        @keyframes waterRipple {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 0.5;
+                margin-left: 0;
+                margin-top: 0;
+            }
+            100% {
+                width: 120px;
+                height: 120px;
+                opacity: 0;
+                margin-left: -60px;
+                margin-top: -60px;
+            }
+        }
+        
+        .water-ripple {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.6);
+            animation: waterRipple 0.6s ease-out forwards;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        /* Нажатие — как в воду */
+        .icon-circle:active {
+            transform: scale(0.9);
+        }
+        
+        /* Подпись */
+        .icon-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #1C1C1E;
+            text-align: center;
+            margin-top: 4px;
+        }
+        
+        /* Бейдж на иконке */
+        .icon-badge-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #FF3B30;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            min-width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 6px;
+            border: 2px solid white;
+            z-index: 2;
+        }
+        .icon-badge-count.green { background: #34C759; }
+        .icon-badge-count.orange { background: #FF9500; }
+        .icon-badge-count.purple { background: #AF52DE; }
+
+        /* ========== 🌙 НЕБО, СОЛНЦЕ, ЛУНА ========== */
+        
+        /* Небо */
+        #skyContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        
+        /* Солнце и Луна */
+        .sky-sun, .sky-moon {
+            position: absolute;
+            font-size: 4rem;
+            transition: all 2s ease;
+            filter: drop-shadow(0 0 20px rgba(255,200,0,0.5));
+        }
+        
+        /* Облака */
+        @keyframes cloudFloat {
+            0% { transform: translateX(-150px); }
+            100% { transform: translateX(calc(100vw + 150px)); }
+        }
+        
+        .sky-cloud {
+            position: absolute;
+            font-size: 3rem;
+            opacity: 0.6;
+            animation: cloudFloat linear infinite;
+            filter: blur(1px);
+        }
+        
+        /* Звёзды */
+        @keyframes starTwinkle {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        .sky-star {
+            position: absolute;
+            font-size: 1rem;
+            animation: starTwinkle ease-in-out infinite;
+        }
+        
+        /* Птицы */
+        @keyframes birdFly {
+            0% { transform: translateX(-50px) translateY(0); }
+            25% { transform: translateX(25vw) translateY(-30px); }
+            50% { transform: translateX(50vw) translateY(0); }
+            75% { transform: translateX(75vw) translateY(-20px); }
+            100% { transform: translateX(100vw) translateY(0); }
+        }
+        
+        .sky-bird {
+            position: absolute;
+            font-size: 1.5rem;
+            animation: birdFly 15s ease-in-out infinite;
+        }
+        /* ========== 🎴 АНИМИРОВАННЫЕ КАРТОЧКИ ========== */
+        
+        /* Появление карточки */
+        @keyframes cardAppear {
+            0% { transform: scale(0) rotate(180deg); opacity: 0; }
+            60% { transform: scale(1.1) rotate(-10deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        
+        /* Голографический блеск */
+        @keyframes holographicShine {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 400% 50%; }
+        }
+        
+        /* Карточка дышит */
+        @keyframes cardBreathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+        
+        /* Карточка парит */
+        @keyframes cardFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        /* Частицы */
+        @keyframes particleFly {
+            0% { opacity: 1; transform: translate(0, 0) scale(1); }
+            100% { opacity: 0; transform: translate(var(--px), var(--py)) scale(0); }
+        }
+        
+        .card-holographic {
+            background: linear-gradient(135deg, #ff0000, #ff7700, #ffff00, #00ff00, #0077ff, #7700ff, #ff0000);
+            background-size: 400% 400%;
+            animation: holographicShine 3s linear infinite;
+        }
+        
+        .card-rare {
+            animation: cardBreathe 3s ease-in-out infinite;
+        }
+        
+        .card-float {
+            animation: cardFloat 4s ease-in-out infinite;
+        }
+        
+        .card-new {
+            animation: cardAppear 0.6s ease-out;
+        }
+        
+        .card-particle {
+            position: fixed;
+            pointer-events: none;
+            font-size: 1rem;
+            z-index: 99999;
+            animation: particleFly 1s ease-out forwards;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
             background: #F2F2F7; 
@@ -26,15 +438,80 @@
         }
         .app-container { max-width: 430px; margin: 0 auto; background: #F2F2F7; min-height: 100vh; position: relative; transition: background 0.3s ease; }
         
-        /* Всплывающее окно XP */
-        .xp-popup { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #2a6e3f, #1d5a34); border: 2px solid #d4af37; border-radius: 50px; padding: 12px 25px; z-index: 9999; display: none; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-width: 90%; }
-        .xp-popup.show { display: flex; animation: slideDown 0.3s ease; }
-        @keyframes slideDown { from { opacity: 0; transform: translateX(-50%) translateY(-20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
-        .xp-popup-level { background: #d4af37; color: #1e3a1a; padding: 5px 15px; border-radius: 30px; font-weight: bold; font-size: 1.1rem; }
-        .xp-popup-bar { width: 200px; height: 12px; background: rgba(255,255,255,0.3); border-radius: 20px; overflow: hidden; }
-        .xp-popup-fill { height: 100%; background: linear-gradient(90deg, #ffd700, #ffed4a); border-radius: 20px; width: 0%; transition: width 0.5s; }
-        .xp-popup-text { color: #ffefc0; font-weight: bold; font-size: 0.9rem; }
-        
+        /* ========== Всплывающее окно XP (КОМПАКТНОЕ) ========== */
+        .xp-popup {
+            position: fixed;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d1f00 50%, #1a1a2e 100%);
+            border: 2px solid #FFD700;
+            border-radius: 50px;
+            padding: 8px 16px;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3), 0 8px 20px rgba(0, 0, 0, 0.4);
+            max-width: 95%;
+            backdrop-filter: blur(10px);
+        }
+        .xp-popup.show {
+            display: flex;
+            animation: xpSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes xpSlideIn {
+            0% { opacity: 0; transform: translateX(-50%) translateY(-20px) scale(0.9); }
+            100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+        }
+        .xp-popup.hiding {
+            animation: xpSlideOut 0.2s ease-in forwards;
+        }
+        @keyframes xpSlideOut {
+            0% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-20px) scale(0.9); }
+        }
+        .xp-popup-level {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #1a1a2e;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 0.75rem;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .xp-popup-bar {
+            width: 100px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            flex-shrink: 1;
+            min-width: 60px;
+        }
+        .xp-popup-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FFD700, #FFA500, #FFD700);
+            background-size: 200% 100%;
+            border-radius: 20px;
+            width: 0%;
+            transition: width 0.5s ease;
+            animation: xpBarShine 2s ease-in-out infinite;
+        }
+        @keyframes xpBarShine {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .xp-popup-text {
+            color: #FFD700;
+            font-weight: 700;
+            font-size: 0.7rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
         /* Верхняя панель (скрыта по умолчанию) */
         .nav-bar { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 12px 16px; display: flex; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
         .nav-bar.hidden { display: none; }
@@ -55,13 +532,127 @@
         .rainbow-header h1 { font-size: 1.8rem; color: #1C1C1E; margin-bottom: 8px; }
         .rainbow-header .arabic { font-family: 'Amiri', serif; font-size: 1.1rem; color: #8E8E93; direction: rtl; }
         
-        /* XP-бар */
-        .xp-bar { background: #FFFFFF; border-radius: 20px; padding: 12px 16px; margin: 0 0 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.02); }
-        .xp-level { background: #007AFF; color: white; padding: 6px 16px; border-radius: 30px; font-weight: 600; font-size: 0.9rem; }
-        .xp-progress { flex: 1; height: 8px; background: #E5E5EA; border-radius: 100px; overflow: hidden; }
-        .xp-fill { width: 35%; height: 100%; background: linear-gradient(90deg, #34C759, #30B0C0, #34C759); background-size: 200% 100%; border-radius: 100px; animation: xpGlow 2s ease-in-out infinite; }
-        @keyframes xpGlow { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-        .xp-text { font-size: 0.8rem; color: #8E8E93; font-weight: 500; }
+        /* ========== УЛУЧШЕННЫЙ XP-БАР ========== */
+        .xp-bar {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 14px 18px;
+            margin: 0 0 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Светящаяся полоска сверху */
+        .xp-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 10%;
+            width: 80%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,215,0,0.5), transparent);
+        }
+        
+        /* Уровень — золотая кнопка */
+        .xp-level {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #1a1a2e;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 0.8rem;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+            white-space: nowrap;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Прогресс-бар */
+        .xp-progress {
+            flex: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 100px;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .xp-fill {
+            width: 35%;
+            height: 100%;
+            background: linear-gradient(90deg, #FFD700, #FFA500, #FFD700);
+            background-size: 200% 100%;
+            border-radius: 100px;
+            animation: xpFillShine 2s ease-in-out infinite;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        
+        /* Блик на баре */
+        .xp-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 30px;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: xpFillGlare 2s ease-in-out infinite;
+        }
+        
+        @keyframes xpFillShine {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        @keyframes xpFillGlare {
+            0% { left: -30px; }
+            100% { left: 110%; }
+        }
+        
+        /* Текст XP */
+        .xp-text {
+            font-size: 0.75rem;
+            color: #FFD700;
+            font-weight: 700;
+            white-space: nowrap;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+        
+        /* Частицы вокруг бара */
+        @keyframes xpParticle {
+            0% { opacity: 0; transform: translateY(0) scale(0); }
+            50% { opacity: 1; }
+            100% { opacity: 0; transform: translateY(-30px) scale(1); }
+        }
+        
+        /* Адаптация */
+        @media (max-width: 400px) {
+            .xp-bar {
+                padding: 12px 14px;
+                gap: 8px;
+            }
+            .xp-level {
+                font-size: 0.7rem;
+                padding: 5px 10px;
+            }
+            .xp-text {
+                font-size: 0.7rem;
+            }
+        }
         
         /* Виджеты */
         .widget { background: #FFFFFF; border-radius: 20px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.02); }
@@ -115,20 +706,179 @@
         .module-tab { padding: 8px 12px; border-radius: 30px; border: none; background: #F2F2F7; color: #1C1C1E; font-weight: 600; font-size: 0.75rem; cursor: pointer; transition: all 0.15s; }
         .module-tab.active { background: #007AFF; color: white; }
         
-        /* Радужная рамка для особых карточек */
-        .card-rainbow { position: relative; border-radius: 20px; z-index: 1; overflow: hidden; background: linear-gradient(145deg, #3a2a0a, #5a4a1a); }
-        .card-rainbow::before { content: ''; position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px; background: linear-gradient(45deg, #ff0000, #ff9900, #ffff00, #33cc33, #3399ff, #6633cc, #ff33cc, #ff0000); background-size: 300% 300%; border-radius: 22px; z-index: -2; animation: rainbowFlow 4s ease infinite; }
-        .card-rainbow::after { content: ''; position: absolute; top: 2px; left: 2px; right: 2px; bottom: 2px; background: inherit; border-radius: 18px; z-index: -1; }
+        /* ========== 🌈 РАДУЖНАЯ РАМКА ДЛЯ ОСОБЫХ КАРТОЧЕК ========== */
+        .card-rainbow {
+            position: relative;
+            border-radius: 20px;
+            z-index: 1;
+            overflow: hidden;
+            background: linear-gradient(145deg, #1a1a2e, #2d1f00);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-rainbow:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.2);
+        }
+        .card-rainbow::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: linear-gradient(
+                45deg,
+                #ff0000, #ff7700, #ffff00, #00ff00,
+                #0077ff, #7700ff, #ff0077, #ff0000
+            );
+            background-size: 400% 400%;
+            border-radius: 23px;
+            z-index: -2;
+            animation: rainbowFlow 4s linear infinite;
+            opacity: 0.8;
+        }
+        @keyframes rainbowFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .card-rainbow::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            right: 3px;
+            bottom: 3px;
+            background: inherit;
+            border-radius: 17px;
+            z-index: -1;
+        }
+        
+        /* ✨ Улучшенная версия — с золотыми искрами */
+        @keyframes rainbowSpark {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+        .card-rainbow::after {
+            box-shadow: inset 0 0 20px rgba(255, 215, 0, 0.1);
+        }
         
         /* Модальные окна */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: flex-end; }
         .modal-content { background: #FFFFFF; border-radius: 24px 24px 0 0; max-width: 430px; width: 100%; max-height: 80vh; overflow-y: auto; padding: 20px; margin: 0 auto; }
         .close-modal { float: right; background: #F2F2F7; width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer; font-size: 1.2rem; }
         
-        /* Салют */
-        .firework-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 99999; }
-        .achievement-center-text { position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #1a4a2a, #0d3b1f); border: 4px solid #d4af37; border-radius: 60px; padding: 20px 35px; color: #ffefc0; font-weight: bold; font-size: 1.8rem; box-shadow: 0 0 80px #d4af37; z-index: 100000; animation: centerTextPop 4s ease-out forwards; white-space: nowrap; }
-        @keyframes centerTextPop { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); } 15% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); } 25% { transform: translate(-50%, -50%) scale(1); } 70% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } }
+        /* ========== 🎆 САЛЮТ ========== */
+        .firework-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99999;
+        }
+        
+        /* Частица салюта */
+        @keyframes fireworkBurst {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0);
+                opacity: 0;
+            }
+        }
+        .firework-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            animation: fireworkBurst 1.5s ease-out forwards;
+        }
+        
+        /* Текст достижения */
+        .achievement-center-text {
+            position: fixed;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #1a1a2e, #2d1f00);
+            border: 3px solid #FFD700;
+            border-radius: 30px;
+            padding: 16px 28px;
+            color: #FFD700;
+            font-weight: 800;
+            font-size: 1.5rem;
+            box-shadow: 
+                0 0 40px rgba(255, 215, 0, 0.4),
+                0 0 80px rgba(255, 165, 0, 0.2),
+                0 0 120px rgba(255, 215, 0, 0.1);
+            z-index: 100000;
+            animation: achievementPop 3.5s ease-out forwards;
+            white-space: nowrap;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            letter-spacing: 1px;
+        }
+        
+        @keyframes achievementPop {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.2) rotate(-10deg);
+            }
+            10% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.15) rotate(3deg);
+            }
+            20% {
+                transform: translate(-50%, -50%) scale(0.95) rotate(-2deg);
+            }
+            25% {
+                transform: translate(-50%, -50%) scale(1) rotate(0deg);
+            }
+            60% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8) translateY(-20px);
+            }
+        }
+        
+        /* Золотые кольца вокруг текста */
+        @keyframes achievementRing {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(2);
+                opacity: 0;
+            }
+        }
+        .achievement-ring {
+            position: fixed;
+            top: 40%;
+            left: 50%;
+            width: 200px;
+            height: 200px;
+            border: 2px solid #FFD700;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 99999;
+            animation: achievementRing 2s ease-out forwards;
+        }
+        
+        /* Адаптация */
+        @media (max-width: 400px) {
+            .achievement-center-text {
+                font-size: 1.2rem;
+                padding: 12px 20px;
+                border-radius: 20px;
+            }
+        }
         
         /* Адаптация для iPhone */
         @supports (padding-bottom: env(safe-area-inset-bottom)) { .tab-bar { padding-bottom: calc(16px + env(safe-area-inset-bottom)); } body { padding-bottom: env(safe-area-inset-bottom); } .nav-bar { padding-top: calc(12px + env(safe-area-inset-top)); } }
@@ -185,88 +935,1193 @@
         p, h1, h2, h3, h4, span { animation: textFadeIn 0.15s ease-out !important; }
         .no-animation, .no-animation * { animation: none !important; transition: none !important; }
 
-        /* ========== ТЕМЫ ОФОРМЛЕНИЯ (ИСПРАВЛЕНО ДЛЯ ВИДИМОСТИ ТЕКСТА) ========== */
-        body.theme-dark { background: #0D1117; }
-        body.theme-dark .app-container { background: #0D1117; }
-        body.theme-dark .ios-card { background: #161B22; border-color: #30363D; }
-        body.theme-dark .ios-card-title { color: #FFFFFF; }
-        body.theme-dark .rainbow-header { background: #161B22; }
-        body.theme-dark .rainbow-header::after { background: #161B22; }
-        body.theme-dark .rainbow-header h1 { color: #FFFFFF; }
-        body.theme-dark .section-title { color: #FFFFFF; }
-        body.theme-dark .icon-item { background: #161B22; border-color: #30363D; }
-        body.theme-dark .icon-label { color: #FFFFFF; }
-        body.theme-dark .widget { background: #161B22; border-color: #30363D; }
-        body.theme-dark .xp-bar { background: #161B22; border-color: #30363D; }
-        body.theme-dark .tab-bar { background: rgba(22, 27, 34, 0.95); border-color: #30363D; }
-        body.theme-dark .nav-bar { background: rgba(22, 27, 34, 0.95); border-color: #30363D; }
-        body.theme-dark .nav-bar-title { color: #FFFFFF; }
-        body.theme-dark .xp-text { color: #C9D1D9; }
-        body.theme-dark .widget-title { color: #D4AF37; }
-        body.theme-dark .prayer-name { color: #8B949E; }
-        body.theme-dark .prayer-time { color: #FFFFFF; }
-        body.theme-dark p, body.theme-dark span, body.theme-dark div:not(.ios-button):not(.badge) { color: #E6EDF3; }
-        body.theme-dark .ios-button.secondary { background: #21262D; color: #58A6FF; }
-        body.theme-dark input, body.theme-dark select, body.theme-dark textarea { background: #0D1117; color: #FFFFFF; border-color: #30363D; }
-        body.theme-dark .module-tab { background: #21262D; color: #C9D1D9; }
-        body.theme-dark .module-tab.active { background: #007AFF; color: #FFFFFF; }
+        /* ========== ТЕМЫ ОФОРМЛЕНИЯ (ПОЛНОСТЬЮ ИСПРАВЛЕНО) ========== */
 
-        body.theme-ramadan { background: linear-gradient(135deg, #1a0a2e, #0d1b2a); }
-        body.theme-ramadan .app-container { background: transparent; }
-        body.theme-ramadan .ios-card { background: rgba(26, 10, 46, 0.8); backdrop-filter: blur(10px); border-color: #D4AF37; }
-        body.theme-ramadan .ios-card-title { color: #FFD700; }
-        body.theme-ramadan .rainbow-header { background: rgba(26, 10, 46, 0.9); }
-        body.theme-ramadan .rainbow-header::after { background: rgba(26, 10, 46, 0.9); }
-        body.theme-ramadan .rainbow-header h1 { color: #FFD700; }
-        body.theme-ramadan .section-title { color: #FFD700; }
-        body.theme-ramadan .icon-item { background: rgba(26, 10, 46, 0.6); backdrop-filter: blur(10px); border-color: #D4AF37; }
-        body.theme-ramadan .icon-label { color: #FFD700; }
-        body.theme-ramadan .widget { background: rgba(26, 10, 46, 0.7); backdrop-filter: blur(10px); border-color: #D4AF37; }
-        body.theme-ramadan .xp-bar { background: rgba(26, 10, 46, 0.8); backdrop-filter: blur(10px); border-color: #D4AF37; }
-        body.theme-ramadan .tab-bar { background: rgba(26, 10, 46, 0.9); border-color: #D4AF37; }
-        body.theme-ramadan .nav-bar { background: rgba(26, 10, 46, 0.9); border-color: #D4AF37; }
-        body.theme-ramadan .nav-bar-title { color: #FFD700; }
-        body.theme-ramadan .xp-text { color: #FFD700; }
-        body.theme-ramadan .widget-title { color: #FFD700; }
-        body.theme-ramadan .prayer-name { color: #D4AF37; }
-        body.theme-ramadan .prayer-time { color: #FFD700; }
-        body.theme-ramadan p, body.theme-ramadan span { color: #F0E6D2; }
-        body.theme-ramadan .ios-button.secondary { background: rgba(255,215,0,0.2); color: #FFD700; }
+/* ===== СВЕТЛАЯ ТЕМА (по умолчанию) ===== */
+body {
+    background: #F2F2F7;
+}
+body .app-container {
+    background: #F2F2F7;
+}
 
-        body.theme-mosque { background: linear-gradient(135deg, #0a2f1a, #0d3b1f, #1a4a2a); }
-        body.theme-mosque .app-container { background: transparent; }
-        body.theme-mosque .ios-card { background: rgba(27, 94, 32, 0.7); backdrop-filter: blur(10px); border-color: #4CAF50; }
-        body.theme-mosque .ios-card-title { color: #FFFFFF; }
-        body.theme-mosque .rainbow-header { background: rgba(27, 94, 32, 0.8); }
-        body.theme-mosque .rainbow-header::after { background: rgba(27, 94, 32, 0.8); }
-        body.theme-mosque .rainbow-header h1 { color: #FFFFFF; }
-        body.theme-mosque .section-title { color: #FFFFFF; }
-        body.theme-mosque .icon-item { background: rgba(27, 94, 32, 0.6); backdrop-filter: blur(10px); border-color: #4CAF50; }
-        body.theme-mosque .icon-label { color: #FFFFFF; }
-        body.theme-mosque .widget { background: rgba(27, 94, 32, 0.7); backdrop-filter: blur(10px); border-color: #4CAF50; }
-        body.theme-mosque .xp-bar { background: rgba(27, 94, 32, 0.8); backdrop-filter: blur(10px); border-color: #4CAF50; }
-        body.theme-mosque .tab-bar { background: rgba(27, 94, 32, 0.9); border-color: #4CAF50; }
-        body.theme-mosque .nav-bar { background: rgba(27, 94, 32, 0.9); border-color: #4CAF50; }
-        body.theme-mosque .nav-bar-title { color: #FFFFFF; }
-        body.theme-mosque .xp-text { color: #C8E6C9; }
-        body.theme-mosque .widget-title { color: #A5D6A7; }
-        body.theme-mosque .prayer-name { color: #81C784; }
-        body.theme-mosque .prayer-time { color: #FFFFFF; }
-        body.theme-mosque p, body.theme-mosque span { color: #E8F5E9; }
-        body.theme-mosque .ios-button.secondary { background: rgba(76,175,80,0.3); color: #FFFFFF; }
+/* ===== ТЁМНАЯ ТЕМА ===== */
+body.theme-dark {
+    background: #0D1117;
+}
+body.theme-dark .app-container {
+    background: #0D1117;
+}
+body.theme-dark .ios-card {
+    background: #161B22 !important;
+    border-color: #30363D !important;
+}
+body.theme-dark .ios-card-title {
+    color: #FFFFFF !important;
+}
+body.theme-dark .rainbow-header {
+    background: #161B22 !important;
+}
+body.theme-dark .rainbow-header::after {
+    background: #161B22 !important;
+}
+body.theme-dark .rainbow-header h1 {
+    color: #FFFFFF !important;
+}
+body.theme-dark .section-title {
+    color: #FFFFFF !important;
+}
+body.theme-dark .icon-item {
+    background: #161B22 !important;
+    border-color: #30363D !important;
+}
+body.theme-dark .icon-label {
+    color: #FFFFFF !important;
+}
+body.theme-dark .widget {
+    background: #161B22 !important;
+    border-color: #30363D !important;
+}
+body.theme-dark .xp-bar {
+    background: #161B22 !important;
+    border-color: #30363D !important;
+}
+body.theme-dark .tab-bar {
+    background: rgba(22, 27, 34, 0.95) !important;
+    border-color: #30363D !important;
+}
+body.theme-dark .nav-bar {
+    background: rgba(22, 27, 34, 0.95) !important;
+    border-color: #30363D !important;
+}
+body.theme-dark .nav-bar-title {
+    color: #FFFFFF !important;
+}
+body.theme-dark .xp-text {
+    color: #C9D1D9 !important;
+}
+body.theme-dark .widget-title {
+    color: #D4AF37 !important;
+}
+body.theme-dark .prayer-name {
+    color: #8B949E !important;
+}
+body.theme-dark .prayer-time {
+    color: #FFFFFF !important;
+}
+body.theme-dark .ios-button.secondary {
+    background: #21262D !important;
+    color: #58A6FF !important;
+}
+body.theme-dark input,
+body.theme-dark select,
+body.theme-dark textarea {
+    background: #0D1117 !important;
+    color: #FFFFFF !important;
+    border-color: #30363D !important;
+}
+body.theme-dark .module-tab {
+    background: #21262D !important;
+    color: #C9D1D9 !important;
+}
+body.theme-dark .module-tab.active {
+    background: #007AFF !important;
+    color: #FFFFFF !important;
+}
 
-        /* ========== ДОПОЛНИТЕЛЬНЫЕ СТИЛИ ДЛЯ НОВЫХ МОДУЛЕЙ ========== */
-        .ramadan-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin: 16px 0; }
-        .ramadan-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: var(--quran-card-bg, #F2F2F7); border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; border: 2px solid transparent; }
-        .ramadan-day.fasted { background: #34C759; color: white; border-color: #FFD700; }
-        .ramadan-day.today { border: 2px solid #007AFF; }
-        .battle-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
-        .battle-tab { padding: 8px 12px; border-radius: 30px; border: none; background: #F2F2F7; color: #1C1C1E; font-weight: 600; font-size: 0.75rem; cursor: pointer; }
-        .battle-tab.active { background: #007AFF; color: white; }
-        .pillars-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .pillar-card { background: #FFFFFF; border-radius: 16px; padding: 20px; text-align: center; border: 2px solid #FFD700; }
+/* Тёмная тема — ВСЕ тексты */
+body.theme-dark p,
+body.theme-dark span,
+body.theme-dark div,
+body.theme-dark label,
+body.theme-dark li,
+body.theme-dark td,
+body.theme-dark th,
+body.theme-dark h1,
+body.theme-dark h2,
+body.theme-dark h3,
+body.theme-dark h4 {
+    color: #E6EDF3 !important;
+}
+body.theme-dark .ios-card-title,
+body.theme-dark .widget-title,
+body.theme-dark .section-title {
+    color: #FFFFFF !important;
+}
+body.theme-dark .badge {
+    color: #FFFFFF !important;
+}
+
+/* Тёмная тема — фоны */
+body.theme-dark div[style*="background: #FFFFFF"],
+body.theme-dark div[style*="background: white"],
+body.theme-dark div[style*="background: #F2F2F7"],
+body.theme-dark div[style*="background: #f5eddb"],
+body.theme-dark div[style*="background: #FFF9E6"],
+body.theme-dark div[style*="background: #E8F5E9"] {
+    background: #161B22 !important;
+    color: #E6EDF3 !important;
+}
+body.theme-dark div[style*="background: #F2F2F7"] p,
+body.theme-dark div[style*="background: #F2F2F7"] span,
+body.theme-dark div[style*="background: #FFF9E6"] p,
+body.theme-dark div[style*="background: #FFF9E6"] span {
+    color: #E6EDF3 !important;
+}
+
+/* Тёмная тема — карточки модулей */
+body.theme-dark .card {
+    background: #161B22 !important;
+    border-color: #30363D !important;
+}
+body.theme-dark .juma-check-item {
+    background: #21262D !important;
+}
+body.theme-dark .ramadan-day {
+    background: #21262D !important;
+    color: #E6EDF3 !important;
+}
+body.theme-dark .pillar-card {
+    background: #161B22 !important;
+    border-color: #30363D !important;
+}
+body.theme-dark .battle-tab {
+    background: #21262D !important;
+    color: #C9D1D9 !important;
+}
+body.theme-dark .battle-tab.active {
+    background: #007AFF !important;
+    color: #FFFFFF !important;
+}
+body.theme-dark .collection-tab {
+    background: #21262D !important;
+    color: #C9D1D9 !important;
+}
+body.theme-dark .collection-tab.active {
+    background: #007AFF !important;
+    color: #FFFFFF !important;
+}
+body.theme-dark .ramadan-day {
+    background: #21262D !important;
+    color: #E6EDF3 !important;
+}
+body.theme-dark .ramadan-day.fasted {
+    background: #34C759 !important;
+    color: white !important;
+}
+
+/* Тёмная тема — викторина */
+body.theme-dark .quiz-answer {
+    background: #21262D !important;
+    color: #FFFFFF !important;
+}
+body.theme-dark .quiz-answer:hover {
+    background: #30363D !important;
+}
+body.theme-dark .quiz-tab {
+    background: #21262D !important;
+    color: #C9D1D9 !important;
+}
+body.theme-dark .quiz-tab.active {
+    background: #007AFF !important;
+    color: #FFFFFF !important;
+}
+
+/* ===== РАМАДАН ТЕМА ===== */
+body.theme-ramadan {
+    background: linear-gradient(135deg, #1a0a2e, #0d1b2a) !important;
+}
+body.theme-ramadan .app-container {
+    background: transparent !important;
+}
+body.theme-ramadan .ios-card {
+    background: rgba(26, 10, 46, 0.9) !important;
+    border-color: #D4AF37 !important;
+}
+body.theme-ramadan .ios-card-title {
+    color: #FFD700 !important;
+}
+body.theme-ramadan .rainbow-header {
+    background: rgba(26, 10, 46, 0.9) !important;
+}
+body.theme-ramadan .rainbow-header::after {
+    background: rgba(26, 10, 46, 0.9) !important;
+}
+body.theme-ramadan .rainbow-header h1 {
+    color: #FFD700 !important;
+}
+body.theme-ramadan .section-title {
+    color: #FFD700 !important;
+}
+body.theme-ramadan .icon-item {
+    background: rgba(26, 10, 46, 0.6) !important;
+    border-color: #D4AF37 !important;
+}
+body.theme-ramadan .icon-label {
+    color: #FFD700 !important;
+}
+body.theme-ramadan .widget {
+    background: rgba(26, 10, 46, 0.7) !important;
+    border-color: #D4AF37 !important;
+}
+body.theme-ramadan .xp-bar {
+    background: rgba(26, 10, 46, 0.8) !important;
+    border-color: #D4AF37 !important;
+}
+body.theme-ramadan .tab-bar {
+    background: rgba(26, 10, 46, 0.9) !important;
+    border-color: #D4AF37 !important;
+}
+body.theme-ramadan .nav-bar {
+    background: rgba(26, 10, 46, 0.9) !important;
+    border-color: #D4AF37 !important;
+}
+body.theme-ramadan .nav-bar-title {
+    color: #FFD700 !important;
+}
+
+/* Рамадан — тексты */
+body.theme-ramadan p,
+body.theme-ramadan span,
+body.theme-ramadan div,
+body.theme-ramadan label,
+body.theme-ramadan li {
+    color: #F0E6D2 !important;
+}
+body.theme-ramadan .ios-card-title,
+body.theme-ramadan .widget-title,
+body.theme-ramadan .section-title,
+body.theme-ramadan .nav-bar-title {
+    color: #FFD700 !important;
+}
+
+/* Рамадан — фоны */
+body.theme-ramadan div[style*="background: #FFFFFF"],
+body.theme-ramadan div[style*="background: white"],
+body.theme-ramadan div[style*="background: #F2F2F7"],
+body.theme-ramadan div[style*="background: #f5eddb"],
+body.theme-ramadan div[style*="background: #FFF9E6"],
+body.theme-ramadan div[style*="background: #E8F5E9"] {
+    background: rgba(26, 10, 46, 0.7) !important;
+    color: #F0E6D2 !important;
+}
+body.theme-ramadan div[style*="background: #F2F2F7"] p,
+body.theme-ramadan div[style*="background: #F2F2F7"] span,
+body.theme-ramadan div[style*="background: #FFF9E6"] p,
+body.theme-ramadan div[style*="background: #FFF9E6"] span {
+    color: #F0E6D2 !important;
+}
+
+/* Рамадан — кнопки */
+body.theme-ramadan .ios-button.secondary {
+    background: rgba(255, 215, 0, 0.2) !important;
+    color: #FFD700 !important;
+}
+body.theme-ramadan .module-tab {
+    background: rgba(26, 10, 46, 0.8) !important;
+    color: #F0E6D2 !important;
+}
+body.theme-ramadan .module-tab.active {
+    background: #FFD700 !important;
+    color: #1a0a2e !important;
+}
+body.theme-ramadan .collection-tab {
+    background: rgba(26, 10, 46, 0.8) !important;
+    color: #F0E6D2 !important;
+}
+body.theme-ramadan .collection-tab.active {
+    background: #FFD700 !important;
+    color: #1a0a2e !important;
+}
+body.theme-ramadan .battle-tab {
+    background: rgba(26, 10, 46, 0.8) !important;
+    color: #F0E6D2 !important;
+}
+body.theme-ramadan .battle-tab.active {
+    background: #FFD700 !important;
+    color: #1a0a2e !important;
+}
+body.theme-ramadan .quiz-answer {
+    background: rgba(26, 10, 46, 0.8) !important;
+    color: #F0E6D2 !important;
+}
+body.theme-ramadan .quiz-tab {
+    background: rgba(26, 10, 46, 0.8) !important;
+    color: #F0E6D2 !important;
+}
+body.theme-ramadan .quiz-tab.active {
+    background: #FFD700 !important;
+    color: #1a0a2e !important;
+}
+body.theme-ramadan .ramadan-day {
+    background: rgba(26, 10, 46, 0.8) !important;
+    color: #F0E6D2 !important;
+}
+body.theme-ramadan .ramadan-day.fasted {
+    background: #FFD700 !important;
+    color: #1a0a2e !important;
+}
+body.theme-ramadan .pillar-card {
+    background: rgba(26, 10, 46, 0.6) !important;
+    border-color: #D4AF37 !important;
+}
+body.theme-ramadan input,
+body.theme-ramadan select,
+body.theme-ramadan textarea {
+    background: rgba(26, 10, 46, 0.8) !important;
+    color: #F0E6D2 !important;
+    border-color: #D4AF37 !important;
+}
+
+/* ===== МЕЧЕТЬ ТЕМА (ИСПРАВЛЕНО) ===== */
+body.theme-mosque {
+    background: linear-gradient(135deg, #0a2f1a, #0d3b1f, #1a4a2a) !important;
+}
+body.theme-mosque .app-container {
+    background: transparent !important;
+}
+body.theme-mosque .ios-card {
+    background: rgba(27, 94, 32, 0.9) !important;
+    border-color: #4CAF50 !important;
+}
+body.theme-mosque .ios-card-title {
+    color: #FFFFFF !important;
+}
+body.theme-mosque .rainbow-header {
+    background: rgba(27, 94, 32, 0.9) !important;
+}
+body.theme-mosque .rainbow-header::after {
+    background: rgba(27, 94, 32, 0.9) !important;
+}
+body.theme-mosque .rainbow-header h1 {
+    color: #FFFFFF !important;
+}
+body.theme-mosque .section-title {
+    color: #FFFFFF !important;
+}
+body.theme-mosque .icon-item {
+    background: rgba(27, 94, 32, 0.7) !important;
+    border-color: #4CAF50 !important;
+}
+body.theme-mosque .icon-label {
+    color: #FFFFFF !important;
+}
+body.theme-mosque .widget {
+    background: rgba(27, 94, 32, 0.8) !important;
+    border-color: #4CAF50 !important;
+}
+body.theme-mosque .xp-bar {
+    background: rgba(27, 94, 32, 0.9) !important;
+    border-color: #4CAF50 !important;
+}
+body.theme-mosque .tab-bar {
+    background: rgba(27, 94, 32, 0.95) !important;
+    border-color: #4CAF50 !important;
+}
+body.theme-mosque .nav-bar {
+    background: rgba(27, 94, 32, 0.95) !important;
+    border-color: #4CAF50 !important;
+}
+body.theme-mosque .nav-bar-title {
+    color: #FFFFFF !important;
+}
+
+/* Мечеть — тексты */
+body.theme-mosque p,
+body.theme-mosque span,
+body.theme-mosque div,
+body.theme-mosque label,
+body.theme-mosque li {
+    color: #E8F5E9 !important;
+}
+body.theme-mosque .ios-card-title,
+body.theme-mosque .widget-title,
+body.theme-mosque .section-title,
+body.theme-mosque .nav-bar-title {
+    color: #FFFFFF !important;
+}
+
+/* Мечеть — фоны */
+body.theme-mosque div[style*="background: #FFFFFF"],
+body.theme-mosque div[style*="background: white"],
+body.theme-mosque div[style*="background: #F2F2F7"],
+body.theme-mosque div[style*="background: #f5eddb"],
+body.theme-mosque div[style*="background: #FFF9E6"],
+body.theme-mosque div[style*="background: #E8F5E9"] {
+    background: rgba(27, 94, 32, 0.7) !important;
+    color: #E8F5E9 !important;
+}
+body.theme-mosque div[style*="background: #F2F2F7"] p,
+body.theme-mosque div[style*="background: #F2F2F7"] span,
+body.theme-mosque div[style*="background: #FFF9E6"] p,
+body.theme-mosque div[style*="background: #FFF9E6"] span {
+    color: #E8F5E9 !important;
+}
+
+/* Мечеть — кнопки и вкладки */
+body.theme-mosque .ios-button.secondary {
+    background: rgba(76, 175, 80, 0.3) !important;
+    color: #FFFFFF !important;
+}
+body.theme-mosque .module-tab {
+    background: rgba(27, 94, 32, 0.8) !important;
+    color: #E8F5E9 !important;
+}
+body.theme-mosque .module-tab.active {
+    background: #4CAF50 !important;
+    color: #FFFFFF !important;
+}
+body.theme-mosque .collection-tab {
+    background: rgba(27, 94, 32, 0.8) !important;
+    color: #E8F5E9 !important;
+}
+body.theme-mosque .collection-tab.active {
+    background: #4CAF50 !important;
+    color: #FFFFFF !important;
+}
+body.theme-mosque .battle-tab {
+    background: rgba(27, 94, 32, 0.8) !important;
+    color: #E8F5E9 !important;
+}
+body.theme-mosque .battle-tab.active {
+    background: #4CAF50 !important;
+    color: #FFFFFF !important;
+}
+body.theme-mosque .quiz-answer {
+    background: rgba(27, 94, 32, 0.8) !important;
+    color: #FFFFFF !important;
+}
+body.theme-mosque .quiz-tab {
+    background: rgba(27, 94, 32, 0.8) !important;
+    color: #E8F5E9 !important;
+}
+body.theme-mosque .quiz-tab.active {
+    background: #4CAF50 !important;
+    color: #FFFFFF !important;
+}
+body.theme-mosque .ramadan-day {
+    background: rgba(27, 94, 32, 0.8) !important;
+    color: #E8F5E9 !important;
+}
+body.theme-mosque .ramadan-day.fasted {
+    background: #4CAF50 !important;
+    color: white !important;
+}
+body.theme-mosque .pillar-card {
+    background: rgba(27, 94, 32, 0.6) !important;
+    border-color: #4CAF50 !important;
+}
+body.theme-mosque input,
+body.theme-mosque select,
+body.theme-mosque textarea {
+    background: rgba(27, 94, 32, 0.8) !important;
+    color: #E8F5E9 !important;
+    border-color: #4CAF50 !important;
+}
+
+/* ===== ОКЕАН ТЕМА ===== */
+body.theme-ocean {
+    background: #0a1628 !important;
+}
+body.theme-ocean .app-container {
+    background: #0a1628 !important;
+}
+body.theme-ocean .ios-card {
+    background: #0d1f3c !important;
+    border-color: #1a4a8a !important;
+}
+body.theme-ocean .ios-card-title {
+    color: #FFFFFF !important;
+}
+body.theme-ocean .rainbow-header {
+    background: #0d1f3c !important;
+}
+body.theme-ocean .rainbow-header::after {
+    background: #0d1f3c !important;
+}
+body.theme-ocean .rainbow-header h1 {
+    color: #FFFFFF !important;
+}
+body.theme-ocean .section-title {
+    color: #FFFFFF !important;
+}
+body.theme-ocean .icon-item {
+    background: #0d1f3c !important;
+    border-color: #1a4a8a !important;
+}
+body.theme-ocean .icon-label {
+    color: #FFFFFF !important;
+}
+body.theme-ocean .widget {
+    background: #0d1f3c !important;
+    border-color: #1a4a8a !important;
+}
+body.theme-ocean .xp-bar {
+    background: #0d1f3c !important;
+    border-color: #1a4a8a !important;
+}
+body.theme-ocean .tab-bar {
+    background: rgba(13, 31, 60, 0.95) !important;
+    border-color: #1a4a8a !important;
+}
+body.theme-ocean .nav-bar {
+    background: rgba(13, 31, 60, 0.95) !important;
+    border-color: #1a4a8a !important;
+}
+body.theme-ocean .nav-bar-title {
+    color: #FFFFFF !important;
+}
+body.theme-ocean p,
+body.theme-ocean span,
+body.theme-ocean div,
+body.theme-ocean label,
+body.theme-ocean li {
+    color: #E8F0FF !important;
+}
+body.theme-ocean .ios-card-title,
+body.theme-ocean .widget-title,
+body.theme-ocean .section-title,
+body.theme-ocean .nav-bar-title {
+    color: #FFFFFF !important;
+}
+body.theme-ocean div[style*="background: #FFFFFF"],
+body.theme-ocean div[style*="background: white"],
+body.theme-ocean div[style*="background: #F2F2F7"],
+body.theme-ocean div[style*="background: #f5eddb"],
+body.theme-ocean div[style*="background: #FFF9E6"],
+body.theme-ocean div[style*="background: #E8F5E9"] {
+    background: #0d1f3c !important;
+    color: #E8F0FF !important;
+}
+body.theme-ocean div[style*="background: #F2F2F7"] p,
+body.theme-ocean div[style*="background: #F2F2F7"] span,
+body.theme-ocean div[style*="background: #FFF9E6"] p,
+body.theme-ocean div[style*="background: #FFF9E6"] span {
+    color: #E8F0FF !important;
+}
+body.theme-ocean .ios-button.secondary {
+    background: #1a3a6a !important;
+    color: #FFFFFF !important;
+}
+body.theme-ocean .module-tab {
+    background: #1a3a6a !important;
+    color: #FFFFFF !important;
+}
+body.theme-ocean .module-tab.active {
+    background: #2a5aaa !important;
+    color: #FFFFFF !important;
+}
+body.theme-ocean .collection-tab {
+    background: #1a3a6a !important;
+    color: #FFFFFF !important;
+}
+body.theme-ocean .collection-tab.active {
+    background: #2a5aaa !important;
+    color: #FFFFFF !important;
+}
+body.theme-ocean .battle-tab {
+    background: #1a3a6a !important;
+    color: #FFFFFF !important;
+}
+body.theme-ocean .battle-tab.active {
+    background: #2a5aaa !important;
+    color: #FFFFFF !important;
+}
+body.theme-ocean .quiz-answer {
+    background: #1a3a6a !important;
+    color: #FFFFFF !important;
+}
+body.theme-ocean .quiz-tab {
+    background: #1a3a6a !important;
+    color: #FFFFFF !important;
+}
+body.theme-ocean .quiz-tab.active {
+    background: #2a5aaa !important;
+    color: #FFFFFF !important;
+}
+body.theme-ocean .ramadan-day {
+    background: #1a3a6a !important;
+    color: #E8F0FF !important;
+}
+body.theme-ocean .ramadan-day.fasted {
+    background: #2a5aaa !important;
+    color: white !important;
+}
+body.theme-ocean .pillar-card {
+    background: #0d1f3c !important;
+    border-color: #1a4a8a !important;
+}
+body.theme-ocean input,
+body.theme-ocean select,
+body.theme-ocean textarea {
+    background: #0a1628 !important;
+    color: #FFFFFF !important;
+    border-color: #1a4a8a !important;
+}
+
+/* ===== ЗОЛОТО ТЕМА ===== */
+body.theme-gold {
+    background: #1a1000 !important;
+}
+body.theme-gold .app-container {
+    background: #1a1000 !important;
+}
+body.theme-gold .ios-card {
+    background: #2a1a00 !important;
+    border-color: #8a6a00 !important;
+}
+body.theme-gold .ios-card-title {
+    color: #FFFFFF !important;
+}
+body.theme-gold .rainbow-header {
+    background: #2a1a00 !important;
+}
+body.theme-gold .rainbow-header::after {
+    background: #2a1a00 !important;
+}
+body.theme-gold .rainbow-header h1 {
+    color: #FFFFFF !important;
+}
+body.theme-gold .section-title {
+    color: #FFD700 !important;
+}
+body.theme-gold .icon-item {
+    background: #2a1a00 !important;
+    border-color: #8a6a00 !important;
+}
+body.theme-gold .icon-label {
+    color: #FFFFFF !important;
+}
+body.theme-gold .widget {
+    background: #2a1a00 !important;
+    border-color: #8a6a00 !important;
+}
+body.theme-gold .xp-bar {
+    background: #2a1a00 !important;
+    border-color: #8a6a00 !important;
+}
+body.theme-gold .tab-bar {
+    background: rgba(42, 26, 0, 0.95) !important;
+    border-color: #8a6a00 !important;
+}
+body.theme-gold .nav-bar {
+    background: rgba(42, 26, 0, 0.95) !important;
+    border-color: #8a6a00 !important;
+}
+body.theme-gold .nav-bar-title {
+    color: #FFFFFF !important;
+}
+body.theme-gold p,
+body.theme-gold span,
+body.theme-gold div,
+body.theme-gold label,
+body.theme-gold li {
+    color: #FFF5E0 !important;
+}
+body.theme-gold .ios-card-title,
+body.theme-gold .widget-title,
+body.theme-gold .section-title,
+body.theme-gold .nav-bar-title {
+    color: #FFD700 !important;
+}
+body.theme-gold div[style*="background: #FFFFFF"],
+body.theme-gold div[style*="background: white"],
+body.theme-gold div[style*="background: #F2F2F7"],
+body.theme-gold div[style*="background: #f5eddb"],
+body.theme-gold div[style*="background: #FFF9E6"],
+body.theme-gold div[style*="background: #E8F5E9"] {
+    background: #2a1a00 !important;
+    color: #FFF5E0 !important;
+}
+body.theme-gold div[style*="background: #F2F2F7"] p,
+body.theme-gold div[style*="background: #F2F2F7"] span,
+body.theme-gold div[style*="background: #FFF9E6"] p,
+body.theme-gold div[style*="background: #FFF9E6"] span {
+    color: #FFF5E0 !important;
+}
+body.theme-gold .ios-button.secondary {
+    background: #5a3a00 !important;
+    color: #FFD700 !important;
+}
+body.theme-gold .module-tab {
+    background: #5a3a00 !important;
+    color: #FFE4B5 !important;
+}
+body.theme-gold .module-tab.active {
+    background: #8a5a00 !important;
+    color: #FFFFFF !important;
+}
+body.theme-gold .collection-tab {
+    background: #5a3a00 !important;
+    color: #FFE4B5 !important;
+}
+body.theme-gold .collection-tab.active {
+    background: #8a5a00 !important;
+    color: #FFFFFF !important;
+}
+body.theme-gold .battle-tab {
+    background: #5a3a00 !important;
+    color: #FFE4B5 !important;
+}
+body.theme-gold .battle-tab.active {
+    background: #8a5a00 !important;
+    color: #FFFFFF !important;
+}
+body.theme-gold .quiz-answer {
+    background: #5a3a00 !important;
+    color: #FFFFFF !important;
+}
+body.theme-gold .quiz-tab {
+    background: #5a3a00 !important;
+    color: #FFE4B5 !important;
+}
+body.theme-gold .quiz-tab.active {
+    background: #8a5a00 !important;
+    color: #FFFFFF !important;
+}
+body.theme-gold .ramadan-day {
+    background: #5a3a00 !important;
+    color: #FFF5E0 !important;
+}
+body.theme-gold .ramadan-day.fasted {
+    background: #8a5a00 !important;
+    color: white !important;
+}
+body.theme-gold .pillar-card {
+    background: #2a1a00 !important;
+    border-color: #8a6a00 !important;
+}
+body.theme-gold input,
+body.theme-gold select,
+body.theme-gold textarea {
+    background: #1a1000 !important;
+    color: #FFFFFF !important;
+    border-color: #8a6a00 !important;
+}
+
+/* ===== САКУРА ТЕМА ===== */
+body.theme-sakura {
+    background: #1a0a1a !important;
+}
+body.theme-sakura .app-container {
+    background: #1a0a1a !important;
+}
+body.theme-sakura .ios-card {
+    background: #2a0a2a !important;
+    border-color: #8a4a8a !important;
+}
+body.theme-sakura .ios-card-title {
+    color: #FFFFFF !important;
+}
+body.theme-sakura .rainbow-header {
+    background: #2a0a2a !important;
+}
+body.theme-sakura .rainbow-header::after {
+    background: #2a0a2a !important;
+}
+body.theme-sakura .rainbow-header h1 {
+    color: #FFFFFF !important;
+}
+body.theme-sakura .section-title {
+    color: #FFB6C1 !important;
+}
+body.theme-sakura .icon-item {
+    background: #2a0a2a !important;
+    border-color: #8a4a8a !important;
+}
+body.theme-sakura .icon-label {
+    color: #FFFFFF !important;
+}
+body.theme-sakura .widget {
+    background: #2a0a2a !important;
+    border-color: #8a4a8a !important;
+}
+body.theme-sakura .xp-bar {
+    background: #2a0a2a !important;
+    border-color: #8a4a8a !important;
+}
+body.theme-sakura .tab-bar {
+    background: rgba(42, 10, 42, 0.95) !important;
+    border-color: #8a4a8a !important;
+}
+body.theme-sakura .nav-bar {
+    background: rgba(42, 10, 42, 0.95) !important;
+    border-color: #8a4a8a !important;
+}
+body.theme-sakura .nav-bar-title {
+    color: #FFFFFF !important;
+}
+body.theme-sakura p,
+body.theme-sakura span,
+body.theme-sakura div,
+body.theme-sakura label,
+body.theme-sakura li {
+    color: #FFE0F0 !important;
+}
+body.theme-sakura .ios-card-title,
+body.theme-sakura .widget-title,
+body.theme-sakura .section-title,
+body.theme-sakura .nav-bar-title {
+    color: #FFB6C1 !important;
+}
+body.theme-sakura div[style*="background: #FFFFFF"],
+body.theme-sakura div[style*="background: white"],
+body.theme-sakura div[style*="background: #F2F2F7"],
+body.theme-sakura div[style*="background: #f5eddb"],
+body.theme-sakura div[style*="background: #FFF9E6"],
+body.theme-sakura div[style*="background: #E8F5E9"] {
+    background: #2a0a2a !important;
+    color: #FFE0F0 !important;
+}
+body.theme-sakura div[style*="background: #F2F2F7"] p,
+body.theme-sakura div[style*="background: #F2F2F7"] span,
+body.theme-sakura div[style*="background: #FFF9E6"] p,
+body.theme-sakura div[style*="background: #FFF9E6"] span {
+    color: #FFE0F0 !important;
+}
+body.theme-sakura .ios-button.secondary {
+    background: #5a2a5a !important;
+    color: #FFB6C1 !important;
+}
+body.theme-sakura .module-tab {
+    background: #5a2a5a !important;
+    color: #FFE0F0 !important;
+}
+body.theme-sakura .module-tab.active {
+    background: #8a4a8a !important;
+    color: #FFFFFF !important;
+}
+body.theme-sakura .collection-tab {
+    background: #5a2a5a !important;
+    color: #FFE0F0 !important;
+}
+body.theme-sakura .collection-tab.active {
+    background: #8a4a8a !important;
+    color: #FFFFFF !important;
+}
+body.theme-sakura .battle-tab {
+    background: #5a2a5a !important;
+    color: #FFE0F0 !important;
+}
+body.theme-sakura .battle-tab.active {
+    background: #8a4a8a !important;
+    color: #FFFFFF !important;
+}
+body.theme-sakura .quiz-answer {
+    background: #5a2a5a !important;
+    color: #FFFFFF !important;
+}
+body.theme-sakura .quiz-tab {
+    background: #5a2a5a !important;
+    color: #FFE0F0 !important;
+}
+body.theme-sakura .quiz-tab.active {
+    background: #8a4a8a !important;
+    color: #FFFFFF !important;
+}
+body.theme-sakura .ramadan-day {
+    background: #5a2a5a !important;
+    color: #FFE0F0 !important;
+}
+body.theme-sakura .ramadan-day.fasted {
+    background: #8a4a8a !important;
+    color: white !important;
+}
+body.theme-sakura .pillar-card {
+    background: #2a0a2a !important;
+    border-color: #8a4a8a !important;
+}
+body.theme-sakura input,
+body.theme-sakura select,
+body.theme-sakura textarea {
+    background: #1a0a1a !important;
+    color: #FFFFFF !important;
+    border-color: #8a4a8a !important;
+}
+
+/* ===== ЗАКАТ ТЕМА ===== */
+body.theme-sunset {
+    background: #1a0a00 !important;
+}
+body.theme-sunset .app-container {
+    background: #1a0a00 !important;
+}
+body.theme-sunset .ios-card {
+    background: #2a1000 !important;
+    border-color: #8a4000 !important;
+}
+body.theme-sunset .ios-card-title {
+    color: #FFFFFF !important;
+}
+body.theme-sunset .rainbow-header {
+    background: #2a1000 !important;
+}
+body.theme-sunset .rainbow-header::after {
+    background: #2a1000 !important;
+}
+body.theme-sunset .rainbow-header h1 {
+    color: #FFFFFF !important;
+}
+body.theme-sunset .section-title {
+    color: #FFA500 !important;
+}
+body.theme-sunset .icon-item {
+    background: #2a1000 !important;
+    border-color: #8a4000 !important;
+}
+body.theme-sunset .icon-label {
+    color: #FFFFFF !important;
+}
+body.theme-sunset .widget {
+    background: #2a1000 !important;
+    border-color: #8a4000 !important;
+}
+body.theme-sunset .xp-bar {
+    background: #2a1000 !important;
+    border-color: #8a4000 !important;
+}
+body.theme-sunset .tab-bar {
+    background: rgba(42, 16, 0, 0.95) !important;
+    border-color: #8a4000 !important;
+}
+body.theme-sunset .nav-bar {
+    background: rgba(42, 16, 0, 0.95) !important;
+    border-color: #8a4000 !important;
+}
+body.theme-sunset .nav-bar-title {
+    color: #FFFFFF !important;
+}
+body.theme-sunset p,
+body.theme-sunset span,
+body.theme-sunset div,
+body.theme-sunset label,
+body.theme-sunset li {
+    color: #FFE4CC !important;
+}
+body.theme-sunset .ios-card-title,
+body.theme-sunset .widget-title,
+body.theme-sunset .section-title,
+body.theme-sunset .nav-bar-title {
+    color: #FFA500 !important;
+}
+body.theme-sunset div[style*="background: #FFFFFF"],
+body.theme-sunset div[style*="background: white"],
+body.theme-sunset div[style*="background: #F2F2F7"],
+body.theme-sunset div[style*="background: #f5eddb"],
+body.theme-sunset div[style*="background: #FFF9E6"],
+body.theme-sunset div[style*="background: #E8F5E9"] {
+    background: #2a1000 !important;
+    color: #FFE4CC !important;
+}
+body.theme-sunset div[style*="background: #F2F2F7"] p,
+body.theme-sunset div[style*="background: #F2F2F7"] span,
+body.theme-sunset div[style*="background: #FFF9E6"] p,
+body.theme-sunset div[style*="background: #FFF9E6"] span {
+    color: #FFE4CC !important;
+}
+body.theme-sunset .ios-button.secondary {
+    background: #5a2000 !important;
+    color: #FFA500 !important;
+}
+body.theme-sunset .module-tab {
+    background: #5a2000 !important;
+    color: #FFE4CC !important;
+}
+body.theme-sunset .module-tab.active {
+    background: #8a3000 !important;
+    color: #FFFFFF !important;
+}
+body.theme-sunset .collection-tab {
+    background: #5a2000 !important;
+    color: #FFE4CC !important;
+}
+body.theme-sunset .collection-tab.active {
+    background: #8a3000 !important;
+    color: #FFFFFF !important;
+}
+body.theme-sunset .battle-tab {
+    background: #5a2000 !important;
+    color: #FFE4CC !important;
+}
+body.theme-sunset .battle-tab.active {
+    background: #8a3000 !important;
+    color: #FFFFFF !important;
+}
+body.theme-sunset .quiz-answer {
+    background: #5a2000 !important;
+    color: #FFFFFF !important;
+}
+body.theme-sunset .quiz-tab {
+    background: #5a2000 !important;
+    color: #FFE4CC !important;
+}
+body.theme-sunset .quiz-tab.active {
+    background: #8a3000 !important;
+    color: #FFFFFF !important;
+}
+body.theme-sunset .ramadan-day {
+    background: #5a2000 !important;
+    color: #FFE4CC !important;
+}
+body.theme-sunset .ramadan-day.fasted {
+    background: #8a3000 !important;
+    color: white !important;
+}
+body.theme-sunset .pillar-card {
+    background: #2a1000 !important;
+    border-color: #8a4000 !important;
+}
+body.theme-sunset input,
+body.theme-sunset select,
+body.theme-sunset textarea {
+    background: #1a0a00 !important;
+    color: #FFFFFF !important;
+    border-color: #8a4000 !important;
+}
+
+        /* ========== 📖 ХАТМ: СТРАНИЦЫ КОРАНА ========== */
+        @keyframes pageFlip {
+            0% { transform: perspective(400px) rotateY(0deg); }
+            100% { transform: perspective(400px) rotateY(-180deg); }
+        }
+        @keyframes bookmarkSlide {
+            0% { left: 0%; }
+            100% { left: 90%; }
+        }
+        @keyframes quranGlow {
+            0%, 100% { box-shadow: 0 0 10px rgba(0,200,0,0.3); }
+            50% { box-shadow: 0 0 30px rgba(0,200,0,0.6), 0 0 50px rgba(0,255,0,0.3); }
+        }
+        .page-flip { animation: pageFlip 0.6s ease-in-out; }
+        .quran-book { animation: quranGlow 2s ease-in-out infinite; }
+        
+        /* ========== 🕌 НАМАЗ: КОВРИК ========== */
+        @keyframes rugUnroll {
+            0% { transform: scaleX(0); opacity: 0; }
+            100% { transform: scaleX(1); opacity: 1; }
+        }
+        @keyframes minaretPulse {
+            0%, 100% { transform: scaleY(1); filter: drop-shadow(0 0 5px gold); }
+            50% { transform: scaleY(1.05); filter: drop-shadow(0 0 20px gold); }
+        }
+        @keyframes clockTick {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(2deg); }
+        }
+        .rug-unroll { animation: rugUnroll 0.8s ease-out; transform-origin: left center; }
+        .minaret-pulse { animation: minaretPulse 2s ease-in-out infinite; }
+        .clock-tick { animation: clockTick 1s ease-in-out infinite; }
+        
+        /* ========== 🏆 ДОСТИЖЕНИЯ: КУБОК ========== */
+        @keyframes trophy3D {
+            0% { transform: perspective(500px) rotateY(0deg) translateY(0); }
+            25% { transform: perspective(500px) rotateY(90deg) translateY(-10px); }
+            50% { transform: perspective(500px) rotateY(180deg) translateY(0); }
+            75% { transform: perspective(500px) rotateY(270deg) translateY(-10px); }
+            100% { transform: perspective(500px) rotateY(360deg) translateY(0); }
+        }
+        @keyframes medalDrop {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 0; }
+            60% { transform: translateY(10px) rotate(360deg); opacity: 1; }
+            80% { transform: translateY(-5px); }
+            100% { transform: translateY(0); }
+        }
+        @keyframes ribbonUnfold {
+            0% { width: 0; opacity: 0; }
+            100% { width: 100%; opacity: 1; }
+        }
+        @keyframes confettiBurst {
+            0% { transform: translate(0,0) scale(0); opacity: 1; }
+            100% { transform: translate(var(--cx),var(--cy)) scale(1); opacity: 0; }
+        }
+        .trophy-3d { animation: trophy3D 4s ease-in-out infinite; }
+        .medal-drop { animation: medalDrop 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
+        .ribbon-unfold { animation: ribbonUnfold 0.5s ease-out; }
+        .confetti-piece {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            animation: confettiBurst 1s ease-out forwards;
+        }
+        
+        /* ========== 👤 ПРОФИЛЬ: УРОВЕНЬ ========== */
+        @keyframes xpBubble {
+            0% { transform: translateY(0) scale(0); opacity: 0; }
+            50% { transform: translateY(-20px) scale(1.2); opacity: 1; }
+            100% { transform: translateY(-40px) scale(0); opacity: 0; }
+        }
+        @keyframes crownDrop {
+            0% { transform: translateY(-50px) rotate(-20deg); opacity: 0; }
+            70% { transform: translateY(5px) rotate(5deg); opacity: 1; }
+            100% { transform: translateY(0) rotate(0deg); opacity: 1; }
+        }
+        @keyframes avatarGlow {
+            0%, 100% { box-shadow: 0 0 10px gold; }
+            50% { box-shadow: 0 0 30px gold, 0 0 60px orange; }
+        }
+        @keyframes starOrbit {
+            0% { transform: rotate(0deg) translateX(40px) rotate(0deg); }
+            100% { transform: rotate(360deg) translateX(40px) rotate(-360deg); }
+        }
+        .xp-bubble {
+            position: absolute;
+            animation: xpBubble 1s ease-out forwards;
+            pointer-events: none;
+            font-weight: bold;
+            color: gold;
+        }
+        .crown-drop { animation: crownDrop 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
+        .avatar-glow { animation: avatarGlow 2s ease-in-out infinite; }
+        .star-orbit { animation: starOrbit 3s linear infinite; }
+        
+        /* ========== 🎴 КОЛЛЕКЦИЯ: ДОПОЛНИТЕЛЬНО ========== */
+        @keyframes cardFanOpen {
+            0% { transform: rotate(0deg) translateX(0); }
+            100% { transform: rotate(var(--angle)) translateX(var(--tx)); }
+        }
+        @keyframes cardExchange {
+            0% { transform: translateX(0) rotate(0deg); }
+            50% { transform: translateX(var(--mx)) translateY(-50px) rotate(360deg); }
+            100% { transform: translateX(var(--ex)) rotate(720deg); }
+        }
+        @keyframes albumPageTurn {
+            0% { transform: perspective(600px) rotateY(0deg); }
+            100% { transform: perspective(600px) rotateY(-180deg); }
+        }
+        .card-fan { transition: all 0.5s ease; }
+        .card-fan.open { transform: rotate(var(--angle)) translateX(var(--tx)); }
+        .card-exchange { animation: cardExchange 0.8s ease-in-out; }
+        .album-page { animation: albumPageTurn 0.6s ease-in-out; transform-origin: left center; }
     </style>
 </head><body>
+
+<!-- 📱 ЭКРАН ЗАГРУЗКИ -->
+<div id="splashScreen">
+    <div class="splash-moon">🌙</div>
+    
+    <!-- Звёзды -->
+    <span class="splash-stars" style="top:15%;left:20%;animation-delay:0s;">⭐</span>
+    <span class="splash-stars" style="top:25%;right:18%;animation-delay:0.5s;">✨</span>
+    <span class="splash-stars" style="top:10%;left:60%;animation-delay:1s;">💫</span>
+    <span class="splash-stars" style="top:30%;left:35%;animation-delay:0.8s;">🌟</span>
+    
+    <div class="splash-title">Muslim Tracker</div>
+    <div class="splash-subtitle">Ваш исламский помощник</div>
+    
+    <div class="splash-progress">
+        <div class="splash-progress-fill" id="splashProgressFill"></div>
+    </div>
+    
+    <div class="splash-loading-text" id="splashLoadingText">Загрузка...</div>
+    
+    <div class="splash-ayah">رَبِّ زِدْنِي عِلْمًا</div>
+    <div class="splash-ayah-translation">"Господи! Умножь мои знания!" (20:114)</div>
+</div>
+
+<!-- 🌙 НЕБО И ПРИРОДА -->
+<div id="skyContainer"></div>
+
 <div class="app-container">
 
     <!-- Всплывающее окно XP -->
@@ -287,16 +2142,28 @@
         <div class="nav-bar-right"></div>
     </div>
 
-    <!-- ========== ГЛАВНЫЙ ЭКРАН (СЕТКА ИКОНОК) ========== -->
+    <!-- ========== ГЛАВНЫЙ ЭКРАН ========== -->
     <div class="home-screen" id="homeScreen">
         
-        <!-- Радужная шапка -->
         <div class="rainbow-header">
-            <h1>🕌 Muslim Tracker</h1>
-            <div class="arabic">رَبِّ زِدْنِي عِلْمًا</div>
+            <span class="title-moon left">
+                <span class="moon-star top">✨</span>
+                <span class="moon-star bottom">⭐</span>
+                🌙
+            </span>
+            
+            <span class="title-main">MUSLIM TRACKER</span>
+            
+            <span class="title-moon right">
+                <span class="moon-star top">💫</span>
+                <span class="moon-star bottom">✨</span>
+                🌙
+            </span>
+            
+            <div class="title-arabic">رَبِّ زِدْنِي عِلْمًا</div>
         </div>
         
-        <!-- XP-бар (СВЕТЯЩАЯСЯ ЛЕНТА) -->
+        <!-- XP-бар -->
         <div class="xp-bar">
             <span class="xp-level" id="homeLevel">Ур. 1</span>
             <div class="xp-progress">
@@ -320,7 +2187,7 @@
             </div>
         </div>
         
-        <!-- Виджет: Аят дня (МОЖНО СКРЫТЬ ЧЕРЕЗ НАСТРОЙКИ) -->
+        <!-- Виджет: Аят дня -->
         <div class="widget" id="ayahWidget" onclick="openModule('quran')" style="display: block;">
             <div class="widget-header">
                 <span class="widget-title"><i class="fas fa-book"></i> Аят дня</span>
@@ -355,105 +2222,103 @@
             </div>
         </div>
         
-        <!-- Основные модули (АЗКАРЫ УБРАНЫ, ПЕРЕНЕСЕНЫ В ТАБ-БАР) -->
+        <!-- ========== ОСНОВНОЕ ========== -->
         <div class="section-title"><i class="fas fa-star"></i> Основное</div>
         <div class="icon-grid">
             <div class="icon-item" data-module="khatm" onclick="openModule('khatm')">
-                <div class="icon-badge"><div class="icon-emoji">📖</div></div>
+                <div class="icon-circle icon-khatm"><i class="fas fa-book-open"></i></div>
                 <span class="icon-label">Хатм</span>
             </div>
             <div class="icon-item" data-module="tauba" onclick="openModule('tauba')">
-                <div class="icon-badge"><div class="icon-emoji">📝</div></div>
+                <div class="icon-circle icon-tauba"><i class="fas fa-pen-fancy"></i></div>
                 <span class="icon-label">Тауба</span>
             </div>
             <div class="icon-item" data-module="names" onclick="openModule('names')">
-                <div class="icon-badge"><div class="icon-emoji">📜</div><span class="badge" id="namesBadge">99</span></div>
+                <div class="icon-circle icon-names"><i class="fas fa-scroll"></i><span class="icon-badge-count" id="namesBadge">99</span></div>
                 <span class="icon-label">99 Имён</span>
             </div>
-            <!-- Азкары убраны из основной сетки -->
         </div>
         
-        <!-- Ибадат -->
+        <!-- ========== ИБАДАТ ========== -->
         <div class="section-title"><i class="fas fa-hands-praying"></i> Ибадат</div>
         <div class="icon-grid">
             <div class="icon-item" data-module="zikr" onclick="openModule('zikr')">
-                <div class="icon-badge"><div class="icon-emoji">🔢</div></div>
+                <div class="icon-circle icon-zikr"><i class="fas fa-fingerprint"></i></div>
                 <span class="icon-label">Зикр</span>
             </div>
             <div class="icon-item" data-module="tasbih" onclick="openModule('tasbih')">
-                <div class="icon-badge"><div class="icon-emoji">📿</div></div>
+                <div class="icon-circle icon-tasbih"><i class="fas fa-dharmachakra"></i></div>
                 <span class="icon-label">Тасбих</span>
             </div>
             <div class="icon-item" data-module="fasting" onclick="openModule('fasting')">
-                <div class="icon-badge"><div class="icon-emoji">🌙</div></div>
+                <div class="icon-circle icon-fasting"><i class="fas fa-moon"></i></div>
                 <span class="icon-label">Пост</span>
             </div>
             <div class="icon-item" data-module="prayer" onclick="openModule('prayer')">
-                <div class="icon-badge"><div class="icon-emoji">🕌</div></div>
+                <div class="icon-circle icon-prayer"><i class="fas fa-mosque"></i></div>
                 <span class="icon-label">Намаз</span>
             </div>
         </div>
         
-        <!-- Особое -->
+        <!-- ========== ОСОБОЕ ========== -->
         <div class="section-title"><i class="fas fa-crown"></i> Особое</div>
         <div class="icon-grid">
             <div class="icon-item" data-module="juma" onclick="openModule('juma')">
-                <div class="icon-badge"><div class="icon-emoji">🕌</div><span class="badge green" id="jumaBadge">ПТ</span></div>
+                <div class="icon-circle icon-juma"><i class="fas fa-calendar-check"></i><span class="icon-badge-count green" id="jumaBadge">ПТ</span></div>
                 <span class="icon-label">Джума</span>
             </div>
             <div class="icon-item" data-module="stars" onclick="openModule('stars')">
-                <div class="icon-badge"><div class="icon-emoji">⭐</div></div>
+                <div class="icon-circle icon-stars"><i class="fas fa-star"></i></div>
                 <span class="icon-label">Звёзды</span>
             </div>
             <div class="icon-item" data-module="achievements" onclick="openModule('achievements')">
-                <div class="icon-badge"><div class="icon-emoji">🏆</div><span class="badge orange" id="achievementsBadge">0</span></div>
+                <div class="icon-circle icon-achievements"><i class="fas fa-trophy"></i><span class="icon-badge-count orange" id="achievementsBadge">0</span></div>
                 <span class="icon-label">Достижения</span>
             </div>
             <div class="icon-item" data-module="collection" onclick="openModule('collection')">
-                <div class="icon-badge"><div class="icon-emoji">🎴
-</div><span class="badge purple" id="collectionBadge">0</span></div>
+                <div class="icon-circle icon-collection"><i class="fas fa-layer-group"></i><span class="icon-badge-count purple" id="collectionBadge">0</span></div>
                 <span class="icon-label">Коллекция</span>
             </div>
         </div>
         
-        <!-- Сообщество (РЕЙТИНГ УБРАН, КОРАН УБРАН, ДОБАВЛЕНЫ НОВЫЕ) -->
-        <div class="section-title"><i class="fas fa-users"></i> Сообщество</div>
+        <!-- ========== ЗНАНИЯ ========== -->
+        <div class="section-title"><i class="fas fa-graduation-cap"></i> Знания</div>
         <div class="icon-grid">
             <div class="icon-item" data-module="quiz" onclick="openModule('quiz')">
-                <div class="icon-badge"><div class="icon-emoji">❓</div></div>
+                <div class="icon-circle icon-quiz"><i class="fas fa-question-circle"></i></div>
                 <span class="icon-label">Викторина</span>
             </div>
             <div class="icon-item" data-module="dictionary" onclick="openModule('dictionary')">
-                <div class="icon-badge"><div class="icon-emoji">📕</div></div>
+                <div class="icon-circle icon-dictionary"><i class="fas fa-book"></i></div>
                 <span class="icon-label">Словарь</span>
             </div>
             <div class="icon-item" data-module="pillars-iman" onclick="openModule('pillars-iman')">
-                <div class="icon-badge"><div class="icon-emoji">🕋</div></div>
+                <div class="icon-circle icon-pillars-iman"><i class="fas fa-star-and-crescent"></i></div>
                 <span class="icon-label">Столпы Имана</span>
             </div>
             <div class="icon-item" data-module="pillars-islam" onclick="openModule('pillars-islam')">
-                <div class="icon-badge"><div class="icon-emoji">☪️</div></div>
+                <div class="icon-circle icon-pillars-islam"><i class="fas fa-kaaba"></i></div>
                 <span class="icon-label">Столпы Ислама</span>
             </div>
             <div class="icon-item" data-module="prophet-story" onclick="openModule('prophet-story')">
-                <div class="icon-badge"><div class="icon-emoji">ﷺ</div></div>
+                <div class="icon-circle icon-prophet-story"><i class="fas fa-user"></i></div>
                 <span class="icon-label">Пророк ﷺ</span>
             </div>
             <div class="icon-item" data-module="battles" onclick="openModule('battles')">
-                <div class="icon-badge"><div class="icon-emoji">⚔️</div></div>
+                <div class="icon-circle icon-battles"><i class="fas fa-swords"></i></div>
                 <span class="icon-label">Битвы</span>
             </div>
         </div>
         
-        <!-- Система -->
+        <!-- ========== СИСТЕМА ========== -->
         <div class="section-title"><i class="fas fa-sliders-h"></i> Система</div>
         <div class="icon-grid">
             <div class="icon-item" data-module="settings" onclick="openModule('settings')">
-                <div class="icon-badge"><div class="icon-emoji">⚙️</div></div>
+                <div class="icon-circle icon-settings"><i class="fas fa-gear"></i></div>
                 <span class="icon-label">Настройки</span>
             </div>
             <div class="icon-item" data-module="quran" onclick="openModule('quran')">
-                <div class="icon-badge"><div class="icon-emoji">📖</div></div>
+                <div class="icon-circle icon-quran"><i class="fas fa-quran"></i></div>
                 <span class="icon-label">Аят дня</span>
             </div>
         </div>
@@ -1004,16 +2869,33 @@ console.log('💡 Для добавления карточек Джума вып
     }
 
     function showXPPopup() {
-        const popup = document.getElementById('xpPopup'); if (!popup) return;
-        const level = userData.level || 1, xp = userData.xp || 0;
-        const currentXP = XP_LEVELS[level - 1] || 0, nextXP = XP_LEVELS[level] || XP_LEVELS[XP_LEVELS.length - 1];
-        document.getElementById('popupLevel').textContent = `Ур. ${level}`;
-        document.getElementById('popupXpText').textContent = `${xp} / ${nextXP} XP`;
-        document.getElementById('popupXpFill').style.width = Math.min(100, Math.max(0, ((xp - currentXP) / (nextXP - currentXP)) * 100)) + '%';
-        popup.classList.add('show');
-        if (xpPopupTimer) clearTimeout(xpPopupTimer);
-        xpPopupTimer = setTimeout(() => popup.classList.remove('show'), 4000);
-    }
+    const popup = document.getElementById('xpPopup'); 
+    if (!popup) return;
+    
+    const level = userData.level || 1;
+    const xp = userData.xp || 0;
+    const currentXP = XP_LEVELS[level - 1] || 0;
+    const nextXP = XP_LEVELS[level] || XP_LEVELS[XP_LEVELS.length - 1];
+    const percent = Math.min(100, Math.max(0, ((xp - currentXP) / (nextXP - currentXP)) * 100));
+    
+    // Обновляем текст и прогресс
+    document.getElementById('popupLevel').textContent = '⭐ Ур. ' + level;
+    document.getElementById('popupXpText').textContent = xp + ' / ' + nextXP + ' XP';
+    document.getElementById('popupXpFill').style.width = percent + '%';
+    
+    // Убираем класс hiding если есть
+    popup.classList.remove('hiding');
+    
+    // Показываем с анимацией
+    popup.classList.add('show');
+    
+    // Авто-скрытие через 3.5 секунды
+    if (xpPopupTimer) clearTimeout(xpPopupTimer);
+    xpPopupTimer = setTimeout(function() {
+        popup.classList.add('hiding');
+        popup.classList.remove('show');
+    }, 3500);
+}
 
     function showNotification(text) {
         const n = document.createElement('div');
@@ -1036,26 +2918,53 @@ console.log('💡 Для добавления карточек Джума вып
     }
 
     function showFirework(text) {
-        const container = document.getElementById('fireworkContainer');
-        const centerText = document.createElement('div');
-        centerText.className = 'achievement-center-text';
-        centerText.innerHTML = text;
-        document.body.appendChild(centerText);
-        setTimeout(() => centerText.remove(), 4000);
-        const colors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#FFE66D', '#FF8C42', '#DDA0DD', '#87CEEB'];
-        for (let burst = 0; burst < 4; burst++) {
-            setTimeout(() => {
-                for (let i = 0; i < 30; i++) {
-                    const p = document.createElement('div');
-                    p.style.cssText = `position:absolute;width:8px;height:8px;border-radius:50%;background:${colors[Math.floor(Math.random()*colors.length)]};left:${window.innerWidth/2}px;top:${window.innerHeight/3}px;animation:fireworkExplode 1.5s ease-out forwards;`;
-                    p.style.setProperty('--tx', (Math.random()-0.5)*250 + 'px');
-                    p.style.setProperty('--ty', -80 - Math.random()*120 + 'px');
-                    container.appendChild(p);
-                    setTimeout(() => p.remove(), 1500);
-                }
-            }, burst * 200);
-        }
-    }// ========== ФУНКЦИИ АВТОРИЗАЦИИ И СИНХРОНИЗАЦИИ ==========
+    const container = document.getElementById('fireworkContainer');
+    if (!container) return;
+    
+    // Очищаем контейнер
+    container.innerHTML = '';
+    
+    // Золотые кольца вокруг текста
+    for (let ring = 0; ring < 3; ring++) {
+        setTimeout(() => {
+            const ringEl = document.createElement('div');
+            ringEl.className = 'achievement-ring';
+            document.body.appendChild(ringEl);
+            setTimeout(() => ringEl.remove(), 2000);
+        }, ring * 200);
+    }
+    
+    // Текст достижения
+    const centerText = document.createElement('div');
+    centerText.className = 'achievement-center-text';
+    centerText.innerHTML = text;
+    document.body.appendChild(centerText);
+    setTimeout(() => centerText.remove(), 3500);
+    
+    // Частицы салюта
+    const colors = ['#FFD700', '#FFA500', '#FF6347', '#FF69B4', '#00CED1', '#ADFF2F', '#FF1493', '#FFE66D'];
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 3;
+    
+    for (let burst = 0; burst < 5; burst++) {
+        setTimeout(() => {
+            for (let i = 0; i < 40; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'firework-particle';
+                particle.style.left = cx + 'px';
+                particle.style.top = cy + 'px';
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.setProperty('--tx', (Math.random() - 0.5) * 300 + 'px');
+                particle.style.setProperty('--ty', (Math.random() - 0.5) * 300 + 'px');
+                particle.style.width = (4 + Math.random() * 6) + 'px';
+                particle.style.height = particle.style.width;
+                container.appendChild(particle);
+                setTimeout(() => particle.remove(), 1500);
+            }
+        }, burst * 250);
+    }
+}
+// ========== ФУНКЦИИ АВТОРИЗАЦИИ И СИНХРОНИЗАЦИИ ==========
     function openAuthModal() { document.getElementById('authModal').style.display = 'flex'; }
     function closeAuthModal() {
         document.getElementById('authModal').style.display = 'none';
@@ -4334,6 +6243,10 @@ setTimeout(() => displayAyah(getDailyAyah()), 300);
                 <div class="theme-option" data-theme="dark" style="padding: 16px; background: #1C1C1E; border-radius: 14px; border: 2px solid transparent; text-align: center; cursor: pointer;"><div style="font-size: 1.8rem;">🌙</div><div style="font-weight: 600; color: #FFD700;">Тёмная</div></div>
                 <div class="theme-option" data-theme="ramadan" style="padding: 16px; background: linear-gradient(135deg, #1a0a2e, #0d1b2a); border-radius: 14px; border: 2px solid transparent; text-align: center; cursor: pointer;"><div style="font-size: 1.8rem;">🌟</div><div style="font-weight: 600; color: #FFD700;">Рамадан</div></div>
                 <div class="theme-option" data-theme="mosque" style="padding: 16px; background: linear-gradient(135deg, #0a2f1a, #1a4a2a); border-radius: 14px; border: 2px solid transparent; text-align: center; cursor: pointer;"><div style="font-size: 1.8rem;">🕌</div><div style="font-weight: 600; color: #81C784;">Мечеть</div></div>
+                <div class="theme-option" data-theme="ocean" style="padding: 16px; background: linear-gradient(135deg, #001f3f, #004080); border-radius: 14px; border: 2px solid transparent; text-align: center; cursor: pointer;"><div style="font-size: 1.8rem;">🌊</div><div style="font-weight: 600; color: #00BFFF;">Океан</div></div>
+                <div class="theme-option" data-theme="gold" style="padding: 16px; background: linear-gradient(135deg, #1a0a00, #3a2a00); border-radius: 14px; border: 2px solid transparent; text-align: center; cursor: pointer;"><div style="font-size: 1.8rem;">👑</div><div style="font-weight: 600; color: #FFD700;">Золото</div></div>
+                <div class="theme-option" data-theme="sakura" style="padding: 16px; background: linear-gradient(135deg, #1a001a, #330033); border-radius: 14px; border: 2px solid transparent; text-align: center; cursor: pointer;"><div style="font-size: 1.8rem;">🌸</div><div style="font-weight: 600; color: #FFB6C1;">Сакура</div></div>
+                <div class="theme-option" data-theme="sunset" style="padding: 16px; background: linear-gradient(135deg, #2a0a00, #4a1a00); border-radius: 14px; border: 2px solid transparent; text-align: center; cursor: pointer;"><div style="font-size: 1.8rem;">🌅</div><div style="font-weight: 600; color: #FFA500;">Закат</div></div>
             </div>
         </div>
         
@@ -4501,16 +6414,43 @@ async function restoreFromFirebase() {
     }
 }
 
-document.querySelectorAll('.theme-option').forEach(opt => { 
+document.querySelectorAll('.theme-option').forEach(function(opt) { 
     opt.addEventListener('click', function() { 
-        const theme = this.dataset.theme; 
-        document.body.className = `theme-${theme}`; 
+        var theme = this.dataset.theme; 
+        
+        // Удаляем ВСЕ темы
+        document.body.classList.remove('theme-dark', 'theme-ramadan', 'theme-mosque', 'theme-ocean', 'theme-gold', 'theme-sakura', 'theme-sunset');
+        
+        // Добавляем нужную (если не светлая)
+        if (theme !== 'light') {
+            document.body.classList.add('theme-' + theme);
+        }
+        
+        // Сохраняем
         localStorage.setItem('muslim_tracker_theme', theme); 
-        document.querySelectorAll('.theme-option').forEach(o => o.style.borderColor = 'transparent'); 
+        
+        // Обводка
+        document.querySelectorAll('.theme-option').forEach(function(o) {
+            o.style.borderColor = 'transparent'; 
+        });
         this.style.borderColor = '#007AFF'; 
-        showNotification(`🎨 Тема «${theme}» применена!`); 
+        
+        showNotification('🎨 Тема «' + theme + '» применена!'); 
     }); 
 });
+
+// Загрузка сохранённой темы при старте
+(function() {
+    var saved = localStorage.getItem('muslim_tracker_theme') || 'light';
+    if (saved !== 'light') {
+        document.body.classList.add('theme-' + saved);
+    }
+    document.querySelectorAll('.theme-option').forEach(function(opt) {
+        if (opt.dataset.theme === saved) {
+            opt.style.borderColor = '#007AFF';
+        }
+    });
+})();
 
 document.getElementById('notificationInterval')?.addEventListener('change', e => { 
     if (!userData.settings) userData.settings = {}; 
@@ -5021,6 +6961,460 @@ window.checkForUpdatesOnStart = checkForUpdatesOnStart;
 window.openModule = openModule; 
 window.goHome = goHome; 
 window.updateHomeWidgets = updateHomeWidgets;
+</script>
+
+<!-- 🎴 АНИМИРОВАННЫЕ КАРТОЧКИ -->
+<script>
+setTimeout(function(){enhanceCards();},1500);
+
+function enhanceCards(){
+    var g=document.getElementById('collectionGrid');
+    if(!g)return;
+    var c=g.querySelectorAll('div[onclick]');
+    c.forEach(function(d,i){
+        var t=d.textContent||'';
+        if(t.includes('Мифическая')||t.includes('mythic')){
+            d.classList.add('card-holographic','card-float');
+            d.style.border='3px solid gold';
+        }
+        else if(t.includes('Легендарная')||t.includes('legendary')){
+            d.classList.add('card-holographic','card-float');
+        }
+        else if(t.includes('Эпическая')||t.includes('epic')){
+            d.classList.add('card-rare');
+        }
+        d.style.opacity='0';
+        d.style.transform='scale(0.5)';
+        d.style.transition='all 0.5s ease';
+        setTimeout(function(){
+            d.style.opacity='1';
+            d.style.transform='scale(1)';
+        },i*50);
+        var old=d.onclick;
+        d.onclick=function(e){
+            spawnP(e.clientX,e.clientY);
+            d.style.transform='scale(0.9)';
+            setTimeout(function(){
+                d.style.transform='scale(1)';
+                if(old)old.call(d,e);
+            },150);
+        };
+    });
+}
+
+function spawnP(x,y){
+    var e=['✨','💫','⭐','🌟','💎'];
+    for(var i=0;i<8;i++){
+        var p=document.createElement('div');
+        p.className='card-particle';
+        p.textContent=e[Math.floor(Math.random()*e.length)];
+        p.style.left=x+'px';
+        p.style.top=y+'px';
+        p.style.setProperty('--px',(Math.random()-0.5)*100+'px');
+        p.style.setProperty('--py',-(50+Math.random()*50)+'px');
+        p.style.animationDelay=(i*0.05)+'s';
+        document.body.appendChild(p);
+        setTimeout(function(){p.remove();},1000);
+    }
+}
+
+document.querySelectorAll('.collection-tab').forEach(function(t){
+    t.addEventListener('click',function(){setTimeout(enhanceCards,300);});
+});
+
+document.getElementById('refreshCollectionBtn')?.addEventListener('click',function(){
+    setTimeout(enhanceCards,500);
+});
+</script>
+<!-- 📖🕌🏆👤🎴 АНИМАЦИИ ХАТМ, НАМАЗ, ДОСТИЖЕНИЯ, ПРОФИЛЬ, КОЛЛЕКЦИЯ -->
+<script>
+// ========== 📖 ХАТМ: СТРАНИЦЫ ==========
+function animatePageFlip() {
+    var khatmCard = document.querySelector('#module-khatm .ios-card');
+    if (!khatmCard) return;
+    
+    // Эффект перелистывания
+    khatmCard.classList.add('page-flip');
+    setTimeout(function() { khatmCard.classList.remove('page-flip'); }, 600);
+    
+    // Свечение книги
+    var bookIcon = document.querySelector('#module-khatm .fa-book-open');
+    if (bookIcon) {
+        bookIcon.style.animation = 'quranGlow 2s ease-in-out infinite';
+    }
+}
+
+// Перехватываем кнопку "+1 страница"
+setTimeout(function() {
+    var addPageBtn = document.getElementById('addPageBtn');
+    if (addPageBtn) {
+        var origClick = addPageBtn.onclick;
+        addPageBtn.onclick = function(e) {
+            animatePageFlip();
+            if (origClick) origClick.call(this, e);
+        };
+    }
+}, 2000);
+
+// ========== 🕌 НАМАЗ: КОВРИК ==========
+function animatePrayerRug() {
+    var prayerCard = document.querySelector('#module-prayer .ios-card');
+    if (!prayerCard) return;
+    
+    // Добавляем эффект коврика
+    prayerCard.classList.add('rug-unroll');
+    
+    // Минареты пульсируют
+    var mosqueIcon = document.querySelector('#module-prayer .fa-mosque');
+    if (mosqueIcon) {
+        mosqueIcon.classList.add('minaret-pulse');
+    }
+}
+
+// При открытии модуля намаза
+var origOpenModule = openModule;
+openModule = function(moduleId) {
+    origOpenModule(moduleId);
+    
+    if (moduleId === 'prayer') {
+        setTimeout(animatePrayerRug, 300);
+    }
+    
+    if (moduleId === 'khatm') {
+        var bookIcon = document.querySelector('#module-khatm .fa-book-open');
+        if (bookIcon) bookIcon.style.animation = 'quranGlow 2s ease-in-out infinite';
+    }
+};
+
+// ========== 🏆 ДОСТИЖЕНИЯ: КУБОК ==========
+function showTrophyAnimation() {
+    // Создаём модальное окно с кубком
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:100000;display:flex;align-items:center;justify-content:center;flex-direction:column;';
+    
+    overlay.innerHTML = `
+        <div style="font-size:8rem;" class="trophy-3d">🏆</div>
+        <div style="color:gold;font-size:1.5rem;font-weight:bold;margin:20px 0;">Поздравляем!</div>
+        <button style="padding:12px 30px;border-radius:30px;background:gold;border:none;font-weight:bold;cursor:pointer;" onclick="this.parentElement.remove()">Закрыть</button>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    // Конфетти
+    for (var i = 0; i < 50; i++) {
+        var confetti = document.createElement('div');
+        confetti.className = 'confetti-piece';
+        confetti.style.left = '50%';
+        confetti.style.top = '50%';
+        confetti.style.background = ['#FFD700','#FF6B6B','#4ECDC4','#FFE66D','#FF8C42'][Math.floor(Math.random()*5)];
+        confetti.style.setProperty('--cx', (Math.random()-0.5)*300 + 'px');
+        confetti.style.setProperty('--cy', (Math.random()-0.5)*300 + 'px');
+        confetti.style.animationDelay = (Math.random()*0.5) + 's';
+        overlay.appendChild(confetti);
+    }
+    
+    setTimeout(function() { overlay.remove(); }, 3000);
+}
+
+// При получении достижения
+var origShowFirework3 = showFirework;
+showFirework = function(text) {
+    origShowFirework3(text);
+    
+    // Показываем кубок для больших достижений
+    if (text.includes('🎉') || text.includes('ХАТМ') || text.includes('ЛЕГЕНДА')) {
+        setTimeout(showTrophyAnimation, 1000);
+    }
+};
+
+// ========== 👤 ПРОФИЛЬ: УРОВЕНЬ ==========
+function animateLevelUp() {
+    var xpBar = document.querySelector('.xp-bar');
+    if (!xpBar) return;
+    
+    // Пузырьки XP
+    for (var i = 0; i < 10; i++) {
+        var bubble = document.createElement('div');
+        bubble.className = 'xp-bubble';
+        bubble.textContent = '+XP';
+        bubble.style.left = (30 + Math.random() * 40) + '%';
+        bubble.style.top = '50%';
+        bubble.style.animationDelay = (i * 0.1) + 's';
+        xpBar.appendChild(bubble);
+        setTimeout(function() { bubble.remove(); }, 1000);
+    }
+    
+    // Корона на аватар
+    var avatar = document.querySelector('.rainbow-header');
+    if (avatar) {
+        var crown = document.createElement('div');
+        crown.textContent = '👑';
+        crown.style.cssText = 'position:absolute;top:-30px;left:50%;transform:translateX(-50%);font-size:2rem;z-index:10;';
+        crown.classList.add('crown-drop');
+        avatar.style.position = 'relative';
+        avatar.appendChild(crown);
+        setTimeout(function() { crown.remove(); }, 2000);
+    }
+}
+
+// При повышении уровня
+var prevLevel = userData.level || 1;
+setInterval(function() {
+    var currentLevel = userData.level || 1;
+    if (currentLevel > prevLevel) {
+        animateLevelUp();
+        prevLevel = currentLevel;
+    }
+}, 2000);
+
+// Звёзды вокруг аватара
+function addOrbitStars() {
+    var avatar = document.querySelector('.rainbow-header');
+    if (!avatar || avatar.querySelector('.star-orbit')) return;
+    avatar.style.position = 'relative';
+    
+    for (var i = 0; i < 3; i++) {
+        var star = document.createElement('div');
+        star.className = 'star-orbit';
+        star.textContent = '⭐';
+        star.style.cssText = 'position:absolute;top:50%;left:50%;font-size:1rem;pointer-events:none;';
+        star.style.animationDelay = (i * 0.5) + 's';
+        star.style.animationDuration = (2 + i * 0.5) + 's';
+        avatar.appendChild(star);
+    }
+}
+setTimeout(addOrbitStars, 3000);
+
+<script>
+// ========== 🎴 КОЛЛЕКЦИЯ: ВЕЕР КАРТ ==========
+function toggleCardFan() {
+    var grid = document.getElementById('collectionGrid');
+    if (!grid) return;
+    
+    var cards = grid.querySelectorAll('div[onclick]');
+    cards.forEach(function(card, i) {
+        card.style.transition = 'all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55)';
+        
+        if (grid.classList.contains('fan-mode')) {
+            card.style.transform = 'rotate(0deg) translateX(0)';
+        } else {
+            var angle = (i - cards.length/2) * 3;
+            var tx = (i - cards.length/2) * 5;
+            card.style.transform = 'rotate(' + angle + 'deg) translateX(' + tx + 'px)';
+        }
+    });
+    
+    grid.classList.toggle('fan-mode');
+}
+
+function addFanButton() {
+    var collectionCard = document.querySelector('#module-collection .ios-card');
+    if (!collectionCard || document.getElementById('fanBtn')) return;
+    
+    var fanBtn = document.createElement('button');
+    fanBtn.id = 'fanBtn';
+    fanBtn.className = 'ios-button secondary';
+    fanBtn.textContent = '🃏 Веер';
+    fanBtn.style.cssText = 'width:100%;margin-top:10px;';
+    fanBtn.onclick = toggleCardFan;
+    
+    var refreshBtn = document.getElementById('refreshCollectionBtn');
+    if (refreshBtn) {
+        refreshBtn.parentNode.insertBefore(fanBtn, refreshBtn);
+    }
+}
+setTimeout(addFanButton, 2000);
+
+console.log('📖🕌🏆👤🎴 Анимации добавлены!');
+</script>
+
+<!-- 🌙 НЕБО, СОЛНЦЕ, ЛУНА, ОБЛАКА -->
+<script>
+function updateSkyColor(){
+    var h=new Date().getHours(),b=document.body;
+    if(h>=5&&h<7)b.style.background='linear-gradient(180deg,#FF7E5F,#FEB47B 50%,#87CEEB)';
+    else if(h>=7&&h<17)b.style.background='linear-gradient(180deg,#4A90D9,#87CEEB)';
+    else if(h>=17&&h<19)b.style.background='linear-gradient(180deg,#FF512F,#F09819 50%,#2c3e50)';
+    else b.style.background='linear-gradient(180deg,#0a0a2e,#1a1a4e 50%,#0d0d2b)';
+}
+
+var sunEl=null,moonEl=null;
+
+function createSunMoon(){
+    var c=document.getElementById('skyContainer');
+    if(!c)return;
+    if(sunEl)sunEl.remove();
+    if(moonEl)moonEl.remove();
+    sunEl=document.createElement('div');sunEl.className='sky-sun';sunEl.textContent='☀️';c.appendChild(sunEl);
+    moonEl=document.createElement('div');moonEl.className='sky-moon';moonEl.textContent='🌙';c.appendChild(moonEl);
+    updateSunPosition();
+}
+
+function updateSunPosition(){
+    if(!sunEl||!moonEl)return;
+    var n=new Date(),h=n.getHours(),m=n.getMinutes(),t=h*60+m;
+    var sv=t>=360&&t<=1080,mv=!sv,p;
+    if(sv)p=(t-360)/720;
+    else p=t<360?(t+180)/720:(t-900)/720;
+    var x=10+p*80,y=70-Math.sin(p*Math.PI)*50;
+    sunEl.style.left=x+'%';sunEl.style.top=y+'%';sunEl.style.opacity=sv?'1':'0';
+    moonEl.style.left=x+'%';moonEl.style.top=y+'%';moonEl.style.opacity=mv?'1':'0';
+    var d=n.getDate();
+    if(d<=7)moonEl.textContent='🌑';
+    else if(d<=14)moonEl.textContent='🌓';
+    else if(d<=21)moonEl.textContent='🌕';
+    else moonEl.textContent='🌗';
+}
+
+function createClouds(){
+    var c=document.getElementById('skyContainer');
+    if(!c)return;
+    for(var i=0;i<5;i++){
+        var cl=document.createElement('div');cl.className='sky-cloud';cl.textContent='☁️';
+        cl.style.top=(5+Math.random()*40)+'%';
+        cl.style.fontSize=(1.5+Math.random()*2.5)+'rem';
+        cl.style.animationDuration=(20+Math.random()*30)+'s';
+        cl.style.animationDelay=(Math.random()*20)+'s';
+        cl.style.opacity=(0.3+Math.random()*0.4);
+        c.appendChild(cl);
+    }
+}
+
+function createStars(){
+    var c=document.getElementById('skyContainer');
+    if(!c)return;
+    for(var i=0;i<30;i++){
+        var s=document.createElement('div');s.className='sky-star';s.textContent='⭐';
+        s.style.left=Math.random()*100+'%';s.style.top=Math.random()*60+'%';
+        s.style.fontSize=(0.5+Math.random()*1)+'rem';
+        s.style.animationDuration=(2+Math.random()*3)+'s';
+        s.style.animationDelay=(Math.random()*2)+'s';
+        c.appendChild(s);
+    }
+}
+
+function createBirds(){
+    var c=document.getElementById('skyContainer');
+    if(!c)return;
+    for(var i=0;i<3;i++){
+        var b=document.createElement('div');b.className='sky-bird';b.textContent='🕊️';
+        b.style.top=(10+Math.random()*30)+'%';
+        b.style.animationDuration=(12+Math.random()*10)+'s';
+        b.style.animationDelay=(Math.random()*10)+'s';
+        c.appendChild(b);
+    }
+}
+
+function updateNature(){
+    var h=new Date().getHours();
+    document.querySelectorAll('.sky-star').forEach(function(s){s.style.display=(h>=20||h<5)?'block':'none';});
+    document.querySelectorAll('.sky-bird').forEach(function(b){b.style.display=(h>=6&&h<=18)?'block':'none';});
+    updateSkyColor();
+    updateSunPosition();
+}
+
+setTimeout(function(){
+    updateSkyColor();
+    createSunMoon();
+    createClouds();
+    createStars();
+    createBirds();
+    updateNature();
+    setInterval(updateNature,300000);
+},2000);
+</script>
+
+<!-- 💧 ВОДНЫЙ ЭФФЕКТ ДЛЯ ИКОНОК -->
+<script>
+document.addEventListener('click', function(e) {
+    var iconCircle = e.target.closest('.icon-circle');
+    if (!iconCircle) return;
+    
+    var ripple = document.createElement('div');
+    ripple.className = 'water-ripple';
+    iconCircle.appendChild(ripple);
+    
+    setTimeout(function() {
+        ripple.remove();
+    }, 600);
+    
+    if (navigator.vibrate) {
+        navigator.vibrate(10);
+    }
+});
+
+setTimeout(function() {
+    var icons = document.querySelectorAll('.icon-circle');
+    icons.forEach(function(icon, index) {
+        icon.style.opacity = '0';
+        icon.style.transform = 'scale(0.3) translateY(20px)';
+        icon.style.transition = 'all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55)';
+        
+        setTimeout(function() {
+            icon.style.opacity = '1';
+            icon.style.transform = 'scale(1) translateY(0)';
+        }, index * 60);
+    });
+}, 500);
+
+console.log('💧 Водные иконки активированы!');
+</script>
+
+<!-- 📱 ЭКРАН ЗАГРУЗКИ -->
+<script>
+(function() {
+    var splash = document.getElementById('splashScreen');
+    var progressBar = document.getElementById('splashProgressFill');
+    var loadingText = document.getElementById('splashLoadingText');
+    
+    // Частицы вокруг луны
+    var emojis = ['✨', '💫', '⭐', '🌟', '🕌', '📖', '📿'];
+    
+    setInterval(function() {
+        var particle = document.createElement('span');
+        particle.className = 'splash-particle';
+        particle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        particle.style.left = Math.random() * 80 + 10 + '%';
+        particle.style.top = '50%';
+        particle.style.fontSize = (1 + Math.random()) + 'rem';
+        particle.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+        splash.appendChild(particle);
+        
+        setTimeout(function() {
+            particle.remove();
+        }, 2000);
+    }, 300);
+    
+    // Прогресс-бар
+    var progress = 0;
+    var progressInterval = setInterval(function() {
+        progress += Math.random() * 15;
+        if (progress >= 90) {
+            progress = 90;
+            clearInterval(progressInterval);
+        }
+        
+        progressBar.style.width = progress + '%';
+        
+        if (progress < 30) loadingText.textContent = 'Загрузка Корана...';
+        else if (progress < 60) loadingText.textContent = 'Загрузка азкаров...';
+        else if (progress < 80) loadingText.textContent = 'Загрузка достижений...';
+        else loadingText.textContent = 'Почти готово...';
+        
+    }, 200);
+    
+    // Скрываем экран загрузки через 2.5 секунды
+    setTimeout(function() {
+        progressBar.style.width = '100%';
+        loadingText.textContent = 'Готово! БисмиЛлях!';
+        
+        setTimeout(function() {
+            splash.classList.add('hidden');
+        }, 400);
+        
+    }, 2500);
+    
+})();
 </script>
 
 <!-- ========== ФУТЕР ========== -->
