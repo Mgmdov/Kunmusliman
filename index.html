@@ -3618,12 +3618,25 @@ function renderCollection() {
             unlockedIds.includes(card.id) && ['legendary', 'epic', 'mythic'].includes(card.rarity)
         );
     } else if (activeTab === 'all') {
-        cards = ALL_COLLECTION_CARDS.filter(c => unlockedIds.includes(c.id));
-    } else {
-        cards = ALL_COLLECTION_CARDS.filter(c => 
-            c.type === activeTab && unlockedIds.includes(c.id)
-        );
+    cards = ALL_COLLECTION_CARDS.filter(function(c) { 
+        return unlockedIds.includes(c.id); 
+    });
+} else if (activeTab === 'juma') {
+    // Особая обработка для вкладки Джума
+    cards = ALL_COLLECTION_CARDS.filter(function(c) { 
+        return c.type === 'juma' && unlockedIds.includes(c.id); 
+    });
+    // Если в ALL_COLLECTION_CARDS нет карточек Джума, ищем в ALL_CARDS
+    if (cards.length === 0 && typeof ALL_CARDS !== 'undefined') {
+        cards = ALL_CARDS.filter(function(c) { 
+            return c.type === 'juma' && unlockedIds.includes(c.id); 
+        });
     }
+} else {
+    cards = ALL_COLLECTION_CARDS.filter(function(c) { 
+        return c.type === activeTab && unlockedIds.includes(c.id); 
+    });
+}
     
     const uniqueCards = [...new Map(cards.map(c => [c.id, c])).values()];
     
