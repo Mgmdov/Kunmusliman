@@ -16,6 +16,139 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
     <style>
+/* ========== ЕЖЕДНЕВНЫЕ ЗАДАНИЯ ========== */
+.daily-quests-container {
+    background: #FFFFFF;
+    border-radius: 20px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    border: 1px solid rgba(0,0,0,0.02);
+}
+
+.quest-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    background: #F2F2F7;
+    border-radius: 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+}
+
+.quest-item:hover {
+    border-color: #007AFF;
+}
+
+.quest-item.completed {
+    background: #E8F5E9;
+    border-color: #34C759;
+    opacity: 0.7;
+    cursor: default;
+}
+
+.quest-item.completed:hover {
+    border-color: #34C759;
+}
+
+.quest-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+}
+
+.quest-info {
+    flex: 1;
+}
+
+.quest-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #1C1C1E;
+}
+
+.quest-progress {
+    font-size: 0.75rem;
+    color: #8E8E93;
+    margin-top: 4px;
+}
+
+.quest-reward {
+    background: #FFD700;
+    color: #1C1C1E;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+/* Серия дней */
+.streak-container {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    border-radius: 20px;
+    padding: 18px;
+    margin-bottom: 16px;
+    text-align: center;
+    color: #1C1C1E;
+}
+
+.streak-fire {
+    font-size: 2.5rem;
+    animation: fireFloat 1.5s ease-in-out infinite;
+}
+
+@keyframes fireFloat {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-5px) scale(1.1); }
+}
+
+.streak-days {
+    font-size: 2.5rem;
+    font-weight: 800;
+}
+
+.streak-rewards {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 12px;
+    font-size: 0.75rem;
+}
+
+.streak-reward-item {
+    opacity: 0.4;
+    transition: all 0.3s;
+}
+
+.streak-reward-item.unlocked {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.all-quests-completed {
+    background: linear-gradient(135deg, #34C759, #30B0C0);
+    color: white;
+    border-radius: 16px;
+    padding: 14px;
+    text-align: center;
+    margin-top: 12px;
+    cursor: pointer;
+    font-weight: 700;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+}
 /* ========== 🎁 СУНДУКИ ========== */
 .chest-container {
     display: grid;
@@ -2454,6 +2587,31 @@ body.theme-sunset textarea {
             </div>
             <span class="xp-text" id="homeXpText">0 XP</span>
         </div>
+<!-- Серия дней -->
+<div class="streak-container" id="streakContainer">
+    <div class="streak-fire">🔥</div>
+    <div style="font-size: 0.9rem; font-weight: 600;">Серия дней</div>
+    <div class="streak-days" id="streakDaysCount">0</div>
+    <div style="font-size: 0.8rem;">дней подряд</div>
+    <div class="streak-rewards">
+        <div class="streak-reward-item" data-streak="3">3 дня<br>🎁</div>
+        <div class="streak-reward-item" data-streak="7">7 дней<br>🥈</div>
+        <div class="streak-reward-item" data-streak="14">14 дней<br>🥇</div>
+        <div class="streak-reward-item" data-streak="30">30 дней<br>💎</div>
+    </div>
+</div>
+
+<!-- Ежедневные задания -->
+<div class="daily-quests-container" id="dailyQuestsContainer">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <span style="font-weight: 700; font-size: 1rem;">🎯 Ежедневные задания</span>
+        <span style="font-size: 0.75rem; color: #8E8E93;" id="questsResetTime">До сброса: 23:59</span>
+    </div>
+    <div id="dailyQuestsList"></div>
+    <div id="allQuestsCompleted" style="display: none;" class="all-quests-completed" onclick="claimAllQuestsReward()">
+        🎉 Все задания выполнены! Нажми чтобы получить награду!
+    </div>
+</div>
         
         <!-- Виджет: Время намаза -->
         <div class="widget" id="prayerWidget" onclick="openModule('prayer')">
@@ -6059,6 +6217,7 @@ setTimeout(() => {
             <button class="collection-tab" data-collection="battle" style="padding: 8px 12px; border-radius: 30px; border: none; background: #F2F2F7; color: #1C1C1E; font-weight: 600; font-size: 0.75rem;">⚔️ Битвы</button>
             <button class="collection-tab" data-collection="miracle" style="padding: 8px 12px; border-radius: 30px; border: none; background: #F2F2F7; color: #1C1C1E; font-weight: 600; font-size: 0.75rem;">✨ Чудеса</button>
             <button class="collection-tab" data-collection="juma" style="padding: 8px 12px; border-radius: 30px; border: none; background: #F2F2F7; color: #1C1C1E; font-weight: 600; font-size: 0.75rem;">🎴 Джума</button>
+<button class="collection-tab" data-collection="chest" style="padding: 8px 12px; border-radius: 30px; border: none; background: #F2F2F7; color: #1C1C1E; font-weight: 600; font-size: 0.75rem;">🎁 Сундуки</button>
             <button class="collection-tab" data-collection="rare" style="padding: 8px 12px; border-radius: 30px; border: none; background: #F2F2F7; color: #1C1C1E; font-weight: 600; font-size: 0.75rem;">💎 Редкие</button>
             <button class="collection-tab" data-collection="achievement" style="padding: 8px 12px; border-radius: 30px; border: none; background: #F2F2F7; color: #1C1C1E; font-weight: 600; font-size: 0.75rem;">🏆 Достижения</button>
         </div>
@@ -6081,23 +6240,23 @@ function renderCollection() {
     
     const activeTab = document.querySelector('.collection-tab.active')?.dataset.collection || 'all';
     const unlockedIds = userData.unlockedCards || [];
-    
-    // Используем централизованный источник (определён в другом месте)
     const allCards = (typeof getAllCollectionCards === 'function') ? getAllCollectionCards() : (window.ALL_COLLECTION_CARDS || []);
-    
-    console.log('🃏 Коллекция: всего карточек в системе =', allCards.length);
-    console.log('🃏 Разблокировано:', unlockedIds.length);
     
     let cards = [];
     
-    if (activeTab === 'rare') {
+    if (activeTab === 'chest') {
+        // ✅ ТОЛЬКО карточки из сундуков (id начинается с chest_)
+        cards = allCards.filter(function(card) { 
+            return unlockedIds.includes(card.id) && card.id.startsWith('chest_'); 
+        });
+    } else if (activeTab === 'rare') {
         cards = allCards.filter(function(card) { 
             return unlockedIds.includes(card.id) && 
                    ['legendary', 'epic', 'mythic'].includes(card.rarity); 
         });
     } else if (activeTab === 'all') {
-        cards = allCards.filter(function(c) { 
-            return unlockedIds.includes(c.id); 
+        cards = allCards.filter(function(card) { 
+            return unlockedIds.includes(card.id); 
         });
     } else if (activeTab === 'juma') {
         cards = allCards.filter(function(c) { 
@@ -6109,16 +6268,14 @@ function renderCollection() {
         });
     }
     
-    // Удаляем дубликаты
     const uniqueCards = [...new Map(cards.map(function(item) { return [item.id, item]; })).values()];
-    
-    console.log('🃏 Вкладка "' + activeTab + '": найдено =', uniqueCards.length);
     
     if (uniqueCards.length === 0) { 
         c.innerHTML = '<div style="text-align:center;padding:40px;color:#8E8E93;grid-column:1/-1;">' +
             '<i class="fas fa-box-open" style="font-size:3rem;display:block;margin-bottom:16px;"></i>' +
-            '<p style="font-size:1.1rem;margin-bottom:8px;">Пока нет открытых карт</p>' +
-            '<p style="font-size:0.85rem;">Продолжайте пользоваться трекером, чтобы открывать новые карточки!</p>' +
+            '<p style="font-size:1.1rem;margin-bottom:8px;">' + (activeTab === 'chest' ? 'Открывайте сундуки!' : 'Пока нет открытых карт') + '</p>' +
+            '<p style="font-size:0.85rem;">' + (activeTab === 'chest' ? 'Купите сундук за звёзды и получите карточку' : 'Продолжайте пользоваться трекером!') + '</p>' +
+            (activeTab === 'chest' ? '<button onclick="openModule(\'chests\')" style="margin-top:12px;padding:10px 20px;border-radius:20px;border:none;background:#FFD700;color:#1a1a2e;font-weight:700;cursor:pointer;">🎁 К сундукам</button>' : '') +
             '</div>'; 
         updateCollectionBadge();
         return; 
@@ -6126,17 +6283,15 @@ function renderCollection() {
     
     c.innerHTML = uniqueCards.map(function(card) {
         var isUnlocked = unlockedIds.includes(card.id);
-        var isRainbow = card.id === 'zamzam' || card.id === 'muhammad' || card.rarity === 'mythic';
+        var isRainbow = card.id === 'zamzam' || card.rarity === 'mythic' || card.rarity === 'special';
         
         var onclickAction = '';
         if (isUnlocked) {
-            // Используем onclick напрямую, без экранирования в строке
             onclickAction = 'showCardStory("' + card.id + '", "' + (card.name || '').replace(/"/g, '\\"') + '", "' + (card.emoji || '🖼️') + '", "' + (card.story || '').replace(/"/g, '\\"').replace(/\n/g, '\\n') + '")';
         } else {
             onclickAction = 'alert("🔒 ' + (card.conditionText || 'Ещё не открыто') + '")';
         }
         
-        // Картинка или эмодзи
         var imageHtml = '';
         var emojiHtml = '';
         
@@ -6148,7 +6303,6 @@ function renderCollection() {
             emojiHtml = '<div style="font-size:2.5rem;">' + (card.emoji || '🖼️') + '</div>';
         }
         
-        // Стили для радужных карточек
         var rainbowDiv = '';
         var bgStyle = 'background:#FFFFFF;';
         var textColor = '#1C1C1E';
@@ -6163,8 +6317,8 @@ function renderCollection() {
         
         var rarityHtml = '';
         if (card.rarity) {
-            var rarityColors = { 'mythic': '#FFD700', 'legendary': '#FF9500', 'epic': '#AF52DE', 'rare': '#007AFF' };
-            var rarityLabels = { 'mythic': '💫 Мифическая', 'legendary': '✨ Легендарная', 'epic': '💫 Эпическая', 'rare': '🔷 Редкая' };
+            var rarityColors = { 'mythic': '#FFD700', 'legendary': '#FF9500', 'epic': '#AF52DE', 'rare': '#007AFF', 'common': '#8E8E93' };
+            var rarityLabels = { 'mythic': '💫 Мифическая', 'legendary': '✨ Легендарная', 'epic': '💫 Эпическая', 'rare': '🔷 Редкая', 'common': '⬜ Обычная' };
             rarityHtml = '<div style="font-size:0.6rem;padding:4px 8px;border-radius:20px;display:inline-block;margin-top:8px;background:' + (rarityColors[card.rarity] || '#007AFF') + ';color:white;">' + (rarityLabels[card.rarity] || card.rarity) + '</div>';
         }
         
@@ -6184,14 +6338,12 @@ function renderCollection() {
     updateCollectionBadge();
 }
 
-// Обновление значка коллекции
 function updateCollectionBadge() {
     const total = (userData.unlockedCards || []).length;
     const badge = document.getElementById('collectionBadge');
     if (badge) badge.textContent = total;
 }
 
-// Глобальная функция показа истории карточки
 window.showCardStory = function(id, name, emoji, story) {
     var modal = document.getElementById('storyModal');
     var iconEl = document.getElementById('storyIcon');
@@ -6206,7 +6358,6 @@ window.showCardStory = function(id, name, emoji, story) {
     modal.style.display = 'flex';
 };
 
-// Переключение вкладок
 document.querySelectorAll('.collection-tab').forEach(function(t) { 
     t.addEventListener('click', function(e) {
         e.preventDefault(); 
@@ -6223,9 +6374,7 @@ document.querySelectorAll('.collection-tab').forEach(function(t) {
     });
 });
 
-// Кнопка обновления
 document.getElementById('refreshCollectionBtn')?.addEventListener('click', function() {
-    // Принудительно пересобираем коллекцию
     if (typeof initializeAllCollectionCards === 'function') {
         window.ALL_COLLECTION_CARDS = initializeAllCollectionCards();
         localStorage.setItem('all_collection_cards', JSON.stringify(window.ALL_COLLECTION_CARDS));
@@ -6234,7 +6383,6 @@ document.getElementById('refreshCollectionBtn')?.addEventListener('click', funct
     showNotification('🔄 Коллекция обновлена!');
 });
 
-// Авторазблокировка сур
 function autoUnlockSurahsUpTo(currentSura) {
     if (!userData.unlockedSurahs) userData.unlockedSurahs = []; 
     if (!userData.unlockedCards) userData.unlockedCards = [];
@@ -6246,7 +6394,6 @@ function autoUnlockSurahsUpTo(currentSura) {
     saveUserData();
 }
 
-// Запуск при загрузке
 setTimeout(function() { 
     const currentSura = userData.khatm?.currentSura || 1; 
     autoUnlockSurahsUpTo(currentSura); 
@@ -8171,9 +8318,29 @@ const CHEST_CONFIG = {
 let chestHistory = JSON.parse(localStorage.getItem('chest_history') || '[]');
 
 function updateChestBalance() {
-    var balance = userData.stars?.totalStars || 0;
+    // ✅ Синхронизируем звёзды из всех источников
+    if (!userData.stars) userData.stars = { totalStars: 0, lastClaimDate: '', unlockedRanks: [] };
+    
+    var balance = userData.stars.totalStars || 0;
+    
+    // ✅ Если balance = 0, пробуем восстановить из бекапа
+    if (balance === 0) {
+        try {
+            var backup = localStorage.getItem('muslim_tracker_backup');
+            if (backup) {
+                var data = JSON.parse(backup);
+                if (data.stars && data.stars.totalStars > 0) {
+                    balance = data.stars.totalStars;
+                    userData.stars.totalStars = balance;
+                    console.log('💰 Звёзды восстановлены из бекапа:', balance);
+                }
+            }
+        } catch(e) {}
+    }
+    
     var el = document.getElementById('chestStarBalance');
     if (el) el.textContent = balance;
+    
     document.querySelectorAll('.chest-card').forEach(function(card) {
         var ct = '';
         if (card.classList.contains('wooden')) ct = 'wooden';
@@ -8185,24 +8352,59 @@ function updateChestBalance() {
             card.style.filter = balance >= CHEST_CONFIG[ct].cost ? 'none' : 'grayscale(30%)';
         }
     });
+    
+    console.log('💰 Баланс звёзд в сундуках:', balance);
 }
 
 function openChest(chestType) {
+    // ✅ Обновляем баланс перед проверкой
+    if (!userData.stars) userData.stars = { totalStars: 0 };
+    
+    // ✅ Восстанавливаем из бекапа если нужно
+    if (userData.stars.totalStars === 0) {
+        try {
+            var backup = localStorage.getItem('muslim_tracker_backup');
+            if (backup) {
+                var data = JSON.parse(backup);
+                if (data.stars && data.stars.totalStars > 0) {
+                    userData.stars.totalStars = data.stars.totalStars;
+                }
+            }
+        } catch(e) {}
+    }
+    
     var config = CHEST_CONFIG[chestType];
-    var balance = userData.stars?.totalStars || 0;
-    if (balance < config.cost) { showNotification('❌ Недостаточно звёзд! Нужно ' + config.cost + ' ⭐'); return; }
+    var balance = userData.stars.totalStars || 0;
+    
+    if (balance < config.cost) { 
+        showNotification('❌ Недостаточно звёзд! Нужно ' + config.cost + ' ⭐ (у вас: ' + balance + ' ⭐)'); 
+        return; 
+    }
     if (!confirm('Открыть ' + config.name + ' сундук за ' + config.cost + ' ⭐?')) return;
+    
     userData.stars.totalStars = balance - config.cost;
     saveUserData();
+    
     var card = getRandomCard(chestType);
     if (!userData.unlockedCards) userData.unlockedCards = [];
-    if (!userData.unlockedCards.includes(card.id)) { userData.unlockedCards.push(card.id); saveUserData(); }
-    chestHistory.unshift({ chest: chestType, card: card.id, name: card.name, title: card.title, rarity: card.rarity, date: new Date().toISOString() });
+    if (!userData.unlockedCards.includes(card.id)) { 
+        userData.unlockedCards.push(card.id); 
+        saveUserData(); 
+    }
+    
+    chestHistory.unshift({ 
+        chest: chestType, card: card.id, name: card.name, 
+        title: card.title, rarity: card.rarity, date: new Date().toISOString() 
+    });
     if (chestHistory.length > 50) chestHistory = chestHistory.slice(0, 50);
     localStorage.setItem('chest_history', JSON.stringify(chestHistory));
+    
     showChestAnimation(config, card);
-    updateChestBalance(); renderChestHistory(); updateCollectionBadge();
+    updateChestBalance(); 
+    renderChestHistory(); 
+    updateCollectionBadge();
     if (typeof renderCollection === 'function') renderCollection();
+    if (typeof updateStarsUI === 'function') updateStarsUI();
     updateHomeWidgets();
 }
 
@@ -8212,17 +8414,25 @@ function getRandomCard(chestType) {
     var pool = allCards.filter(function(c) { return c.type === config.type && c.id.startsWith('chest_'); });
     if (pool.length === 0) pool = allCards.filter(function(c) { return c.type === config.type; });
     var roll = Math.random() * 100, targetRarity = 'common', cumulative = 0;
-    for (var rarity in config.chances) { cumulative += config.chances[rarity]; if (roll <= cumulative) { targetRarity = rarity; break; } }
+    for (var rarity in config.chances) { 
+        cumulative += config.chances[rarity]; 
+        if (roll <= cumulative) { targetRarity = rarity; break; } 
+    }
     var filtered = pool.filter(function(c) { return c.rarity === targetRarity; });
     if (filtered.length === 0) filtered = pool;
     var card = filtered[Math.floor(Math.random() * filtered.length)];
-    if (!card) card = { id: 'fb_' + Date.now(), name: 'Тайная карта', title: 'Сюрприз!', emoji: '🎴', type: config.type, rarity: targetRarity, story: 'Редкая карта из ' + config.name + ' сундука!' };
+    if (!card) card = { 
+        id: 'fb_' + Date.now(), name: 'Тайная карта', title: 'Сюрприз!', 
+        emoji: '🎴', type: config.type, rarity: targetRarity, 
+        story: 'Редкая карта из ' + config.name + ' сундука!' 
+    };
     return card;
 }
 
 function showChestAnimation(config, card) {
     var overlay = document.createElement('div');
-    overlay.className = 'chest-opening-overlay'; overlay.id = 'chestOpeningOverlay';
+    overlay.className = 'chest-opening-overlay'; 
+    overlay.id = 'chestOpeningOverlay';
     var rc = 'card-rarity-' + (card.rarity || 'common');
     var shortStory = (card.story || 'Описание отсутствует').substring(0, 150) + '...';
     
@@ -8249,20 +8459,31 @@ function showChestAnimation(config, card) {
 function revealCard() {
     var chest = document.querySelector('.chest-opening-chest');
     var card = document.getElementById('chestRevealedCard');
-    if (chest && card) { chest.style.display = 'none'; card.style.display = 'block'; if (navigator.vibrate) navigator.vibrate([50, 30, 50]); }
+    if (chest && card) { 
+        chest.style.display = 'none'; 
+        card.style.display = 'block'; 
+        if (navigator.vibrate) navigator.vibrate([50, 30, 50]); 
+    }
 }
 
-function closeChestAnimation() { var o = document.getElementById('chestOpeningOverlay'); if (o) o.remove(); }
+function closeChestAnimation() { 
+    var o = document.getElementById('chestOpeningOverlay'); 
+    if (o) o.remove(); 
+}
 
 function spawnChestParticles(config) {
     var emojis = ['✨', '💫', '⭐', '🌟', '💎'];
     var c = document.createElement('div');
-    c.className = 'chest-particles'; c.style.left = '50%'; c.style.top = '50%';
+    c.className = 'chest-particles'; 
+    c.style.left = '50%'; 
+    c.style.top = '50%';
     document.body.appendChild(c);
     for (var i = 0; i < 30; i++) {
         var p = document.createElement('div');
-        p.className = 'chest-particle'; p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        p.style.left = '0'; p.style.top = '0';
+        p.className = 'chest-particle'; 
+        p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        p.style.left = '0'; 
+        p.style.top = '0';
         p.style.setProperty('--px', (Math.random() - 0.5) * 300 + 'px');
         p.style.setProperty('--py', (Math.random() - 0.5) * 300 + 'px');
         p.style.animationDelay = (i * 0.03) + 's';
@@ -8272,14 +8493,20 @@ function spawnChestParticles(config) {
 }
 
 function getRarityName(r) {
-    var n = { common: 'Обычная', rare: 'Редкая', epic: 'Эпическая', legendary: 'Легендарная', mythic: 'Мифическая', special: '⭐ Особая!' };
+    var n = { 
+        common: 'Обычная', rare: 'Редкая', epic: 'Эпическая', 
+        legendary: 'Легендарная', mythic: 'Мифическая', special: '⭐ Особая!' 
+    };
     return n[r] || r;
 }
 
 function renderChestHistory() {
     var c = document.getElementById('chestHistory');
     if (!c) return;
-    if (!chestHistory.length) { c.innerHTML = '<p style="text-align:center;color:#8E8E93;">Пока нет открытых сундуков</p>'; return; }
+    if (!chestHistory.length) { 
+        c.innerHTML = '<p style="text-align:center;color:#8E8E93;">Пока нет открытых сундуков</p>'; 
+        return; 
+    }
     c.innerHTML = chestHistory.slice(0, 20).map(function(h) {
         var cfg = CHEST_CONFIG[h.chest];
         var d = new Date(h.date);
@@ -8298,15 +8525,229 @@ function renderChestHistory() {
     }).join('');
 }
 
-// Расширяем openModule для сундуков (без конфликта)
+// Расширяем openModule для сундуков
 var _openModuleChest = openModule;
 openModule = function(mid) {
     _openModuleChest(mid);
-    if (mid === 'chests') { updateChestBalance(); renderChestHistory(); }
+    if (mid === 'chests') { 
+        // ✅ Принудительно синхронизируем перед показом
+        if (!userData.stars || userData.stars.totalStars === 0) {
+            try {
+                var backup = localStorage.getItem('muslim_tracker_backup');
+                if (backup) {
+                    var data = JSON.parse(backup);
+                    if (data.stars && data.stars.totalStars > 0) {
+                        userData.stars = data.stars;
+                        saveUserData();
+                    }
+                }
+            } catch(e) {}
+        }
+        updateChestBalance(); 
+        renderChestHistory(); 
+    }
 };
 
 setTimeout(function() { updateChestBalance(); renderChestHistory(); }, 1500);
 console.log('🎁 Система сундуков готова!');
+</script>
+
+<!-- ========== ЕЖЕДНЕВНЫЕ ЗАДАНИЯ ========== -->
+<script>
+const DAILY_QUESTS_POOL = [
+    { id: 'readQuran', name: 'Прочитать Коран', desc: 'Прочитать 5 страниц', icon: '📖', color: '#34C759', check: () => (userData.khatm?.readPages || 0) >= 5, xp: 30, stars: 3, target: 5 },
+    { id: 'doZikr', name: 'Поминание Аллаха', desc: 'Совершить 100 зикров', icon: '📿', color: '#AF52DE', check: () => (userData.totalZikrOverall || 0) >= 100, xp: 25, stars: 2, target: 100 },
+    { id: 'morningAzkar', name: 'Утренние азкары', desc: 'Прочитать утренние азкары', icon: '🌅', color: '#FF9500', check: () => Object.values(userData.azkarChecks?.morning || {}).some(v => v), xp: 20, stars: 2, target: 1 },
+    { id: 'eveningAzkar', name: 'Вечерние азкары', desc: 'Прочитать вечерние азкары', icon: '🌙', color: '#007AFF', check: () => Object.values(userData.azkarChecks?.evening || {}).some(v => v), xp: 20, stars: 2, target: 1 },
+    { id: 'doSalawat', name: 'Салават Пророку ﷺ', desc: 'Сделать 50 салаватов', icon: '🌹', color: '#FF2D55', check: () => (userData.totalSalawat || 0) >= 50, xp: 25, stars: 3, target: 50 },
+    { id: 'taubaDay', name: 'Дневник покаяния', desc: 'Сохранить день в Таубе', icon: '📝', color: '#5856D6', check: () => (userData.tauba?.days || []).some(d => d.date === new Date().toISOString().split('T')[0]), xp: 20, stars: 2, target: 1 },
+    { id: 'fastingDay', name: 'День поста', desc: 'Отметить пост', icon: '🌙', color: '#1a1a2e', check: () => (userData.fasting?.days || []).some(d => d.date === new Date().toISOString().split('T')[0]), xp: 30, stars: 5, target: 1 }
+];
+
+let questProgress = {};
+let dailyStreak = 0;
+
+function loadDailyData() {
+    var today = new Date().toISOString().split('T')[0];
+    var saved = localStorage.getItem('daily_quests_data');
+    
+    if (saved) {
+        var data = JSON.parse(saved);
+        if (data.date === today) {
+            questProgress = data.quests || {};
+        } else {
+            questProgress = {};
+        }
+    }
+    
+    localStorage.setItem('daily_quests_data', JSON.stringify({
+        date: today,
+        quests: questProgress
+    }));
+    
+    updateStreak();
+}
+
+function updateStreak() {
+    var today = new Date().toISOString().split('T')[0];
+    var savedStreak = localStorage.getItem('daily_streak');
+    
+    if (savedStreak) {
+        var data = JSON.parse(savedStreak);
+        var lastDate = new Date(data.lastDate);
+        var todayDate = new Date(today);
+        var diffDays = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 0) {
+            dailyStreak = data.streak || 0;
+        } else if (diffDays === 1) {
+            dailyStreak = (data.streak || 0) + 1;
+        } else {
+            dailyStreak = 1;
+        }
+    } else {
+        dailyStreak = 1;
+    }
+    
+    localStorage.setItem('daily_streak', JSON.stringify({
+        streak: dailyStreak,
+        lastDate: today
+    }));
+    
+    var streakEl = document.getElementById('streakDaysCount');
+    if (streakEl) streakEl.textContent = dailyStreak;
+    
+    document.querySelectorAll('.streak-reward-item').forEach(function(item) {
+        var required = parseInt(item.dataset.streak);
+        item.classList.toggle('unlocked', dailyStreak >= required);
+    });
+    
+    if (dailyStreak === 7) giveStreakReward('silver');
+    if (dailyStreak === 14) giveStreakReward('golden');
+    if (dailyStreak === 30) giveStreakReward('diamond');
+}
+
+function giveStreakReward(chestType) {
+    var key = 'streak_reward_' + chestType + '_' + dailyStreak;
+    if (localStorage.getItem(key)) return;
+    
+    var config = CHEST_CONFIG[chestType];
+    var card = getRandomCard(chestType);
+    if (!userData.unlockedCards) userData.unlockedCards = [];
+    if (!userData.unlockedCards.includes(card.id)) {
+        userData.unlockedCards.push(card.id);
+        saveUserData();
+    }
+    chestHistory.unshift({
+        chest: chestType, card: card.id, name: card.name,
+        title: card.title, rarity: card.rarity, date: new Date().toISOString()
+    });
+    if (chestHistory.length > 50) chestHistory = chestHistory.slice(0, 50);
+    localStorage.setItem('chest_history', JSON.stringify(chestHistory));
+    localStorage.setItem(key, 'true');
+    showChestAnimation(config, card);
+    updateCollectionBadge();
+}
+
+function generateDailyQuests() {
+    var shuffled = [...DAILY_QUESTS_POOL].sort(function() { return Math.random() - 0.5; });
+    return shuffled.slice(0, 3);
+}
+
+function renderDailyQuests() {
+    loadDailyData();
+    var quests = generateDailyQuests();
+    var container = document.getElementById('dailyQuestsList');
+    if (!container) return;
+    
+    if (!userData.stars) userData.stars = { totalStars: 0, lastClaimDate: '', unlockedRanks: [] };
+    var starsBefore = userData.stars.totalStars || 0;
+    
+    var allCompleted = true;
+    
+    container.innerHTML = quests.map(function(q, i) {
+        var progress = questProgress[q.id] || { completed: false, current: 0, claimed: false };
+        
+        if (!progress.completed && q.check()) {
+            progress.completed = true;
+            if (!progress.claimed) {
+                addXP(q.xp);
+                userData.stars.totalStars = (userData.stars.totalStars || 0) + q.stars;
+                saveUserData();
+                progress.claimed = true;
+                showNotification('✅ ' + q.name + ' выполнено! +' + q.xp + ' XP, +' + q.stars + ' ⭐');
+            }
+            questProgress[q.id] = progress;
+        }
+        
+        if (!progress.completed) allCompleted = false;
+        
+        var isCompleted = progress.completed;
+        
+        return '<div class="quest-item ' + (isCompleted ? 'completed' : '') + '">' +
+            '<div class="quest-icon" style="background:' + q.color + ';">' + q.icon + '</div>' +
+            '<div class="quest-info">' +
+                '<div class="quest-name">' + q.name + '</div>' +
+                '<div class="quest-progress">' + q.desc + (isCompleted ? ' ✅' : '') + '</div>' +
+            '</div>' +
+            '<div class="quest-reward">+' + q.xp + ' XP</div>' +
+        '</div>';
+    }).join('');
+    
+    var allReward = document.getElementById('allQuestsCompleted');
+    if (allReward) {
+        allReward.style.display = allCompleted ? 'block' : 'none';
+    }
+    
+    updateHomeWidgets();
+    if (typeof updateStarsUI === 'function') updateStarsUI();
+    updateResetTimer();
+}
+
+function claimAllQuestsReward() {
+    var today = new Date().toISOString().split('T')[0];
+    if (!localStorage.getItem('all_quests_claimed_' + today)) {
+        if (!userData.stars) userData.stars = { totalStars: 0 };
+        addXP(100);
+        userData.stars.totalStars = (userData.stars.totalStars || 0) + 10;
+        saveUserData();
+        localStorage.setItem('all_quests_claimed_' + today, 'true');
+        showFirework('🎯 Все задания выполнены!');
+        showNotification('🎉 +100 XP + 10 ⭐ + бесплатный сундук!');
+        
+        var card = getRandomCard('wooden');
+        if (!userData.unlockedCards) userData.unlockedCards = [];
+        if (!userData.unlockedCards.includes(card.id)) {
+            userData.unlockedCards.push(card.id);
+            saveUserData();
+        }
+        showChestAnimation(CHEST_CONFIG['wooden'], card);
+        updateCollectionBadge();
+        
+        var el = document.getElementById('allQuestsCompleted');
+        if (el) el.style.display = 'none';
+        updateHomeWidgets();
+        if (typeof updateStarsUI === 'function') updateStarsUI();
+    }
+}
+
+function updateResetTimer() {
+    var now = new Date();
+    var tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    var diff = tomorrow - now;
+    var hours = Math.floor(diff / (1000 * 60 * 60));
+    var minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    var el = document.getElementById('questsResetTime');
+    if (el) el.textContent = 'До сброса: ' + hours + 'ч ' + minutes + 'м';
+}
+
+setInterval(function() { renderDailyQuests(); updateResetTimer(); }, 300000);
+
+setTimeout(function() { renderDailyQuests(); updateResetTimer(); }, 1000);
+
+console.log('🎯 Ежедневные задания активированы!');
 </script>
 
 </div> <!-- .app-container -->
