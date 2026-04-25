@@ -3143,7 +3143,7 @@ body.theme-sunset textarea {
     { id: 'chest_s22', name: 'Река Кавсар', title: 'Райская река Пророка ﷺ', emoji: '🏞️', type: 'chest_silver', rarity: 'epic', story: 'Вода белее молока, слаще мёда. Из неё пьют верующие перед входом в Рай. Берега из золота' },
     { id: 'chest_s23', name: 'Сират (Мост)', title: 'Тоньше волоса', emoji: '🌉', type: 'chest_silver', rarity: 'epic', story: 'Все пройдут по нему над Адом. Верующие — быстро как молния, лицемеры упадут в Огонь' },
     { id: 'chest_s24', name: 'Джаханнам (Ад)', title: '7 уровней Огня', emoji: '🔥', type: 'chest_silver', rarity: 'epic', story: 'Огонь Ада в 70 раз сильнее земного. Самый лёгкий уровень — для грешных мусульман. 70 000 цепей и оков' },
-    { id: 'chest_s25', name: 'Малик', title: 'Страж Ада', emoji: '👹', type: 'chest_silver', rarity: 'rare', story: 'Главный ангел Ада. Никогда не улыбается. Когда Аллах показал ему Адама, спросил: «Что думаешь?» Ответил правду' },
+    { id: 'chest_s25', name: 'Малик', title: 'Страж Ада', emoji: '😊', type: 'chest_silver', rarity: 'rare', story: 'Главный ангел Ада. Никогда не улыбается. Когда Аллах показал ему Адама, спросил: «Что думаешь?» Ответил правду' },
     { id: 'chest_s26', name: 'Ридван', title: 'Страж Рая', emoji: '😊', type: 'chest_silver', rarity: 'rare', story: 'Главный ангел Рая. Встречает верующих с миром и приветствием. Открывает им 8 врат Рая' },
     { id: 'chest_s27', name: 'Дунья', title: 'Мирская жизнь', emoji: '🌍', type: 'chest_silver', rarity: 'rare', story: 'Пророк ﷺ: «Эта жизнь — тюрьма для верующего и рай для неверующего». Ценность дуньи перед Аллахом меньше комариного крыла' },
     { id: 'chest_s28', name: 'Барака', title: 'Благословение', emoji: '✨', type: 'chest_silver', rarity: 'epic', story: 'Невидимое увеличение блага. Приходит с благодарностью и покорностью Аллаху. Может быть во времени, деньгах, здоровье' },
@@ -6274,18 +6274,72 @@ function renderCollection() {
     const allCards = (typeof getAllCollectionCards === 'function') ? getAllCollectionCards() : (window.ALL_COLLECTION_CARDS || []);
     
     console.log('🔍 Вкладка:', activeTab, '| Разблокировано:', unlockedIds.length);
+
+    // ✅ СИНХРОНИЗАЦИЯ: добавляем недостающие карточки сундуков в ALL_COLLECTION_CARDS
+    try {
+        var allCardsForSync = (typeof getAllCollectionCards === 'function') ? getAllCollectionCards() : (window.ALL_COLLECTION_CARDS || []);
+        var chestHistoryForSync = [];
+        try { 
+            chestHistoryForSync = JSON.parse(localStorage.getItem('chest_history') || '[]'); 
+        } catch(e) {}
+        
+        unlockedIds.forEach(function(id) {
+            if (id && id.startsWith('chest_') && !allCardsForSync.find(function(c) { return c.id === id; })) {
+                // Ищем информацию в истории
+                var histEntry = chestHistoryForSync.find(function(h) { return h.card === id; });
+                if (histEntry) {
+                    allCardsForSync.push({
+                        id: id,
+                        name: histEntry.name || 'Карта сундука',
+                        title: histEntry.title || '',
+                        emoji: '🎁',
+                        type: histEntry.chest ? ('chest_' + histEntry.chest) : 'chest_wooden',
+                        rarity: histEntry.rarity || 'common',
+                        story: ''
+                    });
+                    console.log('🔄 Восстановлена карточка из истории:', histEntry.name);
+                } else {
+                    // Создаём базовую карточку
+                    allCardsForSync.push({
+                        id: id,
+                        name: 'Карта сундука',
+                        title: '🎁',
+                        emoji: '🎁',
+                        type: 'chest_wooden',
+                        rarity: 'common',
+                        story: 'Карточка из сундука'
+                    });
+                    console.log('🔄 Создана базовая карточка для:', id);
+                }
+            }
+        });
+        
+        // Сохраняем обновлённый массив
+        localStorage.setItem('all_collection_cards', JSON.stringify(allCardsForSync));
+        window.ALL_COLLECTION_CARDS = allCardsForSync;
+        
+        // Обновляем переменную allCards для дальнейшего использования
+        // (так как мы могли добавить новые карточки)
+        var updatedAllCards = allCardsForSync;
+    } catch(e) {
+        console.warn('⚠️ Ошибка синхронизации карточек сундуков:', e);
+        var updatedAllCards = allCards;
+    }
+    
+    // Используем обновлённый массив если он есть, иначе оригинальный
+    var allCardsToUse = (typeof updatedAllCards !== 'undefined') ? updatedAllCards : allCards;
     
     let cards = [];
     
     if (activeTab === 'chest') {
         // ✅ ВСЕ карточки с id начинающимся на chest_
-        cards = allCards.filter(function(card) { 
+        cards = allCardsToUse.filter(function(card) { 
             return unlockedIds.includes(card.id) && card.id.startsWith('chest_'); 
         });
         
         // Если не нашли — ищем по type
         if (cards.length === 0) {
-            cards = allCards.filter(function(card) { 
+            cards = allCardsToUse.filter(function(card) { 
                 return unlockedIds.includes(card.id) && 
                        (card.type === 'chest_wooden' || card.type === 'chest_silver' || 
                         card.type === 'chest_golden' || card.type === 'chest_diamond');
@@ -6294,16 +6348,16 @@ function renderCollection() {
         
         console.log('🔍 Карточек сундуков найдено:', cards.length);
     } else if (activeTab === 'rare') {
-        cards = allCards.filter(function(card) { 
+        cards = allCardsToUse.filter(function(card) { 
             return unlockedIds.includes(card.id) && 
                    ['legendary', 'epic', 'mythic'].includes(card.rarity); 
         });
     } else if (activeTab === 'all') {
-        cards = allCards.filter(function(card) { return unlockedIds.includes(card.id); });
+        cards = allCardsToUse.filter(function(card) { return unlockedIds.includes(card.id); });
     } else if (activeTab === 'juma') {
-        cards = allCards.filter(function(c) { return c.type === 'juma' && unlockedIds.includes(c.id); });
+        cards = allCardsToUse.filter(function(c) { return c.type === 'juma' && unlockedIds.includes(c.id); });
     } else {
-        cards = allCards.filter(function(c) { return c.type === activeTab && unlockedIds.includes(c.id); });
+        cards = allCardsToUse.filter(function(c) { return c.type === activeTab && unlockedIds.includes(c.id); });
     }
     
     const uniqueCards = [...new Map(cards.map(function(item) { return [item.id, item]; })).values()];
@@ -8347,7 +8401,7 @@ loadQuranData();
     <p>"Господь наш! Прими от нас, ведь Ты — Слышащий, Знающий" (2:127)</p>
 </footer>
 
-<!-- ========== 🎁 СКРИПТ СУНДУКОВ ========== -->
+<!-- ========== 🎁 СКРИПТ СУНДУКОВ (ИСПРАВЛЕНО) ========== -->
 <script>
 const CHEST_CONFIG = {
     wooden: { name: 'Деревянный', cost: 50, type: 'chest_wooden', emoji: '🎁', color: '#8B6914', chances: { common: 70, rare: 25, epic: 5 } },
@@ -8384,28 +8438,78 @@ function updateChestBalance() {
 function openChest(type) {
     var config = CHEST_CONFIG[type];
     var balance = getStars();
-    if (balance < config.cost) { showNotification('❌ Нужно ' + config.cost + ' ⭐ (у вас: ' + balance + ')'); return; }
+    
+    if (balance < config.cost) { 
+        showNotification('❌ Нужно ' + config.cost + ' ⭐ (у вас: ' + balance + ')'); 
+        return; 
+    }
     if (!confirm('Открыть ' + config.name + ' сундук за ' + config.cost + ' ⭐?')) return;
     
+    // Списываем звёзды
     userData.stars.totalStars = balance - config.cost;
+    
+    // Получаем случайную карточку
     var card = getRandomCard(type);
     
+    // Инициализируем массивы
     if (!userData.unlockedCards) userData.unlockedCards = [];
-    if (!userData.unlockedCards.includes(card.id)) userData.unlockedCards.push(card.id);
-    saveUserData(); saveLocalBackup();
     
-    var chestBackup = JSON.parse(localStorage.getItem('chest_cards_backup') || '[]');
-    if (!chestBackup.includes(card.id)) { chestBackup.push(card.id); localStorage.setItem('chest_cards_backup', JSON.stringify(chestBackup)); }
+    // ✅ Добавляем ID карточки в unlockedCards
+    if (!userData.unlockedCards.includes(card.id)) {
+        userData.unlockedCards.push(card.id);
+        console.log('✅ Карточка добавлена в unlockedCards:', card.id);
+    }
     
-    chestHistory.unshift({ chest: type, card: card.id, name: card.name, title: card.title, rarity: card.rarity, date: new Date().toISOString() });
+    // Сохраняем основные данные
+    saveUserData(); 
+    saveLocalBackup();
+    
+    // ✅ Сохраняем ID в отдельный бекап сундуков
+    var chestBackup = [];
+    try { 
+        chestBackup = JSON.parse(localStorage.getItem('chest_cards_backup') || '[]'); 
+    } catch(e) { 
+        chestBackup = []; 
+    }
+    if (!chestBackup.includes(card.id)) { 
+        chestBackup.push(card.id); 
+        localStorage.setItem('chest_cards_backup', JSON.stringify(chestBackup));
+        console.log('✅ Карточка сохранена в chest_cards_backup:', card.id);
+    }
+    
+    // ✅ Добавляем в историю
+    chestHistory.unshift({ 
+        chest: type, 
+        card: card.id, 
+        name: card.name, 
+        title: card.title, 
+        rarity: card.rarity, 
+        date: new Date().toISOString() 
+    });
     if (chestHistory.length > 50) chestHistory = chestHistory.slice(0, 50);
     localStorage.setItem('chest_history', JSON.stringify(chestHistory));
     
+    // Показываем анимацию
     showChestAnimation(config, card);
-    updateChestBalance(); renderChestHistory(); updateCollectionBadge(); updateHomeWidgets();
-    if (typeof renderCollection === 'function') setTimeout(function() { renderCollection(); }, 300);
+    
+    // Обновляем интерфейс
+    updateChestBalance(); 
+    renderChestHistory(); 
+    updateCollectionBadge(); 
+    updateHomeWidgets();
+    
+    // Обновляем коллекцию если функция доступна
+    if (typeof renderCollection === 'function') {
+        setTimeout(function() { renderCollection(); }, 300);
+    }
+    
+    // Обновляем звёзды
     if (typeof updateStarsUI === 'function') updateStarsUI();
+    
     showNotification('🎴 ' + card.name + ' в коллекции!');
+    console.log('📊 Статистика после открытия:');
+    console.log('  - unlockedCards всего:', (userData.unlockedCards || []).length);
+    console.log('  - карточек сундуков:', (userData.unlockedCards || []).filter(function(id) { return id.startsWith('chest_'); }).length);
 }
 
 function getRandomCard(chestType) {
@@ -8469,7 +8573,7 @@ function getRandomCard(chestType) {
             { name: 'Река Кавсар', title: 'Райская река Пророка ﷺ', emoji: '🏞️', story: 'Кавсар — райская река, дарованная Пророку Мухаммаду ﷺ. Аллах сказал: «Воистину, Мы даровали тебе Кавсар» (108:1). Пророк ﷺ описал её: «Это река в Раю, обещанная мне Господом. В ней много блага. Её вода белее молока, слаще мёда, а берега из полого жемчуга». У этой реки будет водоём Пророка ﷺ в Судный день, откуда он будет поить свою умму. Кто выпьет из него — никогда не испытает жажды.' },
             { name: 'Сират (Мост)', title: 'Путь над Адом', emoji: '🌉', story: 'Сират — мост, проложенный над Адом, который тоньше волоса и острее меча. По нему пройдут все люди в Судный день. Верующие пройдут по нему в соответствии со своими делами: кто-то — как молния, кто-то — как ветер, кто-то — как скакун, а кто-то — ползком. Лицемеры и неверующие соскользнут с него и упадут в Огонь. Пророк ﷺ и верующие будут молить: «Господи, спаси, спаси!» Пророк ﷺ будет стоять у моста, моля за свою умму.' },
             { name: 'Джаханнам (Ад)', title: 'Семь уровней Огня', emoji: '🔥', story: 'Джаханнам — Ад, место наказания для неверующих и грешников. Имеет 7 уровней, каждый ниже и ужаснее предыдущего: Джаханнам, Лаза, Хутама, Саир, Сакар, Джахим и Хавия. Его огонь в 70 раз сильнее земного, его топливо — люди и камни. Обитатели Ада будут есть плоды дерева Заккум, похожие на головы шайтанов, и пить кипяток. Но грешные мусульмане будут eventually выведены из Ада по милости Аллаха.' },
-            { name: 'Малик', title: 'Страж Ада', emoji: '👹', story: 'Малик — главный ангел-страж Ада, который никогда не улыбается и не проявляет милости. Коран упоминает его: «И воззовут они: "О Малик! Пусть Господь твой покончит с нами!" Он скажет: "Вы останетесь навечно"». У него 19 помощников (ангелов Ада), которые суровы и сильны, и не ослушиваются Аллаха. Пророк ﷺ видел Малика во время Мираджа: он никогда не смеётся, его лицо выражает гнев и суровость.' },
+            { name: 'Малик', title: 'Страж Ада', emoji: '😊', story: 'Малик — главный ангел-страж Ада, который никогда не улыбается и не проявляет милости. Коран упоминает его: «И воззовут они: "О Малик! Пусть Господь твой покончит с нами!" Он скажет: "Вы останетесь навечно"». У него 19 помощников (ангелов Ада), которые суровы и сильны, и не ослушиваются Аллаха. Пророк ﷺ видел Малика во время Мираджа: он никогда не смеётся, его лицо выражает гнев и суровость.' },
             { name: 'Ридван', title: 'Страж Рая', emoji: '😊', story: 'Ридван — главный ангел-страж Рая, который встречает верующих с миром и приветствием. Он открывает врата Рая для достойных и приветствует их словами: «Мир вам! Вы были хороши, войдите же сюда навечно!» У него множество помощников-ангелов, которые приветствуют верующих и поздравляют их со спасением. В отличии от Малика, Ридван всегда улыбается и полон радости, встречая новых обитателей Рая.' },
             { name: 'Дунья', title: 'Бренный мир', emoji: '🌍', story: 'Дунья — земная жизнь, временная обитель человека. Пророк ﷺ сказал: «Эта жизнь — тюрьма для верующего и рай для неверующего». Аллах сравнивает дунью с засыхающим растением, которое ветер развеивает. Она — лишь игра и развлечение, а настоящая жизнь — в Ахирате. Ценность всей дуньи перед Аллахом меньше комариного крыла. Мудрые верующие используют этот мир как поле для посева, чтобы собрать урожай в вечной жизни.' },
             { name: 'Барака', title: 'Божественное благословение', emoji: '✨', story: 'Барака — невидимое божественное благословение, которое Аллах посылает Своим верующим рабам. Это увеличение блага в том, что кажется малым: малое количество еды насыщает многих, короткое время вмещает много дел, небольшие деньги приносят много пользы. Барака приходит с верой, богобоязненностью, благодарностью и честностью. Может быть в деньгах, времени, здоровье, семье. «Если бы вы были благодарны — Я бы увеличил вам» (14:7).' },
@@ -8548,7 +8652,32 @@ function getRandomCard(chestType) {
     var roll = Math.random() * 100, targetRarity = 'common', cumulative = 0;
     for (var rarity in config.chances) { cumulative += config.chances[rarity]; if (roll <= cumulative) { targetRarity = rarity; break; } }
     
-    return { id: config.type + '_' + Date.now(), name: pick.name, title: pick.title, emoji: pick.emoji, type: config.type, rarity: targetRarity, story: pick.story };
+    var cardId = config.type + '_' + Date.now();
+    
+    var card = { 
+        id: cardId, 
+        name: pick.name, 
+        title: pick.title, 
+        emoji: pick.emoji, 
+        type: config.type, 
+        rarity: targetRarity, 
+        story: pick.story || '' 
+    };
+    
+    // ✅ ИСПРАВЛЕНИЕ: Добавляем карточку в общий массив
+    try {
+        var allCards = getAllCollectionCards ? getAllCollectionCards() : (window.ALL_COLLECTION_CARDS || []);
+        if (!allCards.find(function(c) { return c.id === card.id; })) {
+            allCards.push(card);
+            localStorage.setItem('all_collection_cards', JSON.stringify(allCards));
+            window.ALL_COLLECTION_CARDS = allCards;
+            console.log('✅ Карточка добавлена в ALL_COLLECTION_CARDS:', card.id);
+        }
+    } catch(e) {
+        console.warn('⚠️ Не удалось добавить карточку в ALL_COLLECTION_CARDS:', e);
+    }
+    
+    return card;
 }
 
 function showChestAnimation(config, card) {
@@ -8574,36 +8703,155 @@ function renderChestHistory() {
     }).join('');
 }
 
+// ✅ ИСПРАВЛЕННАЯ ФУНКЦИЯ ПРОВЕРКИ КАРТОЧЕК
 function checkMyChestCards() {
+    // Сначала восстанавливаем
     recoverLostCards();
-    var count = (userData.unlockedCards || []).filter(function(id) { return id.startsWith('chest_'); }).length;
-    if (count === 0) { alert('У вас пока нет карточек.\nОткройте сундук!'); }
-    else { alert('У вас ' + count + ' карточек!'); openModule('collection'); setTimeout(function() { var t = document.querySelector('.collection-tab[data-collection="chest"]'); if (t) t.click(); }, 500); }
+    
+    // Собираем все ID сундуков
+    var allChestIds = [];
+    if (userData.unlockedCards) {
+        userData.unlockedCards.forEach(function(id) {
+            if (id && id.startsWith('chest_') && !allChestIds.includes(id)) {
+                allChestIds.push(id);
+            }
+        });
+    }
+    
+    var count = allChestIds.length;
+    
+    if (count === 0) { 
+        alert('У вас пока нет карточек из сундуков.\n\n' +
+              'Откройте сундук чтобы получить карточку!\n\n' +
+              'Баланс звёзд: ' + getStars() + ' ⭐\n' +
+              'Деревянный сундук стоит: 50 ⭐'); 
+    } else { 
+        alert('✅ У вас ' + count + ' карточек из сундуков!\n\nОткрываем коллекцию...'); 
+        openModule('collection'); 
+        setTimeout(function() { 
+            var t = document.querySelector('.collection-tab[data-collection="chest"]'); 
+            if (t) t.click(); 
+        }, 500); 
+    }
 }
 
+// ✅ ИСПРАВЛЕННАЯ ФУНКЦИЯ ВОССТАНОВЛЕНИЯ
 function recoverLostCards() {
     var added = 0;
     if (!userData.unlockedCards) userData.unlockedCards = [];
-    chestHistory.forEach(function(h) { if (h.card && !userData.unlockedCards.includes(h.card)) { userData.unlockedCards.push(h.card); added++; } });
-    if (added > 0) { saveUserData(); saveLocalBackup(); }
+    
+    // 1. Восстанавливаем из истории
+    chestHistory.forEach(function(h) { 
+        if (h.card && !userData.unlockedCards.includes(h.card)) { 
+            userData.unlockedCards.push(h.card); 
+            added++; 
+            console.log('🔧 Восстановлена из истории:', h.card);
+        } 
+    });
+    
+    // 2. Восстанавливаем из localStorage бекапа
+    try {
+        var chestBackup = JSON.parse(localStorage.getItem('chest_cards_backup') || '[]');
+        chestBackup.forEach(function(id) {
+            if (id && !userData.unlockedCards.includes(id)) {
+                userData.unlockedCards.push(id);
+                added++;
+                console.log('🔧 Восстановлена из бекапа:', id);
+            }
+        });
+    } catch(e) {
+        console.warn('⚠️ Ошибка чтения chest_cards_backup');
+    }
+    
+    // 3. Проверяем общий бекап userData
+    try {
+        var backup = JSON.parse(localStorage.getItem('muslim_tracker_backup'));
+        if (backup && backup.unlockedCards) {
+            backup.unlockedCards.forEach(function(id) {
+                if (id && id.startsWith('chest_') && !userData.unlockedCards.includes(id)) {
+                    userData.unlockedCards.push(id);
+                    added++;
+                    console.log('🔧 Восстановлена из основного бекапа:', id);
+                }
+            });
+        }
+    } catch(e) {}
+    
+    if (added > 0) { 
+        saveUserData(); 
+        saveLocalBackup();
+        console.log('🔧 Всего восстановлено карточек сундуков:', added);
+    }
     return added;
 }
 
+// ✅ ИСПРАВЛЕННАЯ ФУНКЦИЯ ПРИНУДИТЕЛЬНОГО ПОКАЗА
 function forceShowChestCards() {
+    // Собираем ID из ВСЕХ источников
     var allIds = [];
-    if (userData.unlockedCards) userData.unlockedCards.forEach(function(id) { if (id.startsWith('chest_') && !allIds.includes(id)) allIds.push(id); });
-    if (allIds.length === 0) { alert('Карточек не найдено.'); return; }
-    alert('Найдено: ' + allIds.length + ' карточек!');
+    
+    // 1. Из unlockedCards
+    if (userData.unlockedCards) {
+        userData.unlockedCards.forEach(function(id) { 
+            if (id && id.startsWith('chest_') && !allIds.includes(id)) allIds.push(id); 
+        });
+    }
+    
+    // 2. Из localStorage бекапа сундуков
+    try {
+        var chestBackup = JSON.parse(localStorage.getItem('chest_cards_backup') || '[]');
+        chestBackup.forEach(function(id) {
+            if (id && id.startsWith('chest_') && !allIds.includes(id)) allIds.push(id);
+        });
+    } catch(e) {}
+    
+    // 3. Из истории сундуков
+    chestHistory.forEach(function(h) {
+        if (h.card && h.card.startsWith('chest_') && !allIds.includes(h.card)) allIds.push(h.card);
+    });
+    
+    // 4. Из основного бекапа
+    try {
+        var backup = JSON.parse(localStorage.getItem('muslim_tracker_backup'));
+        if (backup && backup.unlockedCards) {
+            backup.unlockedCards.forEach(function(id) {
+                if (id && id.startsWith('chest_') && !allIds.includes(id)) allIds.push(id);
+            });
+        }
+    } catch(e) {}
+    
+    // Восстанавливаем все найденные ID в unlockedCards
+    allIds.forEach(function(id) {
+        if (!userData.unlockedCards.includes(id)) {
+            userData.unlockedCards.push(id);
+        }
+    });
+    
+    if (allIds.length === 0) { 
+        alert('Карточек сундуков не найдено.\n\nОткройте сундук, чтобы получить карточку!\n\nБаланс звёзд: ' + getStars() + ' ⭐'); 
+        return; 
+    }
+    
+    // Сохраняем
+    saveUserData();
+    saveLocalBackup();
     updateCollectionBadge();
+    
+    alert('✅ Найдено и восстановлено: ' + allIds.length + ' карточек!\n\nСейчас откроем вкладку "Сундуки" в коллекции.');
+    
+    // Открываем коллекцию на вкладке сундуков
     openModule('collection');
-    setTimeout(function() { var t = document.querySelector('.collection-tab[data-collection="chest"]'); if (t) t.click(); }, 300);
+    setTimeout(function() { 
+        var t = document.querySelector('.collection-tab[data-collection="chest"]'); 
+        if (t) t.click(); 
+    }, 500);
 }
 
 var _openModuleChest = openModule;
 openModule = function(mid) { _openModuleChest(mid); if (mid === 'chests') { updateChestBalance(); renderChestHistory(); } };
 
 setTimeout(function() { recoverLostCards(); updateChestBalance(); renderChestHistory(); }, 1500);
-console.log('🎁 Сундуки готовы!');
+console.log('🎁 Сундуки готовы (исправленная версия)!');
 </script>
 
 <!-- ========== ЕЖЕДНЕВНЫЕ ЗАДАНИЯ ========== -->
