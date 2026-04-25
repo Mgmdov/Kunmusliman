@@ -16,6 +16,211 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
     <style>
+/* ========== 🎁 СУНДУКИ ========== */
+.chest-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.chest-card {
+    background: #FFFFFF;
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    border: 2px solid #E5E5EA;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.chest-card:active {
+    transform: scale(0.95);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.chest-card.wooden {
+    background: linear-gradient(135deg, #FFF8E7, #F5E6C8);
+    border-color: #8B6914;
+}
+
+.chest-card.silver {
+    background: linear-gradient(135deg, #F0F0F0, #E0E0E0);
+    border-color: #A0A0A0;
+}
+
+.chest-card.golden {
+    background: linear-gradient(135deg, #FFF8E1, #FFE082);
+    border-color: #FFA000;
+}
+
+.chest-card.diamond {
+    background: linear-gradient(135deg, #E8F5E9, #B2DFDB);
+    border-color: #00BFA5;
+    animation: diamondShine 2s ease-in-out infinite;
+}
+
+@keyframes diamondShine {
+    0%, 100% { box-shadow: 0 0 15px rgba(0, 191, 165, 0.3); }
+    50% { box-shadow: 0 0 30px rgba(0, 191, 165, 0.6), 0 0 60px rgba(0, 150, 136, 0.3); }
+}
+
+/* ========== ✨ СВЕЧЕНИЕ КАРТОЧЕК ПО РАНГАМ ========== */
+
+/* Обычная - без свечения */
+.card-rarity-common {
+    border: 1px solid #E5E5EA;
+}
+
+/* Редкая - лёгкое голубое свечение */
+.card-rarity-rare {
+    border: 2px solid #4FC3F7;
+    box-shadow: 0 0 10px rgba(79, 195, 247, 0.3);
+    animation: rareGlow 2s ease-in-out infinite;
+}
+
+@keyframes rareGlow {
+    0%, 100% { box-shadow: 0 0 10px rgba(79, 195, 247, 0.3); }
+    50% { box-shadow: 0 0 20px rgba(79, 195, 247, 0.5); }
+}
+
+/* Эпическая - фиолетовое свечение с пульсацией */
+.card-rarity-epic {
+    border: 2px solid #AB47BC;
+    box-shadow: 0 0 15px rgba(171, 71, 188, 0.4);
+    animation: epicGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes epicGlow {
+    0%, 100% { box-shadow: 0 0 15px rgba(171, 71, 188, 0.4); }
+    50% { box-shadow: 0 0 25px rgba(171, 71, 188, 0.7), 0 0 40px rgba(156, 39, 176, 0.3); }
+}
+
+/* Легендарная - золотое свечение с искрами */
+.card-rarity-legendary {
+    border: 3px solid #FFB300;
+    box-shadow: 0 0 20px rgba(255, 179, 0, 0.5);
+    animation: legendaryGlow 2s ease-in-out infinite;
+    background: linear-gradient(135deg, #1a1a1a, #2d1f00) !important;
+    color: #FFD700 !important;
+}
+
+@keyframes legendaryGlow {
+    0%, 100% { box-shadow: 0 0 20px rgba(255, 179, 0, 0.5), 0 0 40px rgba(255, 152, 0, 0.2); }
+    50% { box-shadow: 0 0 35px rgba(255, 179, 0, 0.8), 0 0 70px rgba(255, 152, 0, 0.4), 0 0 100px rgba(255, 215, 0, 0.2); }
+}
+
+/* Мифическая - радужное свечение с голографией */
+.card-rarity-mythic {
+    border: 3px solid transparent;
+    background: linear-gradient(135deg, #1a0a2e, #0d1b2a) !important;
+    color: #FFD700 !important;
+    animation: mythicRainbow 3s linear infinite;
+    position: relative;
+}
+
+.card-rarity-mythic::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #ff0000, #ff7700, #ffff00, #00ff00, #0077ff, #7700ff, #ff0000);
+    background-size: 400% 400%;
+    border-radius: 18px;
+    z-index: -1;
+    animation: rainbowBorder 3s linear infinite;
+}
+
+@keyframes rainbowBorder {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes mythicRainbow {
+    0%, 100% { box-shadow: 0 0 25px rgba(255, 0, 0, 0.6), 0 0 50px rgba(255, 165, 0, 0.4); }
+    25% { box-shadow: 0 0 25px rgba(0, 255, 0, 0.6), 0 0 50px rgba(0, 255, 255, 0.4); }
+    50% { box-shadow: 0 0 25px rgba(0, 0, 255, 0.6), 0 0 50px rgba(255, 0, 255, 0.4); }
+    75% { box-shadow: 0 0 25px rgba(255, 255, 0, 0.6), 0 0 50px rgba(255, 0, 0, 0.4); }
+}
+
+/* Особая (секретная) - белое сияние с золотыми частицами */
+.card-rarity-special {
+    border: 3px solid #FFFFFF;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 60px rgba(255, 215, 0, 0.6), 0 0 90px rgba(255, 255, 255, 0.4);
+    animation: specialGlow 1.5s ease-in-out infinite;
+    background: linear-gradient(135deg, #1a1a2e, #2d1f00) !important;
+    color: #FFD700 !important;
+}
+
+@keyframes specialGlow {
+    0%, 100% { box-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 60px rgba(255, 215, 0, 0.6); }
+    50% { box-shadow: 0 0 50px rgba(255, 255, 255, 1), 0 0 100px rgba(255, 215, 0, 0.9), 0 0 150px rgba(255, 255, 255, 0.5); }
+}
+
+/* ========== 🎁 АНИМАЦИЯ ОТКРЫТИЯ СУНДУКА ========== */
+.chest-opening-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 100000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.chest-opening-chest {
+    font-size: 6rem;
+    animation: chestBounce 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    cursor: pointer;
+}
+
+@keyframes chestBounce {
+    0% { transform: scale(0) rotate(-180deg); }
+    60% { transform: scale(1.3) rotate(10deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+
+.chest-opening-card {
+    font-size: 3rem;
+    animation: cardReveal 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 20px;
+    text-align: center;
+    max-width: 280px;
+}
+
+@keyframes cardReveal {
+    0% { transform: scale(0) translateY(50px); opacity: 0; }
+    50% { transform: scale(1.2) translateY(-20px); opacity: 0.8; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.chest-particles {
+    position: fixed;
+    pointer-events: none;
+    z-index: 100001;
+}
+
+@keyframes chestParticle {
+    0% { opacity: 1; transform: translate(0, 0) scale(1); }
+    100% { opacity: 0; transform: translate(var(--px), var(--py)) scale(0); }
+}
+
+.chest-particle {
+    position: absolute;
+    font-size: 1.5rem;
+    animation: chestParticle 1s ease-out forwards;
+}
 /* ========== 📖 КОРАН v3 ========== */
         #quranOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -2301,68 +2506,72 @@ body.theme-sunset textarea {
         </div>
         
         <!-- ========== ОСНОВНОЕ ========== -->
-        <div class="section-title"><i class="fas fa-star"></i> Основное</div>
-        <div class="icon-grid">
-            <div class="icon-item" data-module="khatm" onclick="openModule('khatm')">
-                <div class="icon-circle icon-khatm"><i class="fas fa-book-open"></i></div>
-                <span class="icon-label">Хатм</span>
-            </div>
-            <div class="icon-item" data-module="tauba" onclick="openModule('tauba')">
-                <div class="icon-circle icon-tauba"><i class="fas fa-pen-fancy"></i></div>
-                <span class="icon-label">Тауба</span>
-            </div>
-            <div class="icon-item" data-module="names" onclick="openModule('names')">
-                <div class="icon-circle icon-names"><i class="fas fa-scroll"></i><span class="icon-badge-count" id="namesBadge">99</span></div>
-                <span class="icon-label">99 Имён</span>
-            </div>
-            <div class="icon-item" data-module="quran" onclick="openQuran()">
-                <div class="icon-circle icon-quran"><i class="fas fa-quran"></i></div>
-                <span class="icon-label">Коран</span>
-            </div>
-        </div>
-        
-        <!-- ========== ИБАДАТ ========== -->
-        <div class="section-title"><i class="fas fa-hands-praying"></i> Ибадат</div>
-        <div class="icon-grid">
-            <div class="icon-item" data-module="zikr" onclick="openModule('zikr')">
-                <div class="icon-circle icon-zikr"><i class="fas fa-fingerprint"></i></div>
-                <span class="icon-label">Зикр</span>
-            </div>
-            <div class="icon-item" data-module="tasbih" onclick="openModule('tasbih')">
-                <div class="icon-circle icon-tasbih"><i class="fas fa-dharmachakra"></i></div>
-                <span class="icon-label">Тасбих</span>
-            </div>
-            <div class="icon-item" data-module="fasting" onclick="openModule('fasting')">
-                <div class="icon-circle icon-fasting"><i class="fas fa-moon"></i></div>
-                <span class="icon-label">Пост</span>
-            </div>
-            <div class="icon-item" data-module="prayer" onclick="openModule('prayer')">
-                <div class="icon-circle icon-prayer"><i class="fas fa-mosque"></i></div>
-                <span class="icon-label">Намаз</span>
-            </div>
-        </div>
-        
-        <!-- ========== ОСОБОЕ ========== -->
-        <div class="section-title"><i class="fas fa-crown"></i> Особое</div>
-        <div class="icon-grid">
-            <div class="icon-item" data-module="juma" onclick="openModule('juma')">
-                <div class="icon-circle icon-juma"><i class="fas fa-calendar-check"></i><span class="icon-badge-count green" id="jumaBadge">ПТ</span></div>
-                <span class="icon-label">Джума</span>
-            </div>
-            <div class="icon-item" data-module="stars" onclick="openModule('stars')">
-                <div class="icon-circle icon-stars"><i class="fas fa-star"></i></div>
-                <span class="icon-label">Звёзды</span>
-            </div>
-            <div class="icon-item" data-module="achievements" onclick="openModule('achievements')">
-                <div class="icon-circle icon-achievements"><i class="fas fa-trophy"></i><span class="icon-badge-count orange" id="achievementsBadge">0</span></div>
-                <span class="icon-label">Достижения</span>
-            </div>
-            <div class="icon-item" data-module="collection" onclick="openModule('collection')">
-                <div class="icon-circle icon-collection"><i class="fas fa-layer-group"></i><span class="icon-badge-count purple" id="collectionBadge">0</span></div>
-                <span class="icon-label">Коллекция</span>
-            </div>
-        </div>
-        
+<div class="section-title"><i class="fas fa-star"></i> Основное</div>
+<div class="icon-grid">
+    <div class="icon-item" data-module="khatm" onclick="openModule('khatm')">
+        <div class="icon-circle icon-khatm"><i class="fas fa-book-open"></i></div>
+        <span class="icon-label">Хатм</span>
+    </div>
+    <div class="icon-item" data-module="tauba" onclick="openModule('tauba')">
+        <div class="icon-circle icon-tauba"><i class="fas fa-pen-fancy"></i></div>
+        <span class="icon-label">Тауба</span>
+    </div>
+    <div class="icon-item" data-module="names" onclick="openModule('names')">
+        <div class="icon-circle icon-names"><i class="fas fa-scroll"></i><span class="icon-badge-count" id="namesBadge">99</span></div>
+        <span class="icon-label">99 Имён</span>
+    </div>
+    <div class="icon-item" data-module="quran" onclick="openQuran()">
+        <div class="icon-circle icon-quran"><i class="fas fa-quran"></i></div>
+        <span class="icon-label">Коран</span>
+    </div>
+</div>
+
+<!-- ========== ИБАДАТ ========== -->
+<div class="section-title"><i class="fas fa-hands-praying"></i> Ибадат</div>
+<div class="icon-grid">
+    <div class="icon-item" data-module="zikr" onclick="openModule('zikr')">
+        <div class="icon-circle icon-zikr"><i class="fas fa-fingerprint"></i></div>
+        <span class="icon-label">Зикр</span>
+    </div>
+    <div class="icon-item" data-module="tasbih" onclick="openModule('tasbih')">
+        <div class="icon-circle icon-tasbih"><i class="fas fa-dharmachakra"></i></div>
+        <span class="icon-label">Тасбих</span>
+    </div>
+    <div class="icon-item" data-module="fasting" onclick="openModule('fasting')">
+        <div class="icon-circle icon-fasting"><i class="fas fa-moon"></i></div>
+        <span class="icon-label">Пост</span>
+    </div>
+    <div class="icon-item" data-module="prayer" onclick="openModule('prayer')">
+        <div class="icon-circle icon-prayer"><i class="fas fa-mosque"></i></div>
+        <span class="icon-label">Намаз</span>
+    </div>
+</div>
+
+<!-- ========== ОСОБОЕ ========== -->
+<div class="section-title"><i class="fas fa-crown"></i> Особое</div>
+<div class="icon-grid">
+    <div class="icon-item" data-module="juma" onclick="openModule('juma')">
+        <div class="icon-circle icon-juma"><i class="fas fa-calendar-check"></i><span class="icon-badge-count green" id="jumaBadge">ПТ</span></div>
+        <span class="icon-label">Джума</span>
+    </div>
+    <div class="icon-item" data-module="stars" onclick="openModule('stars')">
+        <div class="icon-circle icon-stars"><i class="fas fa-star"></i></div>
+        <span class="icon-label">Звёзды</span>
+    </div>
+    <div class="icon-item" data-module="achievements" onclick="openModule('achievements')">
+        <div class="icon-circle icon-achievements"><i class="fas fa-trophy"></i><span class="icon-badge-count orange" id="achievementsBadge">0</span></div>
+        <span class="icon-label">Достижения</span>
+    </div>
+    <div class="icon-item" data-module="collection" onclick="openModule('collection')">
+        <div class="icon-circle icon-collection"><i class="fas fa-layer-group"></i><span class="icon-badge-count purple" id="collectionBadge">0</span></div>
+        <span class="icon-label">Коллекция</span>
+    </div>
+    <!-- 🎁 СУНДУКИ — ПОСЛЕ КОЛЛЕКЦИИ -->
+    <div class="icon-item" data-module="chests" onclick="openModule('chests')">
+        <div class="icon-circle" style="background: linear-gradient(135deg, #FFD700, #FF6B00);"><i class="fas fa-gift"></i></div>
+        <span class="icon-label">Сундуки</span>
+    </div>
+</div>
         <!-- ========== ЗНАНИЯ ========== -->
         <div class="section-title"><i class="fas fa-graduation-cap"></i> Знания</div>
         <div class="icon-grid">
@@ -2716,7 +2925,136 @@ body.theme-sunset textarea {
     { id: 'name99', name: '99 Имён', title: 'Хранитель', emoji: '👑', type: 'names', rarity: 'mythic', story: 'Все 99 Прекрасных Имён Аллаха!', condition: 'names_99', conditionText: 'Выучить все 99 имён' },
     { id: 'mira_isra', name: 'Исра и Мирадж', title: 'Ночное перенесение', emoji: '🚀', type: 'miracle', rarity: 'legendary', story: 'Пророк ﷺ был перенесён из Мекки в Иерусалим и вознесён на небеса, где ему были показаны знамения Аллаха и предписан пятикратный намаз.', condition: 'khatm_1', conditionText: 'Завершить 1 хатм' },
     { id: 'mira_moon', name: 'Раскол луны', title: 'Знамение', emoji: '🌙', type: 'miracle', rarity: 'legendary', story: 'По просьбе курайшитов Пророк ﷺ указал на луну, и она раскололась на две половины.', condition: 'zikr_50000', conditionText: '50 000 зикров' },
-    { id: 'zamzam', name: 'Зам-Зам', title: 'Благословенный источник', emoji: '💧', type: 'miracle', rarity: 'mythic', story: 'Когда Хаджар искала воду для маленького Исмаила, по воле Аллаха забил источник Зам-Зам. «Вода Зам-Зама для того, для чего её пьют».', condition: 'secret', conditionText: '???' }
+    { id: 'zamzam', name: 'Зам-Зам', title: 'Благословенный источник', emoji: '💧', type: 'miracle', rarity: 'mythic', story: 'Когда Хаджар искала воду для маленького Исмаила, по воле Аллаха забил источник Зам-Зам. «Вода Зам-Зама для того, для чего её пьют».', condition: 'secret', conditionText: '???' },
+// ========== 🎁 120 НОВЫХ КАРТОЧЕК ДЛЯ СУНДУКОВ ==========
+    
+    // === 🌱 ДЕРЕВЯННЫЙ СУНДУК (30 карточек: Учёные, цитаты, базовые знания) ===
+    { id: 'chest_w1', name: 'Имам Абу Ханифа', title: 'Основатель ханафитского мазхаба', emoji: '📚', type: 'chest_wooden', rarity: 'common', story: '«Если бы не страх перед Аллахом, что знание пропадёт, я бы никому не давал фетву, беря с него клятву, что он не будет искать ошибок»' },
+    { id: 'chest_w2', name: 'Имам Малик', title: 'Основатель маликитского мазхаба', emoji: '📖', type: 'chest_wooden', rarity: 'rare', story: '«Сунна — это ковчег Нуха. Кто сел на него — спасся, кто отказался — утонул»' },
+    { id: 'chest_w3', name: 'Имам Ахмад', title: 'Основатель ханбалитского мазхаба', emoji: '🕌', type: 'chest_wooden', rarity: 'rare', story: 'Выдержал пытки за убеждение, что Коран не сотворён. Сказал: «Люди нуждаются в знании больше, чем в еде и питье»' },
+    { id: 'chest_w4', name: 'Хасан аль-Басри', title: 'Великий табиин', emoji: '💡', type: 'chest_wooden', rarity: 'rare', story: '«О сын Адама! Ты — это твои дни. Каждый день, который проходит, забирает часть тебя»' },
+    { id: 'chest_w5', name: 'Ибн Аббас', title: 'Толкователь Корана', emoji: '📜', type: 'chest_wooden', rarity: 'epic', story: 'Двоюродный брат Пророка ﷺ. Пророк сделал дуа: «О Аллах, дай ему понимание религии и толкование Корана»' },
+    { id: 'chest_w6', name: 'Аиша бинт Абу Бакр', title: 'Мать правоверных', emoji: '👸', type: 'chest_wooden', rarity: 'rare', story: 'Передала 2210 хадисов. Сказала: «Нрав Пророка ﷺ был Кораном»' },
+    { id: 'chest_w7', name: 'Умар ибн Абдуль-Азиз', title: 'Праведный халиф', emoji: '👑', type: 'chest_wooden', rarity: 'rare', story: 'Правнук Умара. За 2 года правления установил справедливость. Сказал: «Кто поклоняется без знания — приносит больше вреда»' },
+    { id: 'chest_w8', name: 'Ибн Каййим', title: 'Ученик ибн Таймии', emoji: '📝', type: 'chest_wooden', rarity: 'common', story: '«Сердце подобно птице: чем выше оно поднимается, тем дальше от соблазнов»' },
+    { id: 'chest_w9', name: 'Ибн Таймия', title: 'Шейх-уль-Ислам', emoji: '⚔️', type: 'chest_wooden', rarity: 'epic', story: '«Что могут сделать со мной мои враги? Мой рай — в моём сердце. Если отправят в тюрьму — уединение с Аллахом»' },
+    { id: 'chest_w10', name: 'Аль-Газали', title: 'Автор "Ихья улюм ад-дин"', emoji: '💎', type: 'chest_wooden', rarity: 'epic', story: '«Знание без действия — безумие, действие без знания — невозможно»' },
+    { id: 'chest_w11', name: 'Аль-Фатиха', title: 'Открывающая Книгу', emoji: '🌟', type: 'chest_wooden', rarity: 'rare', story: '7 аятов, читаемых в каждом ракаате. Пророк ﷺ: «Не ниспосылалось ни в Торе, ни в Евангелии ничего подобного ей»' },
+    { id: 'chest_w12', name: 'Аяталь-Курси', title: 'Величайший аят', emoji: '🛡️', type: 'chest_wooden', rarity: 'rare', story: 'Кто читает после намаза — под защитой Аллаха до следующего намаза. Шайтан не приближается к читающему его ночью' },
+    { id: 'chest_w13', name: 'Мечеть Пророка ﷺ', title: 'Масджид ан-Набави', emoji: '🕌', type: 'chest_wooden', rarity: 'rare', story: 'Построена Пророком ﷺ после хиджры. В ней находится его могила. Намаз здесь равен 1000 намазов в других мечетях' },
+    { id: 'chest_w14', name: 'Мечеть аль-Харам', title: 'Заповедная мечеть', emoji: '🕋', type: 'chest_wooden', rarity: 'epic', story: 'В центре — Кааба. Намаз здесь равен 100 000 намазов. Первая мечеть, построенная на земле' },
+    { id: 'chest_w15', name: 'Мечеть Куба', title: 'Первая мечеть Ислама', emoji: '🏛️', type: 'chest_wooden', rarity: 'rare', story: 'Пророк ﷺ: «Кто совершит омовение дома и помолится в Кубе — получит награду как за умру»' },
+    { id: 'chest_w16', name: 'Источник Зам-Зам', title: 'Благословенная вода', emoji: '💧', type: 'chest_wooden', rarity: 'rare', story: 'Вода, появившаяся под ногами маленького Исмаила. Пророк ﷺ: «Вода Зам-Зама для того, для чего её пьют»' },
+    { id: 'chest_w17', name: 'Абу Хурайра', title: 'Передатчик хадисов', emoji: '🐱', type: 'chest_wooden', rarity: 'rare', story: 'Передал 5374 хадисов. Пророк ﷺ сделал дуа, чтобы его память стала крепкой. Любил кошек' },
+    { id: 'chest_w18', name: 'Ибн Масуд', title: 'Первый чтец Корана', emoji: '🎙️', type: 'chest_wooden', rarity: 'rare', story: 'Первый, кто прочитал Коран вслух при курайшитах. Пророк ﷺ: «Кто хочет слышать Коран свежим — пусть слушает ибн Масуда»' },
+    { id: 'chest_w19', name: 'Муаз ибн Джабаль', title: 'Знаток халяля и харама', emoji: '⚖️', type: 'chest_wooden', rarity: 'rare', story: 'Пророк ﷺ отправил его в Йемен судьёй. Спросил: «По чему будешь судить?» — «По Корану». — «А если не найдёшь?» — «По Сунне»' },
+    { id: 'chest_w20', name: 'Умм Салама', title: 'Мудрая советчица', emoji: '🤲', type: 'chest_wooden', rarity: 'common', story: 'Жена Пророка ﷺ. Во время Худайбии её совет помог разрешить трудную ситуацию с ихрамом' },
+    { id: 'chest_w21', name: 'Абу Дарда', title: 'Аскет и мудрец', emoji: '🧘', type: 'chest_wooden', rarity: 'common', story: 'Сказал: «Учите знание, ибо изучение его — поклонение, а обсуждение — прославление Аллаха»' },
+    { id: 'chest_w22', name: 'Анас ибн Малик', title: 'Слуга Пророка ﷺ', emoji: '👦', type: 'chest_wooden', rarity: 'rare', story: 'Служил Пророку ﷺ 10 лет. Пророк ни разу не упрекнул его. Передал 2286 хадисов' },
+    { id: 'chest_w23', name: 'Убай ибн Кааб', title: 'Лучший чтец уммы', emoji: '📖', type: 'chest_wooden', rarity: 'rare', story: 'Пророк ﷺ сказал ему: «Аллах приказал мне прочитать тебе Коран». Убай заплакал от радости' },
+    { id: 'chest_w24', name: 'Сафия бинт Хуяй', title: 'Потомок пророков', emoji: '👸', type: 'chest_wooden', rarity: 'rare', story: 'Жена Пророка ﷺ из потомков Харуна (мир ему). Была очень красива и набожна' },
+    { id: 'chest_w25', name: 'Зейд ибн Сабит', title: 'Секретарь откровений', emoji: '✍️', type: 'chest_wooden', rarity: 'rare', story: 'Записывал откровения при Пророке ﷺ. Возглавил комиссию по сбору Корана при Абу Бакре' },
+    { id: 'chest_w26', name: 'Гора Ухуд', title: 'Гора, любящая нас', emoji: '⛰️', type: 'chest_wooden', rarity: 'common', story: 'Место битвы при Ухуде. Пророк ﷺ: «Ухуд — гора, которая любит нас, и мы любим её»' },
+    { id: 'chest_w27', name: 'Гора Арафат', title: 'Место прощения', emoji: '🏔️', type: 'chest_wooden', rarity: 'rare', story: 'В день Арафа Аллах освобождает от Огня больше всего людей. Пророк ﷺ: «Хадж — это Арафат»' },
+    { id: 'chest_w28', name: 'Халима ас-Саадия', title: 'Кормилица Пророка ﷺ', emoji: '🤱', type: 'chest_wooden', rarity: 'common', story: 'Когда она взяла Мухаммада ﷺ, в её доме появилась барака — овцы давали молока вдвое больше' },
+    { id: 'chest_w29', name: 'Барака (Умм Айман)', title: 'Няня Пророка ﷺ', emoji: '👵', type: 'chest_wooden', rarity: 'common', story: 'Заботилась о Пророке ﷺ с рождения. Он называл её «мама после мамы» и говорил: «Она — моя семья»' },
+    { id: 'chest_w30', name: 'Сумайя бинт Хайят', title: 'Первая мученица', emoji: '🕊️', type: 'chest_wooden', rarity: 'epic', story: 'Мать Аммара ибн Ясира. Убита Абу Джахлем за веру — первая мученица в Исламе' },
+
+    // === 🥈 СЕРЕБРЯНЫЙ СУНДУК (30 карточек: Пророки, чудеса, скрытое знание) ===
+    { id: 'chest_s1', name: 'Чудо раскола луны', title: 'Знамение для курайшитов', emoji: '🌙', type: 'chest_silver', rarity: 'epic', story: 'Курайшиты попросили знамение. Пророк ﷺ указал на луну — она раскололась на две части. Они сказали: «Мухаммад околдовал нас!»' },
+    { id: 'chest_s2', name: 'Исра и Мирадж', title: 'Ночное перенесение', emoji: '🚀', type: 'chest_silver', rarity: 'epic', story: 'Пророк ﷺ перенесён из Мекки в Иерусалим и вознесён на небеса. Там был предписан 5-кратный намаз' },
+    { id: 'chest_s3', name: 'Чудо умножения еды', title: 'Барака в Хандаке', emoji: '🍲', type: 'chest_silver', rarity: 'rare', story: 'В битве при Хандаке Пророк ﷺ накормил 1000 человек одной чашкой еды. Джабир: «Я видел, как еды становилось больше»' },
+    { id: 'chest_s4', name: 'Чудо воды из пальцев', title: 'Источник в Худайбии', emoji: '💦', type: 'chest_silver', rarity: 'epic', story: 'У сподвижников не было воды. Пророк ﷺ опустил руку в сосуд — между пальцев забила вода, и все напились и омылись' },
+    { id: 'chest_s5', name: 'Чудо плачущего ствола', title: 'Тоска по Пророку ﷺ', emoji: '🪵', type: 'chest_silver', rarity: 'rare', story: 'Пророк ﷺ опирался на ствол пальмы. Когда сделали минбар, ствол заплакал как ребёнок. Пророк обнял его' },
+    { id: 'chest_s6', name: 'Пророк Адам', title: 'Первый человек', emoji: '🧑', type: 'chest_silver', rarity: 'epic', story: 'Создан из глины. Ему обучены все имена. Рост 60 локтей. Прожил около 1000 лет. Похоронен в Индии (по некоторым мнениям)' },
+    { id: 'chest_s7', name: 'Пророк Идрис', title: 'Вознесённый живым', emoji: '✨', type: 'chest_silver', rarity: 'epic', story: 'Первый, кто писал тростниковым пером. Ему ниспослано 30 свитков. Вознесён на небо живым' },
+    { id: 'chest_s8', name: 'Пророк Салих', title: 'Чудо верблюдицы', emoji: '🐪', type: 'chest_silver', rarity: 'epic', story: 'Послан к самудянам. Из скалы вышла верблюдица. Они убили её и были уничтожены за 3 дня' },
+    { id: 'chest_s9', name: 'Пророк Худ', title: 'Пророк народа Ад', emoji: '🌪️', type: 'chest_silver', rarity: 'rare', story: 'Адиты были могучими людьми. Отвергли Худа. 7 ночей и 8 дней ветер уничтожал их' },
+    { id: 'chest_s10', name: 'Пророк Лут', title: 'Спасённый из Содома', emoji: '🔥', type: 'chest_silver', rarity: 'epic', story: 'Его народ первым совершил мужеложство. Города перевёрнуты и засыпаны камнями из обожжённой глины' },
+    { id: 'chest_s11', name: 'Пророк Шуайб', title: 'Проповедник Мадьяна', emoji: '⚖️', type: 'chest_silver', rarity: 'rare', story: 'Его народ обманывал в торговле. Уничтожены землетрясением и облаком, извергавшим огонь' },
+    { id: 'chest_s12', name: 'Пророк Ильяс', title: 'Вознесённый на небо', emoji: '🌪️', type: 'chest_silver', rarity: 'epic', story: 'Послан к народу, поклонявшемуся идолу Баалу. Аллах вознёс его на небо живым. Вернётся перед концом света' },
+    { id: 'chest_s13', name: 'Пророк Альяса', title: 'Ученик Ильяса', emoji: '🌟', type: 'chest_silver', rarity: 'rare', story: 'Продолжил миссию Ильяса. Известен чудесами и исцелениями по воле Аллаха' },
+    { id: 'chest_s14', name: 'Пророк Зуль-Кифль', title: 'Обладатель удела', emoji: '📜', type: 'chest_silver', rarity: 'rare', story: 'Взял обязательство судить народ справедливо и выстаивать ночи в поклонении. Аллах похвалил его за терпение' },
+    { id: 'chest_s15', name: 'Пророк Якуб', title: 'Исраил', emoji: '😢', type: 'chest_silver', rarity: 'epic', story: 'Отец 12 сыновей (12 колен Израиля). Ослеп от горя по Юсуфу, прозрел от его рубашки' },
+    { id: 'chest_s16', name: 'Пророк Яхья', title: 'Безгрешный пророк', emoji: '🕊️', type: 'chest_silver', rarity: 'epic', story: 'Сын Закарии. Пророк ﷺ: «Нет ребёнка, который не совершал бы грехов, кроме Яхьи ибн Закарии»' },
+    { id: 'chest_s17', name: 'Пророк Айюб', title: 'Символ терпения', emoji: '💪', type: 'chest_silver', rarity: 'epic', story: '18 лет терпел болезни и потерю всего. Аллах вернул ему здоровье и семью вдвойне. Его история учит терпению' },
+    { id: 'chest_s18', name: 'Пророк Закария', title: 'Опекун Марьям', emoji: '👴', type: 'chest_silver', rarity: 'rare', story: 'До 99 лет был бездетен. Аллах даровал ему Яхью. 3 дня не мог говорить — знак благодарности Аллаху' },
+    { id: 'chest_s19', name: 'Трон Аллаха (Арш)', title: 'Величайшее творение', emoji: '👑', type: 'chest_silver', rarity: 'epic', story: 'Самое большое из творений. Небеса по сравнению с Троном — как кольцо в пустыне. Его несут 8 ангелов' },
+    { id: 'chest_s20', name: 'Калям (Перо)', title: 'Первое творение', emoji: '🖊️', type: 'chest_silver', rarity: 'epic', story: 'Первое, что создал Аллах. Записало всё до Судного дня за 50 000 лет до сотворения небес и земли' },
+    { id: 'chest_s21', name: 'Рай (Джанна)', title: 'Обитель вечного блаженства', emoji: '🌴', type: 'chest_silver', rarity: 'legendary', story: '100 уровней. Высший — Фирдаус. Там то, чего глаз не видел, ухо не слышало, сердце не представляло' },
+    { id: 'chest_s22', name: 'Река Кавсар', title: 'Райская река Пророка ﷺ', emoji: '🏞️', type: 'chest_silver', rarity: 'epic', story: 'Вода белее молока, слаще мёда. Из неё пьют верующие перед входом в Рай. Берега из золота' },
+    { id: 'chest_s23', name: 'Сират (Мост)', title: 'Тоньше волоса', emoji: '🌉', type: 'chest_silver', rarity: 'epic', story: 'Все пройдут по нему над Адом. Верующие — быстро как молния, лицемеры упадут в Огонь' },
+    { id: 'chest_s24', name: 'Джаханнам (Ад)', title: '7 уровней Огня', emoji: '🔥', type: 'chest_silver', rarity: 'epic', story: 'Огонь Ада в 70 раз сильнее земного. Самый лёгкий уровень — для грешных мусульман. 70 000 цепей и оков' },
+    { id: 'chest_s25', name: 'Малик', title: 'Страж Ада', emoji: '👹', type: 'chest_silver', rarity: 'rare', story: 'Главный ангел Ада. Никогда не улыбается. Когда Аллах показал ему Адама, спросил: «Что думаешь?» Ответил правду' },
+    { id: 'chest_s26', name: 'Ридван', title: 'Страж Рая', emoji: '😊', type: 'chest_silver', rarity: 'rare', story: 'Главный ангел Рая. Встречает верующих с миром и приветствием. Открывает им 8 врат Рая' },
+    { id: 'chest_s27', name: 'Дунья', title: 'Мирская жизнь', emoji: '🌍', type: 'chest_silver', rarity: 'rare', story: 'Пророк ﷺ: «Эта жизнь — тюрьма для верующего и рай для неверующего». Ценность дуньи перед Аллахом меньше комариного крыла' },
+    { id: 'chest_s28', name: 'Барака', title: 'Благословение', emoji: '✨', type: 'chest_silver', rarity: 'epic', story: 'Невидимое увеличение блага. Приходит с благодарностью и покорностью Аллаху. Может быть во времени, деньгах, здоровье' },
+    { id: 'chest_s29', name: 'Сабр (Терпение)', title: 'Половина веры', emoji: '🧘', type: 'chest_silver', rarity: 'epic', story: '3 вида: в поклонении, от греха, при испытаниях. Аллах: «Поистине, терпеливым их награда воздастся полностью без счёта»' },
+    { id: 'chest_s30', name: 'Шукр (Благодарность)', title: 'Ключ к увеличению благ', emoji: '🙏', type: 'chest_silver', rarity: 'epic', story: 'Аллах: «Если будете благодарны — Я увеличу вам». Благодарность сердцем, языком и делами. Мало кто из рабов благодарен' },
+
+    // === 🥇 ЗОЛОТОЙ СУНДУК (30 карточек: Мечети и исторические личности) ===
+    { id: 'chest_g1', name: 'Мечеть аль-Акса', title: 'Третья святыня Ислама', emoji: '🕌', type: 'chest_golden', rarity: 'legendary', story: 'Первая кибла. Место Исра и Мирадж. Построена через 40 лет после Каабы. Под ней могилы многих пророков' },
+    { id: 'chest_g2', name: 'Мечеть Омейядов', title: 'Дамаск, Сирия', emoji: '🏛️', type: 'chest_golden', rarity: 'epic', story: 'Одна из старейших мечетей. Могила Яхьи. Минарет Исы — куда спустится пророк Иса перед концом света' },
+    { id: 'chest_g3', name: 'Голубая мечеть', title: 'Стамбул, Турция', emoji: '💙', type: 'chest_golden', rarity: 'epic', story: '6 минаретов. 20 000 изразцов ручной работы. Построена султаном Ахмедом I в 1616 году' },
+    { id: 'chest_g4', name: 'Мечеть Хасана II', title: 'Касабланка, Марокко', emoji: '🌊', type: 'chest_golden', rarity: 'legendary', story: 'Минарет 210 м — самый высокий в мире. Пол прозрачный над океаном. Вмещает 105 000 человек' },
+    { id: 'chest_g5', name: 'Мечеть Кул-Шариф', title: 'Казань, Россия', emoji: '🏰', type: 'chest_golden', rarity: 'epic', story: 'Названа в честь имама, погибшего при защите Казани. Восстановлена в 2005 году к 1000-летию города' },
+    { id: 'chest_g6', name: 'Мечеть Шейха Зайда', title: 'Абу-Даби, ОАЭ', emoji: '💎', type: 'chest_golden', rarity: 'legendary', story: 'Ковёр 5627 м² ручной работы. 7 люстр из золота и кристаллов Swarovski. 82 купола из белого мрамора' },
+    { id: 'chest_g7', name: 'Мечеть Фейсала', title: 'Исламабад, Пакистан', emoji: '⛺', type: 'chest_golden', rarity: 'epic', story: 'Форма шатра бедуинов. Подарок короля Саудовской Аравии. Вмещает 300 000 человек' },
+    { id: 'chest_g8', name: 'Мечеть Султана Кабуса', title: 'Маскат, Оман', emoji: '🕌', type: 'chest_golden', rarity: 'epic', story: 'Люстра 14 м — одна из крупнейших в мире. Ковёр 4300 м² весит 21 тонну, соткан за 4 года' },
+    { id: 'chest_g9', name: 'Мечеть Истикляль', title: 'Джакарта, Индонезия', emoji: '🇮🇩', type: 'chest_golden', rarity: 'epic', story: 'Крупнейшая в Юго-Восточной Азии. Названа в честь независимости Индонезии. Построена в 1978 году' },
+    { id: 'chest_g10', name: 'Мечеть Кордовы', title: 'Андалусия, Испания', emoji: '🏛️', type: 'chest_golden', rarity: 'legendary', story: '856 колонн из яшмы и мрамора. Символ золотого века Ислама в Андалусии. Сейчас католический собор' },
+    { id: 'chest_g11', name: 'Абдуллах ибн Аббас', title: 'Тарджуман аль-Куран', emoji: '📖', type: 'chest_golden', rarity: 'epic', story: 'Толкователь Корана. Пророк ﷺ сделал дуа: «О Аллах, дай ему понимание религии и толкование Корана»' },
+    { id: 'chest_g12', name: 'Имам ан-Навави', title: 'Автор 40 хадисов', emoji: '📚', type: 'chest_golden', rarity: 'epic', story: 'Прожил 45 лет. Автор «Садов праведных». Не женился, посвятив жизнь знанию. Писал до последнего дня' },
+    { id: 'chest_g13', name: 'Ибн Хаджар', title: 'Автор Фатх аль-Бари', emoji: '📝', type: 'chest_golden', rarity: 'epic', story: 'Лучший комментарий к Сахиху Бухари. Писал 25 лет. Более 150 книг за жизнь' },
+    { id: 'chest_g14', name: 'Имам аль-Бухари', title: 'Собиратель хадисов', emoji: '📜', type: 'chest_golden', rarity: 'legendary', story: 'Отбирал каждый хадис, совершая 2 ракаата и делая истихару. 600 000 хадисов проверил, 7275 включил в сборник' },
+    { id: 'chest_g15', name: 'Имам Муслим', title: 'Второй сборник', emoji: '📖', type: 'chest_golden', rarity: 'epic', story: 'Ученик Бухари. Его сборник — второй по достоверности. Строгая структура, удобная для учёных' },
+    { id: 'chest_g16', name: 'Ибн аль-Джаузи', title: 'Великий проповедник', emoji: '🎤', type: 'chest_golden', rarity: 'epic', story: 'На его лекции собирались 100 000 человек. Автор множества книг. Говорил: «Люди спят, а когда умрут — проснутся»' },
+    { id: 'chest_g17', name: 'Абдуллах ибн Мубарак', title: 'Воин и учёный', emoji: '⚔️', type: 'chest_golden', rarity: 'epic', story: 'Один год воевал, один год учился, один год совершал хадж. Сказал: «Конец знания — искренность»' },
+    { id: 'chest_g18', name: 'Суфьян ас-Саури', title: 'Скрывавшийся от власти', emoji: '🏃', type: 'chest_golden', rarity: 'epic', story: 'Отказался от должности судьи, сбежав от халифа. Сказал: «Мы застали людей, которые не радовались мирскому»' },
+    { id: 'chest_g19', name: 'Абдуль-Кадир Джилани', title: 'Основатель тариката', emoji: '🌟', type: 'chest_golden', rarity: 'legendary', story: 'Его проповеди обращали тысячи людей к покаянию. Сказал: «Будь с Аллахом так, будто нет никого, кроме вас двоих»' },
+    { id: 'chest_g20', name: 'Джалалуддин Руми', title: 'Поэт и суфий', emoji: '💫', type: 'chest_golden', rarity: 'legendary', story: 'Автор «Маснави». Сказал: «Приходи, приходи, кем бы ты ни был. Наша обитель — не обитель отчаяния»' },
+    { id: 'chest_g21', name: 'Константинополь', title: 'Предсказанная победа', emoji: '🏙️', type: 'chest_golden', rarity: 'legendary', story: 'Пророк ﷺ: «Вы завоюете Константинополь. Прекрасный амир и прекрасное войско!» Сбылось в 1453 году' },
+    { id: 'chest_g22', name: 'Кордовский халифат', title: 'Золотой век Андалусии', emoji: '🏛️', type: 'chest_golden', rarity: 'legendary', story: 'Библиотека — 400 000 рукописей. Университеты, больницы, бани. Улицы освещены фонарями, когда в Европе — тьма' },
+    { id: 'chest_g23', name: 'Дом мудрости (Багдад)', title: 'Академия Аббасидов', emoji: '🏫', type: 'chest_golden', rarity: 'legendary', story: 'Центр мировой науки. Переводили греческие труды. Уничтожен монголами в 1258 году. Книги выброшены в Тигр' },
+    { id: 'chest_g24', name: 'Салахуддин аль-Айюби', title: 'Освободитель Иерусалима', emoji: '🛡️', type: 'chest_golden', rarity: 'legendary', story: 'Освободил Иерусалим в 1187 году. Даже враги уважали его благородство. Лечил Ричарда Львиное Сердце' },
+    { id: 'chest_g25', name: 'Золотая Орда', title: 'Ислам в Евразии', emoji: '🐎', type: 'chest_golden', rarity: 'epic', story: 'Хан Берке принял Ислам в 1257 году. Ислам распространился на огромной территории от Крыма до Сибири' },
+    { id: 'chest_g26', name: 'Империя Великих Моголов', title: 'Тадж-Махал', emoji: '🏯', type: 'chest_golden', rarity: 'legendary', story: 'Тадж-Махал — символ любви и веры. Исламская архитектура в Индии достигла расцвета при Моголах' },
+    { id: 'chest_g27', name: 'Аль-Хорезми', title: 'Отец алгоритмов', emoji: '🔢', type: 'chest_golden', rarity: 'epic', story: 'Великий математик. От его имени — слово «алгоритм». Ввёл индийские цифры и ноль в исламский мир' },
+    { id: 'chest_g28', name: 'Ибн Сина (Авиценна)', title: 'Врач и философ', emoji: '💊', type: 'chest_golden', rarity: 'legendary', story: '«Канон медицины» использовался в Европе 500 лет. В 18 лет знал всё доступное знание своего времени' },
+    { id: 'chest_g29', name: 'Аль-Бируни', title: 'Энциклопедист', emoji: '🌍', type: 'chest_golden', rarity: 'epic', story: 'Вычислил окружность Земли с точностью до 1%. Написал историю Индии. Знал множество языков' },
+    { id: 'chest_g30', name: 'Ибн аль-Хайсам', title: 'Отец оптики', emoji: '🔬', type: 'chest_golden', rarity: 'legendary', story: 'Основоположник научного метода. Его труды по оптике вдохновили европейских учёных. Доказал, что свет отражается от объектов' },
+
+    // === 💎 АЛМАЗНЫЙ СУНДУК (30 карточек: Легендарные события, мифические истории) ===
+    { id: 'chest_d1', name: 'Пещера Хира', title: 'Место первого откровения', emoji: '🕳️', type: 'chest_diamond', rarity: 'legendary', story: 'Здесь Пророк ﷺ получил первое откровение. Джибриль сказал: «Читай!» Пророк отвечал: «Я не умею читать»' },
+    { id: 'chest_d2', name: 'Пещера Саур', title: 'Убежище при хиджре', emoji: '🕸️', type: 'chest_diamond', rarity: 'legendary', story: 'Пророк ﷺ и Абу Бакр прятались 3 дня. Паук сплёл паутину, голубь свил гнездо у входа — знак Аллаха' },
+    { id: 'chest_d3', name: 'Худайбия', title: 'Явная победа', emoji: '☮️', type: 'chest_diamond', rarity: 'legendary', story: 'Перемирие на 10 лет. Условия казались невыгодными, но Аллах назвал это «явной победой». Ислам распространился' },
+    { id: 'chest_d4', name: 'Гора Нур', title: 'Гора света', emoji: '⛰️', type: 'chest_diamond', rarity: 'legendary', story: 'Здесь пещера Хира. Пророк ﷺ часто уединялся здесь. Гора тряслась под ним — он сказал: «Успокойся»' },
+    { id: 'chest_d5', name: 'Райский источник Тасним', title: 'Для приближённых', emoji: '💧', type: 'chest_diamond', rarity: 'mythic', story: 'Источник в Раю, из которого пьют приближённые (мукаррабун). Вода смешана с мускусом. Выше Кавсара' },
+    { id: 'chest_d6', name: 'Гурии (Хур аль-Айн)', title: 'Райские супруги', emoji: '👁️', type: 'chest_diamond', rarity: 'mythic', story: 'Созданы из света. Если одна посмотрит на землю — осветит всё между небом и землёй. Их красота неописуема' },
+    { id: 'chest_d7', name: 'Врата Рая', title: '8 врат блаженства', emoji: '🚪', type: 'chest_diamond', rarity: 'mythic', story: 'Баб ас-Салят (для молящихся), Баб ар-Райян (для постящихся), Баб ас-Садака (для дающих милостыню) и другие' },
+    { id: 'chest_d8', name: 'Дерево Туба', title: 'Дерево Рая', emoji: '🌳', type: 'chest_diamond', rarity: 'mythic', story: 'Всадник скачет в его тени 100 лет, не достигая конца. Из его листьев и плодов шьют одежду райских жителей' },
+    { id: 'chest_d9', name: 'Птицы Рая', title: 'Яства Рая', emoji: '🐦', type: 'chest_diamond', rarity: 'legendary', story: 'Огромные птицы. Когда верующий захочет съесть — они падают жареными. Внутренности — мускус и амбра' },
+    { id: 'chest_d10', name: 'Дворец из жемчуга', title: 'Жилище в Раю', emoji: '🏰', type: 'chest_diamond', rarity: 'mythic', story: 'Дворцы из золота, серебра, полого жемчуга. Ширина — 60 миль. Вокруг — сады, реки из молока, мёда и вина' },
+    { id: 'chest_d11', name: 'Аль-Бурак', title: 'Небесное животное', emoji: '🦄', type: 'chest_diamond', rarity: 'mythic', story: 'Белое существо выше осла, ниже мула. Шаг — на расстояние взгляда. На нём Пророк ﷺ перенёсся в Иерусалим' },
+    { id: 'chest_d12', name: 'Свитки Ибрахима', title: 'Первые писания', emoji: '📜', type: 'chest_diamond', rarity: 'mythic', story: 'Содержали притчи и мудрость. Ниспосланы Ибрахиму (мир ему). Утеряны задолго до Корана' },
+    { id: 'chest_d13', name: 'Ляух Махфуз', title: 'Хранимая скрижаль', emoji: '📋', type: 'chest_diamond', rarity: 'mythic', story: 'Записано всё, что было и будет. Находится под Троном Аллаха. Размер знает только Аллах' },
+    { id: 'chest_d14', name: 'Плачущее небо', title: 'Кончина Пророка ﷺ', emoji: '🌧️', type: 'chest_diamond', rarity: 'mythic', story: 'Когда Пророк ﷺ умер, небо и земля плакали 7 дней. Солнце затемнено, звёзды не двигались' },
+    { id: 'chest_d15', name: 'Кольцо Сулеймана', title: 'Власть над миром', emoji: '💍', type: 'chest_diamond', rarity: 'mythic', story: 'Перстень, дававший власть над джиннами, ветрами и животными. Был украден джинном на 40 дней, но возвращён' },
+    { id: 'chest_d16', name: 'Ветер Сулеймана', title: 'Ковёр-самолёт', emoji: '💨', type: 'chest_diamond', rarity: 'mythic', story: 'Утренний ветер проходил месяц пути, вечерний — месяц. Войско переносилось на ковре по воздуху' },
+    { id: 'chest_d17', name: 'Муравей Сулеймана', title: 'Мудрость маленьких', emoji: '🐜', type: 'chest_diamond', rarity: 'legendary', story: '«Войдите в жилища, чтобы Сулейман не растоптал вас». Сулейман улыбнулся, услышав его речь' },
+    { id: 'chest_d18', name: 'Удод Сулеймана', title: 'Вестник', emoji: '🐦', type: 'chest_diamond', rarity: 'legendary', story: 'Принёс весть о царице Савской. Сулейман отправил с ним письмо с призывом к единобожию' },
+    { id: 'chest_d19', name: 'Посох Мусы', title: '9 знамений', emoji: '🪄', type: 'chest_diamond', rarity: 'mythic', story: 'Превращался в змею, расступал море, 12 источников из камня, светился в темноте. Из райского мирта' },
+    { id: 'chest_d20', name: 'Рука Мусы', title: 'Белая без вреда', emoji: '🤚', type: 'chest_diamond', rarity: 'legendary', story: 'Вынимал руку — она становилась белой, светящейся. Одно из 9 знамений, данных фараону' },
+    { id: 'chest_d21', name: 'Манна и перепела', title: 'Пища с небес', emoji: '🍞', type: 'chest_diamond', rarity: 'legendary', story: 'Аллах ниспосылал сынам Исраила еду с неба в пустыне. Манна — сладкая как мёд. Но они роптали' },
+    { id: 'chest_d22', name: 'Тень облака', title: 'Защита в пустыне', emoji: '☁️', type: 'chest_diamond', rarity: 'legendary', story: 'Облако сопровождало сынов Исраила, давая прохладу. Двигалось по их движению, останавливалось по их остановке' },
+    { id: 'chest_d23', name: 'Оживление Исой', title: 'Чудо по воле Аллаха', emoji: '✨', type: 'chest_diamond', rarity: 'mythic', story: 'Иса оживлял мёртвых, лепил птицу из глины, дул — она оживала. Исцелял слепых и прокажённых' },
+    { id: 'chest_d24', name: 'Трапеза с неба', title: 'Стол для апостолов', emoji: '🍽️', type: 'chest_diamond', rarity: 'mythic', story: 'Апостолы попросили трапезу с неба. Аллах ниспослал стол. Это стало праздником для первых и последних' },
+    { id: 'chest_d25', name: 'Кит Юнуса', title: 'Во мраке чрева', emoji: '🐋', type: 'chest_diamond', rarity: 'mythic', story: 'Гигантский кит проглотил Юнуса. 3 слоя тьмы. Он повторял: «Нет бога, кроме Тебя». Через 40 дней вышел на берег' },
+    { id: 'chest_d26', name: 'Рубашка Юсуфа', title: 'Исцеляющая', emoji: '👕', type: 'chest_diamond', rarity: 'mythic', story: 'Якуб положил её на лицо — и прозрел. Разорванная сзади — доказательство невиновности Юсуфа' },
+    { id: 'chest_d27', name: 'Потоп Нуха', title: 'Великое наказание', emoji: '🌊', type: 'chest_diamond', rarity: 'mythic', story: 'Вода 40 дней из земли и неба. Печь закипела — знак начала. Спаслось около 80 человек на ковчеге' },
+    { id: 'chest_d28', name: 'Асхаб аль-Кахф', title: 'Спящие 309 лет', emoji: '😴', type: 'chest_diamond', rarity: 'mythic', story: 'Юноши уснули в пещере, спасаясь от неверного царя. Проснулись — весь город уже был верующим. С ними была собака' },
+    { id: 'chest_d29', name: 'Яджудж и Маджудж', title: 'За железной стеной', emoji: '🧱', type: 'chest_diamond', rarity: 'mythic', story: 'Народы, запертые Зуль-Карнайном. Выйдут перед концом света. Никто не остановит их, пока Аллах не пошлёт червей' },
+    { id: 'chest_d30', name: 'Зуль-Карнайн', title: 'Праведный правитель', emoji: '👑', type: 'chest_diamond', rarity: 'special', story: 'Аллах дал ему власть над землёй. Построил стену из железа и меди. Достиг заката солнца и восхода. Особая карта!' }
 ];
 
 // ========== ИНИЦИАЛИЗАЦИЯ ALL_COLLECTION_CARDS (ТОЛЬКО ОДИН РАЗ) ==========
@@ -3384,6 +3722,56 @@ console.log('💡 Для добавления карточек Джума вып
     setInterval(() => saveLocalBackup(), 30000);
     window.addEventListener('beforeunload', () => saveLocalBackup());
     </script>
+<!-- ========== МОДУЛЬ: СУНДУКИ ========== -->
+<div class="module-screen" id="module-chests">
+    <div class="ios-card">
+        <div class="ios-card-title"><i class="fas fa-gift"></i> Сундуки <span style="color: #FFD700;">🎁</span></div>
+        
+        <!-- Баланс звёзд -->
+        <div style="background: linear-gradient(135deg, #1a1a2e, #2d1f00); border-radius: 20px; padding: 20px; margin-bottom: 20px; text-align: center; color: #FFD700; border: 2px solid #FFD700;">
+            <div style="font-size: 0.9rem; margin-bottom: 8px;">💎 Ваш баланс звёзд</div>
+            <div style="font-size: 3rem; font-weight: 700;" id="chestStarBalance">0</div>
+            <div style="font-size: 0.8rem; color: #FFA500;">⭐ Звёзды можно получить за страницы Корана, зикры, достижения</div>
+        </div>
+        
+        <!-- Сундуки -->
+        <div style="font-weight: 600; margin-bottom: 12px;"><i class="fas fa-box"></i> Выберите сундук</div>
+        <div class="chest-container" id="chestContainer">
+            <div class="chest-card wooden" onclick="openChest('wooden')">
+                <div style="font-size: 3rem;">🎁</div>
+                <div style="font-weight: 700; font-size: 1.1rem;">Деревянный</div>
+                <div style="color: #8B6914; font-weight: 600;">50 ⭐</div>
+                <div style="font-size: 0.7rem; color: #8E8E93; margin-top: 8px;">Обычная 70% | Редкая 25% | Эпическая 5%</div>
+            </div>
+            <div class="chest-card silver" onclick="openChest('silver')">
+                <div style="font-size: 3rem;">🎁</div>
+                <div style="font-weight: 700; font-size: 1.1rem;">Серебряный</div>
+                <div style="color: #808080; font-weight: 600;">150 ⭐</div>
+                <div style="font-size: 0.7rem; color: #8E8E93; margin-top: 8px;">Редкая 50% | Эпическая 35% | Легендарная 15%</div>
+            </div>
+            <div class="chest-card golden" onclick="openChest('golden')">
+                <div style="font-size: 3rem;">🎁</div>
+                <div style="font-weight: 700; font-size: 1.1rem;">Золотой</div>
+                <div style="color: #FFA000; font-weight: 600;">300 ⭐</div>
+                <div style="font-size: 0.7rem; color: #8E8E93; margin-top: 8px;">Эпическая 40% | Легендарная 40% | Мифическая 15% | Особая 5%</div>
+            </div>
+            <div class="chest-card diamond" onclick="openChest('diamond')">
+                <div style="font-size: 3rem;">💎</div>
+                <div style="font-weight: 700; font-size: 1.1rem;">Алмазный</div>
+                <div style="color: #00BFA5; font-weight: 600;">500 ⭐</div>
+                <div style="font-size: 0.7rem; color: #8E8E93; margin-top: 8px;">Легендарная 70% | Мифическая 29% | Особая 1%</div>
+            </div>
+        </div>
+        
+        <!-- История открытий -->
+        <div style="margin-top: 20px;">
+            <div style="font-weight: 600; margin-bottom: 12px;"><i class="fas fa-history"></i> История открытий</div>
+            <div id="chestHistory" style="background: #F2F2F7; border-radius: 16px; padding: 16px; max-height: 200px; overflow-y: auto;">
+                <p style="text-align: center; color: #8E8E93;">Пока нет открытых сундуков</p>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- ========== МОДУЛЬ: ХАТМ ========== -->
 <div class="module-screen" id="module-khatm">
@@ -7718,12 +8106,208 @@ loadQuranSettings();
 loadQuranData();
 </script>
 
+<!-- ========== 🎁 МОДУЛЬ СУНДУКОВ ========== -->
+<div class="module-screen" id="module-chests">
+    <div class="ios-card">
+        <div class="ios-card-title"><i class="fas fa-gift"></i> Сундуки <span style="color: #FFD700;">🎁</span></div>
+        
+        <div style="background: linear-gradient(135deg, #1a1a2e, #2d1f00); border-radius: 20px; padding: 20px; margin-bottom: 20px; text-align: center; color: #FFD700; border: 2px solid #FFD700;">
+            <div style="font-size: 0.9rem;">💎 Ваш баланс звёзд</div>
+            <div style="font-size: 3rem; font-weight: 700;" id="chestStarBalance">0</div>
+        </div>
+        
+        <div class="chest-container" id="chestContainer">
+            <div class="chest-card wooden" onclick="openChest('wooden')">
+                <div style="font-size: 3rem;">🎁</div>
+                <div style="font-weight: 700;">Деревянный</div>
+                <div style="color: #8B6914;">50 ⭐</div>
+                <div style="font-size: 0.7rem; color: #8E8E93;">Обычная 70% | Редкая 25% | Эпическая 5%</div>
+            </div>
+            <div class="chest-card silver" onclick="openChest('silver')">
+                <div style="font-size: 3rem;">🎁</div>
+                <div style="font-weight: 700;">Серебряный</div>
+                <div style="color: #808080;">150 ⭐</div>
+                <div style="font-size: 0.7rem; color: #8E8E93;">Редкая 50% | Эпическая 35% | Легендарная 15%</div>
+            </div>
+            <div class="chest-card golden" onclick="openChest('golden')">
+                <div style="font-size: 3rem;">🎁</div>
+                <div style="font-weight: 700;">Золотой</div>
+                <div style="color: #FFA000;">300 ⭐</div>
+                <div style="font-size: 0.7rem; color: #8E8E93;">Эпическая 40% | Легендарная 40% | Мифическая 15%</div>
+            </div>
+            <div class="chest-card diamond" onclick="openChest('diamond')">
+                <div style="font-size: 3rem;">💎</div>
+                <div style="font-weight: 700;">Алмазный</div>
+                <div style="color: #00BFA5;">500 ⭐</div>
+                <div style="font-size: 0.7rem; color: #8E8E93;">Легендарная 70% | Мифическая 29% | Особая 1%</div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 20px;">
+            <div style="font-weight: 600; margin-bottom: 12px;"><i class="fas fa-history"></i> История открытий</div>
+            <div id="chestHistory" style="background: #F2F2F7; border-radius: 16px; padding: 16px; max-height: 200px; overflow-y: auto;">
+                <p style="text-align: center; color: #8E8E93;">Пока нет открытых сундуков</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- ========== ФУТЕР ========== -->
 <footer style="text-align: center; padding: 20px 16px 100px; color: #8E8E93; font-size: 0.8rem;">
     <p><i class="fas fa-heart" style="color: #FF3B30;"></i> Muslim Tracker v6.0 · iOS Edition</p>
     <p style="margin-top: 8px; font-family: 'Amiri', serif; font-size: 1rem;">رَبَّنَا تَقَبَّلْ مِنَّا إِنَّكَ أَنتَ السَّمِيعُ الْعَلِيمُ</p>
     <p>"Господь наш! Прими от нас, ведь Ты — Слышащий, Знающий" (2:127)</p>
 </footer>
+
+<!-- ========== 🎁 СКРИПТ СУНДУКОВ ========== -->
+<script>
+const CHEST_CONFIG = {
+    wooden: { name: 'Деревянный', cost: 50, type: 'chest_wooden', emoji: '🎁', color: '#8B6914', chances: { common: 70, rare: 25, epic: 5 } },
+    silver: { name: 'Серебряный', cost: 150, type: 'chest_silver', emoji: '🎁', color: '#A0A0A0', chances: { rare: 50, epic: 35, legendary: 15 } },
+    golden: { name: 'Золотой', cost: 300, type: 'chest_golden', emoji: '🎁', color: '#FFA000', chances: { epic: 40, legendary: 40, mythic: 15, special: 5 } },
+    diamond: { name: 'Алмазный', cost: 500, type: 'chest_diamond', emoji: '💎', color: '#00BFA5', chances: { legendary: 70, mythic: 29, special: 1 } }
+};
+
+let chestHistory = JSON.parse(localStorage.getItem('chest_history') || '[]');
+
+function updateChestBalance() {
+    var balance = userData.stars?.totalStars || 0;
+    var el = document.getElementById('chestStarBalance');
+    if (el) el.textContent = balance;
+    document.querySelectorAll('.chest-card').forEach(function(card) {
+        var ct = '';
+        if (card.classList.contains('wooden')) ct = 'wooden';
+        else if (card.classList.contains('silver')) ct = 'silver';
+        else if (card.classList.contains('golden')) ct = 'golden';
+        else if (card.classList.contains('diamond')) ct = 'diamond';
+        if (ct && CHEST_CONFIG[ct]) {
+            card.style.opacity = balance >= CHEST_CONFIG[ct].cost ? '1' : '0.6';
+            card.style.filter = balance >= CHEST_CONFIG[ct].cost ? 'none' : 'grayscale(30%)';
+        }
+    });
+}
+
+function openChest(chestType) {
+    var config = CHEST_CONFIG[chestType];
+    var balance = userData.stars?.totalStars || 0;
+    if (balance < config.cost) { showNotification('❌ Недостаточно звёзд! Нужно ' + config.cost + ' ⭐'); return; }
+    if (!confirm('Открыть ' + config.name + ' сундук за ' + config.cost + ' ⭐?')) return;
+    userData.stars.totalStars = balance - config.cost;
+    saveUserData();
+    var card = getRandomCard(chestType);
+    if (!userData.unlockedCards) userData.unlockedCards = [];
+    if (!userData.unlockedCards.includes(card.id)) { userData.unlockedCards.push(card.id); saveUserData(); }
+    chestHistory.unshift({ chest: chestType, card: card.id, name: card.name, title: card.title, rarity: card.rarity, date: new Date().toISOString() });
+    if (chestHistory.length > 50) chestHistory = chestHistory.slice(0, 50);
+    localStorage.setItem('chest_history', JSON.stringify(chestHistory));
+    showChestAnimation(config, card);
+    updateChestBalance(); renderChestHistory(); updateCollectionBadge();
+    if (typeof renderCollection === 'function') renderCollection();
+    updateHomeWidgets();
+}
+
+function getRandomCard(chestType) {
+    var config = CHEST_CONFIG[chestType];
+    var allCards = getAllCollectionCards();
+    var pool = allCards.filter(function(c) { return c.type === config.type && c.id.startsWith('chest_'); });
+    if (pool.length === 0) pool = allCards.filter(function(c) { return c.type === config.type; });
+    var roll = Math.random() * 100, targetRarity = 'common', cumulative = 0;
+    for (var rarity in config.chances) { cumulative += config.chances[rarity]; if (roll <= cumulative) { targetRarity = rarity; break; } }
+    var filtered = pool.filter(function(c) { return c.rarity === targetRarity; });
+    if (filtered.length === 0) filtered = pool;
+    var card = filtered[Math.floor(Math.random() * filtered.length)];
+    if (!card) card = { id: 'fb_' + Date.now(), name: 'Тайная карта', title: 'Сюрприз!', emoji: '🎴', type: config.type, rarity: targetRarity, story: 'Редкая карта из ' + config.name + ' сундука!' };
+    return card;
+}
+
+function showChestAnimation(config, card) {
+    var overlay = document.createElement('div');
+    overlay.className = 'chest-opening-overlay'; overlay.id = 'chestOpeningOverlay';
+    var rc = 'card-rarity-' + (card.rarity || 'common');
+    var shortStory = (card.story || 'Описание отсутствует').substring(0, 150) + '...';
+    
+    overlay.innerHTML = 
+        '<div class="chest-opening-chest" onclick="revealCard()">' + config.emoji + '</div>' +
+        '<div style="color:white;margin-top:15px;font-size:1.1rem;">Нажми на сундук чтобы открыть!</div>' +
+        '<div id="chestRevealedCard" style="display:none;" class="chest-opening-card ' + rc + '">' +
+            (card.image ? '<img src="' + card.image + '" style="width:100%;max-height:150px;object-fit:contain;border-radius:12px;margin-bottom:12px;" onerror="this.style.display=\'none\'">' : '') +
+            '<div style="font-size:3rem;">' + (card.emoji || '🎴') + '</div>' +
+            '<div style="font-weight:700;font-size:1.2rem;margin:8px 0;color:#FFD700;">' + (card.name || 'Неизвестная карта') + '</div>' +
+            '<div style="color:#FFA500;font-size:0.9rem;">' + (card.title || '') + '</div>' +
+            '<div style="margin:8px 0;padding:6px 14px;border-radius:20px;display:inline-block;font-size:0.8rem;background:' + config.color + ';color:white;font-weight:700;">' + getRarityName(card.rarity) + '</div>' +
+            '<div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:10px;margin:10px 0;font-size:0.75rem;color:#CCC;line-height:1.4;max-height:80px;overflow-y:auto;">📖 ' + shortStory + '</div>' +
+            '<div style="display:flex;gap:8px;margin-top:15px;">' +
+                '<button onclick="closeChestAnimation()" style="flex:1;padding:12px;border-radius:30px;border:none;background:#FFD700;color:#1a1a2e;font-weight:700;cursor:pointer;font-size:1rem;">🎉 Забрать!</button>' +
+                '<button onclick="closeChestAnimation();openModule(\'collection\');" style="flex:1;padding:12px;border-radius:30px;border:2px solid #FFD700;background:transparent;color:#FFD700;font-weight:700;cursor:pointer;font-size:0.9rem;">📦 В коллекцию</button>' +
+            '</div>' +
+        '</div>';
+    
+    document.body.appendChild(overlay);
+    spawnChestParticles(config);
+}
+
+function revealCard() {
+    var chest = document.querySelector('.chest-opening-chest');
+    var card = document.getElementById('chestRevealedCard');
+    if (chest && card) { chest.style.display = 'none'; card.style.display = 'block'; if (navigator.vibrate) navigator.vibrate([50, 30, 50]); }
+}
+
+function closeChestAnimation() { var o = document.getElementById('chestOpeningOverlay'); if (o) o.remove(); }
+
+function spawnChestParticles(config) {
+    var emojis = ['✨', '💫', '⭐', '🌟', '💎'];
+    var c = document.createElement('div');
+    c.className = 'chest-particles'; c.style.left = '50%'; c.style.top = '50%';
+    document.body.appendChild(c);
+    for (var i = 0; i < 30; i++) {
+        var p = document.createElement('div');
+        p.className = 'chest-particle'; p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        p.style.left = '0'; p.style.top = '0';
+        p.style.setProperty('--px', (Math.random() - 0.5) * 300 + 'px');
+        p.style.setProperty('--py', (Math.random() - 0.5) * 300 + 'px');
+        p.style.animationDelay = (i * 0.03) + 's';
+        c.appendChild(p);
+    }
+    setTimeout(function() { c.remove(); }, 1500);
+}
+
+function getRarityName(r) {
+    var n = { common: 'Обычная', rare: 'Редкая', epic: 'Эпическая', legendary: 'Легендарная', mythic: 'Мифическая', special: '⭐ Особая!' };
+    return n[r] || r;
+}
+
+function renderChestHistory() {
+    var c = document.getElementById('chestHistory');
+    if (!c) return;
+    if (!chestHistory.length) { c.innerHTML = '<p style="text-align:center;color:#8E8E93;">Пока нет открытых сундуков</p>'; return; }
+    c.innerHTML = chestHistory.slice(0, 20).map(function(h) {
+        var cfg = CHEST_CONFIG[h.chest];
+        var d = new Date(h.date);
+        var allCards = getAllCollectionCards();
+        var fullCard = allCards.find(function(card) { return card.id === h.card; });
+        var story = fullCard ? (fullCard.story || '').substring(0, 60) : '';
+        return '<div style="display:flex;align-items:center;gap:10px;padding:10px;background:white;border-radius:12px;margin-bottom:8px;border-left:4px solid ' + (cfg?.color || '#FFD700') + ';cursor:pointer;" onclick="if(\'' + (fullCard?.id || '') + '\'){showCardStory(\'' + (fullCard?.id || '') + '\',\'' + (h.name || '').replace(/'/g, '\\\'') + '\',\'' + (fullCard?.emoji || '🎴') + '\',\'' + (fullCard?.story || '').replace(/'/g, '\\\'').replace(/\n/g, '<br>') + '\')}">' +
+            '<span style="font-size:1.5rem;">' + (cfg?.emoji || '🎁') + '</span>' +
+            '<div style="flex:1;">' +
+                '<div style="font-weight:600;font-size:0.85rem;">' + h.name + '</div>' +
+                '<div style="color:#8E8E93;font-size:0.75rem;">' + h.title + ' · ' + getRarityName(h.rarity) + '</div>' +
+                (story ? '<div style="color:#999;font-size:0.7rem;font-style:italic;">📖 ' + story + '...</div>' : '') +
+            '</div>' +
+            '<div style="font-size:0.7rem;color:#8E8E93;text-align:right;">' + d.toLocaleDateString() + '</div>' +
+        '</div>';
+    }).join('');
+}
+
+// Расширяем openModule для сундуков (без конфликта)
+var _openModuleChest = openModule;
+openModule = function(mid) {
+    _openModuleChest(mid);
+    if (mid === 'chests') { updateChestBalance(); renderChestHistory(); }
+};
+
+setTimeout(function() { updateChestBalance(); renderChestHistory(); }, 1500);
+console.log('🎁 Система сундуков готова!');
+</script>
 
 </div> <!-- .app-container -->
 </body>
