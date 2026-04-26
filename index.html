@@ -3964,7 +3964,7 @@ console.log('💡 Для добавления карточек Джума вып
     </script><!-- ========== МОДУЛЬ: КОЛЕСО ФОРТУНЫ ========== -->
 <div class="module-screen" id="module-wheel">
     <div class="ios-card">
-        <div class="ios-card-title"><i class="fas fa-dharmachakra"></i> Колесо фортуны <span style="color: #FFD700;">🎰</span></div>
+        <div class="ios-card-title"><i class="fas fa-dharmachakra"></i> Фатх <span style="color: #FFD700;">🎡</span></div>
         
         <div style="text-align: center; position: relative; margin: 10px 0;">
             <div style="position: absolute; top: -5px; left: 50%; transform: translateX(-50%); z-index: 10; font-size: 2.5rem; color: #FFD700; filter: drop-shadow(0 0 8px gold);" id="wheelArrow">▼</div>
@@ -4078,14 +4078,14 @@ function drawWheel() {
     ctx.fillStyle = '#1a1a2e';
     ctx.font = 'bold 18px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('🎰', cx, cy + 7);
+    ctx.fillText('🎡', cx, cy + 7);
 }
 
 function spinWheel() {
     if (isSpinning) return;
     
     if (!getFreeSpinAvailable()) {
-        showNotification('🎰 Бесплатный спин уже использован! Купите дополнительный.');
+        showNotification('🎡 Бесплатный спин уже использован! Купите дополнительный.');
         return;
     }
     
@@ -4238,7 +4238,7 @@ openModule = function(mid) { _omW(mid); if (mid === 'wheel') { updateFreeSpinSta
 
 // Инициализация
 setTimeout(function() { drawWheel(); renderWheelHistory(); updateFreeSpinStatus(); }, 1000);
-console.log('🎰 Колесо фортуны готово!');
+console.log('🎡 Фатх готов!');
 </script>
 <!-- ========== МОДУЛЬ: СУНДУКИ ========== -->
 <div class="module-screen" id="module-chests">
@@ -9052,7 +9052,7 @@ openModule = function(mid) {
     origOpenModule2(mid);
     var titles = {
         'heatmap':'Активность',
-        'wheel':'Аль-Ваххаб',
+        'wheel':'Фатх',
         'khatm':'Хатм','tauba':'Тауба','names':'99 Имён','azkar':'Азкары','zikr':'Зикр','tasbih':'Тасбих','fasting':'Пост',
         'prayer':'Намаз','juma':'Джума','achievements':'Достижения','stars':'Звёзды','collection':'Коллекция',
         'quiz':'Викторина','dictionary':'Словарь','quran':'Аят дня','settings':'Настройки',
