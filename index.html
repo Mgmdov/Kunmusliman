@@ -3,15 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
-    
-    <!-- PWA -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="Muslim">
-    <meta name="theme-color" content="#0a2f1a">
-    <link rel="apple-touch-icon" href="images/icon-192.jpeg">
-    
     <title>Muslim Tracker | Хатм | 99 Имён | XP | Звёзды | Коран</title>
     
     <!-- Шрифты -->
@@ -25,404 +16,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
     <style>
-/* ========== АНИМАЦИИ КАРТОЧЕК ИМЁН ========== */
-@keyframes nameCardCommon {
-    0%, 100% { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    50% { box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
-}
-
-@keyframes nameCardRare {
-    0%, 100% { box-shadow: 0 0 10px rgba(100,181,246,0.3); }
-    50% { box-shadow: 0 0 25px rgba(100,181,246,0.6); }
-}
-
-@keyframes nameCardEpic {
-    0%, 100% { box-shadow: 0 0 15px rgba(171,71,188,0.4); transform: scale(1); }
-    50% { box-shadow: 0 0 30px rgba(171,71,188,0.7); transform: scale(1.02); }
-}
-
-@keyframes nameCardLegendary {
-    0%, 100% { box-shadow: 0 0 20px rgba(255,179,0,0.5); }
-    50% { box-shadow: 0 0 40px rgba(255,179,0,0.8), 0 0 60px rgba(255,152,0,0.4); }
-}
-
-@keyframes nameCardMythic {
-    0%, 100% { box-shadow: 0 0 25px rgba(255,215,0,0.6), 0 0 50px rgba(255,165,0,0.3); }
-    25% { box-shadow: 0 0 30px rgba(255,215,0,0.8), 0 0 60px rgba(255,0,255,0.3); }
-    50% { box-shadow: 0 0 35px rgba(0,255,255,0.6), 0 0 70px rgba(255,215,0,0.5); }
-    75% { box-shadow: 0 0 30px rgba(0,255,0,0.6), 0 0 60px rgba(255,215,0,0.4); }
-}
-
-@keyframes floatParticle {
-    0% { transform: translateY(0) scale(0); opacity: 0; }
-    50% { transform: translateY(-30px) scale(1); opacity: 1; }
-    100% { transform: translateY(-60px) scale(0); opacity: 0; }
-}
-
-.card-names-common { animation: nameCardCommon 3s ease-in-out infinite; }
-.card-names-rare { animation: nameCardRare 2.5s ease-in-out infinite; }
-.card-names-epic { animation: nameCardEpic 2s ease-in-out infinite; }
-.card-names-legendary { animation: nameCardLegendary 1.5s ease-in-out infinite; }
-.card-names-mythic { animation: nameCardMythic 3s ease-in-out infinite; position: relative; }
-.card-names-mythic::before {
-    content: '';
-    position: absolute;
-    top: -3px; left: -3px; right: -3px; bottom: -3px;
-    background: linear-gradient(45deg, #ff0000, #ff7700, #ffff00, #00ff00, #0077ff, #7700ff, #ff0000);
-    background-size: 400% 400%;
-    border-radius: 19px;
-    z-index: -1;
-    animation: rainbowBorder 3s linear infinite;
-}
-
-@keyframes rainbowBorder {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 400% 50%; }
-}
-
-.name-particle {
-    position: absolute;
-    pointer-events: none;
-    animation: floatParticle 1.5s ease-out forwards;
-}
-/* ========== ЕЖЕДНЕВНЫЕ ЗАДАНИЯ ========== */
-.daily-quests-container {
-    background: #FFFFFF;
-    border-radius: 20px;
-    padding: 16px;
-    margin-bottom: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-    border: 1px solid rgba(0,0,0,0.02);
-}
-
-.quest-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px;
-    background: #F2F2F7;
-    border-radius: 16px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: 2px solid transparent;
-}
-
-.quest-item:hover {
-    border-color: #007AFF;
-}
-
-.quest-item.completed {
-    background: #E8F5E9;
-    border-color: #34C759;
-    opacity: 0.7;
-    cursor: default;
-}
-
-.quest-item.completed:hover {
-    border-color: #34C759;
-}
-
-.quest-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-    flex-shrink: 0;
-}
-
-.quest-info {
-    flex: 1;
-}
-
-.quest-name {
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: #1C1C1E;
-}
-
-.quest-progress {
-    font-size: 0.75rem;
-    color: #8E8E93;
-    margin-top: 4px;
-}
-
-.quest-reward {
-    background: #FFD700;
-    color: #1C1C1E;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-weight: 700;
-    font-size: 0.75rem;
-    white-space: nowrap;
-}
-
-/* Серия дней */
-.streak-container {
-    background: linear-gradient(135deg, #FFD700, #FFA500);
-    border-radius: 20px;
-    padding: 18px;
-    margin-bottom: 16px;
-    text-align: center;
-    color: #1C1C1E;
-}
-
-.streak-fire {
-    font-size: 2.5rem;
-    animation: fireFloat 1.5s ease-in-out infinite;
-}
-
-@keyframes fireFloat {
-    0%, 100% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-5px) scale(1.1); }
-}
-
-.streak-days {
-    font-size: 2.5rem;
-    font-weight: 800;
-}
-
-.streak-rewards {
-    display: flex;
-    justify-content: space-around;
-    margin-top: 12px;
-    font-size: 0.75rem;
-}
-
-.streak-reward-item {
-    opacity: 0.4;
-    transition: all 0.3s;
-}
-
-.streak-reward-item.unlocked {
-    opacity: 1;
-    transform: scale(1.1);
-}
-
-.all-quests-completed {
-    background: linear-gradient(135deg, #34C759, #30B0C0);
-    color: white;
-    border-radius: 16px;
-    padding: 14px;
-    text-align: center;
-    margin-top: 12px;
-    cursor: pointer;
-    font-weight: 700;
-    animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.02); }
-}
-/* ========== 🎁 СУНДУКИ ========== */
-.chest-container {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin-bottom: 20px;
-}
-
-.chest-card {
-    background: #FFFFFF;
-    border-radius: 20px;
-    padding: 20px;
-    text-align: center;
-    cursor: pointer;
-    border: 2px solid #E5E5EA;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.chest-card:active {
-    transform: scale(0.95);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-}
-
-.chest-card.wooden {
-    background: linear-gradient(135deg, #FFF8E7, #F5E6C8);
-    border-color: #8B6914;
-}
-
-.chest-card.silver {
-    background: linear-gradient(135deg, #F0F0F0, #E0E0E0);
-    border-color: #A0A0A0;
-}
-
-.chest-card.golden {
-    background: linear-gradient(135deg, #FFF8E1, #FFE082);
-    border-color: #FFA000;
-}
-
-.chest-card.diamond {
-    background: linear-gradient(135deg, #E8F5E9, #B2DFDB);
-    border-color: #00BFA5;
-    animation: diamondShine 2s ease-in-out infinite;
-}
-
-@keyframes diamondShine {
-    0%, 100% { box-shadow: 0 0 15px rgba(0, 191, 165, 0.3); }
-    50% { box-shadow: 0 0 30px rgba(0, 191, 165, 0.6), 0 0 60px rgba(0, 150, 136, 0.3); }
-}
-
-/* ========== ✨ СВЕЧЕНИЕ КАРТОЧЕК ПО РАНГАМ ========== */
-
-/* Обычная - без свечения */
-.card-rarity-common {
-    border: 1px solid #E5E5EA;
-}
-
-/* Редкая - лёгкое голубое свечение */
-.card-rarity-rare {
-    border: 2px solid #4FC3F7;
-    box-shadow: 0 0 10px rgba(79, 195, 247, 0.3);
-    animation: rareGlow 2s ease-in-out infinite;
-}
-
-@keyframes rareGlow {
-    0%, 100% { box-shadow: 0 0 10px rgba(79, 195, 247, 0.3); }
-    50% { box-shadow: 0 0 20px rgba(79, 195, 247, 0.5); }
-}
-
-/* Эпическая - фиолетовое свечение с пульсацией */
-.card-rarity-epic {
-    border: 2px solid #AB47BC;
-    box-shadow: 0 0 15px rgba(171, 71, 188, 0.4);
-    animation: epicGlow 1.5s ease-in-out infinite;
-}
-
-@keyframes epicGlow {
-    0%, 100% { box-shadow: 0 0 15px rgba(171, 71, 188, 0.4); }
-    50% { box-shadow: 0 0 25px rgba(171, 71, 188, 0.7), 0 0 40px rgba(156, 39, 176, 0.3); }
-}
-
-/* Легендарная - золотое свечение с искрами */
-.card-rarity-legendary {
-    border: 3px solid #FFB300;
-    box-shadow: 0 0 20px rgba(255, 179, 0, 0.5);
-    animation: legendaryGlow 2s ease-in-out infinite;
-    background: linear-gradient(135deg, #1a1a1a, #2d1f00) !important;
-    color: #FFD700 !important;
-}
-
-@keyframes legendaryGlow {
-    0%, 100% { box-shadow: 0 0 20px rgba(255, 179, 0, 0.5), 0 0 40px rgba(255, 152, 0, 0.2); }
-    50% { box-shadow: 0 0 35px rgba(255, 179, 0, 0.8), 0 0 70px rgba(255, 152, 0, 0.4), 0 0 100px rgba(255, 215, 0, 0.2); }
-}
-
-/* Мифическая - радужное свечение с голографией */
-.card-rarity-mythic {
-    border: 3px solid transparent;
-    background: linear-gradient(135deg, #1a0a2e, #0d1b2a) !important;
-    color: #FFD700 !important;
-    animation: mythicRainbow 3s linear infinite;
-    position: relative;
-}
-
-.card-rarity-mythic::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(45deg, #ff0000, #ff7700, #ffff00, #00ff00, #0077ff, #7700ff, #ff0000);
-    background-size: 400% 400%;
-    border-radius: 18px;
-    z-index: -1;
-    animation: rainbowBorder 3s linear infinite;
-}
-
-@keyframes rainbowBorder {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-@keyframes mythicRainbow {
-    0%, 100% { box-shadow: 0 0 25px rgba(255, 0, 0, 0.6), 0 0 50px rgba(255, 165, 0, 0.4); }
-    25% { box-shadow: 0 0 25px rgba(0, 255, 0, 0.6), 0 0 50px rgba(0, 255, 255, 0.4); }
-    50% { box-shadow: 0 0 25px rgba(0, 0, 255, 0.6), 0 0 50px rgba(255, 0, 255, 0.4); }
-    75% { box-shadow: 0 0 25px rgba(255, 255, 0, 0.6), 0 0 50px rgba(255, 0, 0, 0.4); }
-}
-
-/* Особая (секретная) - белое сияние с золотыми частицами */
-.card-rarity-special {
-    border: 3px solid #FFFFFF;
-    box-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 60px rgba(255, 215, 0, 0.6), 0 0 90px rgba(255, 255, 255, 0.4);
-    animation: specialGlow 1.5s ease-in-out infinite;
-    background: linear-gradient(135deg, #1a1a2e, #2d1f00) !important;
-    color: #FFD700 !important;
-}
-
-@keyframes specialGlow {
-    0%, 100% { box-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 60px rgba(255, 215, 0, 0.6); }
-    50% { box-shadow: 0 0 50px rgba(255, 255, 255, 1), 0 0 100px rgba(255, 215, 0, 0.9), 0 0 150px rgba(255, 255, 255, 0.5); }
-}
-
-/* ========== 🎁 АНИМАЦИЯ ОТКРЫТИЯ СУНДУКА ========== */
-.chest-opening-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.9);
-    z-index: 100000;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.chest-opening-chest {
-    font-size: 6rem;
-    animation: chestBounce 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-    cursor: pointer;
-}
-
-@keyframes chestBounce {
-    0% { transform: scale(0) rotate(-180deg); }
-    60% { transform: scale(1.3) rotate(10deg); }
-    100% { transform: scale(1) rotate(0deg); }
-}
-
-.chest-opening-card {
-    font-size: 3rem;
-    animation: cardReveal 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-    margin-top: 20px;
-    padding: 20px;
-    border-radius: 20px;
-    text-align: center;
-    max-width: 280px;
-}
-
-@keyframes cardReveal {
-    0% { transform: scale(0) translateY(50px); opacity: 0; }
-    50% { transform: scale(1.2) translateY(-20px); opacity: 0.8; }
-    100% { transform: scale(1) translateY(0); opacity: 1; }
-}
-
-.chest-particles {
-    position: fixed;
-    pointer-events: none;
-    z-index: 100001;
-}
-
-@keyframes chestParticle {
-    0% { opacity: 1; transform: translate(0, 0) scale(1); }
-    100% { opacity: 0; transform: translate(var(--px), var(--py)) scale(0); }
-}
-
-.chest-particle {
-    position: absolute;
-    font-size: 1.5rem;
-    animation: chestParticle 1s ease-out forwards;
-}
 /* ========== 📖 КОРАН v3 ========== */
         #quranOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -2656,37 +2249,6 @@ body.theme-sunset textarea {
             </div>
             <span class="xp-text" id="homeXpText">0 XP</span>
         </div>
-<!-- Ежедневная награда за вход -->
-<div class="streak-container" id="dailyRewardContainer" style="background: linear-gradient(135deg, #FFD700, #FF8C00);">
-    <div style="font-size: 2.5rem;" id="dailyRewardEmoji">🎁</div>
-    <div style="font-weight: 700; font-size: 1.1rem; margin: 8px 0;">Ежедневная награда</div>
-    <div class="streak-days" id="loginStreakDays">0</div>
-    <div style="font-size: 0.8rem;">дней подряд</div>
-    <div style="background: rgba(255,255,255,0.3); border-radius: 100px; height: 8px; margin: 12px 16px;">
-        <div id="dailyRewardProgress" style="background: #fff; width: 0%; height: 100%; border-radius: 100px; transition: width 0.5s;"></div>
-    </div>
-    <div class="streak-rewards" style="margin-top: 12px;">
-        <div class="streak-reward-item" data-day="1">День 1<br>+5 XP</div>
-        <div class="streak-reward-item" data-day="2">День 2<br>+10 XP</div>
-        <div class="streak-reward-item" data-day="3">День 3<br>+15 XP</div>
-        <div class="streak-reward-item" data-day="4">День 4<br>+20 XP</div>
-        <div class="streak-reward-item" data-day="5">День 5<br>+25 XP</div>
-        <div class="streak-reward-item" data-day="6">День 6<br>+30 XP</div>
-        <div class="streak-reward-item" data-day="7">День 7<br>🎁 Сундук!</div>
-    </div>
-</div>
-
-<!-- Ежедневные задания -->
-<div class="daily-quests-container" id="dailyQuestsContainer">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-        <span style="font-weight: 700; font-size: 1rem;">🎯 Ежедневные задания</span>
-        <span style="font-size: 0.75rem; color: #8E8E93;" id="questsResetTime">До сброса: 23:59</span>
-    </div>
-    <div id="dailyQuestsList"></div>
-    <div id="allQuestsCompleted" style="display: none;" class="all-quests-completed" onclick="claimAllQuestsReward()">
-        🎉 Все задания выполнены! Нажми чтобы получить награду!
-    </div>
-</div>
         
         <!-- Виджет: Время намаза -->
         <div class="widget" id="prayerWidget" onclick="openModule('prayer')">
@@ -2739,48 +2301,48 @@ body.theme-sunset textarea {
         </div>
         
         <!-- ========== ОСНОВНОЕ ========== -->
-<div class="section-title"><i class="fas fa-star"></i> Основное</div>
-<div class="icon-grid">
-    <div class="icon-item" data-module="khatm" onclick="openModule('khatm')">
-        <div class="icon-circle icon-khatm"><i class="fas fa-book-open"></i></div>
-        <span class="icon-label">Хатм</span>
-    </div>
-    <div class="icon-item" data-module="tauba" onclick="openModule('tauba')">
-        <div class="icon-circle icon-tauba"><i class="fas fa-pen-fancy"></i></div>
-        <span class="icon-label">Тауба</span>
-    </div>
-    <div class="icon-item" data-module="names" onclick="openModule('names')">
-        <div class="icon-circle icon-names"><i class="fas fa-scroll"></i><span class="icon-badge-count" id="namesBadge">99</span></div>
-        <span class="icon-label">99 Имён</span>
-    </div>
-    <div class="icon-item" data-module="quran" onclick="openQuran()">
-        <div class="icon-circle icon-quran"><i class="fas fa-quran"></i></div>
-        <span class="icon-label">Коран</span>
-    </div>
-</div>
-
-<!-- ========== ИБАДАТ ========== -->
-<div class="section-title"><i class="fas fa-hands-praying"></i> Ибадат</div>
-<div class="icon-grid">
-    <div class="icon-item" data-module="zikr" onclick="openModule('zikr')">
-        <div class="icon-circle icon-zikr"><i class="fas fa-fingerprint"></i></div>
-        <span class="icon-label">Зикр</span>
-    </div>
-    <div class="icon-item" data-module="tasbih" onclick="openModule('tasbih')">
-        <div class="icon-circle icon-tasbih"><i class="fas fa-dharmachakra"></i></div>
-        <span class="icon-label">Тасбих</span>
-    </div>
-    <div class="icon-item" data-module="fasting" onclick="openModule('fasting')">
-        <div class="icon-circle icon-fasting"><i class="fas fa-moon"></i></div>
-        <span class="icon-label">Пост</span>
-    </div>
-    <div class="icon-item" data-module="prayer" onclick="openModule('prayer')">
-        <div class="icon-circle icon-prayer"><i class="fas fa-mosque"></i></div>
-        <span class="icon-label">Намаз</span>
-    </div>
-</div>
-
-<!-- ========== ОСОБОЕ ========== -->
+        <div class="section-title"><i class="fas fa-star"></i> Основное</div>
+        <div class="icon-grid">
+            <div class="icon-item" data-module="khatm" onclick="openModule('khatm')">
+                <div class="icon-circle icon-khatm"><i class="fas fa-book-open"></i></div>
+                <span class="icon-label">Хатм</span>
+            </div>
+            <div class="icon-item" data-module="tauba" onclick="openModule('tauba')">
+                <div class="icon-circle icon-tauba"><i class="fas fa-pen-fancy"></i></div>
+                <span class="icon-label">Тауба</span>
+            </div>
+            <div class="icon-item" data-module="names" onclick="openModule('names')">
+                <div class="icon-circle icon-names"><i class="fas fa-scroll"></i><span class="icon-badge-count" id="namesBadge">99</span></div>
+                <span class="icon-label">99 Имён</span>
+            </div>
+            <div class="icon-item" data-module="quran" onclick="openQuran()">
+                <div class="icon-circle icon-quran"><i class="fas fa-quran"></i></div>
+                <span class="icon-label">Коран</span>
+            </div>
+        </div>
+        
+        <!-- ========== ИБАДАТ ========== -->
+        <div class="section-title"><i class="fas fa-hands-praying"></i> Ибадат</div>
+        <div class="icon-grid">
+            <div class="icon-item" data-module="zikr" onclick="openModule('zikr')">
+                <div class="icon-circle icon-zikr"><i class="fas fa-fingerprint"></i></div>
+                <span class="icon-label">Зикр</span>
+            </div>
+            <div class="icon-item" data-module="tasbih" onclick="openModule('tasbih')">
+                <div class="icon-circle icon-tasbih"><i class="fas fa-dharmachakra"></i></div>
+                <span class="icon-label">Тасбих</span>
+            </div>
+            <div class="icon-item" data-module="fasting" onclick="openModule('fasting')">
+                <div class="icon-circle icon-fasting"><i class="fas fa-moon"></i></div>
+                <span class="icon-label">Пост</span>
+            </div>
+            <div class="icon-item" data-module="prayer" onclick="openModule('prayer')">
+                <div class="icon-circle icon-prayer"><i class="fas fa-mosque"></i></div>
+                <span class="icon-label">Намаз</span>
+            </div>
+        </div>
+        
+        <!-- ========== ОСОБОЕ ========== -->
         <div class="section-title"><i class="fas fa-crown"></i> Особое</div>
         <div class="icon-grid">
             <div class="icon-item" data-module="juma" onclick="openModule('juma')">
@@ -2799,15 +2361,8 @@ body.theme-sunset textarea {
                 <div class="icon-circle icon-collection"><i class="fas fa-layer-group"></i><span class="icon-badge-count purple" id="collectionBadge">0</span></div>
                 <span class="icon-label">Коллекция</span>
             </div>
-            <div class="icon-item" data-module="chests" onclick="openModule('chests')">
-                <div class="icon-circle" style="background: linear-gradient(135deg, #FFD700, #FF6B00);"><i class="fas fa-gift"></i></div>
-                <span class="icon-label">Сундуки</span>
-            </div>
-            <div class="icon-item" data-module="wheel" onclick="openModule('wheel')">
-                <div class="icon-circle" style="background: linear-gradient(135deg, #FF6B00, #FF3B30);"><i class="fas fa-dharmachakra"></i></div>
-                <span class="icon-label">Фатх</span>
-            </div>
         </div>
+        
         <!-- ========== ЗНАНИЯ ========== -->
         <div class="section-title"><i class="fas fa-graduation-cap"></i> Знания</div>
         <div class="icon-grid">
@@ -2837,18 +2392,14 @@ body.theme-sunset textarea {
             </div>
         </div>
         
-       <!-- ========== СИСТЕМА ========== -->
-<div class="section-title"><i class="fas fa-sliders-h"></i> Система</div>
-<div class="icon-grid">
-    <div class="icon-item" data-module="heatmap" onclick="openModule('heatmap')">
-        <div class="icon-circle" style="background: linear-gradient(135deg, #34C759, #30B0C0);"><i class="fas fa-fire"></i></div>
-        <span class="icon-label">Активность</span>
-    </div>
-    <div class="icon-item" data-module="settings" onclick="openModule('settings')">
-        <div class="icon-circle icon-settings"><i class="fas fa-gear"></i></div>
-        <span class="icon-label">Настройки</span>
-    </div>
-</div>
+        <!-- ========== СИСТЕМА ========== -->
+        <div class="section-title"><i class="fas fa-sliders-h"></i> Система</div>
+        <div class="icon-grid">
+            <div class="icon-item" data-module="settings" onclick="openModule('settings')">
+                <div class="icon-circle icon-settings"><i class="fas fa-gear"></i></div>
+                <span class="icon-label">Настройки</span>
+            </div>
+        </div>
         
         <!-- Футер главного экрана -->
         <div style="text-align: center; padding: 20px 0 80px; color: #8E8E93; font-size: 0.75rem;">
@@ -3165,136 +2716,7 @@ body.theme-sunset textarea {
     { id: 'name99', name: '99 Имён', title: 'Хранитель', emoji: '👑', type: 'names', rarity: 'mythic', story: 'Все 99 Прекрасных Имён Аллаха!', condition: 'names_99', conditionText: 'Выучить все 99 имён' },
     { id: 'mira_isra', name: 'Исра и Мирадж', title: 'Ночное перенесение', emoji: '🚀', type: 'miracle', rarity: 'legendary', story: 'Пророк ﷺ был перенесён из Мекки в Иерусалим и вознесён на небеса, где ему были показаны знамения Аллаха и предписан пятикратный намаз.', condition: 'khatm_1', conditionText: 'Завершить 1 хатм' },
     { id: 'mira_moon', name: 'Раскол луны', title: 'Знамение', emoji: '🌙', type: 'miracle', rarity: 'legendary', story: 'По просьбе курайшитов Пророк ﷺ указал на луну, и она раскололась на две половины.', condition: 'zikr_50000', conditionText: '50 000 зикров' },
-    { id: 'zamzam', name: 'Зам-Зам', title: 'Благословенный источник', emoji: '💧', type: 'miracle', rarity: 'mythic', story: 'Когда Хаджар искала воду для маленького Исмаила, по воле Аллаха забил источник Зам-Зам. «Вода Зам-Зама для того, для чего её пьют».', condition: 'secret', conditionText: '???' },
-// ========== 🎁 120 НОВЫХ КАРТОЧЕК ДЛЯ СУНДУКОВ ==========
-    
-    // === 🌱 ДЕРЕВЯННЫЙ СУНДУК (30 карточек: Учёные, цитаты, базовые знания) ===
-    { id: 'chest_w1', name: 'Имам Абу Ханифа', title: 'Основатель ханафитского мазхаба', emoji: '📚', type: 'chest_wooden', rarity: 'common', story: '«Если бы не страх перед Аллахом, что знание пропадёт, я бы никому не давал фетву, беря с него клятву, что он не будет искать ошибок»' },
-    { id: 'chest_w2', name: 'Имам Малик', title: 'Основатель маликитского мазхаба', emoji: '📖', type: 'chest_wooden', rarity: 'rare', story: '«Сунна — это ковчег Нуха. Кто сел на него — спасся, кто отказался — утонул»' },
-    { id: 'chest_w3', name: 'Имам Ахмад', title: 'Основатель ханбалитского мазхаба', emoji: '🕌', type: 'chest_wooden', rarity: 'rare', story: 'Выдержал пытки за убеждение, что Коран не сотворён. Сказал: «Люди нуждаются в знании больше, чем в еде и питье»' },
-    { id: 'chest_w4', name: 'Хасан аль-Басри', title: 'Великий табиин', emoji: '💡', type: 'chest_wooden', rarity: 'rare', story: '«О сын Адама! Ты — это твои дни. Каждый день, который проходит, забирает часть тебя»' },
-    { id: 'chest_w5', name: 'Ибн Аббас', title: 'Толкователь Корана', emoji: '📜', type: 'chest_wooden', rarity: 'epic', story: 'Двоюродный брат Пророка ﷺ. Пророк сделал дуа: «О Аллах, дай ему понимание религии и толкование Корана»' },
-    { id: 'chest_w6', name: 'Аиша бинт Абу Бакр', title: 'Мать правоверных', emoji: '👸', type: 'chest_wooden', rarity: 'rare', story: 'Передала 2210 хадисов. Сказала: «Нрав Пророка ﷺ был Кораном»' },
-    { id: 'chest_w7', name: 'Умар ибн Абдуль-Азиз', title: 'Праведный халиф', emoji: '👑', type: 'chest_wooden', rarity: 'rare', story: 'Правнук Умара. За 2 года правления установил справедливость. Сказал: «Кто поклоняется без знания — приносит больше вреда»' },
-    { id: 'chest_w8', name: 'Ибн Каййим', title: 'Ученик ибн Таймии', emoji: '📝', type: 'chest_wooden', rarity: 'common', story: '«Сердце подобно птице: чем выше оно поднимается, тем дальше от соблазнов»' },
-    { id: 'chest_w9', name: 'Ибн Таймия', title: 'Шейх-уль-Ислам', emoji: '⚔️', type: 'chest_wooden', rarity: 'epic', story: '«Что могут сделать со мной мои враги? Мой рай — в моём сердце. Если отправят в тюрьму — уединение с Аллахом»' },
-    { id: 'chest_w10', name: 'Аль-Газали', title: 'Автор "Ихья улюм ад-дин"', emoji: '💎', type: 'chest_wooden', rarity: 'epic', story: '«Знание без действия — безумие, действие без знания — невозможно»' },
-    { id: 'chest_w11', name: 'Аль-Фатиха', title: 'Открывающая Книгу', emoji: '🌟', type: 'chest_wooden', rarity: 'rare', story: '7 аятов, читаемых в каждом ракаате. Пророк ﷺ: «Не ниспосылалось ни в Торе, ни в Евангелии ничего подобного ей»' },
-    { id: 'chest_w12', name: 'Аяталь-Курси', title: 'Величайший аят', emoji: '🛡️', type: 'chest_wooden', rarity: 'rare', story: 'Кто читает после намаза — под защитой Аллаха до следующего намаза. Шайтан не приближается к читающему его ночью' },
-    { id: 'chest_w13', name: 'Мечеть Пророка ﷺ', title: 'Масджид ан-Набави', emoji: '🕌', type: 'chest_wooden', rarity: 'rare', story: 'Построена Пророком ﷺ после хиджры. В ней находится его могила. Намаз здесь равен 1000 намазов в других мечетях' },
-    { id: 'chest_w14', name: 'Мечеть аль-Харам', title: 'Заповедная мечеть', emoji: '🕋', type: 'chest_wooden', rarity: 'epic', story: 'В центре — Кааба. Намаз здесь равен 100 000 намазов. Первая мечеть, построенная на земле' },
-    { id: 'chest_w15', name: 'Мечеть Куба', title: 'Первая мечеть Ислама', emoji: '🏛️', type: 'chest_wooden', rarity: 'rare', story: 'Пророк ﷺ: «Кто совершит омовение дома и помолится в Кубе — получит награду как за умру»' },
-    { id: 'chest_w16', name: 'Источник Зам-Зам', title: 'Благословенная вода', emoji: '💧', type: 'chest_wooden', rarity: 'rare', story: 'Вода, появившаяся под ногами маленького Исмаила. Пророк ﷺ: «Вода Зам-Зама для того, для чего её пьют»' },
-    { id: 'chest_w17', name: 'Абу Хурайра', title: 'Передатчик хадисов', emoji: '🐱', type: 'chest_wooden', rarity: 'rare', story: 'Передал 5374 хадисов. Пророк ﷺ сделал дуа, чтобы его память стала крепкой. Любил кошек' },
-    { id: 'chest_w18', name: 'Ибн Масуд', title: 'Первый чтец Корана', emoji: '🎙️', type: 'chest_wooden', rarity: 'rare', story: 'Первый, кто прочитал Коран вслух при курайшитах. Пророк ﷺ: «Кто хочет слышать Коран свежим — пусть слушает ибн Масуда»' },
-    { id: 'chest_w19', name: 'Муаз ибн Джабаль', title: 'Знаток халяля и харама', emoji: '⚖️', type: 'chest_wooden', rarity: 'rare', story: 'Пророк ﷺ отправил его в Йемен судьёй. Спросил: «По чему будешь судить?» — «По Корану». — «А если не найдёшь?» — «По Сунне»' },
-    { id: 'chest_w20', name: 'Умм Салама', title: 'Мудрая советчица', emoji: '🤲', type: 'chest_wooden', rarity: 'common', story: 'Жена Пророка ﷺ. Во время Худайбии её совет помог разрешить трудную ситуацию с ихрамом' },
-    { id: 'chest_w21', name: 'Абу Дарда', title: 'Аскет и мудрец', emoji: '🧘', type: 'chest_wooden', rarity: 'common', story: 'Сказал: «Учите знание, ибо изучение его — поклонение, а обсуждение — прославление Аллаха»' },
-    { id: 'chest_w22', name: 'Анас ибн Малик', title: 'Слуга Пророка ﷺ', emoji: '👦', type: 'chest_wooden', rarity: 'rare', story: 'Служил Пророку ﷺ 10 лет. Пророк ни разу не упрекнул его. Передал 2286 хадисов' },
-    { id: 'chest_w23', name: 'Убай ибн Кааб', title: 'Лучший чтец уммы', emoji: '📖', type: 'chest_wooden', rarity: 'rare', story: 'Пророк ﷺ сказал ему: «Аллах приказал мне прочитать тебе Коран». Убай заплакал от радости' },
-    { id: 'chest_w24', name: 'Сафия бинт Хуяй', title: 'Потомок пророков', emoji: '👸', type: 'chest_wooden', rarity: 'rare', story: 'Жена Пророка ﷺ из потомков Харуна (мир ему). Была очень красива и набожна' },
-    { id: 'chest_w25', name: 'Зейд ибн Сабит', title: 'Секретарь откровений', emoji: '✍️', type: 'chest_wooden', rarity: 'rare', story: 'Записывал откровения при Пророке ﷺ. Возглавил комиссию по сбору Корана при Абу Бакре' },
-    { id: 'chest_w26', name: 'Гора Ухуд', title: 'Гора, любящая нас', emoji: '⛰️', type: 'chest_wooden', rarity: 'common', story: 'Место битвы при Ухуде. Пророк ﷺ: «Ухуд — гора, которая любит нас, и мы любим её»' },
-    { id: 'chest_w27', name: 'Гора Арафат', title: 'Место прощения', emoji: '🏔️', type: 'chest_wooden', rarity: 'rare', story: 'В день Арафа Аллах освобождает от Огня больше всего людей. Пророк ﷺ: «Хадж — это Арафат»' },
-    { id: 'chest_w28', name: 'Халима ас-Саадия', title: 'Кормилица Пророка ﷺ', emoji: '🤱', type: 'chest_wooden', rarity: 'common', story: 'Когда она взяла Мухаммада ﷺ, в её доме появилась барака — овцы давали молока вдвое больше' },
-    { id: 'chest_w29', name: 'Барака (Умм Айман)', title: 'Няня Пророка ﷺ', emoji: '👵', type: 'chest_wooden', rarity: 'common', story: 'Заботилась о Пророке ﷺ с рождения. Он называл её «мама после мамы» и говорил: «Она — моя семья»' },
-    { id: 'chest_w30', name: 'Сумайя бинт Хайят', title: 'Первая мученица', emoji: '🕊️', type: 'chest_wooden', rarity: 'epic', story: 'Мать Аммара ибн Ясира. Убита Абу Джахлем за веру — первая мученица в Исламе' },
-
-    // === 🥈 СЕРЕБРЯНЫЙ СУНДУК (30 карточек: Пророки, чудеса, скрытое знание) ===
-    { id: 'chest_s1', name: 'Чудо раскола луны', title: 'Знамение для курайшитов', emoji: '🌙', type: 'chest_silver', rarity: 'epic', story: 'Курайшиты попросили знамение. Пророк ﷺ указал на луну — она раскололась на две части. Они сказали: «Мухаммад околдовал нас!»' },
-    { id: 'chest_s2', name: 'Исра и Мирадж', title: 'Ночное перенесение', emoji: '🚀', type: 'chest_silver', rarity: 'epic', story: 'Пророк ﷺ перенесён из Мекки в Иерусалим и вознесён на небеса. Там был предписан 5-кратный намаз' },
-    { id: 'chest_s3', name: 'Чудо умножения еды', title: 'Барака в Хандаке', emoji: '🍲', type: 'chest_silver', rarity: 'rare', story: 'В битве при Хандаке Пророк ﷺ накормил 1000 человек одной чашкой еды. Джабир: «Я видел, как еды становилось больше»' },
-    { id: 'chest_s4', name: 'Чудо воды из пальцев', title: 'Источник в Худайбии', emoji: '💦', type: 'chest_silver', rarity: 'epic', story: 'У сподвижников не было воды. Пророк ﷺ опустил руку в сосуд — между пальцев забила вода, и все напились и омылись' },
-    { id: 'chest_s5', name: 'Чудо плачущего ствола', title: 'Тоска по Пророку ﷺ', emoji: '🪵', type: 'chest_silver', rarity: 'rare', story: 'Пророк ﷺ опирался на ствол пальмы. Когда сделали минбар, ствол заплакал как ребёнок. Пророк обнял его' },
-    { id: 'chest_s6', name: 'Пророк Адам', title: 'Первый человек', emoji: '🧑', type: 'chest_silver', rarity: 'epic', story: 'Создан из глины. Ему обучены все имена. Рост 60 локтей. Прожил около 1000 лет. Похоронен в Индии (по некоторым мнениям)' },
-    { id: 'chest_s7', name: 'Пророк Идрис', title: 'Вознесённый живым', emoji: '✨', type: 'chest_silver', rarity: 'epic', story: 'Первый, кто писал тростниковым пером. Ему ниспослано 30 свитков. Вознесён на небо живым' },
-    { id: 'chest_s8', name: 'Пророк Салих', title: 'Чудо верблюдицы', emoji: '🐪', type: 'chest_silver', rarity: 'epic', story: 'Послан к самудянам. Из скалы вышла верблюдица. Они убили её и были уничтожены за 3 дня' },
-    { id: 'chest_s9', name: 'Пророк Худ', title: 'Пророк народа Ад', emoji: '🌪️', type: 'chest_silver', rarity: 'rare', story: 'Адиты были могучими людьми. Отвергли Худа. 7 ночей и 8 дней ветер уничтожал их' },
-    { id: 'chest_s10', name: 'Пророк Лут', title: 'Спасённый из Содома', emoji: '🔥', type: 'chest_silver', rarity: 'epic', story: 'Его народ первым совершил мужеложство. Города перевёрнуты и засыпаны камнями из обожжённой глины' },
-    { id: 'chest_s11', name: 'Пророк Шуайб', title: 'Проповедник Мадьяна', emoji: '⚖️', type: 'chest_silver', rarity: 'rare', story: 'Его народ обманывал в торговле. Уничтожены землетрясением и облаком, извергавшим огонь' },
-    { id: 'chest_s12', name: 'Пророк Ильяс', title: 'Вознесённый на небо', emoji: '🌪️', type: 'chest_silver', rarity: 'epic', story: 'Послан к народу, поклонявшемуся идолу Баалу. Аллах вознёс его на небо живым. Вернётся перед концом света' },
-    { id: 'chest_s13', name: 'Пророк Альяса', title: 'Ученик Ильяса', emoji: '🌟', type: 'chest_silver', rarity: 'rare', story: 'Продолжил миссию Ильяса. Известен чудесами и исцелениями по воле Аллаха' },
-    { id: 'chest_s14', name: 'Пророк Зуль-Кифль', title: 'Обладатель удела', emoji: '📜', type: 'chest_silver', rarity: 'rare', story: 'Взял обязательство судить народ справедливо и выстаивать ночи в поклонении. Аллах похвалил его за терпение' },
-    { id: 'chest_s15', name: 'Пророк Якуб', title: 'Исраил', emoji: '😢', type: 'chest_silver', rarity: 'epic', story: 'Отец 12 сыновей (12 колен Израиля). Ослеп от горя по Юсуфу, прозрел от его рубашки' },
-    { id: 'chest_s16', name: 'Пророк Яхья', title: 'Безгрешный пророк', emoji: '🕊️', type: 'chest_silver', rarity: 'epic', story: 'Сын Закарии. Пророк ﷺ: «Нет ребёнка, который не совершал бы грехов, кроме Яхьи ибн Закарии»' },
-    { id: 'chest_s17', name: 'Пророк Айюб', title: 'Символ терпения', emoji: '💪', type: 'chest_silver', rarity: 'epic', story: '18 лет терпел болезни и потерю всего. Аллах вернул ему здоровье и семью вдвойне. Его история учит терпению' },
-    { id: 'chest_s18', name: 'Пророк Закария', title: 'Опекун Марьям', emoji: '👴', type: 'chest_silver', rarity: 'rare', story: 'До 99 лет был бездетен. Аллах даровал ему Яхью. 3 дня не мог говорить — знак благодарности Аллаху' },
-    { id: 'chest_s19', name: 'Трон Аллаха (Арш)', title: 'Величайшее творение', emoji: '👑', type: 'chest_silver', rarity: 'epic', story: 'Самое большое из творений. Небеса по сравнению с Троном — как кольцо в пустыне. Его несут 8 ангелов' },
-    { id: 'chest_s20', name: 'Калям (Перо)', title: 'Первое творение', emoji: '🖊️', type: 'chest_silver', rarity: 'epic', story: 'Первое, что создал Аллах. Записало всё до Судного дня за 50 000 лет до сотворения небес и земли' },
-    { id: 'chest_s21', name: 'Рай (Джанна)', title: 'Обитель вечного блаженства', emoji: '🌴', type: 'chest_silver', rarity: 'legendary', story: '100 уровней. Высший — Фирдаус. Там то, чего глаз не видел, ухо не слышало, сердце не представляло' },
-    { id: 'chest_s22', name: 'Река Кавсар', title: 'Райская река Пророка ﷺ', emoji: '🏞️', type: 'chest_silver', rarity: 'epic', story: 'Вода белее молока, слаще мёда. Из неё пьют верующие перед входом в Рай. Берега из золота' },
-    { id: 'chest_s23', name: 'Сират (Мост)', title: 'Тоньше волоса', emoji: '🌉', type: 'chest_silver', rarity: 'epic', story: 'Все пройдут по нему над Адом. Верующие — быстро как молния, лицемеры упадут в Огонь' },
-    { id: 'chest_s24', name: 'Джаханнам (Ад)', title: '7 уровней Огня', emoji: '🔥', type: 'chest_silver', rarity: 'epic', story: 'Огонь Ада в 70 раз сильнее земного. Самый лёгкий уровень — для грешных мусульман. 70 000 цепей и оков' },
-    { id: 'chest_s25', name: 'Малик', title: 'Страж Ада', emoji: '😊', type: 'chest_silver', rarity: 'rare', story: 'Главный ангел Ада. Никогда не улыбается. Когда Аллах показал ему Адама, спросил: «Что думаешь?» Ответил правду' },
-    { id: 'chest_s26', name: 'Ридван', title: 'Страж Рая', emoji: '😊', type: 'chest_silver', rarity: 'rare', story: 'Главный ангел Рая. Встречает верующих с миром и приветствием. Открывает им 8 врат Рая' },
-    { id: 'chest_s27', name: 'Дунья', title: 'Мирская жизнь', emoji: '🌍', type: 'chest_silver', rarity: 'rare', story: 'Пророк ﷺ: «Эта жизнь — тюрьма для верующего и рай для неверующего». Ценность дуньи перед Аллахом меньше комариного крыла' },
-    { id: 'chest_s28', name: 'Барака', title: 'Благословение', emoji: '✨', type: 'chest_silver', rarity: 'epic', story: 'Невидимое увеличение блага. Приходит с благодарностью и покорностью Аллаху. Может быть во времени, деньгах, здоровье' },
-    { id: 'chest_s29', name: 'Сабр (Терпение)', title: 'Половина веры', emoji: '🧘', type: 'chest_silver', rarity: 'epic', story: '3 вида: в поклонении, от греха, при испытаниях. Аллах: «Поистине, терпеливым их награда воздастся полностью без счёта»' },
-    { id: 'chest_s30', name: 'Шукр (Благодарность)', title: 'Ключ к увеличению благ', emoji: '🙏', type: 'chest_silver', rarity: 'epic', story: 'Аллах: «Если будете благодарны — Я увеличу вам». Благодарность сердцем, языком и делами. Мало кто из рабов благодарен' },
-
-    // === 🥇 ЗОЛОТОЙ СУНДУК (30 карточек: Мечети и исторические личности) ===
-    { id: 'chest_g1', name: 'Мечеть аль-Акса', title: 'Третья святыня Ислама', emoji: '🕌', type: 'chest_golden', rarity: 'legendary', story: 'Первая кибла. Место Исра и Мирадж. Построена через 40 лет после Каабы. Под ней могилы многих пророков' },
-    { id: 'chest_g2', name: 'Мечеть Омейядов', title: 'Дамаск, Сирия', emoji: '🏛️', type: 'chest_golden', rarity: 'epic', story: 'Одна из старейших мечетей. Могила Яхьи. Минарет Исы — куда спустится пророк Иса перед концом света' },
-    { id: 'chest_g3', name: 'Голубая мечеть', title: 'Стамбул, Турция', emoji: '💙', type: 'chest_golden', rarity: 'epic', story: '6 минаретов. 20 000 изразцов ручной работы. Построена султаном Ахмедом I в 1616 году' },
-    { id: 'chest_g4', name: 'Мечеть Хасана II', title: 'Касабланка, Марокко', emoji: '🌊', type: 'chest_golden', rarity: 'legendary', story: 'Минарет 210 м — самый высокий в мире. Пол прозрачный над океаном. Вмещает 105 000 человек' },
-    { id: 'chest_g5', name: 'Мечеть Кул-Шариф', title: 'Казань, Россия', emoji: '🏰', type: 'chest_golden', rarity: 'epic', story: 'Названа в честь имама, погибшего при защите Казани. Восстановлена в 2005 году к 1000-летию города' },
-    { id: 'chest_g6', name: 'Мечеть Шейха Зайда', title: 'Абу-Даби, ОАЭ', emoji: '💎', type: 'chest_golden', rarity: 'legendary', story: 'Ковёр 5627 м² ручной работы. 7 люстр из золота и кристаллов Swarovski. 82 купола из белого мрамора' },
-    { id: 'chest_g7', name: 'Мечеть Фейсала', title: 'Исламабад, Пакистан', emoji: '⛺', type: 'chest_golden', rarity: 'epic', story: 'Форма шатра бедуинов. Подарок короля Саудовской Аравии. Вмещает 300 000 человек' },
-    { id: 'chest_g8', name: 'Мечеть Султана Кабуса', title: 'Маскат, Оман', emoji: '🕌', type: 'chest_golden', rarity: 'epic', story: 'Люстра 14 м — одна из крупнейших в мире. Ковёр 4300 м² весит 21 тонну, соткан за 4 года' },
-    { id: 'chest_g9', name: 'Мечеть Истикляль', title: 'Джакарта, Индонезия', emoji: '🇮🇩', type: 'chest_golden', rarity: 'epic', story: 'Крупнейшая в Юго-Восточной Азии. Названа в честь независимости Индонезии. Построена в 1978 году' },
-    { id: 'chest_g10', name: 'Мечеть Кордовы', title: 'Андалусия, Испания', emoji: '🏛️', type: 'chest_golden', rarity: 'legendary', story: '856 колонн из яшмы и мрамора. Символ золотого века Ислама в Андалусии. Сейчас католический собор' },
-    { id: 'chest_g11', name: 'Абдуллах ибн Аббас', title: 'Тарджуман аль-Куран', emoji: '📖', type: 'chest_golden', rarity: 'epic', story: 'Толкователь Корана. Пророк ﷺ сделал дуа: «О Аллах, дай ему понимание религии и толкование Корана»' },
-    { id: 'chest_g12', name: 'Имам ан-Навави', title: 'Автор 40 хадисов', emoji: '📚', type: 'chest_golden', rarity: 'epic', story: 'Прожил 45 лет. Автор «Садов праведных». Не женился, посвятив жизнь знанию. Писал до последнего дня' },
-    { id: 'chest_g13', name: 'Ибн Хаджар', title: 'Автор Фатх аль-Бари', emoji: '📝', type: 'chest_golden', rarity: 'epic', story: 'Лучший комментарий к Сахиху Бухари. Писал 25 лет. Более 150 книг за жизнь' },
-    { id: 'chest_g14', name: 'Имам аль-Бухари', title: 'Собиратель хадисов', emoji: '📜', type: 'chest_golden', rarity: 'legendary', story: 'Отбирал каждый хадис, совершая 2 ракаата и делая истихару. 600 000 хадисов проверил, 7275 включил в сборник' },
-    { id: 'chest_g15', name: 'Имам Муслим', title: 'Второй сборник', emoji: '📖', type: 'chest_golden', rarity: 'epic', story: 'Ученик Бухари. Его сборник — второй по достоверности. Строгая структура, удобная для учёных' },
-    { id: 'chest_g16', name: 'Ибн аль-Джаузи', title: 'Великий проповедник', emoji: '🎤', type: 'chest_golden', rarity: 'epic', story: 'На его лекции собирались 100 000 человек. Автор множества книг. Говорил: «Люди спят, а когда умрут — проснутся»' },
-    { id: 'chest_g17', name: 'Абдуллах ибн Мубарак', title: 'Воин и учёный', emoji: '⚔️', type: 'chest_golden', rarity: 'epic', story: 'Один год воевал, один год учился, один год совершал хадж. Сказал: «Конец знания — искренность»' },
-    { id: 'chest_g18', name: 'Суфьян ас-Саури', title: 'Скрывавшийся от власти', emoji: '🏃', type: 'chest_golden', rarity: 'epic', story: 'Отказался от должности судьи, сбежав от халифа. Сказал: «Мы застали людей, которые не радовались мирскому»' },
-    { id: 'chest_g19', name: 'Абдуль-Кадир Джилани', title: 'Основатель тариката', emoji: '🌟', type: 'chest_golden', rarity: 'legendary', story: 'Его проповеди обращали тысячи людей к покаянию. Сказал: «Будь с Аллахом так, будто нет никого, кроме вас двоих»' },
-    { id: 'chest_g20', name: 'Джалалуддин Руми', title: 'Поэт и суфий', emoji: '💫', type: 'chest_golden', rarity: 'legendary', story: 'Автор «Маснави». Сказал: «Приходи, приходи, кем бы ты ни был. Наша обитель — не обитель отчаяния»' },
-    { id: 'chest_g21', name: 'Константинополь', title: 'Предсказанная победа', emoji: '🏙️', type: 'chest_golden', rarity: 'legendary', story: 'Пророк ﷺ: «Вы завоюете Константинополь. Прекрасный амир и прекрасное войско!» Сбылось в 1453 году' },
-    { id: 'chest_g22', name: 'Кордовский халифат', title: 'Золотой век Андалусии', emoji: '🏛️', type: 'chest_golden', rarity: 'legendary', story: 'Библиотека — 400 000 рукописей. Университеты, больницы, бани. Улицы освещены фонарями, когда в Европе — тьма' },
-    { id: 'chest_g23', name: 'Дом мудрости (Багдад)', title: 'Академия Аббасидов', emoji: '🏫', type: 'chest_golden', rarity: 'legendary', story: 'Центр мировой науки. Переводили греческие труды. Уничтожен монголами в 1258 году. Книги выброшены в Тигр' },
-    { id: 'chest_g24', name: 'Салахуддин аль-Айюби', title: 'Освободитель Иерусалима', emoji: '🛡️', type: 'chest_golden', rarity: 'legendary', story: 'Освободил Иерусалим в 1187 году. Даже враги уважали его благородство. Лечил Ричарда Львиное Сердце' },
-    { id: 'chest_g25', name: 'Золотая Орда', title: 'Ислам в Евразии', emoji: '🐎', type: 'chest_golden', rarity: 'epic', story: 'Хан Берке принял Ислам в 1257 году. Ислам распространился на огромной территории от Крыма до Сибири' },
-    { id: 'chest_g26', name: 'Империя Великих Моголов', title: 'Тадж-Махал', emoji: '🏯', type: 'chest_golden', rarity: 'legendary', story: 'Тадж-Махал — символ любви и веры. Исламская архитектура в Индии достигла расцвета при Моголах' },
-    { id: 'chest_g27', name: 'Аль-Хорезми', title: 'Отец алгоритмов', emoji: '🔢', type: 'chest_golden', rarity: 'epic', story: 'Великий математик. От его имени — слово «алгоритм». Ввёл индийские цифры и ноль в исламский мир' },
-    { id: 'chest_g28', name: 'Ибн Сина (Авиценна)', title: 'Врач и философ', emoji: '💊', type: 'chest_golden', rarity: 'legendary', story: '«Канон медицины» использовался в Европе 500 лет. В 18 лет знал всё доступное знание своего времени' },
-    { id: 'chest_g29', name: 'Аль-Бируни', title: 'Энциклопедист', emoji: '🌍', type: 'chest_golden', rarity: 'epic', story: 'Вычислил окружность Земли с точностью до 1%. Написал историю Индии. Знал множество языков' },
-    { id: 'chest_g30', name: 'Ибн аль-Хайсам', title: 'Отец оптики', emoji: '🔬', type: 'chest_golden', rarity: 'legendary', story: 'Основоположник научного метода. Его труды по оптике вдохновили европейских учёных. Доказал, что свет отражается от объектов' },
-
-    // === 💎 АЛМАЗНЫЙ СУНДУК (30 карточек: Легендарные события, мифические истории) ===
-    { id: 'chest_d1', name: 'Пещера Хира', title: 'Место первого откровения', emoji: '🕳️', type: 'chest_diamond', rarity: 'legendary', story: 'Здесь Пророк ﷺ получил первое откровение. Джибриль сказал: «Читай!» Пророк отвечал: «Я не умею читать»' },
-    { id: 'chest_d2', name: 'Пещера Саур', title: 'Убежище при хиджре', emoji: '🕸️', type: 'chest_diamond', rarity: 'legendary', story: 'Пророк ﷺ и Абу Бакр прятались 3 дня. Паук сплёл паутину, голубь свил гнездо у входа — знак Аллаха' },
-    { id: 'chest_d3', name: 'Худайбия', title: 'Явная победа', emoji: '☮️', type: 'chest_diamond', rarity: 'legendary', story: 'Перемирие на 10 лет. Условия казались невыгодными, но Аллах назвал это «явной победой». Ислам распространился' },
-    { id: 'chest_d4', name: 'Гора Нур', title: 'Гора света', emoji: '⛰️', type: 'chest_diamond', rarity: 'legendary', story: 'Здесь пещера Хира. Пророк ﷺ часто уединялся здесь. Гора тряслась под ним — он сказал: «Успокойся»' },
-    { id: 'chest_d5', name: 'Райский источник Тасним', title: 'Для приближённых', emoji: '💧', type: 'chest_diamond', rarity: 'mythic', story: 'Источник в Раю, из которого пьют приближённые (мукаррабун). Вода смешана с мускусом. Выше Кавсара' },
-    { id: 'chest_d6', name: 'Гурии (Хур аль-Айн)', title: 'Райские супруги', emoji: '👁️', type: 'chest_diamond', rarity: 'mythic', story: 'Созданы из света. Если одна посмотрит на землю — осветит всё между небом и землёй. Их красота неописуема' },
-    { id: 'chest_d7', name: 'Врата Рая', title: '8 врат блаженства', emoji: '🚪', type: 'chest_diamond', rarity: 'mythic', story: 'Баб ас-Салят (для молящихся), Баб ар-Райян (для постящихся), Баб ас-Садака (для дающих милостыню) и другие' },
-    { id: 'chest_d8', name: 'Дерево Туба', title: 'Дерево Рая', emoji: '🌳', type: 'chest_diamond', rarity: 'mythic', story: 'Всадник скачет в его тени 100 лет, не достигая конца. Из его листьев и плодов шьют одежду райских жителей' },
-    { id: 'chest_d9', name: 'Птицы Рая', title: 'Яства Рая', emoji: '🐦', type: 'chest_diamond', rarity: 'legendary', story: 'Огромные птицы. Когда верующий захочет съесть — они падают жареными. Внутренности — мускус и амбра' },
-    { id: 'chest_d10', name: 'Дворец из жемчуга', title: 'Жилище в Раю', emoji: '🏰', type: 'chest_diamond', rarity: 'mythic', story: 'Дворцы из золота, серебра, полого жемчуга. Ширина — 60 миль. Вокруг — сады, реки из молока, мёда и вина' },
-    { id: 'chest_d11', name: 'Аль-Бурак', title: 'Небесное животное', emoji: '🦄', type: 'chest_diamond', rarity: 'mythic', story: 'Белое существо выше осла, ниже мула. Шаг — на расстояние взгляда. На нём Пророк ﷺ перенёсся в Иерусалим' },
-    { id: 'chest_d12', name: 'Свитки Ибрахима', title: 'Первые писания', emoji: '📜', type: 'chest_diamond', rarity: 'mythic', story: 'Содержали притчи и мудрость. Ниспосланы Ибрахиму (мир ему). Утеряны задолго до Корана' },
-    { id: 'chest_d13', name: 'Ляух Махфуз', title: 'Хранимая скрижаль', emoji: '📋', type: 'chest_diamond', rarity: 'mythic', story: 'Записано всё, что было и будет. Находится под Троном Аллаха. Размер знает только Аллах' },
-    { id: 'chest_d14', name: 'Плачущее небо', title: 'Кончина Пророка ﷺ', emoji: '🌧️', type: 'chest_diamond', rarity: 'mythic', story: 'Когда Пророк ﷺ умер, небо и земля плакали 7 дней. Солнце затемнено, звёзды не двигались' },
-    { id: 'chest_d15', name: 'Кольцо Сулеймана', title: 'Власть над миром', emoji: '💍', type: 'chest_diamond', rarity: 'mythic', story: 'Перстень, дававший власть над джиннами, ветрами и животными. Был украден джинном на 40 дней, но возвращён' },
-    { id: 'chest_d16', name: 'Ветер Сулеймана', title: 'Ковёр-самолёт', emoji: '💨', type: 'chest_diamond', rarity: 'mythic', story: 'Утренний ветер проходил месяц пути, вечерний — месяц. Войско переносилось на ковре по воздуху' },
-    { id: 'chest_d17', name: 'Муравей Сулеймана', title: 'Мудрость маленьких', emoji: '🐜', type: 'chest_diamond', rarity: 'legendary', story: '«Войдите в жилища, чтобы Сулейман не растоптал вас». Сулейман улыбнулся, услышав его речь' },
-    { id: 'chest_d18', name: 'Удод Сулеймана', title: 'Вестник', emoji: '🐦', type: 'chest_diamond', rarity: 'legendary', story: 'Принёс весть о царице Савской. Сулейман отправил с ним письмо с призывом к единобожию' },
-    { id: 'chest_d19', name: 'Посох Мусы', title: '9 знамений', emoji: '🪄', type: 'chest_diamond', rarity: 'mythic', story: 'Превращался в змею, расступал море, 12 источников из камня, светился в темноте. Из райского мирта' },
-    { id: 'chest_d20', name: 'Рука Мусы', title: 'Белая без вреда', emoji: '🤚', type: 'chest_diamond', rarity: 'legendary', story: 'Вынимал руку — она становилась белой, светящейся. Одно из 9 знамений, данных фараону' },
-    { id: 'chest_d21', name: 'Манна и перепела', title: 'Пища с небес', emoji: '🍞', type: 'chest_diamond', rarity: 'legendary', story: 'Аллах ниспосылал сынам Исраила еду с неба в пустыне. Манна — сладкая как мёд. Но они роптали' },
-    { id: 'chest_d22', name: 'Тень облака', title: 'Защита в пустыне', emoji: '☁️', type: 'chest_diamond', rarity: 'legendary', story: 'Облако сопровождало сынов Исраила, давая прохладу. Двигалось по их движению, останавливалось по их остановке' },
-    { id: 'chest_d23', name: 'Оживление Исой', title: 'Чудо по воле Аллаха', emoji: '✨', type: 'chest_diamond', rarity: 'mythic', story: 'Иса оживлял мёртвых, лепил птицу из глины, дул — она оживала. Исцелял слепых и прокажённых' },
-    { id: 'chest_d24', name: 'Трапеза с неба', title: 'Стол для апостолов', emoji: '🍽️', type: 'chest_diamond', rarity: 'mythic', story: 'Апостолы попросили трапезу с неба. Аллах ниспослал стол. Это стало праздником для первых и последних' },
-    { id: 'chest_d25', name: 'Кит Юнуса', title: 'Во мраке чрева', emoji: '🐋', type: 'chest_diamond', rarity: 'mythic', story: 'Гигантский кит проглотил Юнуса. 3 слоя тьмы. Он повторял: «Нет бога, кроме Тебя». Через 40 дней вышел на берег' },
-    { id: 'chest_d26', name: 'Рубашка Юсуфа', title: 'Исцеляющая', emoji: '👕', type: 'chest_diamond', rarity: 'mythic', story: 'Якуб положил её на лицо — и прозрел. Разорванная сзади — доказательство невиновности Юсуфа' },
-    { id: 'chest_d27', name: 'Потоп Нуха', title: 'Великое наказание', emoji: '🌊', type: 'chest_diamond', rarity: 'mythic', story: 'Вода 40 дней из земли и неба. Печь закипела — знак начала. Спаслось около 80 человек на ковчеге' },
-    { id: 'chest_d28', name: 'Асхаб аль-Кахф', title: 'Спящие 309 лет', emoji: '😴', type: 'chest_diamond', rarity: 'mythic', story: 'Юноши уснули в пещере, спасаясь от неверного царя. Проснулись — весь город уже был верующим. С ними была собака' },
-    { id: 'chest_d29', name: 'Яджудж и Маджудж', title: 'За железной стеной', emoji: '🧱', type: 'chest_diamond', rarity: 'mythic', story: 'Народы, запертые Зуль-Карнайном. Выйдут перед концом света. Никто не остановит их, пока Аллах не пошлёт червей' },
-    { id: 'chest_d30', name: 'Зуль-Карнайн', title: 'Праведный правитель', emoji: '👑', type: 'chest_diamond', rarity: 'special', story: 'Аллах дал ему власть над землёй. Построил стену из железа и меди. Достиг заката солнца и восхода. Особая карта!' }
+    { id: 'zamzam', name: 'Зам-Зам', title: 'Благословенный источник', emoji: '💧', type: 'miracle', rarity: 'mythic', story: 'Когда Хаджар искала воду для маленького Исмаила, по воле Аллаха забил источник Зам-Зам. «Вода Зам-Зама для того, для чего её пьют».', condition: 'secret', conditionText: '???' }
 ];
 
 // ========== ИНИЦИАЛИЗАЦИЯ ALL_COLLECTION_CARDS (ТОЛЬКО ОДИН РАЗ) ==========
@@ -3961,345 +3383,7 @@ console.log('💡 Для добавления карточек Джума вып
 
     setInterval(() => saveLocalBackup(), 30000);
     window.addEventListener('beforeunload', () => saveLocalBackup());
-    </script><!-- ========== МОДУЛЬ: КОЛЕСО ФОРТУНЫ ========== -->
-<div class="module-screen" id="module-wheel">
-    <div class="ios-card">
-        <div class="ios-card-title"><i class="fas fa-dharmachakra"></i> Фатх <span style="color: #FFD700;">🎡</span></div>
-        
-        <div style="text-align: center; position: relative; margin: 10px 0;">
-            <div style="position: absolute; top: -5px; left: 50%; transform: translateX(-50%); z-index: 10; font-size: 2.5rem; color: #FFD700; filter: drop-shadow(0 0 8px gold);" id="wheelArrow">▼</div>
-            <canvas id="wheelCanvas" width="320" height="320" style="max-width: 320px; width: 100%; border-radius: 50%; box-shadow: 0 0 30px rgba(255,215,0,0.3);"></canvas>
-            <button id="spinWheelBtn" onclick="spinWheel()" style="display: block; margin: 25px auto 10px; padding: 18px 50px; border-radius: 50px; border: none; background: linear-gradient(135deg, #FFD700, #FF8C00); color: #1a1a2e; font-weight: 700; font-size: 1.3rem; cursor: pointer; box-shadow: 0 8px 25px rgba(255,215,0,0.5); transition: all 0.2s;">
-                <i class="fas fa-sync-alt"></i> КРУТИТЬ
-            </button>
-        </div>
-        
-        <div style="background: #F2F2F7; border-radius: 16px; padding: 14px; margin-bottom: 12px;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span><i class="fas fa-gift" style="color: #34C759;"></i> Бесплатный спин</span>
-                <span style="font-weight: 600;" id="freeSpinStatus">✅ Доступен</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid #E5E5EA;">
-                <span><i class="fas fa-star" style="color: #FFD700;"></i> Доп. спин</span>
-                <button onclick="buySpin()" id="buySpinBtn" style="padding: 8px 18px; border-radius: 20px; border: 2px solid #FFD700; background: transparent; color: #FFD700; font-weight: 600; font-size: 0.85rem; cursor: pointer;">20 ⭐</button>
-            </div>
-        </div>
-        
-        <div style="margin-top: 16px;">
-            <div style="font-weight: 600; margin-bottom: 10px;"><i class="fas fa-history"></i> История</div>
-            <div id="wheelHistory" style="background: #F2F2F7; border-radius: 16px; padding: 12px; max-height: 180px; overflow-y: auto; font-size: 0.85rem;">
-                <p style="text-align: center; color: #8E8E93;">Пока пусто</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-// ========== КОЛЕСО ФОРТУНЫ - СКРИПТ ==========
-const WHEEL_SEGMENTS = [
-    { label: '5⭐', prize: 'stars', value: 5, chance: 12, color: '#FFE082', emoji: '⭐' },
-    { label: '10⭐', prize: 'stars', value: 10, chance: 12, color: '#FFD54F', emoji: '⭐' },
-    { label: '25⭐', prize: 'stars', value: 25, chance: 12, color: '#FFCA28', emoji: '⭐' },
-    { label: '50 XP', prize: 'xp', value: 50, chance: 12, color: '#81C784', emoji: '💰' },
-    { label: '100 XP', prize: 'xp', value: 100, chance: 12, color: '#66BB6A', emoji: '💰' },
-    { label: 'Дерв.сунд', prize: 'chest', value: 'wooden', chance: 11, color: '#A1887F', emoji: '🎁' },
-    { label: 'Случ.сунд', prize: 'random_chest', value: null, chance: 11, color: '#BA68C8', emoji: '🎁' },
-    { label: 'x2 XP', prize: 'booster', value: 2, chance: 12, color: '#4DD0E1', emoji: '📿' },
-    { label: '💎5000⭐', prize: 'stars', value: 5000, chance: 3, color: '#F48FB1', emoji: '💎' },
-    { label: '👑Легенд', prize: 'chest', value: 'golden', chance: 2, color: '#FFD700', emoji: '👑' },
-    { label: '🔮Секрет', prize: 'secret_card', value: null, chance: 1, color: '#212121', emoji: '🔮' }
-];
-
-let wheelAngle = 0;
-let isSpinning = false;
-let wheelHistoryData = JSON.parse(localStorage.getItem('wheel_history') || '[]');
-
-function getFreeSpinAvailable() {
-    var today = new Date().toISOString().split('T')[0];
-    var lastSpin = localStorage.getItem('last_free_spin_date');
-    return lastSpin !== today;
-}
-
-function drawWheel() {
-    var canvas = document.getElementById('wheelCanvas');
-    if (!canvas) return;
-    var ctx = canvas.getContext('2d');
-    var cx = 160, cy = 160, r = 150;
-    var totalChance = WHEEL_SEGMENTS.reduce(function(s, seg) { return s + seg.chance; }, 0);
-    
-    ctx.clearRect(0, 0, 320, 320);
-    
-    // Внешнее кольцо
-    ctx.beginPath();
-    ctx.arc(cx, cy, r + 8, 0, Math.PI * 2);
-    ctx.fillStyle = '#FFD700';
-    ctx.fill();
-    ctx.strokeStyle = '#B8860B';
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    
-    var startAngle = wheelAngle;
-    WHEEL_SEGMENTS.forEach(function(seg) {
-        var sliceAngle = (seg.chance / totalChance) * 2 * Math.PI;
-        var endAngle = startAngle + sliceAngle;
-        
-        // Сектор
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.arc(cx, cy, r, startAngle, endAngle);
-        ctx.closePath();
-        ctx.fillStyle = seg.color;
-        ctx.fill();
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        
-        // Текст
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.rotate(startAngle + sliceAngle / 2);
-        ctx.textAlign = 'right';
-        ctx.fillStyle = '#1a1a2e';
-        ctx.font = 'bold 12px sans-serif';
-        ctx.fillText(seg.label, r - 15, 5);
-        ctx.restore();
-        
-        startAngle = endAngle;
-    });
-    
-    // Центр
-    ctx.beginPath();
-    ctx.arc(cx, cy, 25, 0, Math.PI * 2);
-    ctx.fillStyle = '#FFD700';
-    ctx.fill();
-    ctx.strokeStyle = '#B8860B';
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    ctx.fillStyle = '#1a1a2e';
-    ctx.font = 'bold 18px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('🎡', cx, cy + 7);
-}
-
-function spinWheel() {
-    if (isSpinning) return;
-    
-    if (!getFreeSpinAvailable()) {
-        showNotification('🎡 Бесплатный спин уже использован! Купите дополнительный.');
-        return;
-    }
-    
-    isSpinning = true;
-    document.getElementById('spinWheelBtn').disabled = true;
-    document.getElementById('spinWheelBtn').style.opacity = '0.6';
-    
-    // Случайный результат
-    var totalChance = WHEEL_SEGMENTS.reduce(function(s, seg) { return s + seg.chance; }, 0);
-    var roll = Math.random() * totalChance;
-    var cumulative = 0;
-    var winIndex = 0;
-    
-    for (var i = 0; i < WHEEL_SEGMENTS.length; i++) {
-        cumulative += WHEEL_SEGMENTS[i].chance;
-        if (roll <= cumulative) { winIndex = i; break; }
-    }
-    
-    // Угол для остановки на нужном секторе
-    var segAngle = (WHEEL_SEGMENTS[winIndex].chance / totalChance) * 2 * Math.PI;
-    var segStart = 0;
-    for (var j = 0; j < winIndex; j++) {
-        segStart += (WHEEL_SEGMENTS[j].chance / totalChance) * 2 * Math.PI;
-    }
-    var targetAngle = -(segStart + segAngle / 2) + Math.PI / 2;
-    var spins = 5 + Math.floor(Math.random() * 5);
-    var totalRotation = spins * 2 * Math.PI + targetAngle - wheelAngle;
-    
-    wheelAngle += totalRotation;
-    
-    var canvas = document.getElementById('wheelCanvas');
-    canvas.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
-    canvas.style.transform = 'rotate(' + wheelAngle + 'rad)';
-    
-    // Сохраняем дату спина
-    localStorage.setItem('last_free_spin_date', new Date().toISOString().split('T')[0]);
-    updateFreeSpinStatus();
-    
-    setTimeout(function() {
-        // Выдача приза
-        var prize = WHEEL_SEGMENTS[winIndex];
-        giveWheelPrize(prize);
-        
-        // История
-        wheelHistoryData.unshift({
-            prize: prize.label,
-            emoji: prize.emoji,
-            date: new Date().toISOString()
-        });
-        if (wheelHistoryData.length > 20) wheelHistoryData = wheelHistoryData.slice(0, 20);
-        localStorage.setItem('wheel_history', JSON.stringify(wheelHistoryData));
-        renderWheelHistory();
-        
-        isSpinning = false;
-        document.getElementById('spinWheelBtn').disabled = false;
-        document.getElementById('spinWheelBtn').style.opacity = '1';
-        
-        // Перерисовка
-        wheelAngle = wheelAngle % (Math.PI * 2);
-        canvas.style.transition = 'none';
-        canvas.style.transform = 'rotate(' + wheelAngle + 'rad)';
-        drawWheel();
-    }, 4200);
-}
-
-function giveWheelPrize(prize) {
-    var msg = '';
-    
-    if (prize.prize === 'stars') {
-        userData.stars.totalStars = (userData.stars.totalStars || 0) + prize.value;
-        msg = prize.emoji + ' +' + prize.value + ' звёзд!';
-    } else if (prize.prize === 'xp') {
-        addXP(prize.value);
-        msg = prize.emoji + ' +' + prize.value + ' XP!';
-    } else if (prize.prize === 'chest') {
-        openChest(prize.value);
-        return;
-    } else if (prize.prize === 'random_chest') {
-        var types = ['wooden', 'silver', 'golden'];
-        var randomType = types[Math.floor(Math.random() * types.length)];
-        openChest(randomType);
-        return;
-    } else if (prize.prize === 'secret_card') {
-        var secretCards = ALL_CARDS.filter(function(c) { return c.rarity === 'mythic' || c.rarity === 'special'; });
-        if (secretCards.length > 0) {
-            var card = secretCards[Math.floor(Math.random() * secretCards.length)];
-            if (!userData.unlockedCards) userData.unlockedCards = [];
-            if (!userData.unlockedCards.includes(card.id)) userData.unlockedCards.push(card.id);
-            saveUserData();
-            msg = '🔮 Секретная карточка: ' + card.name + '!';
-            showFirework('🔮 ' + card.name);
-        }
-    } else if (prize.prize === 'booster') {
-        userData.xpBooster = { multiplier: 2, expires: Date.now() + 3600000 };
-        msg = '📿 Бустер x2 XP на 1 час!';
-    }
-    
-    saveUserData();
-    showNotification(msg || '🎉 Приз получен!');
-    updateHomeWidgets();
-    if (typeof updateStarsUI === 'function') updateStarsUI();
-}
-
-function buySpin() {
-    var stars = userData.stars?.totalStars || 0;
-    if (stars < 20) { showNotification('❌ Нужно 20 ⭐ (у вас: ' + stars + ')'); return; }
-    if (!confirm('Купить дополнительный спин за 20 ⭐?')) return;
-    
-    userData.stars.totalStars = stars - 20;
-    saveUserData();
-    
-    // Временно разрешаем спин
-    var origCheck = localStorage.getItem('last_free_spin_date');
-    localStorage.removeItem('last_free_spin_date');
-    
-    spinWheel();
-    
-    // Возвращаем дату после спина
-    setTimeout(function() {
-        if (origCheck) localStorage.setItem('last_free_spin_date', origCheck);
-    }, 5000);
-}
-
-function updateFreeSpinStatus() {
-    var el = document.getElementById('freeSpinStatus');
-    if (!el) return;
-    if (getFreeSpinAvailable()) {
-        el.innerHTML = '<span style="color:#34C759;">✅ Доступен</span>';
-        document.getElementById('spinWheelBtn').style.opacity = '1';
-    } else {
-        el.innerHTML = '<span style="color:#FF3B30;">❌ Использован</span>';
-    }
-}
-
-function renderWheelHistory() {
-    var c = document.getElementById('wheelHistory');
-    if (!c) return;
-    if (!wheelHistoryData.length) { c.innerHTML = '<p style="text-align:center;color:#8E8E93;">Пока пусто</p>'; return; }
-    c.innerHTML = wheelHistoryData.slice(0, 15).map(function(h) {
-        var d = new Date(h.date);
-        return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #E5E5EA;font-size:0.8rem;">' +
-            '<span>' + h.emoji + '</span><span style="flex:1;">' + h.prize + '</span>' +
-            '<span style="color:#8E8E93;">' + d.toLocaleDateString() + ' ' + d.toLocaleTimeString().slice(0,5) + '</span></div>';
-    }).join('');
-}
-
-// Обновление при открытии модуля
-var _omW = openModule;
-openModule = function(mid) { _omW(mid); if (mid === 'wheel') { updateFreeSpinStatus(); drawWheel(); renderWheelHistory(); } };
-
-// Инициализация
-setTimeout(function() { drawWheel(); renderWheelHistory(); updateFreeSpinStatus(); }, 1000);
-console.log('🎡 Фатх готов!');
-</script>
-<!-- ========== МОДУЛЬ: СУНДУКИ ========== -->
-<div class="module-screen" id="module-chests">
-    <div class="ios-card">
-        <div class="ios-card-title"><i class="fas fa-gift"></i> Сундуки <span style="color: #FFD700;">🎁</span></div>
-        
-        <!-- Баланс звёзд -->
-        <div style="background: linear-gradient(135deg, #1a1a2e, #2d1f00); border-radius: 20px; padding: 20px; margin-bottom: 16px; text-align: center; color: #FFD700; border: 2px solid #FFD700;">
-            <div style="font-size: 0.9rem; margin-bottom: 8px;">💎 Ваш баланс звёзд</div>
-            <div style="font-size: 3rem; font-weight: 700;" id="chestStarBalance">0</div>
-            <div style="font-size: 0.8rem; color: #FFA500;">⭐ Звёзды можно получить за страницы Корана, зикры, достижения</div>
-        </div>
-        
-        <!-- Сундуки -->
-        <div style="font-weight: 600; margin-bottom: 12px;"><i class="fas fa-box"></i> Выберите сундук</div>
-        <div class="chest-container" id="chestContainer">
-            <div class="chest-card wooden" onclick="openChest('wooden')">
-                <div style="font-size: 3rem;">🎁</div>
-                <div style="font-weight: 700; font-size: 1.1rem;">Деревянный</div>
-                <div style="color: #8B6914; font-weight: 600;">50 ⭐</div>
-                <div style="font-size: 0.7rem; color: #8E8E93; margin-top: 8px;">Обычная 70% | Редкая 25% | Эпическая 5%</div>
-            </div>
-            <div class="chest-card silver" onclick="openChest('silver')">
-                <div style="font-size: 3rem;">🎁</div>
-                <div style="font-weight: 700; font-size: 1.1rem;">Серебряный</div>
-                <div style="color: #808080; font-weight: 600;">150 ⭐</div>
-                <div style="font-size: 0.7rem; color: #8E8E93; margin-top: 8px;">Редкая 50% | Эпическая 35% | Легендарная 15%</div>
-            </div>
-            <div class="chest-card golden" onclick="openChest('golden')">
-                <div style="font-size: 3rem;">🎁</div>
-                <div style="font-weight: 700; font-size: 1.1rem;">Золотой</div>
-                <div style="color: #FFA000; font-weight: 600;">300 ⭐</div>
-                <div style="font-size: 0.7rem; color: #8E8E93; margin-top: 8px;">Эпическая 40% | Легендарная 40% | Мифическая 15% | Особая 5%</div>
-            </div>
-            <div class="chest-card diamond" onclick="openChest('diamond')">
-                <div style="font-size: 3rem;">💎</div>
-                <div style="font-weight: 700; font-size: 1.1rem;">Алмазный</div>
-                <div style="color: #00BFA5; font-weight: 600;">500 ⭐</div>
-                <div style="font-size: 0.7rem; color: #8E8E93; margin-top: 8px;">Легендарная 70% | Мифическая 29% | Особая 1%</div>
-            </div>
-        </div>
-        
-        <!-- Кнопки (после сундуков) -->
-        <div style="margin-top: 16px;">
-            <button onclick="checkMyChestCards()" style="width:100%;margin-bottom:8px;padding:10px;border-radius:14px;border:2px solid #FFD700;background:transparent;color:#FFD700;font-weight:700;cursor:pointer;">
-                📋 Проверить мои карточки
-            </button>
-            <button onclick="forceShowChestCards()" style="width:100%;padding:10px;border-radius:14px;border:none;background:#FFD700;color:#1a1a2e;font-weight:700;cursor:pointer;">
-                📋 Показать все карточки сундуков
-            </button>
-        </div>
-        
-        <!-- История открытий -->
-        <div style="margin-top: 20px;">
-            <div style="font-weight: 600; margin-bottom: 12px;"><i class="fas fa-history"></i> История открытий</div>
-            <div id="chestHistory" style="background: #F2F2F7; border-radius: 16px; padding: 16px; max-height: 200px; overflow-y: auto;">
-                <p style="text-align: center; color: #8E8E93;">Пока нет открытых сундуков</p>
-            </div>
-        </div>
-    </div>
-</div>
+    </script>
 
 <!-- ========== МОДУЛЬ: ХАТМ ========== -->
 <div class="module-screen" id="module-khatm">
@@ -4931,78 +4015,46 @@ function renderNamesOfAllah() {
 }
 
 function checkNamesCards() {
-    const learned = userData.namesLearned || [];
+    const learned = userData.namesLearned?.length || 0;
     if (!userData.unlockedCards) userData.unlockedCards = [];
     
-    // Выдаём карточку за каждое изученное имя
-    learned.forEach(function(num) {
-        var cardId = 'name' + num;
-        if (!userData.unlockedCards.includes(cardId)) {
-            userData.unlockedCards.push(cardId);
-            
-            // Создаём карточку в общем массиве если её нет
-            var allCards = getAllCollectionCards ? getAllCollectionCards() : (window.ALL_COLLECTION_CARDS || []);
-            if (!allCards.find(function(c) { return c.id === cardId; })) {
-                var name = NAMES_OF_ALLAH.find(function(n) { return n.num === num; });
-                
-                allCards.push({
-                    id: cardId,
-                    name: name ? name.arabic : 'اللَّهُ',           // АРАБСКОЕ ИМЯ
-                    title: name ? name.translit : '',               // Транслитерация
-                    subtitle: name ? name.translation : '',          // Перевод
-                    type: 'names',
-                    rarity: 'legendary',                             // ВСЕ легендарные
-                    emoji: '',                                       // БЕЗ эмодзи
-                    story: name ? name.arabic + '\n\n«' + name.translation + '»\n\n' + name.chechen : '',
-                    // Уникальный стиль для имён
-                    style: 'golden-arabic'                          // Специальный CSS-класс
-                });
-                localStorage.setItem('all_collection_cards', JSON.stringify(allCards));
-                window.ALL_COLLECTION_CARDS = allCards;
-            }
-            
-            showNotification('📜 ' + (name ? name.translit : 'Имя #' + num) + ' — добавлено в коллекцию!');
-        }
-    });
-    
-    // Вехи
-    var milestones = [10, 20, 30, 40, 50, 60, 70, 75, 80, 90, 99];
-    milestones.forEach(function(m) {
-        if (learned.length >= m) {
-            var cardId = 'name' + m;
+    // Разблокируем карточки по количеству имён
+    const milestones = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 75, 80, 90, 99];
+    milestones.forEach(m => {
+        if (learned >= m) {
+            const cardId = `name${m}`;
             if (!userData.unlockedCards.includes(cardId)) {
                 userData.unlockedCards.push(cardId);
+                showNotification(`🎴 Карточка «${m} Имён» добавлена в коллекцию!`);
             }
         }
     });
     
     saveUserData();
-    saveLocalBackup();
-    if (typeof updateCollectionBadge === 'function') updateCollectionBadge();
-    if (typeof renderCollection === 'function') renderCollection();
+    
+    if (typeof updateCollectionBadge === 'function') {
+        updateCollectionBadge();
+    }
+    
+    if (typeof currentScreen !== 'undefined' && currentScreen === 'collection' && typeof renderCollection === 'function') {
+        renderCollection();
+    }
 }
 
-function getRarityEmoji(rarity) {
-    var emojis = { common: '📿', rare: '🌟', epic: '💫', legendary: '👑', mythic: '💎' };
-    return emojis[rarity] || '📿';
-}
-
-// ❌ Убираем лишнюю строку — 'var rarity = "legendary";' она переопределяет глобальную переменную
-// Функция разблокировки карточки (оставляем как было)
+// Функция разблокировки карточки
 if (typeof unlockCardIfNotHave !== 'function') {
     window.unlockCardIfNotHave = function(cardId) {
         if (!userData.unlockedCards) userData.unlockedCards = [];
         if (!userData.unlockedCards.includes(cardId)) {
             userData.unlockedCards.push(cardId);
             saveUserData();
-            showNotification('🎴 Новая карточка в коллекции!');
+            showNotification(`🎴 Новая карточка в коллекции!`);
             if (typeof updateCollectionBadge === 'function') updateCollectionBadge();
             if (typeof currentScreen !== 'undefined' && currentScreen === 'collection' && typeof renderCollection === 'function') renderCollection();
         }
     };
 }
 
-// Остальной код без изменений
 document.getElementById('namesSearchInput')?.addEventListener('input', e => {
     const s = e.target.value.toLowerCase();
     document.querySelectorAll('#namesListContainer > div').forEach(c => c.style.display = c.textContent.toLowerCase().includes(s) ? 'block' : 'none');
@@ -5017,46 +4069,7 @@ document.getElementById('toggleChechenBtn')?.addEventListener('click', () => {
 });
 
 setTimeout(() => renderNamesOfAllah(), 200);
-
-// ========== ОБРАБОТЧИКИ ДЛЯ ИМЁН ==========
-document.getElementById('namesSearchInput')?.addEventListener('input', function(e) {
-    var searchText = e.target.value.toLowerCase();
-    var nameCards = document.querySelectorAll('#namesListContainer > div');
-    nameCards.forEach(function(card) {
-        if (card.textContent.toLowerCase().includes(searchText)) {
-            card.style.display = 'block';
-        } else {
-            card.style.display = 'none';
-        }
-    });
-});
-
-document.getElementById('toggleChechenBtn')?.addEventListener('click', function() {
-    showChechen = !showChechen; 
-    if (!userData.settings) userData.settings = {};
-    userData.settings.showChechen = showChechen;
-    document.getElementById('toggleChechenText').textContent = showChechen ? 'Скрыть чеченский перевод' : 'Показать чеченский перевод';
-    renderNamesOfAllah(); 
-    saveUserData();
-});
-
-// Функция разблокировки карточки (глобальная)
-if (typeof unlockCardIfNotHave !== 'function') {
-    window.unlockCardIfNotHave = function(cardId) {
-        if (!userData.unlockedCards) userData.unlockedCards = [];
-        if (!userData.unlockedCards.includes(cardId)) {
-            userData.unlockedCards.push(cardId);
-            saveUserData();
-            saveLocalBackup();
-            updateCollectionBadge();
-            if (typeof currentScreen !== 'undefined' && currentScreen === 'collection' && typeof renderCollection === 'function') {
-                renderCollection();
-            }
-        }
-    };
-}
-</script>
-<!-- ========== МОДУЛЬ: АЗКАРЫ ========== -->
+</script><!-- ========== МОДУЛЬ: АЗКАРЫ ========== -->
 <div class="module-screen" id="module-azkar">
     <div class="ios-card">
         <div class="ios-card-title"><i class="fas fa-hands-praying"></i> Азкары</div>
@@ -6658,7 +5671,6 @@ setTimeout(() => {
             <button class="collection-tab" data-collection="battle" style="padding: 8px 12px; border-radius: 30px; border: none; background: #F2F2F7; color: #1C1C1E; font-weight: 600; font-size: 0.75rem;">⚔️ Битвы</button>
             <button class="collection-tab" data-collection="miracle" style="padding: 8px 12px; border-radius: 30px; border: none; background: #F2F2F7; color: #1C1C1E; font-weight: 600; font-size: 0.75rem;">✨ Чудеса</button>
             <button class="collection-tab" data-collection="juma" style="padding: 8px 12px; border-radius: 30px; border: none; background: #F2F2F7; color: #1C1C1E; font-weight: 600; font-size: 0.75rem;">🎴 Джума</button>
-<button class="collection-tab" data-collection="chest" style="padding: 8px 12px; border-radius: 30px; border: none; background: #F2F2F7; color: #1C1C1E; font-weight: 600; font-size: 0.75rem;">🎁 Сундуки</button>
             <button class="collection-tab" data-collection="rare" style="padding: 8px 12px; border-radius: 30px; border: none; background: #F2F2F7; color: #1C1C1E; font-weight: 600; font-size: 0.75rem;">💎 Редкие</button>
             <button class="collection-tab" data-collection="achievement" style="padding: 8px 12px; border-radius: 30px; border: none; background: #F2F2F7; color: #1C1C1E; font-weight: 600; font-size: 0.75rem;">🏆 Достижения</button>
         </div>
@@ -6674,107 +5686,51 @@ setTimeout(() => {
 </div>
 
 <script>
-// ========== ФУНКЦИЯ ОТРИСОВКИ КОЛЛЕКЦИИ (ИСПРАВЛЕНО) ==========
+// ========== ФУНКЦИЯ ОТРИСОВКИ КОЛЛЕКЦИИ ==========
 function renderCollection() {
     const c = document.getElementById('collectionGrid'); 
     if (!c) return;
     
     const activeTab = document.querySelector('.collection-tab.active')?.dataset.collection || 'all';
-    
-    // ✅ Восстанавливаем карточки из бекапа
-    if (!userData.unlockedCards) userData.unlockedCards = [];
-    try {
-        var backup = JSON.parse(localStorage.getItem('muslim_tracker_backup'));
-        if (backup && backup.unlockedCards) {
-            backup.unlockedCards.forEach(function(id) {
-                if (!userData.unlockedCards.includes(id)) {
-                    userData.unlockedCards.push(id);
-                }
-            });
-        }
-        var chestBackup = JSON.parse(localStorage.getItem('chest_cards_backup') || '[]');
-        chestBackup.forEach(function(id) {
-            if (!userData.unlockedCards.includes(id)) {
-                userData.unlockedCards.push(id);
-            }
-        });
-    } catch(e) {}
-    
     const unlockedIds = userData.unlockedCards || [];
+    
+    // Используем централизованный источник (определён в другом месте)
     const allCards = (typeof getAllCollectionCards === 'function') ? getAllCollectionCards() : (window.ALL_COLLECTION_CARDS || []);
     
-    console.log('🔍 Вкладка:', activeTab, '| Разблокировано:', unlockedIds.length);
-
-    // ✅ СИНХРОНИЗАЦИЯ: добавляем недостающие карточки
-    try {
-        var allCardsForSync = (typeof getAllCollectionCards === 'function') ? getAllCollectionCards() : (window.ALL_COLLECTION_CARDS || []);
-        var chestHistoryForSync = [];
-        try { 
-            chestHistoryForSync = JSON.parse(localStorage.getItem('chest_history') || '[]'); 
-        } catch(e) {}
-        
-        unlockedIds.forEach(function(id) {
-            if (id && id.startsWith('chest_') && !allCardsForSync.find(function(c) { return c.id === id; })) {
-                var histEntry = chestHistoryForSync.find(function(h) { return h.card === id; });
-                if (histEntry) {
-                    allCardsForSync.push({
-                        id: id, name: histEntry.name || 'Карта сундука', title: histEntry.title || '',
-                        emoji: '🎁', type: histEntry.chest ? ('chest_' + histEntry.chest) : 'chest_wooden',
-                        rarity: histEntry.rarity || 'common', story: ''
-                    });
-                } else {
-                    allCardsForSync.push({
-                        id: id, name: 'Карта сундука', title: '🎁', emoji: '🎁',
-                        type: 'chest_wooden', rarity: 'common', story: 'Карточка из сундука'
-                    });
-                }
-            }
-        });
-        
-        localStorage.setItem('all_collection_cards', JSON.stringify(allCardsForSync));
-        window.ALL_COLLECTION_CARDS = allCardsForSync;
-        var updatedAllCards = allCardsForSync;
-    } catch(e) {
-        console.warn('⚠️ Ошибка синхронизации:', e);
-        var updatedAllCards = allCards;
-    }
-    
-    var allCardsToUse = (typeof updatedAllCards !== 'undefined') ? updatedAllCards : allCards;
+    console.log('🃏 Коллекция: всего карточек в системе =', allCards.length);
+    console.log('🃏 Разблокировано:', unlockedIds.length);
     
     let cards = [];
     
-    if (activeTab === 'chest') {
-        cards = allCardsToUse.filter(function(card) { 
-            return unlockedIds.includes(card.id) && card.id.startsWith('chest_'); 
-        });
-        if (cards.length === 0) {
-            cards = allCardsToUse.filter(function(card) { 
-                return unlockedIds.includes(card.id) && 
-                       (card.type === 'chest_wooden' || card.type === 'chest_silver' || 
-                        card.type === 'chest_golden' || card.type === 'chest_diamond');
-            });
-        }
-    } else if (activeTab === 'rare') {
-        cards = allCardsToUse.filter(function(card) { 
+    if (activeTab === 'rare') {
+        cards = allCards.filter(function(card) { 
             return unlockedIds.includes(card.id) && 
                    ['legendary', 'epic', 'mythic'].includes(card.rarity); 
         });
     } else if (activeTab === 'all') {
-        cards = allCardsToUse.filter(function(card) { return unlockedIds.includes(card.id); });
+        cards = allCards.filter(function(c) { 
+            return unlockedIds.includes(c.id); 
+        });
     } else if (activeTab === 'juma') {
-        cards = allCardsToUse.filter(function(c) { return c.type === 'juma' && unlockedIds.includes(c.id); });
+        cards = allCards.filter(function(c) { 
+            return c.type === 'juma' && unlockedIds.includes(c.id); 
+        });
     } else {
-        cards = allCardsToUse.filter(function(c) { return c.type === activeTab && unlockedIds.includes(c.id); });
+        cards = allCards.filter(function(c) { 
+            return c.type === activeTab && unlockedIds.includes(c.id); 
+        });
     }
     
+    // Удаляем дубликаты
     const uniqueCards = [...new Map(cards.map(function(item) { return [item.id, item]; })).values()];
+    
+    console.log('🃏 Вкладка "' + activeTab + '": найдено =', uniqueCards.length);
     
     if (uniqueCards.length === 0) { 
         c.innerHTML = '<div style="text-align:center;padding:40px;color:#8E8E93;grid-column:1/-1;">' +
             '<i class="fas fa-box-open" style="font-size:3rem;display:block;margin-bottom:16px;"></i>' +
-            '<p style="font-size:1.1rem;margin-bottom:8px;">' + (activeTab === 'chest' ? 'Открывайте сундуки!' : activeTab === 'names' ? 'Учите имена Аллаха!' : 'Пока нет открытых карт') + '</p>' +
-            '<p style="font-size:0.85rem;">' + (activeTab === 'chest' ? 'Купите сундук за звёзды и получите карточку' : 'Продолжайте пользоваться трекером!') + '</p>' +
-            (activeTab === 'chest' ? '<button onclick="openModule(\'chests\')" style="margin-top:12px;padding:10px 20px;border-radius:20px;border:none;background:#FFD700;color:#1a1a2e;font-weight:700;cursor:pointer;">🎁 К сундукам</button>' : '') +
+            '<p style="font-size:1.1rem;margin-bottom:8px;">Пока нет открытых карт</p>' +
+            '<p style="font-size:0.85rem;">Продолжайте пользоваться трекером, чтобы открывать новые карточки!</p>' +
             '</div>'; 
         updateCollectionBadge();
         return; 
@@ -6782,46 +5738,17 @@ function renderCollection() {
     
     c.innerHTML = uniqueCards.map(function(card) {
         var isUnlocked = unlockedIds.includes(card.id);
-        var isRainbow = card.id === 'zamzam' || card.rarity === 'mythic' || card.rarity === 'special';
-        var isNameCard = card.type === 'names';
+        var isRainbow = card.id === 'zamzam' || card.id === 'muhammad' || card.rarity === 'mythic';
         
-        // ========== 🌟 ЗОЛОТЫЕ КАРТОЧКИ ДЛЯ ИМЁН АЛЛАХА ==========
-        if (isNameCard && isUnlocked) {
-            var nameNum = card.id.replace('name', '');
-            var nameData = NAMES_OF_ALLAH ? NAMES_OF_ALLAH.find(function(n) { return n.num === parseInt(nameNum); }) : null;
-            var arabicName = nameData ? nameData.arabic : (card.name || '');
-            var translitName = nameData ? nameData.translit : (card.title || '');
-            var translationName = nameData ? nameData.translation : (card.subtitle || '');
-            var chechenName = nameData ? nameData.chechen : '';
-            
-            return '<div onclick="showCardStory(\'' + card.id + '\', \'' + (translitName || '').replace(/'/g, "\\'") + '\', \'📜\', \'' + (arabicName + '\\n\\n' + translationName + '\\n\\n' + chechenName).replace(/'/g, "\\'") + '\')" ' +
-                'style="background:linear-gradient(135deg,#1a0a00,#2a1a00,#1a0a00);border-radius:16px;padding:18px 12px;text-align:center;cursor:pointer;border:2px solid #D4AF37;box-shadow:0 0 15px rgba(212,175,55,0.3),inset 0 0 30px rgba(212,175,55,0.05);min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;">' +
-                // Узор в углах
-                '<div style="position:absolute;top:5px;left:8px;color:#D4AF37;font-size:0.65rem;opacity:0.6;font-family:serif;">◈</div>' +
-                '<div style="position:absolute;top:5px;right:8px;color:#D4AF37;font-size:0.65rem;opacity:0.6;font-family:serif;">◈</div>' +
-                '<div style="position:absolute;bottom:5px;left:8px;color:#D4AF37;font-size:0.65rem;opacity:0.6;font-family:serif;">◈</div>' +
-                '<div style="position:absolute;bottom:5px;right:8px;color:#D4AF37;font-size:0.65rem;opacity:0.6;font-family:serif;">◈</div>' +
-                // Номер
-                '<div style="position:absolute;top:8px;left:50%;transform:translateX(-50%);color:#D4AF37;font-size:0.6rem;opacity:0.7;letter-spacing:1px;">' + nameNum + '/99</div>' +
-                // Арабская каллиграфия
-                '<div style="font-family:\'Amiri\',\'Scheherazade\',serif;font-size:2rem;color:#FFD700;direction:rtl;margin:8px 0 6px;text-shadow:0 0 8px rgba(255,215,0,0.4);line-height:1.5;position:relative;z-index:1;">' + arabicName + '</div>' +
-                // Транслитерация
-                '<div style="font-weight:600;color:#FFD700;font-size:0.8rem;margin-bottom:2px;position:relative;z-index:1;letter-spacing:0.5px;">' + translitName + '</div>' +
-                // Перевод
-                '<div style="color:#E8D5A3;font-size:0.7rem;position:relative;z-index:1;max-width:140px;line-height:1.3;">' + translationName + '</div>' +
-                // Золотая полоска снизу
-                '<div style="position:absolute;bottom:0;left:10%;width:80%;height:1px;background:linear-gradient(90deg,transparent,#D4AF37,transparent);"></div>' +
-            '</div>';
-        }
-        
-        // ========== ОБЫЧНЫЕ КАРТОЧКИ ==========
         var onclickAction = '';
         if (isUnlocked) {
+            // Используем onclick напрямую, без экранирования в строке
             onclickAction = 'showCardStory("' + card.id + '", "' + (card.name || '').replace(/"/g, '\\"') + '", "' + (card.emoji || '🖼️') + '", "' + (card.story || '').replace(/"/g, '\\"').replace(/\n/g, '\\n') + '")';
         } else {
             onclickAction = 'alert("🔒 ' + (card.conditionText || 'Ещё не открыто') + '")';
         }
         
+        // Картинка или эмодзи
         var imageHtml = '';
         var emojiHtml = '';
         
@@ -6833,6 +5760,7 @@ function renderCollection() {
             emojiHtml = '<div style="font-size:2.5rem;">' + (card.emoji || '🖼️') + '</div>';
         }
         
+        // Стили для радужных карточек
         var rainbowDiv = '';
         var bgStyle = 'background:#FFFFFF;';
         var textColor = '#1C1C1E';
@@ -6847,8 +5775,8 @@ function renderCollection() {
         
         var rarityHtml = '';
         if (card.rarity) {
-            var rarityColors = { 'mythic': '#FFD700', 'legendary': '#FF9500', 'epic': '#AF52DE', 'rare': '#007AFF', 'common': '#8E8E93' };
-            var rarityLabels = { 'mythic': '💫 Мифическая', 'legendary': '✨ Легендарная', 'epic': '💫 Эпическая', 'rare': '🔷 Редкая', 'common': '⬜ Обычная' };
+            var rarityColors = { 'mythic': '#FFD700', 'legendary': '#FF9500', 'epic': '#AF52DE', 'rare': '#007AFF' };
+            var rarityLabels = { 'mythic': '💫 Мифическая', 'legendary': '✨ Легендарная', 'epic': '💫 Эпическая', 'rare': '🔷 Редкая' };
             rarityHtml = '<div style="font-size:0.6rem;padding:4px 8px;border-radius:20px;display:inline-block;margin-top:8px;background:' + (rarityColors[card.rarity] || '#007AFF') + ';color:white;">' + (rarityLabels[card.rarity] || card.rarity) + '</div>';
         }
         
@@ -6868,24 +5796,29 @@ function renderCollection() {
     updateCollectionBadge();
 }
 
+// Обновление значка коллекции
 function updateCollectionBadge() {
     const total = (userData.unlockedCards || []).length;
     const badge = document.getElementById('collectionBadge');
     if (badge) badge.textContent = total;
 }
 
+// Глобальная функция показа истории карточки
 window.showCardStory = function(id, name, emoji, story) {
     var modal = document.getElementById('storyModal');
     var iconEl = document.getElementById('storyIcon');
     var titleEl = document.getElementById('storyTitle');
     var textEl = document.getElementById('storyText');
+    
     if (!modal || !iconEl || !titleEl || !textEl) return;
+    
     iconEl.innerHTML = emoji || '🖼️';
     titleEl.textContent = name || 'Карточка';
     textEl.innerHTML = (story || 'Описание отсутствует');
     modal.style.display = 'flex';
 };
 
+// Переключение вкладок
 document.querySelectorAll('.collection-tab').forEach(function(t) { 
     t.addEventListener('click', function(e) {
         e.preventDefault(); 
@@ -6902,7 +5835,9 @@ document.querySelectorAll('.collection-tab').forEach(function(t) {
     });
 });
 
+// Кнопка обновления
 document.getElementById('refreshCollectionBtn')?.addEventListener('click', function() {
+    // Принудительно пересобираем коллекцию
     if (typeof initializeAllCollectionCards === 'function') {
         window.ALL_COLLECTION_CARDS = initializeAllCollectionCards();
         localStorage.setItem('all_collection_cards', JSON.stringify(window.ALL_COLLECTION_CARDS));
@@ -6911,6 +5846,7 @@ document.getElementById('refreshCollectionBtn')?.addEventListener('click', funct
     showNotification('🔄 Коллекция обновлена!');
 });
 
+// Авторазблокировка сур
 function autoUnlockSurahsUpTo(currentSura) {
     if (!userData.unlockedSurahs) userData.unlockedSurahs = []; 
     if (!userData.unlockedCards) userData.unlockedCards = [];
@@ -6922,6 +5858,7 @@ function autoUnlockSurahsUpTo(currentSura) {
     saveUserData();
 }
 
+// Запуск при загрузке
 setTimeout(function() { 
     const currentSura = userData.khatm?.currentSura || 1; 
     autoUnlockSurahsUpTo(currentSura); 
@@ -6929,7 +5866,8 @@ setTimeout(function() {
 }, 500);
 
 console.log('✅ Модуль коллекции инициализирован');
-</script><!-- ========== МОДУЛЬ: ВИКТОРИНА (50+ ВОПРОСОВ, 12 СЛУЧАЙНЫХ, КНОПКА "НЕ ЗНАЮ") ========== -->
+</script>
+<!-- ========== МОДУЛЬ: ВИКТОРИНА (50+ ВОПРОСОВ, 12 СЛУЧАЙНЫХ, КНОПКА "НЕ ЗНАЮ") ========== -->
 <div class="module-screen" id="module-quiz">
     <div class="ios-card">
         <div class="ios-card-title"><i class="fas fa-question-circle"></i> Викторина</div>
@@ -8024,12 +6962,11 @@ function openModule(moduleId) {
     document.querySelectorAll('.module-screen').forEach(s => s.classList.remove('active'));
     document.getElementById(`module-${moduleId}`)?.classList.add('active');
     const titles = {
-    'khatm':'Хатм','tauba':'Тауба','names':'99 Имён','azkar':'Азкары','zikr':'Зикр','tasbih':'Тасбих','fasting':'Пост',
-    'prayer':'Намаз','juma':'Джума','achievements':'Достижения','stars':'Звёзды','collection':'Коллекция',
-    'quiz':'Викторина','dictionary':'Словарь','quran':'Аят дня','settings':'Настройки',
-    'pillars-iman':'Столпы Имана','pillars-islam':'Столпы Ислама','prophet-story':'Пророк ﷺ','battles':'Битвы',
-    'chests':'Сундуки'
-};
+        'khatm':'Хатм','tauba':'Тауба','names':'99 Имён','azkar':'Азкары','zikr':'Зикр','tasbih':'Тасбих','fasting':'Пост',
+        'prayer':'Намаз','juma':'Джума','achievements':'Достижения','stars':'Звёзды','collection':'Коллекция',
+        'quiz':'Викторина','dictionary':'Словарь','quran':'Аят дня','settings':'Настройки',
+        'pillars-iman':'Столпы Имана','pillars-islam':'Столпы Ислама','prophet-story':'Пророк ﷺ','battles':'Битвы'
+    };
     document.getElementById('screenTitle').textContent = titles[moduleId] || moduleId;
     if (navigationHistory[navigationHistory.length-1] !== moduleId) navigationHistory.push(moduleId);
     currentScreen = moduleId;
@@ -8050,7 +6987,6 @@ function openModule(moduleId) {
     if (moduleId === 'settings' && typeof loadSettingsUI === 'function') loadSettingsUI();
     if (moduleId === 'quran' && typeof displayAyah === 'function') displayAyah(getDailyAyah());
     if (moduleId === 'battles') { renderBattleContent('badr'); updateBattlesProgress(); }
-    if (moduleId === 'chests') { updateChestBalance(); renderChestHistory(); }
 }
 
 function goHome() {
@@ -8072,7 +7008,7 @@ document.getElementById('backButton')?.addEventListener('click', () => {
             'khatm':'Хатм','tauba':'Тауба','names':'99 Имён','azkar':'Азкары','zikr':'Зикр','tasbih':'Тасбих','fasting':'Пост',
             'prayer':'Намаз','juma':'Джума','achievements':'Достижения','stars':'Звёзды','collection':'Коллекция',
             'quiz':'Викторина','dictionary':'Словарь','quran':'Аят дня','settings':'Настройки',
-            'pillars-iman':'Столпы Имана','pillars-islam':'Столпы Ислама','prophet-story':'Пророк ﷺ','battles':'Битвы','chests':'Сундуки'
+            'pillars-iman':'Столпы Имана','pillars-islam':'Столпы Ислама','prophet-story':'Пророк ﷺ','battles':'Битвы'
         }; 
         document.getElementById('screenTitle').textContent = titles[prev] || prev; 
         currentScreen = prev; 
@@ -8122,7 +7058,7 @@ document.addEventListener('touchend', e => {
                 'khatm':'Хатм','tauba':'Тауба','names':'99 Имён','azkar':'Азкары','zikr':'Зикр','tasbih':'Тасбих','fasting':'Пост',
                 'prayer':'Намаз','juma':'Джума','achievements':'Достижения','stars':'Звёзды','collection':'Коллекция',
                 'quiz':'Викторина','dictionary':'Словарь','quran':'Аят дня','settings':'Настройки',
-                'pillars-iman':'Столпы Имана','pillars-islam':'Столпы Ислама','prophet-story':'Пророк ﷺ','battles':'Битвы','chests':'Сундуки'
+                'pillars-iman':'Столпы Имана','pillars-islam':'Столпы Ислама','prophet-story':'Пророк ﷺ','battles':'Битвы'
             }; 
             document.getElementById('screenTitle').textContent = titles[prev] || prev; 
             currentScreen = prev; 
@@ -8398,7 +7334,6 @@ function addOrbitStars() {
     }
 }
 setTimeout(addOrbitStars, 3000);
-</script>
 
 <script>
 // ========== 🎴 КОЛЛЕКЦИЯ: ВЕЕР КАРТ ==========
@@ -8783,381 +7718,12 @@ loadQuranSettings();
 loadQuranData();
 </script>
 
-<!-- ========== 🎁 МОДУЛЬ СУНДУКОВ ========== -->
-<div class="module-screen" id="module-chests">
-    <div class="ios-card">
-        <div class="ios-card-title"><i class="fas fa-gift"></i> Сундуки <span style="color: #FFD700;">🎁</span></div>
-        
-        <div style="background: linear-gradient(135deg, #1a1a2e, #2d1f00); border-radius: 20px; padding: 20px; margin-bottom: 20px; text-align: center; color: #FFD700; border: 2px solid #FFD700;">
-            <div style="font-size: 0.9rem;">💎 Ваш баланс звёзд</div>
-            <div style="font-size: 3rem; font-weight: 700;" id="chestStarBalance">0</div>
-        </div>
-        
-        <button onclick="checkMyChestCards()" style="width:100%;margin-bottom:8px;padding:12px;border-radius:14px;border:2px solid #FFD700;background:transparent;color:#FFD700;font-weight:700;cursor:pointer;">
-            📋 Проверить мои карточки
-        </button>
-        <button onclick="forceShowChestCards()" style="width:100%;margin-bottom:16px;padding:12px;border-radius:14px;border:none;background:#FFD700;color:#1a1a2e;font-weight:700;cursor:pointer;">
-            📋 Показать все карточки сундуков
-        </button>
-        
-        <div class="chest-container" id="chestContainer">
-            <div class="chest-card wooden" onclick="openChest('wooden')">
-                <div style="font-size: 3rem;">🎁</div>
-                <div style="font-weight: 700;">Деревянный</div>
-                <div style="color: #8B6914;">50 ⭐</div>
-            </div>
-            <div class="chest-card silver" onclick="openChest('silver')">
-                <div style="font-size: 3rem;">🎁</div>
-                <div style="font-weight: 700;">Серебряный</div>
-                <div style="color: #808080;">150 ⭐</div>
-            </div>
-            <div class="chest-card golden" onclick="openChest('golden')">
-                <div style="font-size: 3rem;">🎁</div>
-                <div style="font-weight: 700;">Золотой</div>
-                <div style="color: #FFA000;">300 ⭐</div>
-            </div>
-            <div class="chest-card diamond" onclick="openChest('diamond')">
-                <div style="font-size: 3rem;">💎</div>
-                <div style="font-weight: 700;">Алмазный</div>
-                <div style="color: #00BFA5;">500 ⭐</div>
-            </div>
-        </div>
-        
-        <div style="margin-top: 20px;">
-            <div style="font-weight: 600; margin-bottom: 12px;"><i class="fas fa-history"></i> История открытий</div>
-            <div id="chestHistory" style="background: #F2F2F7; border-radius: 16px; padding: 16px; max-height: 200px; overflow-y: auto;">
-                <p style="text-align: center; color: #8E8E93;">Пока нет открытых сундуков</p>
-            </div>
-        </div>
-    </div>
-</div>
-<script>
-// Принудительное обновление баланса при открытии сундуков
-var _oldOpenChestModule = openModule;
-openModule = function(mid) {
-    _oldOpenChestModule(mid);
-    if (mid === 'chests') {
-        setTimeout(function() {
-            updateChestBalance();
-            renderChestHistory();
-        }, 500);
-    }
-};
-</script>
-<!-- ========== МОДУЛЬ: ТЕПЛОВАЯ КАРТА ========== -->
-<div class="module-screen" id="module-heatmap">
-    <div class="ios-card">
-        <div class="ios-card-title"><i class="fas fa-fire"></i> Тепловая карта активности <span style="color: #FF6B00;">🔥</span></div>
-        
-        <!-- Текущий месяц -->
-        <div style="text-align: center; margin-bottom: 16px;">
-            <div style="display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 12px;">
-                <button onclick="changeHeatmapMonth(-1)" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #007AFF;">◀</button>
-                <span style="font-weight: 700; font-size: 1.2rem;" id="heatmapMonthLabel">Апрель 2026</span>
-                <button onclick="changeHeatmapMonth(1)" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #007AFF;">▶</button>
-            </div>
-        </div>
-        
-        <!-- Календарь -->
-        <div id="heatmapCalendar" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 16px;">
-            <!-- Дни недели -->
-            <div style="text-align:center;font-size:0.7rem;color:#8E8E93;padding:4px;">Пн</div>
-            <div style="text-align:center;font-size:0.7rem;color:#8E8E93;padding:4px;">Вт</div>
-            <div style="text-align:center;font-size:0.7rem;color:#8E8E93;padding:4px;">Ср</div>
-            <div style="text-align:center;font-size:0.7rem;color:#8E8E93;padding:4px;">Чт</div>
-            <div style="text-align:center;font-size:0.7rem;color:#8E8E93;padding:4px;">Пт</div>
-            <div style="text-align:center;font-size:0.7rem;color:#8E8E93;padding:4px;">Сб</div>
-            <div style="text-align:center;font-size:0.7rem;color:#8E8E93;padding:4px;">Вс</div>
-        </div>
-        
-        <!-- Легенда -->
-        <div style="display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.7rem; color: #8E8E93; margin-bottom: 12px;">
-            <span>Нет</span>
-            <div style="width:16px;height:16px;border-radius:4px;background:#E5E5EA;"></div>
-            <div style="width:16px;height:16px;border-radius:4px;background:#C8E6C9;"></div>
-            <div style="width:16px;height:16px;border-radius:4px;background:#66BB6A;"></div>
-            <div style="width:16px;height:16px;border-radius:4px;background:#2E7D32;"></div>
-            <div style="width:16px;height:16px;border-radius:4px;background:#FFD700;"></div>
-            <span>🔥</span>
-        </div>
-        
-        <!-- Статистика -->
-        <div style="background: #F2F2F7; border-radius: 16px; padding: 16px;">
-            <div style="font-weight: 600; margin-bottom: 12px;"><i class="fas fa-chart-bar"></i> Статистика месяца</div>
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
-                <div style="text-align: center; padding: 12px; background: white; border-radius: 12px;">
-                    <div style="font-size: 1.5rem; font-weight: 700;" id="heatmapTotalDays">0</div>
-                    <div style="font-size: 0.7rem; color: #8E8E93;">Активных дней</div>
-                </div>
-                <div style="text-align: center; padding: 12px; background: white; border-radius: 12px;">
-                    <div style="font-size: 1.5rem; font-weight: 700;" id="heatmapTotalXP">0</div>
-                    <div style="font-size: 0.7rem; color: #8E8E93;">XP за месяц</div>
-                </div>
-                <div style="text-align: center; padding: 12px; background: white; border-radius: 12px;">
-                    <div style="font-size: 1.5rem; font-weight: 700;" id="heatmapBestStreak">0</div>
-                    <div style="font-size: 0.7rem; color: #8E8E93;">Лучшая серия</div>
-                </div>
-                <div style="text-align: center; padding: 12px; background: white; border-radius: 12px;">
-                    <div style="font-size: 1.5rem; font-weight: 700;" id="heatmapPerfectDays">0</div>
-                    <div style="font-size: 0.7rem; color: #8E8E93;">Идеальных дней 🌟</div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-// ========== ТЕПЛОВАЯ КАРТА - СКРИПТ ==========
-let heatmapCurrentMonth = new Date().getMonth();
-let heatmapCurrentYear = new Date().getFullYear();
-
-const MONTH_NAMES = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-
-function getDayActivity(dateStr) {
-    var score = 0;
-    
-    // Проверяем азкары (утренние)
-    try {
-        var azkarData = JSON.parse(localStorage.getItem('daily_quests_data') || '{}');
-        if (azkarData.date === dateStr && azkarData.quests) {
-            for (var key in azkarData.quests) {
-                if (azkarData.quests[key] && azkarData.quests[key].done) score += 2;
-            }
-        }
-    } catch(e) {}
-    
-    // Проверяем страницы Корана
-    try {
-        var backup = JSON.parse(localStorage.getItem('muslim_tracker_backup'));
-        if (backup && backup.khatm && backup.khatm.readPages) score += Math.min(backup.khatm.readPages, 10);
-    } catch(e) {}
-    
-    // Проверяем тауба
-    if (userData.tauba && userData.tauba.days) {
-        var hasTauba = userData.tauba.days.some(function(d) { return d.date === dateStr; });
-        if (hasTauba) score += 3;
-    }
-    
-    // Проверяем пост
-    if (userData.fasting && userData.fasting.days) {
-        var hasFast = userData.fasting.days.some(function(d) { return d.date === dateStr; });
-        if (hasFast) score += 5;
-    }
-    
-    // Проверяем салаваты
-    var salawatSaved = localStorage.getItem('salawat_' + dateStr);
-    if (salawatSaved) score += Math.min(parseInt(salawatSaved) / 10, 5);
-    
-    return score;
-}
-
-function getHeatmapColor(score) {
-    if (score === 0) return '#E5E5EA';
-    if (score <= 3) return '#C8E6C9';
-    if (score <= 7) return '#81C784';
-    if (score <= 12) return '#4CAF50';
-    if (score <= 20) return '#2E7D32';
-    return '#FFD700'; // Идеальный день
-}
-
-function renderHeatmap() {
-    var container = document.getElementById('heatmapCalendar');
-    if (!container) return;
-    
-    // Обновляем заголовок
-    document.getElementById('heatmapMonthLabel').textContent = MONTH_NAMES[heatmapCurrentMonth] + ' ' + heatmapCurrentYear;
-    
-    // Удаляем старые дни
-    var oldDays = container.querySelectorAll('.heatmap-day');
-    oldDays.forEach(function(d) { d.remove(); });
-    
-    // Первый день месяца
-    var firstDay = new Date(heatmapCurrentYear, heatmapCurrentMonth, 1);
-    var startDayOfWeek = firstDay.getDay(); // 0=Вс, 1=Пн, ...
-    // Корректировка: Пн=0, Вт=1, ..., Вс=6
-    var startOffset = startDayOfWeek === 0 ? 6 : startDayOfWeek - 1;
-    
-    // Количество дней в месяце
-    var daysInMonth = new Date(heatmapCurrentYear, heatmapCurrentMonth + 1, 0).getDate();
-    
-    // Статистика
-    var activeDays = 0;
-    var perfectDays = 0;
-    var totalXP = 0;
-    var currentStreak = 0;
-    var bestStreak = 0;
-    
-    var today = new Date();
-    var todayStr = today.toISOString().split('T')[0];
-    
-    // Добавляем пустые ячейки
-    for (var i = 0; i < startOffset; i++) {
-        var emptyCell = document.createElement('div');
-        emptyCell.className = 'heatmap-day';
-        emptyCell.style.cssText = 'aspect-ratio:1;border-radius:6px;';
-        container.appendChild(emptyCell);
-    }
-    
-    // Добавляем дни
-    for (var day = 1; day <= daysInMonth; day++) {
-        var date = new Date(heatmapCurrentYear, heatmapCurrentMonth, day);
-        var dateStr = date.toISOString().split('T')[0];
-        var isToday = dateStr === todayStr;
-        var score = getDayActivity(dateStr);
-        
-        if (score > 0) activeDays++;
-        if (score >= 15) perfectDays++;
-        totalXP += score * 5;
-        
-        // Серия
-        if (score > 0) {
-            currentStreak++;
-            if (currentStreak > bestStreak) bestStreak = currentStreak;
-        } else if (date <= today) {
-            currentStreak = 0;
-        }
-        
-        var cell = document.createElement('div');
-        cell.className = 'heatmap-day';
-        cell.style.cssText = 'aspect-ratio:1;border-radius:6px;background:' + getHeatmapColor(score) + 
-            ';border:' + (isToday ? '2px solid #007AFF' : '1px solid #E5E5EA') +
-            ';cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:600;color:' + (score > 10 ? '#fff' : '#1C1C1E') + ';';
-        cell.textContent = day;
-        cell.title = dateStr + ': ' + score + ' очков активности';
-        cell.onclick = function() {
-            alert(dateStr + '\nАктивность: ' + score + ' очков\n' + 
-                  (score === 0 ? 'Нет активности' : 
-                   score <= 3 ? 'Низкая активность' :
-                   score <= 7 ? 'Средняя активность' :
-                   score <= 12 ? 'Хорошая активность' :
-                   score <= 20 ? 'Отличная активность' : '🌟 Идеальный день!'));
-        };
-        
-        container.appendChild(cell);
-    }
-    
-    // Обновляем статистику
-    document.getElementById('heatmapTotalDays').textContent = activeDays;
-    document.getElementById('heatmapTotalXP').textContent = totalXP;
-    document.getElementById('heatmapBestStreak').textContent = bestStreak;
-    document.getElementById('heatmapPerfectDays').textContent = perfectDays;
-}
-
-function changeHeatmapMonth(delta) {
-    heatmapCurrentMonth += delta;
-    if (heatmapCurrentMonth < 0) {
-        heatmapCurrentMonth = 11;
-        heatmapCurrentYear--;
-    } else if (heatmapCurrentMonth > 11) {
-        heatmapCurrentMonth = 0;
-        heatmapCurrentYear++;
-    }
-    renderHeatmap();
-}
-
-// Интеграция
-var _omH = openModule;
-openModule = function(mid) { _omH(mid); if (mid === 'heatmap') { renderHeatmap(); } };
-
-// Добавляем в словарь заголовков
-var origOpenModule2 = openModule;
-openModule = function(mid) {
-    origOpenModule2(mid);
-    var titles = {
-        'heatmap':'Активность',
-        'wheel':'Фатх',
-        'khatm':'Хатм','tauba':'Тауба','names':'99 Имён','azkar':'Азкары','zikr':'Зикр','tasbih':'Тасбих','fasting':'Пост',
-        'prayer':'Намаз','juma':'Джума','achievements':'Достижения','stars':'Звёзды','collection':'Коллекция',
-        'quiz':'Викторина','dictionary':'Словарь','quran':'Аят дня','settings':'Настройки',
-        'pillars-iman':'Столпы Имана','pillars-islam':'Столпы Ислама','prophet-story':'Пророк ﷺ','battles':'Битвы','chests':'Сундуки'
-    };
-    if (titles[mid]) document.getElementById('screenTitle').textContent = titles[mid];
-};
-
-setTimeout(function() { if (document.getElementById('module-heatmap')) renderHeatmap(); }, 1000);
-console.log('🔥 Тепловая карта готова!');
-</script>
-
 <!-- ========== ФУТЕР ========== -->
 <footer style="text-align: center; padding: 20px 16px 100px; color: #8E8E93; font-size: 0.8rem;">
     <p><i class="fas fa-heart" style="color: #FF3B30;"></i> Muslim Tracker v6.0 · iOS Edition</p>
     <p style="margin-top: 8px; font-family: 'Amiri', serif; font-size: 1rem;">رَبَّنَا تَقَبَّلْ مِنَّا إِنَّكَ أَنتَ السَّمِيعُ الْعَلِيمُ</p>
     <p>"Господь наш! Прими от нас, ведь Ты — Слышащий, Знающий" (2:127)</p>
 </footer>
-
-
-<!-- ========== ЕЖЕДНЕВНЫЕ ЗАДАНИЯ ========== -->
-<script>
-const DAILY_QUESTS_POOL = [
-    { id: 'readQuran', name: 'Прочитать Коран', desc: '5 страниц', icon: '📖', color: '#34C759', check: function() { return (userData.khatm?.readPages||0)>=5; }, xp: 30, stars: 3 },
-    { id: 'doZikr', name: 'Поминание Аллаха', desc: '100 зикров', icon: '📿', color: '#AF52DE', check: function() { return (userData.totalZikrOverall||0)>=100; }, xp: 25, stars: 2 },
-    { id: 'morningAzkar', name: 'Утренние азкары', desc: 'Прочитать', icon: '🌅', color: '#FF9500', check: function() { return Object.values(userData.azkarChecks?.morning||{}).some(function(v){return v;}); }, xp: 20, stars: 2 },
-    { id: 'eveningAzkar', name: 'Вечерние азкары', desc: 'Прочитать', icon: '🌙', color: '#007AFF', check: function() { return Object.values(userData.azkarChecks?.evening||{}).some(function(v){return v;}); }, xp: 20, stars: 2 },
-    { id: 'doSalawat', name: 'Салават Пророку ﷺ', desc: '50 салаватов', icon: '🌹', color: '#FF2D55', check: function() { return (userData.totalSalawat||0)>=50; }, xp: 25, stars: 3 },
-    { id: 'taubaDay', name: 'Дневник покаяния', desc: 'Сохранить день', icon: '📝', color: '#5856D6', check: function() { return (userData.tauba?.days||[]).some(function(d){return d.date===new Date().toISOString().split('T')[0];}); }, xp: 20, stars: 2 },
-    { id: 'fastingDay', name: 'День поста', desc: 'Отметить пост', icon: '🌙', color: '#1a1a2e', check: function() { return (userData.fasting?.days||[]).some(function(d){return d.date===new Date().toISOString().split('T')[0];}); }, xp: 30, stars: 5 }
-];
-
-var questProgress = {};
-
-function loadDailyData() {
-    var today = new Date().toISOString().split('T')[0];
-    var saved = localStorage.getItem('daily_quests_data');
-    if (saved) { var data = JSON.parse(saved); questProgress = data.date===today ? (data.quests||{}) : {}; }
-    localStorage.setItem('daily_quests_data', JSON.stringify({date:today,quests:questProgress}));
-}
-
-function renderDailyQuests() {
-    loadDailyData();
-    var quests = DAILY_QUESTS_POOL.sort(function(){return Math.random()-0.5;}).slice(0,3);
-    var container = document.getElementById('dailyQuestsList'); if (!container) return;
-    if (!userData.stars) userData.stars = {totalStars:0};
-    var allDone = true;
-    container.innerHTML = quests.map(function(q){
-        var p = questProgress[q.id] || {done:false,claimed:false};
-        if (!p.done && q.check()) { p.done=true; if (!p.claimed) { addXP(q.xp); userData.stars.totalStars=(userData.stars.totalStars||0)+q.stars; saveUserData(); p.claimed=true; } questProgress[q.id]=p; }
-        if (!p.done) allDone=false;
-        return '<div class="quest-item'+(p.done?' completed':'')+'"><div class="quest-icon" style="background:'+q.color+';">'+q.icon+'</div><div class="quest-info"><div class="quest-name">'+q.name+'</div><div class="quest-progress">'+q.desc+(p.done?' ✅':'')+'</div></div><div class="quest-reward">+'+q.xp+' XP</div></div>';
-    }).join('');
-    var reward = document.getElementById('allQuestsCompleted'); if (reward) reward.style.display = allDone?'block':'none';
-    updateHomeWidgets();
-}
-
-function claimAllQuestsReward() {
-    var today = new Date().toISOString().split('T')[0];
-    if (localStorage.getItem('all_done_'+today)) return;
-    localStorage.setItem('all_done_'+today,'true');
-    addXP(100); userData.stars.totalStars=(userData.stars.totalStars||0)+10; saveUserData();
-    showFirework('🎯 Все задания выполнены!');
-    var card = getRandomCard('wooden');
-    if (!userData.unlockedCards) userData.unlockedCards = [];
-    if (!userData.unlockedCards.includes(card.id)) { userData.unlockedCards.push(card.id); saveUserData(); saveLocalBackup(); }
-    var el = document.getElementById('allQuestsCompleted'); 
-    if (el) el.style.display = 'none';
-}
-
-setTimeout(function(){ renderDailyQuests(); }, 1000);
-</script>
-
-<script>
-// Исправление клика по сундукам
-setTimeout(function() {
-    var chestCards = document.querySelectorAll('.chest-card');
-    chestCards.forEach(function(card) {
-        var type = '';
-        if (card.classList.contains('wooden')) type = 'wooden';
-        if (card.classList.contains('silver')) type = 'silver';
-        if (card.classList.contains('golden')) type = 'golden';
-        if (card.classList.contains('diamond')) type = 'diamond';
-        
-        if (type) {
-            card.onclick = function() {
-                openChest(type);
-            };
-        }
-    });
-}, 2000);
-</script>
 
 </div> <!-- .app-container -->
 </body>
