@@ -4927,7 +4927,7 @@ function checkNamesCards() {
     
     // Выдаём карточку за каждое изученное имя
     learned.forEach(function(num) {
-        var cardId = 'card_name_' + num;
+        var cardId = 'name' + num;
         if (!userData.unlockedCards.includes(cardId)) {
             userData.unlockedCards.push(cardId);
             
@@ -4935,22 +4935,24 @@ function checkNamesCards() {
             var allCards = getAllCollectionCards ? getAllCollectionCards() : (window.ALL_COLLECTION_CARDS || []);
             if (!allCards.find(function(c) { return c.id === cardId; })) {
                 var name = NAMES_OF_ALLAH.find(function(n) { return n.num === num; });
-                var rarity = 'legendary';
+                
                 allCards.push({
                     id: cardId,
-                    name: name ? name.translit : 'Имя Аллаха',
-                    title: name ? name.translation : '',
-                    emoji: getRarityEmoji(rarity),
+                    name: name ? name.arabic : 'اللَّهُ',           // АРАБСКОЕ ИМЯ
+                    title: name ? name.translit : '',               // Транслитерация
+                    subtitle: name ? name.translation : '',          // Перевод
                     type: 'names',
-                    rarity: rarity,
-                    story: name ? name.arabic + ' — ' + name.translation : '',
-                    image: 'data:image/svg+xml,' + encodeURIComponent(createNameCardSVG(num, name))
+                    rarity: 'legendary',                             // ВСЕ легендарные
+                    emoji: '',                                       // БЕЗ эмодзи
+                    story: name ? name.arabic + '\n\n«' + name.translation + '»\n\n' + name.chechen : '',
+                    // Уникальный стиль для имён
+                    style: 'golden-arabic'                          // Специальный CSS-класс
                 });
                 localStorage.setItem('all_collection_cards', JSON.stringify(allCards));
                 window.ALL_COLLECTION_CARDS = allCards;
             }
             
-            showNotification('🎴 ' + (name ? name.translit : 'Имя #' + num) + ' в коллекции!');
+            showNotification('📜 ' + (name ? name.translit : 'Имя #' + num) + ' — добавлено в коллекцию!');
         }
     });
     
@@ -4958,7 +4960,7 @@ function checkNamesCards() {
     var milestones = [10, 20, 30, 40, 50, 60, 70, 75, 80, 90, 99];
     milestones.forEach(function(m) {
         if (learned.length >= m) {
-            var cardId = 'name_milestone_' + m;
+            var cardId = 'name' + m;
             if (!userData.unlockedCards.includes(cardId)) {
                 userData.unlockedCards.push(cardId);
             }
@@ -4966,6 +4968,7 @@ function checkNamesCards() {
     });
     
     saveUserData();
+    saveLocalBackup();
     if (typeof updateCollectionBadge === 'function') updateCollectionBadge();
     if (typeof renderCollection === 'function') renderCollection();
 }
@@ -4975,22 +4978,22 @@ function getRarityEmoji(rarity) {
     return emojis[rarity] || '📿';
 }
 
-var rarity = 'legendary';
-
-// Функция разблокировки карточки
+// ❌ Убираем лишнюю строку — 'var rarity = "legendary";' она переопределяет глобальную переменную
+// Функция разблокировки карточки (оставляем как было)
 if (typeof unlockCardIfNotHave !== 'function') {
     window.unlockCardIfNotHave = function(cardId) {
         if (!userData.unlockedCards) userData.unlockedCards = [];
         if (!userData.unlockedCards.includes(cardId)) {
             userData.unlockedCards.push(cardId);
             saveUserData();
-            showNotification(`🎴 Новая карточка в коллекции!`);
+            showNotification('🎴 Новая карточка в коллекции!');
             if (typeof updateCollectionBadge === 'function') updateCollectionBadge();
             if (typeof currentScreen !== 'undefined' && currentScreen === 'collection' && typeof renderCollection === 'function') renderCollection();
         }
     };
 }
 
+// Остальной код без изменений
 document.getElementById('namesSearchInput')?.addEventListener('input', e => {
     const s = e.target.value.toLowerCase();
     document.querySelectorAll('#namesListContainer > div').forEach(c => c.style.display = c.textContent.toLowerCase().includes(s) ? 'block' : 'none');
@@ -5005,7 +5008,46 @@ document.getElementById('toggleChechenBtn')?.addEventListener('click', () => {
 });
 
 setTimeout(() => renderNamesOfAllah(), 200);
-</script><!-- ========== МОДУЛЬ: АЗКАРЫ ========== -->
+
+// ========== ОБРАБОТЧИКИ ДЛЯ ИМЁН ==========
+document.getElementById('namesSearchInput')?.addEventListener('input', function(e) {
+    var searchText = e.target.value.toLowerCase();
+    var nameCards = document.querySelectorAll('#namesListContainer > div');
+    nameCards.forEach(function(card) {
+        if (card.textContent.toLowerCase().includes(searchText)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+});
+
+document.getElementById('toggleChechenBtn')?.addEventListener('click', function() {
+    showChechen = !showChechen; 
+    if (!userData.settings) userData.settings = {};
+    userData.settings.showChechen = showChechen;
+    document.getElementById('toggleChechenText').textContent = showChechen ? 'Скрыть чеченский перевод' : 'Показать чеченский перевод';
+    renderNamesOfAllah(); 
+    saveUserData();
+});
+
+// Функция разблокировки карточки (глобальная)
+if (typeof unlockCardIfNotHave !== 'function') {
+    window.unlockCardIfNotHave = function(cardId) {
+        if (!userData.unlockedCards) userData.unlockedCards = [];
+        if (!userData.unlockedCards.includes(cardId)) {
+            userData.unlockedCards.push(cardId);
+            saveUserData();
+            saveLocalBackup();
+            updateCollectionBadge();
+            if (typeof currentScreen !== 'undefined' && currentScreen === 'collection' && typeof renderCollection === 'function') {
+                renderCollection();
+            }
+        }
+    };
+}
+</script>
+<!-- ========== МОДУЛЬ: АЗКАРЫ ========== -->
 <div class="module-screen" id="module-azkar">
     <div class="ios-card">
         <div class="ios-card-title"><i class="fas fa-hands-praying"></i> Азкары</div>
@@ -6641,7 +6683,6 @@ function renderCollection() {
                 }
             });
         }
-        // Также из отдельного бекапа сундуков
         var chestBackup = JSON.parse(localStorage.getItem('chest_cards_backup') || '[]');
         chestBackup.forEach(function(id) {
             if (!userData.unlockedCards.includes(id)) {
@@ -6655,7 +6696,7 @@ function renderCollection() {
     
     console.log('🔍 Вкладка:', activeTab, '| Разблокировано:', unlockedIds.length);
 
-    // ✅ СИНХРОНИЗАЦИЯ: добавляем недостающие карточки сундуков в ALL_COLLECTION_CARDS
+    // ✅ СИНХРОНИЗАЦИЯ: добавляем недостающие карточки
     try {
         var allCardsForSync = (typeof getAllCollectionCards === 'function') ? getAllCollectionCards() : (window.ALL_COLLECTION_CARDS || []);
         var chestHistoryForSync = [];
@@ -6665,59 +6706,38 @@ function renderCollection() {
         
         unlockedIds.forEach(function(id) {
             if (id && id.startsWith('chest_') && !allCardsForSync.find(function(c) { return c.id === id; })) {
-                // Ищем информацию в истории
                 var histEntry = chestHistoryForSync.find(function(h) { return h.card === id; });
                 if (histEntry) {
                     allCardsForSync.push({
-                        id: id,
-                        name: histEntry.name || 'Карта сундука',
-                        title: histEntry.title || '',
-                        emoji: '🎁',
-                        type: histEntry.chest ? ('chest_' + histEntry.chest) : 'chest_wooden',
-                        rarity: histEntry.rarity || 'common',
-                        story: ''
+                        id: id, name: histEntry.name || 'Карта сундука', title: histEntry.title || '',
+                        emoji: '🎁', type: histEntry.chest ? ('chest_' + histEntry.chest) : 'chest_wooden',
+                        rarity: histEntry.rarity || 'common', story: ''
                     });
-                    console.log('🔄 Восстановлена карточка из истории:', histEntry.name);
                 } else {
-                    // Создаём базовую карточку
                     allCardsForSync.push({
-                        id: id,
-                        name: 'Карта сундука',
-                        title: '🎁',
-                        emoji: '🎁',
-                        type: 'chest_wooden',
-                        rarity: 'common',
-                        story: 'Карточка из сундука'
+                        id: id, name: 'Карта сундука', title: '🎁', emoji: '🎁',
+                        type: 'chest_wooden', rarity: 'common', story: 'Карточка из сундука'
                     });
-                    console.log('🔄 Создана базовая карточка для:', id);
                 }
             }
         });
         
-        // Сохраняем обновлённый массив
         localStorage.setItem('all_collection_cards', JSON.stringify(allCardsForSync));
         window.ALL_COLLECTION_CARDS = allCardsForSync;
-        
-        // Обновляем переменную allCards для дальнейшего использования
-        // (так как мы могли добавить новые карточки)
         var updatedAllCards = allCardsForSync;
     } catch(e) {
-        console.warn('⚠️ Ошибка синхронизации карточек сундуков:', e);
+        console.warn('⚠️ Ошибка синхронизации:', e);
         var updatedAllCards = allCards;
     }
     
-    // Используем обновлённый массив если он есть, иначе оригинальный
     var allCardsToUse = (typeof updatedAllCards !== 'undefined') ? updatedAllCards : allCards;
     
     let cards = [];
     
     if (activeTab === 'chest') {
-        // ✅ ВСЕ карточки с id начинающимся на chest_
         cards = allCardsToUse.filter(function(card) { 
             return unlockedIds.includes(card.id) && card.id.startsWith('chest_'); 
         });
-        
-        // Если не нашли — ищем по type
         if (cards.length === 0) {
             cards = allCardsToUse.filter(function(card) { 
                 return unlockedIds.includes(card.id) && 
@@ -6725,8 +6745,6 @@ function renderCollection() {
                         card.type === 'chest_golden' || card.type === 'chest_diamond');
             });
         }
-        
-        console.log('🔍 Карточек сундуков найдено:', cards.length);
     } else if (activeTab === 'rare') {
         cards = allCardsToUse.filter(function(card) { 
             return unlockedIds.includes(card.id) && 
@@ -6745,7 +6763,7 @@ function renderCollection() {
     if (uniqueCards.length === 0) { 
         c.innerHTML = '<div style="text-align:center;padding:40px;color:#8E8E93;grid-column:1/-1;">' +
             '<i class="fas fa-box-open" style="font-size:3rem;display:block;margin-bottom:16px;"></i>' +
-            '<p style="font-size:1.1rem;margin-bottom:8px;">' + (activeTab === 'chest' ? 'Открывайте сундуки!' : 'Пока нет открытых карт') + '</p>' +
+            '<p style="font-size:1.1rem;margin-bottom:8px;">' + (activeTab === 'chest' ? 'Открывайте сундуки!' : activeTab === 'names' ? 'Учите имена Аллаха!' : 'Пока нет открытых карт') + '</p>' +
             '<p style="font-size:0.85rem;">' + (activeTab === 'chest' ? 'Купите сундук за звёзды и получите карточку' : 'Продолжайте пользоваться трекером!') + '</p>' +
             (activeTab === 'chest' ? '<button onclick="openModule(\'chests\')" style="margin-top:12px;padding:10px 20px;border-radius:20px;border:none;background:#FFD700;color:#1a1a2e;font-weight:700;cursor:pointer;">🎁 К сундукам</button>' : '') +
             '</div>'; 
@@ -6756,7 +6774,38 @@ function renderCollection() {
     c.innerHTML = uniqueCards.map(function(card) {
         var isUnlocked = unlockedIds.includes(card.id);
         var isRainbow = card.id === 'zamzam' || card.rarity === 'mythic' || card.rarity === 'special';
+        var isNameCard = card.type === 'names';
         
+        // ========== 🌟 ЗОЛОТЫЕ КАРТОЧКИ ДЛЯ ИМЁН АЛЛАХА ==========
+        if (isNameCard && isUnlocked) {
+            var nameNum = card.id.replace('name', '');
+            var nameData = NAMES_OF_ALLAH ? NAMES_OF_ALLAH.find(function(n) { return n.num === parseInt(nameNum); }) : null;
+            var arabicName = nameData ? nameData.arabic : (card.name || '');
+            var translitName = nameData ? nameData.translit : (card.title || '');
+            var translationName = nameData ? nameData.translation : (card.subtitle || '');
+            var chechenName = nameData ? nameData.chechen : '';
+            
+            return '<div onclick="showCardStory(\'' + card.id + '\', \'' + (translitName || '').replace(/'/g, "\\'") + '\', \'📜\', \'' + (arabicName + '\\n\\n' + translationName + '\\n\\n' + chechenName).replace(/'/g, "\\'") + '\')" ' +
+                'style="background:linear-gradient(135deg,#1a0a00,#2a1a00,#1a0a00);border-radius:16px;padding:18px 12px;text-align:center;cursor:pointer;border:2px solid #D4AF37;box-shadow:0 0 15px rgba(212,175,55,0.3),inset 0 0 30px rgba(212,175,55,0.05);min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;">' +
+                // Узор в углах
+                '<div style="position:absolute;top:5px;left:8px;color:#D4AF37;font-size:0.65rem;opacity:0.6;font-family:serif;">◈</div>' +
+                '<div style="position:absolute;top:5px;right:8px;color:#D4AF37;font-size:0.65rem;opacity:0.6;font-family:serif;">◈</div>' +
+                '<div style="position:absolute;bottom:5px;left:8px;color:#D4AF37;font-size:0.65rem;opacity:0.6;font-family:serif;">◈</div>' +
+                '<div style="position:absolute;bottom:5px;right:8px;color:#D4AF37;font-size:0.65rem;opacity:0.6;font-family:serif;">◈</div>' +
+                // Номер
+                '<div style="position:absolute;top:8px;left:50%;transform:translateX(-50%);color:#D4AF37;font-size:0.6rem;opacity:0.7;letter-spacing:1px;">' + nameNum + '/99</div>' +
+                // Арабская каллиграфия
+                '<div style="font-family:\'Amiri\',\'Scheherazade\',serif;font-size:2rem;color:#FFD700;direction:rtl;margin:8px 0 6px;text-shadow:0 0 8px rgba(255,215,0,0.4);line-height:1.5;position:relative;z-index:1;">' + arabicName + '</div>' +
+                // Транслитерация
+                '<div style="font-weight:600;color:#FFD700;font-size:0.8rem;margin-bottom:2px;position:relative;z-index:1;letter-spacing:0.5px;">' + translitName + '</div>' +
+                // Перевод
+                '<div style="color:#E8D5A3;font-size:0.7rem;position:relative;z-index:1;max-width:140px;line-height:1.3;">' + translationName + '</div>' +
+                // Золотая полоска снизу
+                '<div style="position:absolute;bottom:0;left:10%;width:80%;height:1px;background:linear-gradient(90deg,transparent,#D4AF37,transparent);"></div>' +
+            '</div>';
+        }
+        
+        // ========== ОБЫЧНЫЕ КАРТОЧКИ ==========
         var onclickAction = '';
         if (isUnlocked) {
             onclickAction = 'showCardStory("' + card.id + '", "' + (card.name || '').replace(/"/g, '\\"') + '", "' + (card.emoji || '🖼️') + '", "' + (card.story || '').replace(/"/g, '\\"').replace(/\n/g, '\\n') + '")';
