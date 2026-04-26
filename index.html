@@ -16,6 +16,66 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
     <style>
+/* ========== АНИМАЦИИ КАРТОЧЕК ИМЁН ========== */
+@keyframes nameCardCommon {
+    0%, 100% { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    50% { box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+}
+
+@keyframes nameCardRare {
+    0%, 100% { box-shadow: 0 0 10px rgba(100,181,246,0.3); }
+    50% { box-shadow: 0 0 25px rgba(100,181,246,0.6); }
+}
+
+@keyframes nameCardEpic {
+    0%, 100% { box-shadow: 0 0 15px rgba(171,71,188,0.4); transform: scale(1); }
+    50% { box-shadow: 0 0 30px rgba(171,71,188,0.7); transform: scale(1.02); }
+}
+
+@keyframes nameCardLegendary {
+    0%, 100% { box-shadow: 0 0 20px rgba(255,179,0,0.5); }
+    50% { box-shadow: 0 0 40px rgba(255,179,0,0.8), 0 0 60px rgba(255,152,0,0.4); }
+}
+
+@keyframes nameCardMythic {
+    0%, 100% { box-shadow: 0 0 25px rgba(255,215,0,0.6), 0 0 50px rgba(255,165,0,0.3); }
+    25% { box-shadow: 0 0 30px rgba(255,215,0,0.8), 0 0 60px rgba(255,0,255,0.3); }
+    50% { box-shadow: 0 0 35px rgba(0,255,255,0.6), 0 0 70px rgba(255,215,0,0.5); }
+    75% { box-shadow: 0 0 30px rgba(0,255,0,0.6), 0 0 60px rgba(255,215,0,0.4); }
+}
+
+@keyframes floatParticle {
+    0% { transform: translateY(0) scale(0); opacity: 0; }
+    50% { transform: translateY(-30px) scale(1); opacity: 1; }
+    100% { transform: translateY(-60px) scale(0); opacity: 0; }
+}
+
+.card-names-common { animation: nameCardCommon 3s ease-in-out infinite; }
+.card-names-rare { animation: nameCardRare 2.5s ease-in-out infinite; }
+.card-names-epic { animation: nameCardEpic 2s ease-in-out infinite; }
+.card-names-legendary { animation: nameCardLegendary 1.5s ease-in-out infinite; }
+.card-names-mythic { animation: nameCardMythic 3s ease-in-out infinite; position: relative; }
+.card-names-mythic::before {
+    content: '';
+    position: absolute;
+    top: -3px; left: -3px; right: -3px; bottom: -3px;
+    background: linear-gradient(45deg, #ff0000, #ff7700, #ffff00, #00ff00, #0077ff, #7700ff, #ff0000);
+    background-size: 400% 400%;
+    border-radius: 19px;
+    z-index: -1;
+    animation: rainbowBorder 3s linear infinite;
+}
+
+@keyframes rainbowBorder {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 400% 50%; }
+}
+
+.name-particle {
+    position: absolute;
+    pointer-events: none;
+    animation: floatParticle 1.5s ease-out forwards;
+}
 /* ========== ЕЖЕДНЕВНЫЕ ЗАДАНИЯ ========== */
 .daily-quests-container {
     background: #FFFFFF;
@@ -4862,31 +4922,60 @@ function renderNamesOfAllah() {
 }
 
 function checkNamesCards() {
-    const learned = userData.namesLearned?.length || 0;
+    const learned = userData.namesLearned || [];
     if (!userData.unlockedCards) userData.unlockedCards = [];
     
-    // Разблокируем карточки по количеству имён
-    const milestones = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 75, 80, 90, 99];
-    milestones.forEach(m => {
-        if (learned >= m) {
-            const cardId = `name${m}`;
+    // Выдаём карточку за каждое изученное имя
+    learned.forEach(function(num) {
+        var cardId = 'card_name_' + num;
+        if (!userData.unlockedCards.includes(cardId)) {
+            userData.unlockedCards.push(cardId);
+            
+            // Создаём карточку в общем массиве если её нет
+            var allCards = getAllCollectionCards ? getAllCollectionCards() : (window.ALL_COLLECTION_CARDS || []);
+            if (!allCards.find(function(c) { return c.id === cardId; })) {
+                var name = NAMES_OF_ALLAH.find(function(n) { return n.num === num; });
+                var rarity = 'legendary';
+                allCards.push({
+                    id: cardId,
+                    name: name ? name.translit : 'Имя Аллаха',
+                    title: name ? name.translation : '',
+                    emoji: getRarityEmoji(rarity),
+                    type: 'names',
+                    rarity: rarity,
+                    story: name ? name.arabic + ' — ' + name.translation : '',
+                    image: 'data:image/svg+xml,' + encodeURIComponent(createNameCardSVG(num, name))
+                });
+                localStorage.setItem('all_collection_cards', JSON.stringify(allCards));
+                window.ALL_COLLECTION_CARDS = allCards;
+            }
+            
+            showNotification('🎴 ' + (name ? name.translit : 'Имя #' + num) + ' в коллекции!');
+        }
+    });
+    
+    // Вехи
+    var milestones = [10, 20, 30, 40, 50, 60, 70, 75, 80, 90, 99];
+    milestones.forEach(function(m) {
+        if (learned.length >= m) {
+            var cardId = 'name_milestone_' + m;
             if (!userData.unlockedCards.includes(cardId)) {
                 userData.unlockedCards.push(cardId);
-                showNotification(`🎴 Карточка «${m} Имён» добавлена в коллекцию!`);
             }
         }
     });
     
     saveUserData();
-    
-    if (typeof updateCollectionBadge === 'function') {
-        updateCollectionBadge();
-    }
-    
-    if (typeof currentScreen !== 'undefined' && currentScreen === 'collection' && typeof renderCollection === 'function') {
-        renderCollection();
-    }
+    if (typeof updateCollectionBadge === 'function') updateCollectionBadge();
+    if (typeof renderCollection === 'function') renderCollection();
 }
+
+function getRarityEmoji(rarity) {
+    var emojis = { common: '📿', rare: '🌟', epic: '💫', legendary: '👑', mythic: '💎' };
+    return emojis[rarity] || '📿';
+}
+
+var rarity = 'legendary';
 
 // Функция разблокировки карточки
 if (typeof unlockCardIfNotHave !== 'function') {
