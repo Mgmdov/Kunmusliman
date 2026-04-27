@@ -1,0 +1,181 @@
+/* ПОЛНЫЙ ФИКС ВСЕХ ТЕМ ДЛЯ ВСЕХ МОДУЛЕЙ */
+
+/* Общий селектор для ВСЕХ тёмных тем */
+body.theme-dark, body.theme-ramadan, body.theme-mosque,
+body.theme-ocean, body.theme-gold, body.theme-sakura, body.theme-sunset {
+  --card-bg: rgba(255,255,255,0.06);
+  --card-border: rgba(255,255,255,0.1);
+  --text-primary: #fff;
+  --text-secondary: rgba(255,255,255,0.6);
+  --text-tertiary: rgba(255,255,255,0.35);
+  --input-bg: rgba(255,255,255,0.06);
+  --input-border: rgba(255,255,255,0.12);
+  --section-bg: rgba(255,255,255,0.04);
+}
+
+/* ios-card на тёмных */
+body[class*="theme-"]:not(.theme-light) .ios-card {
+  background: var(--card-bg, rgba(255,255,255,0.06)) !important;
+  color: var(--text-primary, #fff) !important;
+  border-color: var(--card-border, rgba(255,255,255,0.1)) !important;
+}
+
+/* Коллекция */
+body[class*="theme-"]:not(.theme-light) #collectionGrid > div {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+  color: #fff !important;
+}
+body[class*="theme-"]:not(.theme-light) .collection-tab {
+  background: rgba(255,255,255,0.06) !important;
+  color: rgba(255,255,255,0.5) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+body[class*="theme-"]:not(.theme-light) .collection-tab.active {
+  background: rgba(255,255,255,0.15) !important;
+  color: #fff !important;
+}
+
+/* Настройки — кнопки */
+body[class*="theme-"]:not(.theme-light) #module-settings button[style*="background:#F2F2F7"],
+body[class*="theme-"]:not(.theme-light) #module-settings button[style*="background: #F2F2F7"] {
+  background: rgba(255,255,255,0.08) !important;
+}
+body[class*="theme-"]:not(.theme-light) #module-settings button div[style*="color:#1C1C1E"] {
+  color: #fff !important;
+}
+body[class*="theme-"]:not(.theme-light) #module-settings button div[style*="color:#8E8E93"] {
+  color: rgba(255,255,255,0.5) !important;
+}
+
+/* Все фоны #F2F2F7 */
+body[class*="theme-"]:not(.theme-light) div[style*="background: #F2F2F7"],
+body[class*="theme-"]:not(.theme-light) div[style*="background:#F2F2F7"],
+body[class*="theme-"]:not(.theme-light) [style*="background: #F2F2F7"],
+body[class*="theme-"]:not(.theme-light) [style*="background:#F2F2F7"] {
+  background: rgba(255,255,255,0.06) !important;
+}
+
+/* Белые фоны */
+body[class*="theme-"]:not(.theme-light) div[style*="background: white"],
+body[class*="theme-"]:not(.theme-light) div[style*="background:white"],
+body[class*="theme-"]:not(.theme-light) [style*="background: white"],
+body[class*="theme-"]:not(.theme-light) [style*="background:white"] {
+  background: rgba(255,255,255,0.08) !important;
+}
+
+/* Текст #1C1C1E */
+body[class*="theme-"]:not(.theme-light) [style*="color: #1C1C1E"],
+body[class*="theme-"]:not(.theme-light) [style*="color:#1C1C1E"] {
+  color: #fff !important;
+}
+
+/* Текст #3A3A3C */
+body[class*="theme-"]:not(.theme-light) [style*="color: #3A3A3C"],
+body[class*="theme-"]:not(.theme-light) [style*="color:#3A3A3C"] {
+  color: rgba(255,255,255,0.7) !important;
+}
+
+/* Инпуты */
+body[class*="theme-"]:not(.theme-light) input[style*="background: white"],
+body[class*="theme-"]:not(.theme-light) input[style*="background:white"],
+body[class*="theme-"]:not(.theme-light) select[style*="background: white"],
+body[class*="theme-"]:not(.theme-light) select[style*="background:white"] {
+  background: rgba(255,255,255,0.08) !important;
+  color: #fff !important;
+  border-color: rgba(255,255,255,0.12) !important;
+}
+
+/* Бордеры #E5E5EA */
+body[class*="theme-"]:not(.theme-light) [style*="border: 1px solid #E5E5EA"],
+body[class*="theme-"]:not(.theme-light) [style*="border:1px solid #E5E5EA"] {
+  border-color: rgba(255,255,255,0.12) !important;
+}
+
+/* Q&A */
+body[class*="theme-"]:not(.theme-light) #qaOverlay {
+  background: #000 !important;
+}
+body[class*="theme-"]:not(.theme-light) #qaOverlay details {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+body[class*="theme-"]:not(.theme-light) #qaOverlay summary { color: #fff !important; }
+body[class*="theme-"]:not(.theme-light) #qaOverlay details > div { color: rgba(255,255,255,0.6) !important; }
+
+/* Оверлеи настроек */
+body[class*="theme-"]:not(.theme-light) #settingsThemesOverlay,
+body[class*="theme-"]:not(.theme-light) #settingsDataOverlay {
+  background: #000 !important;
+}
+
+/* Активность */
+body[class*="theme-"]:not(.theme-light) #activityOverlay {
+  background: #000 !important;
+}
+body[class*="theme-"]:not(.theme-light) #activityOverlay [style*="background:var(--card-bg"] {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+
+/* Модальные окна историй */
+body[class*="theme-"]:not(.theme-light) #storyModal > div {
+  background: #1C1C1E !important;
+  color: #fff !important;
+}
+
+/* Ежедневные задания */
+body[class*="theme-"]:not(.theme-light) .daily-tasks-widget {
+  background: rgba(255,255,255,0.04) !important;
+}
+body[class*="theme-"]:not(.theme-light) .daily-task-item {
+  background: rgba(255,255,255,0.04) !important;
+}
+
+/* Рамадан календарь */
+.ramadan-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.ramadan-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  background: #F2F2F7;
+  color: #1C1C1E;
+  border: 2px solid transparent;
+}
+.ramadan-day.fasted { background: #34C759; color: #fff; border-color: #2DA44E; }
+.ramadan-day.today { border-color: #007AFF; }
+
+body[class*="theme-"]:not(.theme-light) .ramadan-day {
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+}
+body[class*="theme-"]:not(.theme-light) .ramadan-day.fasted {
+  background: #1d9e75;
+  color: #fff;
+}
+
+/* Кнопки pillar-card */
+body[class*="theme-"]:not(.theme-light) .pillar-card {
+  background: rgba(255,255,255,0.06) !important;
+  color: #fff !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+
+/* labels */
+body[class*="theme-"]:not(.theme-light) label span {
+  color: rgba(255,255,255,0.8) !important;
+}
+
+/* Календарь поста — оверлей */
+body[class*="theme-"]:not(.theme-light) #fastingCalendarOverlay {
+  background: #000 !important;
+}
