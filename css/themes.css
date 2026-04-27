@@ -1,0 +1,1044 @@
+        /* ========== ТЕМЫ ОФОРМЛЕНИЯ (ПОЛНОСТЬЮ ИСПРАВЛЕНО) ========== */
+
+/* ===== СВЕТЛАЯ ТЕМА (по умолчанию) ===== */
+body {
+    background: #F2F2F7;
+}
+body .app-container {
+    background: #F2F2F7;
+}
+
+/* ===== ТЁМНАЯ ТЕМА ===== */
+body.theme-dark {
+    background: #0D1117;
+}
+body.theme-dark .app-container {
+    background: #0D1117;
+}
+body.theme-dark .ios-card {
+    background: #161B22 !important;
+    border-color: #30363D !important;
+}
+body.theme-dark .ios-card-title {
+    color: #FFFFFF !important;
+}
+body.theme-dark .rainbow-header {
+    background: #161B22 !important;
+}
+body.theme-dark .rainbow-header::after {
+    background: #161B22 !important;
+}
+body.theme-dark .rainbow-header h1 {
+    color: #FFFFFF !important;
+}
+body.theme-dark .section-title {
+    color: #FFFFFF !important;
+}
+body.theme-dark .icon-item {
+    background: #161B22 !important;
+    border-color: #30363D !important;
+}
+body.theme-dark .icon-label {
+    color: #FFFFFF !important;
+}
+body.theme-dark .widget {
+    background: #161B22 !important;
+    border-color: #30363D !important;
+}
+body.theme-dark .xp-bar {
+    background: #161B22 !important;
+    border-color: #30363D !important;
+}
+body.theme-dark .tab-bar {
+    background: rgba(22, 27, 34, 0.95) !important;
+    border-color: #30363D !important;
+}
+body.theme-dark .nav-bar {
+    background: rgba(22, 27, 34, 0.95) !important;
+    border-color: #30363D !important;
+}
+body.theme-dark .nav-bar-title {
+    color: #FFFFFF !important;
+}
+body.theme-dark .xp-text {
+    color: #C9D1D9 !important;
+}
+body.theme-dark .widget-title {
+    color: #D4AF37 !important;
+}
+body.theme-dark .prayer-name {
+    color: #8B949E !important;
+}
+body.theme-dark .prayer-time {
+    color: #FFFFFF !important;
+}
+body.theme-dark .ios-button.secondary {
+    background: #21262D !important;
+    color: #58A6FF !important;
+}
+body.theme-dark input,
+body.theme-dark select,
+body.theme-dark textarea {
+    background: #0D1117 !important;
+    color: #FFFFFF !important;
+    border-color: #30363D !important;
+}
+body.theme-dark .module-tab {
+    background: #21262D !important;
+    color: #C9D1D9 !important;
+}
+body.theme-dark .module-tab.active {
+    background: #007AFF !important;
+    color: #FFFFFF !important;
+}
+
+/* Тёмная тема — ВСЕ тексты */
+body.theme-dark p,
+body.theme-dark span,
+body.theme-dark div,
+body.theme-dark label,
+body.theme-dark li,
+body.theme-dark td,
+body.theme-dark th,
+body.theme-dark h1,
+body.theme-dark h2,
+body.theme-dark h3,
+body.theme-dark h4 {
+    color: #E6EDF3 !important;
+}
+body.theme-dark .ios-card-title,
+body.theme-dark .widget-title,
+body.theme-dark .section-title {
+    color: #FFFFFF !important;
+}
+body.theme-dark .badge {
+    color: #FFFFFF !important;
+}
+
+/* Тёмная тема — фоны */
+body.theme-dark div[style*="background: #FFFFFF"],
+body.theme-dark div[style*="background: white"],
+body.theme-dark div[style*="background: #F2F2F7"],
+body.theme-dark div[style*="background: #f5eddb"],
+body.theme-dark div[style*="background: #FFF9E6"],
+body.theme-dark div[style*="background: #E8F5E9"] {
+    background: #161B22 !important;
+    color: #E6EDF3 !important;
+}
+body.theme-dark div[style*="background: #F2F2F7"] p,
+body.theme-dark div[style*="background: #F2F2F7"] span,
+body.theme-dark div[style*="background: #FFF9E6"] p,
+body.theme-dark div[style*="background: #FFF9E6"] span {
+    color: #E6EDF3 !important;
+}
+
+/* Тёмная тема — карточки модулей */
+body.theme-dark .card {
+    background: #161B22 !important;
+    border-color: #30363D !important;
+}
+body.theme-dark .juma-check-item {
+    background: #21262D !important;
+}
+body.theme-dark .ramadan-day {
+    background: #21262D !important;
+    color: #E6EDF3 !important;
+}
+body.theme-dark .pillar-card {
+    background: #161B22 !important;
+    border-color: #30363D !important;
+}
+body.theme-dark .battle-tab {
+    background: #21262D !important;
+    color: #C9D1D9 !important;
+}
+body.theme-dark .battle-tab.active {
+    background: #007AFF !important;
+    color: #FFFFFF !important;
+}
+body.theme-dark .collection-tab {
+    background: #21262D !important;
+    color: #C9D1D9 !important;
+}
+body.theme-dark .collection-tab.active {
+    background: #007AFF !important;
+    color: #FFFFFF !important;
+}
+body.theme-dark .ramadan-day {
+    background: #21262D !important;
+    color: #E6EDF3 !important;
+}
+body.theme-dark .ramadan-day.fasted {
+    background: #34C759 !important;
+    color: white !important;
+}
+
+/* Тёмная тема — викторина */
+body.theme-dark .quiz-answer {
+    background: #21262D !important;
+    color: #FFFFFF !important;
+}
+body.theme-dark .quiz-answer:hover {
+    background: #30363D !important;
+}
+body.theme-dark .quiz-tab {
+    background: #21262D !important;
+    color: #C9D1D9 !important;
+}
+body.theme-dark .quiz-tab.active {
+    background: #007AFF !important;
+    color: #FFFFFF !important;
+}
+
+/* ===== РАМАДАН ТЕМА ===== */
+body.theme-ramadan {
+    background: linear-gradient(135deg, #1a0a2e, #0d1b2a) !important;
+}
+body.theme-ramadan .app-container {
+    background: transparent !important;
+}
+body.theme-ramadan .ios-card {
+    background: rgba(26, 10, 46, 0.9) !important;
+    border-color: #D4AF37 !important;
+}
+body.theme-ramadan .ios-card-title {
+    color: #FFD700 !important;
+}
+body.theme-ramadan .rainbow-header {
+    background: rgba(26, 10, 46, 0.9) !important;
+}
+body.theme-ramadan .rainbow-header::after {
+    background: rgba(26, 10, 46, 0.9) !important;
+}
+body.theme-ramadan .rainbow-header h1 {
+    color: #FFD700 !important;
+}
+body.theme-ramadan .section-title {
+    color: #FFD700 !important;
+}
+body.theme-ramadan .icon-item {
+    background: rgba(26, 10, 46, 0.6) !important;
+    border-color: #D4AF37 !important;
+}
+body.theme-ramadan .icon-label {
+    color: #FFD700 !important;
+}
+body.theme-ramadan .widget {
+    background: rgba(26, 10, 46, 0.7) !important;
+    border-color: #D4AF37 !important;
+}
+body.theme-ramadan .xp-bar {
+    background: rgba(26, 10, 46, 0.8) !important;
+    border-color: #D4AF37 !important;
+}
+body.theme-ramadan .tab-bar {
+    background: rgba(26, 10, 46, 0.9) !important;
+    border-color: #D4AF37 !important;
+}
+body.theme-ramadan .nav-bar {
+    background: rgba(26, 10, 46, 0.9) !important;
+    border-color: #D4AF37 !important;
+}
+body.theme-ramadan .nav-bar-title {
+    color: #FFD700 !important;
+}
+
+/* Рамадан — тексты */
+body.theme-ramadan p,
+body.theme-ramadan span,
+body.theme-ramadan div,
+body.theme-ramadan label,
+body.theme-ramadan li {
+    color: #F0E6D2 !important;
+}
+body.theme-ramadan .ios-card-title,
+body.theme-ramadan .widget-title,
+body.theme-ramadan .section-title,
+body.theme-ramadan .nav-bar-title {
+    color: #FFD700 !important;
+}
+
+/* Рамадан — фоны */
+body.theme-ramadan div[style*="background: #FFFFFF"],
+body.theme-ramadan div[style*="background: white"],
+body.theme-ramadan div[style*="background: #F2F2F7"],
+body.theme-ramadan div[style*="background: #f5eddb"],
+body.theme-ramadan div[style*="background: #FFF9E6"],
+body.theme-ramadan div[style*="background: #E8F5E9"] {
+    background: rgba(26, 10, 46, 0.7) !important;
+    color: #F0E6D2 !important;
+}
+body.theme-ramadan div[style*="background: #F2F2F7"] p,
+body.theme-ramadan div[style*="background: #F2F2F7"] span,
+body.theme-ramadan div[style*="background: #FFF9E6"] p,
+body.theme-ramadan div[style*="background: #FFF9E6"] span {
+    color: #F0E6D2 !important;
+}
+
+/* Рамадан — кнопки */
+body.theme-ramadan .ios-button.secondary {
+    background: rgba(255, 215, 0, 0.2) !important;
+    color: #FFD700 !important;
+}
+body.theme-ramadan .module-tab {
+    background: rgba(26, 10, 46, 0.8) !important;
+    color: #F0E6D2 !important;
+}
+body.theme-ramadan .module-tab.active {
+    background: #FFD700 !important;
+    color: #1a0a2e !important;
+}
+body.theme-ramadan .collection-tab {
+    background: rgba(26, 10, 46, 0.8) !important;
+    color: #F0E6D2 !important;
+}
+body.theme-ramadan .collection-tab.active {
+    background: #FFD700 !important;
+    color: #1a0a2e !important;
+}
+body.theme-ramadan .battle-tab {
+    background: rgba(26, 10, 46, 0.8) !important;
+    color: #F0E6D2 !important;
+}
+body.theme-ramadan .battle-tab.active {
+    background: #FFD700 !important;
+    color: #1a0a2e !important;
+}
+body.theme-ramadan .quiz-answer {
+    background: rgba(26, 10, 46, 0.8) !important;
+    color: #F0E6D2 !important;
+}
+body.theme-ramadan .quiz-tab {
+    background: rgba(26, 10, 46, 0.8) !important;
+    color: #F0E6D2 !important;
+}
+body.theme-ramadan .quiz-tab.active {
+    background: #FFD700 !important;
+    color: #1a0a2e !important;
+}
+body.theme-ramadan .ramadan-day {
+    background: rgba(26, 10, 46, 0.8) !important;
+    color: #F0E6D2 !important;
+}
+body.theme-ramadan .ramadan-day.fasted {
+    background: #FFD700 !important;
+    color: #1a0a2e !important;
+}
+body.theme-ramadan .pillar-card {
+    background: rgba(26, 10, 46, 0.6) !important;
+    border-color: #D4AF37 !important;
+}
+body.theme-ramadan input,
+body.theme-ramadan select,
+body.theme-ramadan textarea {
+    background: rgba(26, 10, 46, 0.8) !important;
+    color: #F0E6D2 !important;
+    border-color: #D4AF37 !important;
+}
+
+/* ===== МЕЧЕТЬ ТЕМА (ИСПРАВЛЕНО) ===== */
+body.theme-mosque {
+    background: linear-gradient(135deg, #0a2f1a, #0d3b1f, #1a4a2a) !important;
+}
+body.theme-mosque .app-container {
+    background: transparent !important;
+}
+body.theme-mosque .ios-card {
+    background: rgba(27, 94, 32, 0.9) !important;
+    border-color: #4CAF50 !important;
+}
+body.theme-mosque .ios-card-title {
+    color: #FFFFFF !important;
+}
+body.theme-mosque .rainbow-header {
+    background: rgba(27, 94, 32, 0.9) !important;
+}
+body.theme-mosque .rainbow-header::after {
+    background: rgba(27, 94, 32, 0.9) !important;
+}
+body.theme-mosque .rainbow-header h1 {
+    color: #FFFFFF !important;
+}
+body.theme-mosque .section-title {
+    color: #FFFFFF !important;
+}
+body.theme-mosque .icon-item {
+    background: rgba(27, 94, 32, 0.7) !important;
+    border-color: #4CAF50 !important;
+}
+body.theme-mosque .icon-label {
+    color: #FFFFFF !important;
+}
+body.theme-mosque .widget {
+    background: rgba(27, 94, 32, 0.8) !important;
+    border-color: #4CAF50 !important;
+}
+body.theme-mosque .xp-bar {
+    background: rgba(27, 94, 32, 0.9) !important;
+    border-color: #4CAF50 !important;
+}
+body.theme-mosque .tab-bar {
+    background: rgba(27, 94, 32, 0.95) !important;
+    border-color: #4CAF50 !important;
+}
+body.theme-mosque .nav-bar {
+    background: rgba(27, 94, 32, 0.95) !important;
+    border-color: #4CAF50 !important;
+}
+body.theme-mosque .nav-bar-title {
+    color: #FFFFFF !important;
+}
+
+/* Мечеть — тексты */
+body.theme-mosque p,
+body.theme-mosque span,
+body.theme-mosque div,
+body.theme-mosque label,
+body.theme-mosque li {
+    color: #E8F5E9 !important;
+}
+body.theme-mosque .ios-card-title,
+body.theme-mosque .widget-title,
+body.theme-mosque .section-title,
+body.theme-mosque .nav-bar-title {
+    color: #FFFFFF !important;
+}
+
+/* Мечеть — фоны */
+body.theme-mosque div[style*="background: #FFFFFF"],
+body.theme-mosque div[style*="background: white"],
+body.theme-mosque div[style*="background: #F2F2F7"],
+body.theme-mosque div[style*="background: #f5eddb"],
+body.theme-mosque div[style*="background: #FFF9E6"],
+body.theme-mosque div[style*="background: #E8F5E9"] {
+    background: rgba(27, 94, 32, 0.7) !important;
+    color: #E8F5E9 !important;
+}
+body.theme-mosque div[style*="background: #F2F2F7"] p,
+body.theme-mosque div[style*="background: #F2F2F7"] span,
+body.theme-mosque div[style*="background: #FFF9E6"] p,
+body.theme-mosque div[style*="background: #FFF9E6"] span {
+    color: #E8F5E9 !important;
+}
+
+/* Мечеть — кнопки и вкладки */
+body.theme-mosque .ios-button.secondary {
+    background: rgba(76, 175, 80, 0.3) !important;
+    color: #FFFFFF !important;
+}
+body.theme-mosque .module-tab {
+    background: rgba(27, 94, 32, 0.8) !important;
+    color: #E8F5E9 !important;
+}
+body.theme-mosque .module-tab.active {
+    background: #4CAF50 !important;
+    color: #FFFFFF !important;
+}
+body.theme-mosque .collection-tab {
+    background: rgba(27, 94, 32, 0.8) !important;
+    color: #E8F5E9 !important;
+}
+body.theme-mosque .collection-tab.active {
+    background: #4CAF50 !important;
+    color: #FFFFFF !important;
+}
+body.theme-mosque .battle-tab {
+    background: rgba(27, 94, 32, 0.8) !important;
+    color: #E8F5E9 !important;
+}
+body.theme-mosque .battle-tab.active {
+    background: #4CAF50 !important;
+    color: #FFFFFF !important;
+}
+body.theme-mosque .quiz-answer {
+    background: rgba(27, 94, 32, 0.8) !important;
+    color: #FFFFFF !important;
+}
+body.theme-mosque .quiz-tab {
+    background: rgba(27, 94, 32, 0.8) !important;
+    color: #E8F5E9 !important;
+}
+body.theme-mosque .quiz-tab.active {
+    background: #4CAF50 !important;
+    color: #FFFFFF !important;
+}
+body.theme-mosque .ramadan-day {
+    background: rgba(27, 94, 32, 0.8) !important;
+    color: #E8F5E9 !important;
+}
+body.theme-mosque .ramadan-day.fasted {
+    background: #4CAF50 !important;
+    color: white !important;
+}
+body.theme-mosque .pillar-card {
+    background: rgba(27, 94, 32, 0.6) !important;
+    border-color: #4CAF50 !important;
+}
+body.theme-mosque input,
+body.theme-mosque select,
+body.theme-mosque textarea {
+    background: rgba(27, 94, 32, 0.8) !important;
+    color: #E8F5E9 !important;
+    border-color: #4CAF50 !important;
+}
+
+/* ===== ОКЕАН ТЕМА ===== */
+body.theme-ocean {
+    background: #0a1628 !important;
+}
+body.theme-ocean .app-container {
+    background: #0a1628 !important;
+}
+body.theme-ocean .ios-card {
+    background: #0d1f3c !important;
+    border-color: #1a4a8a !important;
+}
+body.theme-ocean .ios-card-title {
+    color: #FFFFFF !important;
+}
+body.theme-ocean .rainbow-header {
+    background: #0d1f3c !important;
+}
+body.theme-ocean .rainbow-header::after {
+    background: #0d1f3c !important;
+}
+body.theme-ocean .rainbow-header h1 {
+    color: #FFFFFF !important;
+}
+body.theme-ocean .section-title {
+    color: #FFFFFF !important;
+}
+body.theme-ocean .icon-item {
+    background: #0d1f3c !important;
+    border-color: #1a4a8a !important;
+}
+body.theme-ocean .icon-label {
+    color: #FFFFFF !important;
+}
+body.theme-ocean .widget {
+    background: #0d1f3c !important;
+    border-color: #1a4a8a !important;
+}
+body.theme-ocean .xp-bar {
+    background: #0d1f3c !important;
+    border-color: #1a4a8a !important;
+}
+body.theme-ocean .tab-bar {
+    background: rgba(13, 31, 60, 0.95) !important;
+    border-color: #1a4a8a !important;
+}
+body.theme-ocean .nav-bar {
+    background: rgba(13, 31, 60, 0.95) !important;
+    border-color: #1a4a8a !important;
+}
+body.theme-ocean .nav-bar-title {
+    color: #FFFFFF !important;
+}
+body.theme-ocean p,
+body.theme-ocean span,
+body.theme-ocean div,
+body.theme-ocean label,
+body.theme-ocean li {
+    color: #E8F0FF !important;
+}
+body.theme-ocean .ios-card-title,
+body.theme-ocean .widget-title,
+body.theme-ocean .section-title,
+body.theme-ocean .nav-bar-title {
+    color: #FFFFFF !important;
+}
+body.theme-ocean div[style*="background: #FFFFFF"],
+body.theme-ocean div[style*="background: white"],
+body.theme-ocean div[style*="background: #F2F2F7"],
+body.theme-ocean div[style*="background: #f5eddb"],
+body.theme-ocean div[style*="background: #FFF9E6"],
+body.theme-ocean div[style*="background: #E8F5E9"] {
+    background: #0d1f3c !important;
+    color: #E8F0FF !important;
+}
+body.theme-ocean div[style*="background: #F2F2F7"] p,
+body.theme-ocean div[style*="background: #F2F2F7"] span,
+body.theme-ocean div[style*="background: #FFF9E6"] p,
+body.theme-ocean div[style*="background: #FFF9E6"] span {
+    color: #E8F0FF !important;
+}
+body.theme-ocean .ios-button.secondary {
+    background: #1a3a6a !important;
+    color: #FFFFFF !important;
+}
+body.theme-ocean .module-tab {
+    background: #1a3a6a !important;
+    color: #FFFFFF !important;
+}
+body.theme-ocean .module-tab.active {
+    background: #2a5aaa !important;
+    color: #FFFFFF !important;
+}
+body.theme-ocean .collection-tab {
+    background: #1a3a6a !important;
+    color: #FFFFFF !important;
+}
+body.theme-ocean .collection-tab.active {
+    background: #2a5aaa !important;
+    color: #FFFFFF !important;
+}
+body.theme-ocean .battle-tab {
+    background: #1a3a6a !important;
+    color: #FFFFFF !important;
+}
+body.theme-ocean .battle-tab.active {
+    background: #2a5aaa !important;
+    color: #FFFFFF !important;
+}
+body.theme-ocean .quiz-answer {
+    background: #1a3a6a !important;
+    color: #FFFFFF !important;
+}
+body.theme-ocean .quiz-tab {
+    background: #1a3a6a !important;
+    color: #FFFFFF !important;
+}
+body.theme-ocean .quiz-tab.active {
+    background: #2a5aaa !important;
+    color: #FFFFFF !important;
+}
+body.theme-ocean .ramadan-day {
+    background: #1a3a6a !important;
+    color: #E8F0FF !important;
+}
+body.theme-ocean .ramadan-day.fasted {
+    background: #2a5aaa !important;
+    color: white !important;
+}
+body.theme-ocean .pillar-card {
+    background: #0d1f3c !important;
+    border-color: #1a4a8a !important;
+}
+body.theme-ocean input,
+body.theme-ocean select,
+body.theme-ocean textarea {
+    background: #0a1628 !important;
+    color: #FFFFFF !important;
+    border-color: #1a4a8a !important;
+}
+
+/* ===== ЗОЛОТО ТЕМА ===== */
+body.theme-gold {
+    background: #1a1000 !important;
+}
+body.theme-gold .app-container {
+    background: #1a1000 !important;
+}
+body.theme-gold .ios-card {
+    background: #2a1a00 !important;
+    border-color: #8a6a00 !important;
+}
+body.theme-gold .ios-card-title {
+    color: #FFFFFF !important;
+}
+body.theme-gold .rainbow-header {
+    background: #2a1a00 !important;
+}
+body.theme-gold .rainbow-header::after {
+    background: #2a1a00 !important;
+}
+body.theme-gold .rainbow-header h1 {
+    color: #FFFFFF !important;
+}
+body.theme-gold .section-title {
+    color: #FFD700 !important;
+}
+body.theme-gold .icon-item {
+    background: #2a1a00 !important;
+    border-color: #8a6a00 !important;
+}
+body.theme-gold .icon-label {
+    color: #FFFFFF !important;
+}
+body.theme-gold .widget {
+    background: #2a1a00 !important;
+    border-color: #8a6a00 !important;
+}
+body.theme-gold .xp-bar {
+    background: #2a1a00 !important;
+    border-color: #8a6a00 !important;
+}
+body.theme-gold .tab-bar {
+    background: rgba(42, 26, 0, 0.95) !important;
+    border-color: #8a6a00 !important;
+}
+body.theme-gold .nav-bar {
+    background: rgba(42, 26, 0, 0.95) !important;
+    border-color: #8a6a00 !important;
+}
+body.theme-gold .nav-bar-title {
+    color: #FFFFFF !important;
+}
+body.theme-gold p,
+body.theme-gold span,
+body.theme-gold div,
+body.theme-gold label,
+body.theme-gold li {
+    color: #FFF5E0 !important;
+}
+body.theme-gold .ios-card-title,
+body.theme-gold .widget-title,
+body.theme-gold .section-title,
+body.theme-gold .nav-bar-title {
+    color: #FFD700 !important;
+}
+body.theme-gold div[style*="background: #FFFFFF"],
+body.theme-gold div[style*="background: white"],
+body.theme-gold div[style*="background: #F2F2F7"],
+body.theme-gold div[style*="background: #f5eddb"],
+body.theme-gold div[style*="background: #FFF9E6"],
+body.theme-gold div[style*="background: #E8F5E9"] {
+    background: #2a1a00 !important;
+    color: #FFF5E0 !important;
+}
+body.theme-gold div[style*="background: #F2F2F7"] p,
+body.theme-gold div[style*="background: #F2F2F7"] span,
+body.theme-gold div[style*="background: #FFF9E6"] p,
+body.theme-gold div[style*="background: #FFF9E6"] span {
+    color: #FFF5E0 !important;
+}
+body.theme-gold .ios-button.secondary {
+    background: #5a3a00 !important;
+    color: #FFD700 !important;
+}
+body.theme-gold .module-tab {
+    background: #5a3a00 !important;
+    color: #FFE4B5 !important;
+}
+body.theme-gold .module-tab.active {
+    background: #8a5a00 !important;
+    color: #FFFFFF !important;
+}
+body.theme-gold .collection-tab {
+    background: #5a3a00 !important;
+    color: #FFE4B5 !important;
+}
+body.theme-gold .collection-tab.active {
+    background: #8a5a00 !important;
+    color: #FFFFFF !important;
+}
+body.theme-gold .battle-tab {
+    background: #5a3a00 !important;
+    color: #FFE4B5 !important;
+}
+body.theme-gold .battle-tab.active {
+    background: #8a5a00 !important;
+    color: #FFFFFF !important;
+}
+body.theme-gold .quiz-answer {
+    background: #5a3a00 !important;
+    color: #FFFFFF !important;
+}
+body.theme-gold .quiz-tab {
+    background: #5a3a00 !important;
+    color: #FFE4B5 !important;
+}
+body.theme-gold .quiz-tab.active {
+    background: #8a5a00 !important;
+    color: #FFFFFF !important;
+}
+body.theme-gold .ramadan-day {
+    background: #5a3a00 !important;
+    color: #FFF5E0 !important;
+}
+body.theme-gold .ramadan-day.fasted {
+    background: #8a5a00 !important;
+    color: white !important;
+}
+body.theme-gold .pillar-card {
+    background: #2a1a00 !important;
+    border-color: #8a6a00 !important;
+}
+body.theme-gold input,
+body.theme-gold select,
+body.theme-gold textarea {
+    background: #1a1000 !important;
+    color: #FFFFFF !important;
+    border-color: #8a6a00 !important;
+}
+
+/* ===== САКУРА ТЕМА ===== */
+body.theme-sakura {
+    background: #1a0a1a !important;
+}
+body.theme-sakura .app-container {
+    background: #1a0a1a !important;
+}
+body.theme-sakura .ios-card {
+    background: #2a0a2a !important;
+    border-color: #8a4a8a !important;
+}
+body.theme-sakura .ios-card-title {
+    color: #FFFFFF !important;
+}
+body.theme-sakura .rainbow-header {
+    background: #2a0a2a !important;
+}
+body.theme-sakura .rainbow-header::after {
+    background: #2a0a2a !important;
+}
+body.theme-sakura .rainbow-header h1 {
+    color: #FFFFFF !important;
+}
+body.theme-sakura .section-title {
+    color: #FFB6C1 !important;
+}
+body.theme-sakura .icon-item {
+    background: #2a0a2a !important;
+    border-color: #8a4a8a !important;
+}
+body.theme-sakura .icon-label {
+    color: #FFFFFF !important;
+}
+body.theme-sakura .widget {
+    background: #2a0a2a !important;
+    border-color: #8a4a8a !important;
+}
+body.theme-sakura .xp-bar {
+    background: #2a0a2a !important;
+    border-color: #8a4a8a !important;
+}
+body.theme-sakura .tab-bar {
+    background: rgba(42, 10, 42, 0.95) !important;
+    border-color: #8a4a8a !important;
+}
+body.theme-sakura .nav-bar {
+    background: rgba(42, 10, 42, 0.95) !important;
+    border-color: #8a4a8a !important;
+}
+body.theme-sakura .nav-bar-title {
+    color: #FFFFFF !important;
+}
+body.theme-sakura p,
+body.theme-sakura span,
+body.theme-sakura div,
+body.theme-sakura label,
+body.theme-sakura li {
+    color: #FFE0F0 !important;
+}
+body.theme-sakura .ios-card-title,
+body.theme-sakura .widget-title,
+body.theme-sakura .section-title,
+body.theme-sakura .nav-bar-title {
+    color: #FFB6C1 !important;
+}
+body.theme-sakura div[style*="background: #FFFFFF"],
+body.theme-sakura div[style*="background: white"],
+body.theme-sakura div[style*="background: #F2F2F7"],
+body.theme-sakura div[style*="background: #f5eddb"],
+body.theme-sakura div[style*="background: #FFF9E6"],
+body.theme-sakura div[style*="background: #E8F5E9"] {
+    background: #2a0a2a !important;
+    color: #FFE0F0 !important;
+}
+body.theme-sakura div[style*="background: #F2F2F7"] p,
+body.theme-sakura div[style*="background: #F2F2F7"] span,
+body.theme-sakura div[style*="background: #FFF9E6"] p,
+body.theme-sakura div[style*="background: #FFF9E6"] span {
+    color: #FFE0F0 !important;
+}
+body.theme-sakura .ios-button.secondary {
+    background: #5a2a5a !important;
+    color: #FFB6C1 !important;
+}
+body.theme-sakura .module-tab {
+    background: #5a2a5a !important;
+    color: #FFE0F0 !important;
+}
+body.theme-sakura .module-tab.active {
+    background: #8a4a8a !important;
+    color: #FFFFFF !important;
+}
+body.theme-sakura .collection-tab {
+    background: #5a2a5a !important;
+    color: #FFE0F0 !important;
+}
+body.theme-sakura .collection-tab.active {
+    background: #8a4a8a !important;
+    color: #FFFFFF !important;
+}
+body.theme-sakura .battle-tab {
+    background: #5a2a5a !important;
+    color: #FFE0F0 !important;
+}
+body.theme-sakura .battle-tab.active {
+    background: #8a4a8a !important;
+    color: #FFFFFF !important;
+}
+body.theme-sakura .quiz-answer {
+    background: #5a2a5a !important;
+    color: #FFFFFF !important;
+}
+body.theme-sakura .quiz-tab {
+    background: #5a2a5a !important;
+    color: #FFE0F0 !important;
+}
+body.theme-sakura .quiz-tab.active {
+    background: #8a4a8a !important;
+    color: #FFFFFF !important;
+}
+body.theme-sakura .ramadan-day {
+    background: #5a2a5a !important;
+    color: #FFE0F0 !important;
+}
+body.theme-sakura .ramadan-day.fasted {
+    background: #8a4a8a !important;
+    color: white !important;
+}
+body.theme-sakura .pillar-card {
+    background: #2a0a2a !important;
+    border-color: #8a4a8a !important;
+}
+body.theme-sakura input,
+body.theme-sakura select,
+body.theme-sakura textarea {
+    background: #1a0a1a !important;
+    color: #FFFFFF !important;
+    border-color: #8a4a8a !important;
+}
+
+/* ===== ЗАКАТ ТЕМА ===== */
+body.theme-sunset {
+    background: #1a0a00 !important;
+}
+body.theme-sunset .app-container {
+    background: #1a0a00 !important;
+}
+body.theme-sunset .ios-card {
+    background: #2a1000 !important;
+    border-color: #8a4000 !important;
+}
+body.theme-sunset .ios-card-title {
+    color: #FFFFFF !important;
+}
+body.theme-sunset .rainbow-header {
+    background: #2a1000 !important;
+}
+body.theme-sunset .rainbow-header::after {
+    background: #2a1000 !important;
+}
+body.theme-sunset .rainbow-header h1 {
+    color: #FFFFFF !important;
+}
+body.theme-sunset .section-title {
+    color: #FFA500 !important;
+}
+body.theme-sunset .icon-item {
+    background: #2a1000 !important;
+    border-color: #8a4000 !important;
+}
+body.theme-sunset .icon-label {
+    color: #FFFFFF !important;
+}
+body.theme-sunset .widget {
+    background: #2a1000 !important;
+    border-color: #8a4000 !important;
+}
+body.theme-sunset .xp-bar {
+    background: #2a1000 !important;
+    border-color: #8a4000 !important;
+}
+body.theme-sunset .tab-bar {
+    background: rgba(42, 16, 0, 0.95) !important;
+    border-color: #8a4000 !important;
+}
+body.theme-sunset .nav-bar {
+    background: rgba(42, 16, 0, 0.95) !important;
+    border-color: #8a4000 !important;
+}
+body.theme-sunset .nav-bar-title {
+    color: #FFFFFF !important;
+}
+body.theme-sunset p,
+body.theme-sunset span,
+body.theme-sunset div,
+body.theme-sunset label,
+body.theme-sunset li {
+    color: #FFE4CC !important;
+}
+body.theme-sunset .ios-card-title,
+body.theme-sunset .widget-title,
+body.theme-sunset .section-title,
+body.theme-sunset .nav-bar-title {
+    color: #FFA500 !important;
+}
+body.theme-sunset div[style*="background: #FFFFFF"],
+body.theme-sunset div[style*="background: white"],
+body.theme-sunset div[style*="background: #F2F2F7"],
+body.theme-sunset div[style*="background: #f5eddb"],
+body.theme-sunset div[style*="background: #FFF9E6"],
+body.theme-sunset div[style*="background: #E8F5E9"] {
+    background: #2a1000 !important;
+    color: #FFE4CC !important;
+}
+body.theme-sunset div[style*="background: #F2F2F7"] p,
+body.theme-sunset div[style*="background: #F2F2F7"] span,
+body.theme-sunset div[style*="background: #FFF9E6"] p,
+body.theme-sunset div[style*="background: #FFF9E6"] span {
+    color: #FFE4CC !important;
+}
+body.theme-sunset .ios-button.secondary {
+    background: #5a2000 !important;
+    color: #FFA500 !important;
+}
+body.theme-sunset .module-tab {
+    background: #5a2000 !important;
+    color: #FFE4CC !important;
+}
+body.theme-sunset .module-tab.active {
+    background: #8a3000 !important;
+    color: #FFFFFF !important;
+}
+body.theme-sunset .collection-tab {
+    background: #5a2000 !important;
+    color: #FFE4CC !important;
+}
+body.theme-sunset .collection-tab.active {
+    background: #8a3000 !important;
+    color: #FFFFFF !important;
+}
+body.theme-sunset .battle-tab {
+    background: #5a2000 !important;
+    color: #FFE4CC !important;
+}
+body.theme-sunset .battle-tab.active {
+    background: #8a3000 !important;
+    color: #FFFFFF !important;
+}
+body.theme-sunset .quiz-answer {
+    background: #5a2000 !important;
+    color: #FFFFFF !important;
+}
+body.theme-sunset .quiz-tab {
+    background: #5a2000 !important;
+    color: #FFE4CC !important;
+}
+body.theme-sunset .quiz-tab.active {
+    background: #8a3000 !important;
+    color: #FFFFFF !important;
+}
+body.theme-sunset .ramadan-day {
+    background: #5a2000 !important;
+    color: #FFE4CC !important;
+}
+body.theme-sunset .ramadan-day.fasted {
+    background: #8a3000 !important;
+    color: white !important;
+}
+body.theme-sunset .pillar-card {
+    background: #2a1000 !important;
+    border-color: #8a4000 !important;
+}
+body.theme-sunset input,
+body.theme-sunset select,
+body.theme-sunset textarea {
+    background: #1a0a00 !important;
+    color: #FFFFFF !important;
+    border-color: #8a4000 !important;
+}
+
