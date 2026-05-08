@@ -2,7 +2,7 @@
   "name": "Muslim Tracker",
   "short_name": "Muslim",
   "description": "Исламский трекер · Коран · Хатм · 99 Имён · Зикр · Тасбих",
-  "start_url": "/https://mgmdov.github.io/Kunmusliman/",
+  "start_url": "/https:/Kunmusliman/",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#1a1410",
