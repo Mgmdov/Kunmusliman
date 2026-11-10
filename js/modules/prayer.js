@@ -1,4 +1,4 @@
-const DEFAULT_PRAYER_METHOD = '16'; // ДУМ РФ
+const DEFAULT_PRAYER_METHOD = '14'; // AlAdhan: Spiritual Administration of Muslims of Russia (ДУМ РФ)
 const PRAYER_LOCATION_KEY = 'prayerLocation';
 let prayerRequestId = 0;
 
@@ -8,7 +8,9 @@ function setPrayerLocationText(text) {
 }
 
 function getPrayerMethod() {
-    return document.getElementById('mazhabSelect')?.value || DEFAULT_PRAYER_METHOD;
+    const selected = document.getElementById('mazhabSelect')?.value || DEFAULT_PRAYER_METHOD;
+    // Backward compatibility: older versions labeled method 16 as ДУМ РФ, but AlAdhan uses 14.
+    return selected === '16' ? DEFAULT_PRAYER_METHOD : selected;
 }
 
 function savePrayerLocation(location) {
