@@ -1,63 +1,268 @@
-async function fetchPrayerTimes(city, country = 'Россия') {
+const DEFAULT_PRAYER_METHOD = '14'; // AlAdhan: Spiritual Administration of Muslims of Russia (ДУМ РФ)
+const PRAYER_LOCATION_KEY = 'prayerLocation';
+let prayerRequestId = 0;
+
+function setPrayerLocationText(text) {
+    const element = document.getElementById('locationText');
+    if (element) element.textContent = text;
+}
+
+function getPrayerMethod() {
+    const selected = document.getElementById('mazhabSelect')?.value || DEFAULT_PRAYER_METHOD;
+    // Совместимость с сохранённым старым значением: AlAdhan использует для ДУМ РФ метод 14.
+    return selected === '16' ? DEFAULT_PRAYER_METHOD : selected;
+}
+
+function normalizePrayerMethodOption() {
+    const select = document.getElementById('mazhabSelect');
+    const oldDumOption = select?.querySelector('option[value="16"]');
+    if (oldDumOption) {
+        oldDumOption.value = DEFAULT_PRAYER_METHOD;
+        oldDumOption.textContent = 'ДУМ РФ (метод AlAdhan 14)';
+    }
+}
+
+normalizePrayerMethodOption();
+
+function savePrayerLocation(location) {
     try {
-        const method = document.getElementById('mazhabSelect')?.value || '16';
-        const url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${method}`;
-        const r = await fetch(url), d = await r.json();
-        if (d.code === 200) {
-            const t = d.data.timings;
-            document.getElementById('fajrTime').textContent = t.Fajr.slice(0,5);
-            document.getElementById('sunriseTime').textContent = t.Sunrise.slice(0,5);
-            document.getElementById('dhuhrTime').textContent = t.Dhuhr.slice(0,5);
-            document.getElementById('asrTime').textContent = t.Asr.slice(0,5);
-            document.getElementById('maghribTime').textContent = t.Maghrib.slice(0,5);
-            document.getElementById('ishaTime').textContent = t.Isha.slice(0,5);
-            document.getElementById('locationText').textContent = `${city}, ${country} | ${d.data.date.readable}`;
-            updateNextPrayer(t); updateHomePrayerTimes(t);
-            localStorage.setItem('prayerLocation', JSON.stringify({city, country, method}));
+        localStorage.setItem(PRAYER_LOCATION_KEY, JSON.stringify({
+            ...location,
+            method: getPrayerMethod()
+        }));
+    } catch (error) {
+        console.warn('Не удалось сохранить местоположение для времени намаза:', error);
+    }
+}
+
+function readSavedPrayerLocation() {
+    try {
+        const saved = localStorage.getItem(PRAYER_LOCATION_KEY);
+        return saved ? JSON.parse(saved) : null;
+    } catch (error) {
+        return null;
+    }
+}
+
+function displayPrayerTimes(timings, dateLabel) {
+    const ids = {
+        Fajr: 'fajrTime',
+        Sunrise: 'sunriseTime',
+        Dhuhr: 'dhuhrTime',
+        Asr: 'asrTime',
+        Maghrib: 'maghribTime',
+        Isha: 'ishaTime'
+    };
+
+    for (const [name, id] of Object.entries(ids)) {
+        const element = document.getElementById(id);
+        if (element && timings[name]) element.textContent = timings[name].slice(0, 5);
+    }
+
+    updateHomePrayerTimes(timings);
+    updateNextPrayer(timings);
+    if (dateLabel) setPrayerLocationText(dateLabel);
+}
+
+async function requestPrayerTimes(url, label, location) {
+    const requestId = ++prayerRequestId;
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const result = await response.json();
+        if (result?.code !== 200 || !result?.data?.timings) {
+            throw new Error('Сервис не вернул расписание намаза');
         }
-    } catch(e) { document.getElementById('locationText').textContent = '⚠️ Ошибка загрузки'; }
+        // Не позволяем более старому запросу перезаписать результат нового.
+        if (requestId !== prayerRequestId) return;
+
+        const dateLabel = `${label} | ${result.data.date.readable}`;
+        displayPrayerTimes(result.data.timings, dateLabel);
+        savePrayerLocation(location);
+    } catch (error) {
+        if (requestId === prayerRequestId) {
+            console.error('Ошибка загрузки времени намаза:', error);
+            setPrayerLocationText('⚠️ Не удалось загрузить время намаза. Проверьте интернет или местоположение.');
+        }
+    }
 }
-function updateHomePrayerTimes(t) {
-    document.getElementById('homeFajr').textContent = t.Fajr.slice(0,5);
-    document.getElementById('homeDhuhr').textContent = t.Dhuhr.slice(0,5);
-    document.getElementById('homeAsr').textContent = t.Asr.slice(0,5);
-    document.getElementById('homeMaghrib').textContent = t.Maghrib.slice(0,5);
-    document.getElementById('homeIsha').textContent = t.Isha.slice(0,5);
+
+// Загрузка по координатам — точнее, чем поиск только по названию города.
+function fetchPrayerTimesByCoordinates(latitude, longitude, placeLabel = 'Моё местоположение') {
+    const method = getPrayerMethod();
+    const url = `https://api.aladhan.com/v1/timings?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}&method=${encodeURIComponent(method)}`;
+    const savedLocation = {
+        mode: 'auto',
+        latitude,
+        longitude,
+        city: placeLabel,
+        country: '',
+        method
+    };
+    return requestPrayerTimes(url, placeLabel, savedLocation);
 }
-function updateNextPrayer(timings) {
-    const now = new Date();
-    const cur = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-    const prayers = [{name:'Фаджр',time:timings.Fajr},{name:'Шурук',time:timings.Sunrise},{name:'Зухр',time:timings.Dhuhr},{name:'Аср',time:timings.Asr},{name:'Магриб',time:timings.Maghrib},{name:'Иша',time:timings.Isha}];
-    let next = prayers.find(p => p.time > cur);
-    if (!next) { document.getElementById('nextPrayerName').textContent = 'Фаджр'; document.getElementById('nextPrayerTime').textContent = timings.Fajr.slice(0,5); document.getElementById('nextPrayerInfo').innerHTML = `<i class="fas fa-moon"></i> Следующий намаз: Фаджр (${timings.Fajr.slice(0,5)}) — завтра`; return; }
-    const [h,m] = next.time.split(':'); const nd = new Date(); nd.setHours(parseInt(h),parseInt(m),0);
-    const diff = Math.floor((nd - now) / 60000);
-    document.getElementById('nextPrayerName').textContent = next.name;
-    document.getElementById('nextPrayerTime').textContent = next.time.slice(0,5);
-    document.getElementById('nextPrayerInfo').innerHTML = `<i class="fas fa-clock"></i> Следующий намаз: ${next.name} (${next.time.slice(0,5)}) — через ${Math.floor(diff/60)} ч ${diff%60} мин`;
-}
-function autoLocate() {
-    if (!navigator.geolocation) return;
-    document.getElementById('locationText').textContent = '📍 Определение...';
-    navigator.geolocation.getCurrentPosition(async pos => {
-        try {
-            const geo = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&accept-language=ru`);
-            const d = await geo.json();
-            const city = d.address?.city || d.address?.town || 'Москва';
-            const country = d.address?.country || 'Россия';
-            document.getElementById('cityInput').value = city;
-            document.getElementById('countryInput').value = country;
-            fetchPrayerTimes(city, country);
-        } catch(e) { fetchPrayerTimes('Москва', 'Россия'); }
+
+// Ручной поиск по городу остаётся доступен.
+function fetchPrayerTimes(city, country = 'Россия') {
+    const method = getPrayerMethod();
+    const url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${encodeURIComponent(method)}`;
+    return requestPrayerTimes(url, `${city}, ${country}`, {
+        mode: 'manual',
+        city,
+        country,
+        method
     });
 }
-function loadSavedLocation() {
-    const s = localStorage.getItem('prayerLocation');
-    if (s) { const {city, country, method} = JSON.parse(s); if (method) document.getElementById('mazhabSelect').value = method; document.getElementById('cityInput').value = city || ''; document.getElementById('countryInput').value = country || 'Россия'; fetchPrayerTimes(city, country); }
-    else { autoLocate(); }
+
+function updateHomePrayerTimes(timings) {
+    const ids = {
+        Fajr: 'homeFajr',
+        Dhuhr: 'homeDhuhr',
+        Asr: 'homeAsr',
+        Maghrib: 'homeMaghrib',
+        Isha: 'homeIsha'
+    };
+    for (const [name, id] of Object.entries(ids)) {
+        const element = document.getElementById(id);
+        if (element && timings[name]) element.textContent = timings[name].slice(0, 5);
+    }
 }
-document.getElementById('searchCityBtn')?.addEventListener('click', () => { const city = document.getElementById('cityInput').value.trim(); const country = document.getElementById('countryInput').value.trim() || 'Россия'; if (city) fetchPrayerTimes(city, country); });
-document.getElementById('autoLocateBtn')?.addEventListener('click', autoLocate);
-document.getElementById('mazhabSelect')?.addEventListener('change', () => { const city = document.getElementById('cityInput').value.trim(); if (city) fetchPrayerTimes(city, document.getElementById('countryInput').value.trim() || 'Россия'); else autoLocate(); });
+
+function updateNextPrayer(timings) {
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const prayers = [
+        { name: 'Фаджр', key: 'Fajr' },
+        { name: 'Шурук', key: 'Sunrise' },
+        { name: 'Зухр', key: 'Dhuhr' },
+        { name: 'Аср', key: 'Asr' },
+        { name: 'Магриб', key: 'Maghrib' },
+        { name: 'Иша', key: 'Isha' }
+    ].map(prayer => ({
+        ...prayer,
+        time: timings[prayer.key]?.slice(0, 5) || '',
+        minutes: Number((timings[prayer.key] || '00:00').slice(0, 2)) * 60 + Number((timings[prayer.key] || '00:00').slice(3, 5))
+    }));
+
+    const next = prayers.find(prayer => prayer.minutes > currentMinutes);
+    const nameElement = document.getElementById('nextPrayerName');
+    const timeElement = document.getElementById('nextPrayerTime');
+    const infoElement = document.getElementById('nextPrayerInfo');
+    if (!nameElement || !timeElement || !infoElement) return;
+
+    if (!next) {
+        nameElement.textContent = 'Фаджр';
+        timeElement.textContent = prayers[0].time;
+        infoElement.innerHTML = `<i class="fas fa-moon"></i> Следующий намаз: Фаджр (${prayers[0].time}) — завтра`;
+        return;
+    }
+
+    const minutesUntil = next.minutes - currentMinutes;
+    nameElement.textContent = next.name;
+    timeElement.textContent = next.time;
+    infoElement.innerHTML = `<i class="fas fa-clock"></i> Следующий намаз: ${next.name} (${next.time}) — через ${Math.floor(minutesUntil / 60)} ч ${minutesUntil % 60} мин`;
+}
+
+function fetchSavedLocation(saved) {
+    if (!saved) return false;
+    if (saved.method && document.getElementById('mazhabSelect')) {
+        document.getElementById('mazhabSelect').value = saved.method === '16' ? DEFAULT_PRAYER_METHOD : saved.method;
+    }
+
+    if (saved.mode === 'auto' && Number.isFinite(Number(saved.latitude)) && Number.isFinite(Number(saved.longitude))) {
+        fetchPrayerTimesByCoordinates(saved.latitude, saved.longitude, saved.city || 'Моё местоположение');
+        return true;
+    }
+    if (saved.city) {
+        const cityInput = document.getElementById('cityInput');
+        const countryInput = document.getElementById('countryInput');
+        if (cityInput) cityInput.value = saved.city;
+        if (countryInput) countryInput.value = saved.country || 'Россия';
+        fetchPrayerTimes(saved.city, saved.country || 'Россия');
+        return true;
+    }
+    return false;
+}
+
+function useSavedLocationOrDefault(saved) {
+    if (!fetchSavedLocation(saved)) fetchPrayerTimes('Москва', 'Россия');
+}
+
+function autoLocate() {
+    if (!navigator.geolocation) {
+        setPrayerLocationText('Геолокация недоступна — использую сохранённое местоположение');
+        useSavedLocationOrDefault(readSavedPrayerLocation());
+        return;
+    }
+
+    setPrayerLocationText('📍 Определение местоположения…');
+    navigator.geolocation.getCurrentPosition(
+        position => {
+            const { latitude, longitude } = position.coords;
+            const cityInput = document.getElementById('cityInput');
+            const countryInput = document.getElementById('countryInput');
+            const saved = readSavedPrayerLocation();
+            const placeLabel = saved?.mode === 'auto' && saved.city ? saved.city : 'Моё местоположение';
+            if (cityInput && saved?.mode === 'auto') cityInput.value = saved.city || '';
+            if (countryInput && saved?.mode === 'auto') countryInput.value = saved.country || '';
+            fetchPrayerTimesByCoordinates(latitude, longitude, placeLabel);
+        },
+        error => {
+            console.warn('Не удалось определить местоположение:', error.message);
+            setPrayerLocationText('Геолокация не разрешена — использую сохранённое местоположение');
+            useSavedLocationOrDefault(readSavedPrayerLocation());
+        },
+        { enableHighAccuracy: false, timeout: 12000, maximumAge: 15 * 60 * 1000 }
+    );
+}
+
+function loadSavedLocation() {
+    const saved = readSavedPrayerLocation();
+    if (saved?.method && document.getElementById('mazhabSelect')) {
+        document.getElementById('mazhabSelect').value = saved.method === '16' ? DEFAULT_PRAYER_METHOD : saved.method;
+    }
+
+    // Явно выбранный вручную город сохраняем между запусками; иначе пробуем геолокацию.
+    if (saved?.mode === 'manual' && saved.city) {
+        fetchSavedLocation(saved);
+    } else {
+        autoLocate();
+    }
+}
+
+document.getElementById('searchCityBtn')?.addEventListener('click', () => {
+    const city = document.getElementById('cityInput')?.value.trim();
+    const country = document.getElementById('countryInput')?.value.trim() || 'Россия';
+    if (city) fetchPrayerTimes(city, country);
+    else setPrayerLocationText('Введите город для поиска');
+});
+
+document.getElementById('autoLocateBtn')?.addEventListener('click', () => {
+    // Повторное нажатие возвращает режим автоматического определения.
+    try { localStorage.removeItem(PRAYER_LOCATION_KEY); } catch (error) { /* storage может быть недоступен */ }
+    autoLocate();
+});
+
+document.getElementById('mazhabSelect')?.addEventListener('change', () => {
+    const saved = readSavedPrayerLocation();
+    if (saved?.mode === 'auto' && Number.isFinite(Number(saved.latitude)) && Number.isFinite(Number(saved.longitude))) {
+        fetchPrayerTimesByCoordinates(saved.latitude, saved.longitude, saved.city || 'Моё местоположение');
+    } else {
+        const city = document.getElementById('cityInput')?.value.trim();
+        const country = document.getElementById('countryInput')?.value.trim() || 'Россия';
+        if (city) fetchPrayerTimes(city, country);
+        else autoLocate();
+    }
+});
+
 setTimeout(loadSavedLocation, 500);
-setInterval(() => { const s = localStorage.getItem('prayerLocation'); if (s) { const {city, country} = JSON.parse(s); fetchPrayerTimes(city, country); } }, 600000);
+
+// Обновляем расписание раз в 10 минут; при смене дня значения также загрузятся заново.
+setInterval(() => {
+    const saved = readSavedPrayerLocation();
+    if (saved?.mode === 'auto' && Number.isFinite(Number(saved.latitude)) && Number.isFinite(Number(saved.longitude))) {
+        fetchPrayerTimesByCoordinates(saved.latitude, saved.longitude, saved.city || 'Моё местоположение');
+    } else if (saved?.city) {
+        fetchPrayerTimes(saved.city, saved.country || 'Россия');
+    }
+}, 10 * 60 * 1000);
