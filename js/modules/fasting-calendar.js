@@ -50,7 +50,7 @@ function renderFastingCalendar(year, month) {
   var firstDay = new Date(year, month, 1).getDay(); // 0=вс
   var startOffset = (firstDay === 0 ? 6 : firstDay - 1); // сдвиг для Пн=0
   var daysInMonth = new Date(year, month + 1, 0).getDate();
-  var today = new Date().toISOString().slice(0, 10);
+  var today = (window.kunLocalDay?window.kunLocalDay():new Date().toISOString().slice(0, 10));
 
   // Счётчик за месяц
   var monthFasted = 0;
@@ -121,6 +121,8 @@ function renderFastingCalendar(year, month) {
 
 window.toggleFastingDay = function(dateStr) {
   if (!window.userData) return;
+  var _t = window.kunLocalDay ? window.kunLocalDay() : new Date().toISOString().slice(0,10);
+  if (dateStr > _t) { if (typeof showNotification === 'function') showNotification('📅 Будущие дни отметить нельзя'); return; }
   if (!window.userData.fasting) window.userData.fasting = { days: [], total: 0 };
 
   var days = window.userData.fasting.days;

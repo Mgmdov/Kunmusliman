@@ -140,9 +140,8 @@ document.getElementById('saveTaubaDayBtn')?.addEventListener('click', () => {
     userData.specialDays = specialDaysCounters;
     addXP(Object.values(g).filter(v => v).length * 5);
     
-    if(!userData.stars) userData.stars = {totalStars: 0, lastClaimDate: '', unlockedRanks: []};
-    userData.stars.totalStars = (userData.stars.totalStars || 0) + 1;
-    checkSahabiCards();
+    if (typeof window.awardStars === 'function') window.awardStars(1, 'Ежедневная тауба', 'tauba:day:'+t);
+    else { if(!userData.stars) userData.stars = {totalStars: 0, lastClaimDate: '', unlockedRanks: []}; userData.stars.totalStars = (userData.stars.totalStars || 0) + 1; checkSahabiCards(); }
     
     saveUserData();
     saveTaubaCheckboxes(); // Сохраняем галочки

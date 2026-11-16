@@ -48,8 +48,7 @@ window.updateWeeklyProgress = function(taskId, increment) {
     data.claimed[taskId] = Date.now();
     // Начисляем звёзды
     var starsObj = window.userData.stars || { totalStars: 0 };
-    starsObj.totalStars = parseInt(starsObj.totalStars || 0) + task.reward;
-    window.userData.stars = starsObj;
+    if (typeof window.awardStars === 'function') window.awardStars(task.reward, 'Еженедельное задание: '+task.title, 'weekly-task:'+taskId+':'+(data.weekStart||'')); else { starsObj.totalStars = parseInt(starsObj.totalStars || 0) + task.reward; window.userData.stars = starsObj; }
     if (typeof window.updateStarsDisplay === 'function') window.updateStarsDisplay();
 
     // Уведомление

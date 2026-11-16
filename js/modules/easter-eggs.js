@@ -19,6 +19,14 @@ window.EASTER_EGG_CARDS = [
   { id: 'ee_tasbih1000',  arabic: 'سَبِّح',          name: 'Саббих',          title: 'Славь!',                 rarity: 'epic', story: '1000 тасбихов! «Субхана Ллах» — 1000 раз. Деревья Рая растут от твоих слов.', condition: 'tasbih_1000' }
 ];
 
+
+// Секретные карты также входят в общий каталог коллекции.
+if (typeof ALL_CARDS !== 'undefined') {
+  window.EASTER_EGG_CARDS.forEach(function(egg){
+    if (!ALL_CARDS.some(function(c){return c.id===egg.id;})) ALL_CARDS.push({id:egg.id,name:egg.name,title:egg.title,emoji:'🥚',arabic:egg.arabic,story:egg.story,type:'rare',rarity:egg.rarity});
+  });
+}
+
 // Проверка условий пасхалок
 window.checkEasterEggs = function() {
   if (!window.userData) return;
@@ -70,10 +78,10 @@ window.checkEasterEggs = function() {
         unlocked = (window.userData.quizStreak >= 20);
         break;
       case 'all_99_names':
-        unlocked = (window.userData.namesLearned >= 99);
+        unlocked = (Array.isArray(window.userData.namesLearned) ? window.userData.namesLearned.length : Number(window.userData.namesLearned||0)) >= 99;
         break;
       case 'khatm_complete':
-        unlocked = (window.userData.khatmCompleted > 0);
+        unlocked = (Number((window.userData.khatm||{}).completedKhatms || window.userData.khatmCompleted || 0) > 0);
         break;
       case 'muharram_1':
         // Примерно: 1 Мухаррам 1448 = ~18 июня 2026
@@ -93,7 +101,9 @@ window.checkEasterEggs = function() {
 
     if (unlocked) {
       window.userData.easterEggs[egg.id] = Date.now();
-      if (typeof window.saveData === 'function') window.saveData();
+      if (typeof window.unlockCardIfNotHave === 'function') window.unlockCardIfNotHave(egg.id);
+      if (typeof window.awardStars === 'function') window.awardStars(500, 'Секретная карта: '+egg.name, 'easter-egg:'+egg.id);
+      if (typeof window.saveData === 'function') window.saveData(); else if (typeof window.saveUserData === 'function') window.saveUserData();
       showEasterEggPopup(egg);
     }
   });

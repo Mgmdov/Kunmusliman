@@ -16,17 +16,48 @@ setTimeout(restoreNickname,2000);
 setTimeout(restoreNickname,4000);
 
 // Установка ника — сохраняем В ТРЁХ местах: userData, localStorage, Firestore
-window.setNickname=function(nick){
-  if(!nick||!nick.trim())return;
-  nick=nick.trim();
+function T(x){return (window.kunT&&window.kunT(x))||x;}
+function nickKey(n){return n.trim().toLowerCase().replace(/\s+/g,' ').replace(/\//g,'_');}
+function nickMsg(text,cls){
+  var inp=document.getElementById('settingsNickInput');if(!inp)return;
+  var m=document.getElementById('nickMsg');
+  if(!m){m=document.createElement('div');m.id='nickMsg';m.className='nick-msg';inp.parentNode.appendChild(m);}
+  m.textContent=text||'';m.className='nick-msg '+(cls||'');
+}
+function applyNick(nick){
   if(!window.userData)window.userData={};
   window.userData.nickname=nick;
   localStorage.setItem(NICK_KEY,nick);
   if(typeof window.saveData==='function')window.saveData();
   var db=window._db,u=window._currentUser;
-  if(db&&u&&!u.isAnonymous){
-    db.collection('leaderboard').doc(u.uid).set({name:nick},{merge:true}).catch(function(){});
-  }
+  if(db&&u&&!u.isAnonymous){db.collection('leaderboard').doc(u.uid).set({name:nick},{merge:true}).catch(function(){});}
+  var st=document.getElementById('settingsStatus');if(st)st.textContent=nick;
+}
+// Уникальный ник: документ nicknames/{key} = {uid}. Транзакция гарантирует, что два человека не займут один ник.
+window.setNickname=function(nick){
+  if(!nick||!nick.trim())return Promise.resolve(false);
+  nick=nick.trim().replace(/\s+/g,' ');
+  if(nick.length<2){nickMsg(T('Ник слишком короткий'),'err');return Promise.resolve(false);}
+  if(nick.length>20){nickMsg(T('Максимум 20 символов'),'err');return Promise.resolve(false);}
+  var old=(window.userData&&window.userData.nickname)||'';
+  if(old===nick){nickMsg('');return Promise.resolve(true);}
+  var db=window._db,u=window._currentUser;
+  if(!db||!u||u.isAnonymous){applyNick(nick);nickMsg('');return Promise.resolve(true);}
+  var key=nickKey(nick),oldKey=old?nickKey(old):'',ref=db.collection('nicknames').doc(key);
+  nickMsg(T('Проверка…'),'');
+  return db.runTransaction(function(tx){
+    return tx.get(ref).then(function(d){
+      if(d.exists&&d.data().uid!==u.uid){var e=new Error('taken');e.taken=true;throw e;}
+      tx.set(ref,{uid:u.uid,nick:nick});
+    });
+  }).then(function(){
+    if(oldKey&&oldKey!==key){db.collection('nicknames').doc(oldKey).get().then(function(d){if(d.exists&&d.data().uid===u.uid)d.ref.delete();}).catch(function(){});}
+    applyNick(nick);nickMsg('✓ '+T('Ник сохранён'),'ok');return true;
+  }).catch(function(e){
+    if(e&&e.taken){nickMsg('✕ '+T('Ник занят'),'err');var i=document.getElementById('settingsNickInput');if(i)i.value=old;return false;}
+    // нет сети / правила не опубликованы — не блокируем пользователя
+    applyNick(nick);nickMsg(T('Сохранено локально'),'');return true;
+  });
 };
 
 window.setAvatar=function(emoji){
@@ -70,28 +101,7 @@ function showRegisterPrompt(){
   document.body.appendChild(d);setTimeout(function(){d.remove();},4000);
 }
 
-// Показываем серию только ОДИН РАЗ в день
-var origCheckStreak=window.checkAndUpdateStreak;
-window.checkAndUpdateStreak=function(){
-  var data=(window.userData||{}).streakData||{};
-  var today=new Date().toISOString().slice(0,10);
-  var shown=localStorage.getItem('streak_shown_'+today);
-  if(shown){
-    // Обновляем данные без popup
-    if(data.lastDate!==today){
-      var yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10);
-      if(data.lastDate===yesterday)data.streak=(data.streak||0)+1;
-      else data.streak=1;
-      data.lastDate=today;
-      data.claimedToday=false;
-      data.tasksCompleted={};
-      if(typeof window.saveData==='function')window.saveData();
-    }
-    return;
-  }
-  localStorage.setItem('streak_shown_'+today,'1');
-  if(typeof origCheckStreak==='function')origCheckStreak();
-};
+// (v55) Серия входа: единая логика в daily-tasks.js — popup раз в день, локальная полночь, защита часов.
 
 // Инжектим профиль в настройки
 function injectProfile(){
@@ -133,17 +143,17 @@ setTimeout(injectProfile,3000);
 setTimeout(injectProfile,6000);
 setTimeout(injectProfile,10000);
 
-// Пикер аватарок
+// Пикер аватарок (нижняя шторка, сетка не выходит за рамки)
 window.openAvatarPicker=function(){
-  var emojis=['😊','😎','🧔','👳','🧕','🕌','🌙','⭐','🌟','💫','🔥','💎','👑','🦁','🐪','🌴','📖','🤲','💚','🟢','🔵','🟣','🟡','⚡','❤️','🌺','🪷','🕋','☪️','✨'];
-  var o=document.createElement('div');
-  o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9999999;display:flex;align-items:center;justify-content:center;padding:20px;';
-  var h='<div style="background:#1a1410;border:2px solid #f4d03f;border-radius:20px;padding:24px;max-width:320px;text-align:center;"><div style="font-size:16px;color:#f4d03f;margin-bottom:16px;font-weight:600;">Выбери аватарку</div><div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;">';
-  emojis.forEach(function(e){
-    h+='<button onclick="window.setAvatar(\''+e+'\');var a=document.getElementById(\'settingsAvatarDisplay\');if(a)a.textContent=\''+e+'\';this.parentElement.parentElement.parentElement.remove();" style="font-size:24px;padding:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;cursor:pointer;">'+e+'</button>';
-  });
-  h+='</div><button onclick="this.parentElement.parentElement.remove();" style="margin-top:16px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#e8dcc8;padding:10px 24px;border-radius:12px;cursor:pointer;">Отмена</button></div>';
-  o.innerHTML=h;o.onclick=function(e){if(e.target===o)o.remove();};
+  var emojis=['😊','😎','🥰','🤩','🧔','👳','🧕','👨‍🦱','👩‍🦰','🕌','🕋','🌙','☪️','⭐','🌟','💫','✨','🔥','💎','👑','🦁','🦅','🐪','🐎','🌴','🌿','🌺','🪷','📖','📿','🤲','💚','🟢','🔵','🟣','🟡','⚡','❤️','🏔️','🌅'];
+  var cur=(window.userData&&window.userData.avatar)||localStorage.getItem(AVATAR_KEY)||'👤';
+  var ex=document.getElementById('avOv');if(ex)ex.remove();
+  var o=document.createElement('div');o.id='avOv';o.className='av-ov';
+  o.innerHTML='<div class="av-sheet"><div class="av-grab"></div><div class="av-title">'+T('Выбери аватарку')+'</div><div class="av-prev"><span class="lb-av"><span id="avPrev">'+cur+'</span></span></div><div class="av-grid" id="avGrid"></div><button class="av-cancel" id="avCancel">'+T('Закрыть')+'</button></div>';
+  var g=o.querySelector('#avGrid');
+  emojis.forEach(function(e){var b=document.createElement('button');b.className='av-it'+(e===cur?' on':'');b.textContent=e;b.onclick=function(){window.setAvatar(e);var a=document.getElementById('settingsAvatarDisplay');if(a)a.textContent=e;o.remove();};g.appendChild(b);});
+  o.querySelector('#avCancel').onclick=function(){o.remove();};
+  o.onclick=function(ev){if(ev.target===o)o.remove();};
   document.body.appendChild(o);
 };
 

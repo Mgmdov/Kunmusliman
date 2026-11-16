@@ -40,8 +40,10 @@
       return;
     }
 
-    var cfg = typeColors[type] || typeColors.default;
+    var isSealProphet = id === 'p24' || id === 'prophet_story';
+    var cfg = isSealProphet ? { bg: 'radial-gradient(ellipse at center, #6b4b12 0%, #211505 58%, #050300 100%)', accent: '#f5d878', label: 'ОСОБАЯ ЗОЛОТАЯ · ПЕЧАТЬ ПРОРОКОВ' } : (typeColors[type] || typeColors.default);
     var isDarkBg = type !== 'juma';
+    if (isSealProphet) isDarkBg = true;
 
     var overlay = document.createElement('div');
     overlay.id = 'cardStoryOverlay';

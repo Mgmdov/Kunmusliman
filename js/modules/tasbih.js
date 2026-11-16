@@ -101,48 +101,72 @@ function updateSoundButtonText() {
 let tasbihCount = 0;
 
 function updateTasbihStats() {
-    document.getElementById('tasbihTotalZikr').textContent = userData.totalZikrOverall || 0;
-    document.getElementById('tasbihTotalSalawat').textContent = userData.totalSalawat || 0;
+    const data = (typeof userData !== 'undefined' && userData) ? userData : {};
+    const zikrEl = document.getElementById('tasbihTotalZikr');
+    const salawatEl = document.getElementById('tasbihTotalSalawat');
+    if (zikrEl) zikrEl.textContent = Number(data.totalZikrOverall) || 0;
+    if (salawatEl) salawatEl.textContent = Number(data.totalSalawat) || 0;
 }
+window.updateTasbihStats = updateTasbihStats;
 
 document.getElementById('tasbihSoundToggleBtn')?.addEventListener('click', toggleTasbihSound);
 
-document.getElementById('tasbihBtn')?.addEventListener('click', () => {
+// Делегированный обработчик: работает даже если экран тасбиха был
+// перерисован или открыт после первоначальной загрузки приложения.
+document.addEventListener('click', (event) => {
+    const button = event.target.closest('#tasbihBtn');
+    if (!button) return;
+
     const select = document.getElementById('tasbihSelect');
-    const selectedId = select.value;
-    
+    const selectedId = select ? select.value : 'subhanallah';
+    if (typeof userData === 'undefined' || !userData) return;
+
     tasbihFeedback(selectedId);
     tasbihCount++;
-    document.getElementById('tasbihCount').textContent = tasbihCount;
-    
+    const countEl = document.getElementById('tasbihCount');
+    if (countEl) countEl.textContent = String(tasbihCount);
+
     if (selectedId === 'salawat') {
-        const today = new Date().toISOString().split('T')[0];
-        const saved = parseInt(localStorage.getItem(`salawat_${today}`)) || 0;
-        localStorage.setItem(`salawat_${today}`, saved + 1);
-        userData.totalSalawat = (userData.totalSalawat || 0) + 1;
-        addXP(10); 
-        checkMuhammadCardCondition();
+        const today = new Date();
+        const todayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+        const saved = parseInt(localStorage.getItem(`salawat_${todayKey}`), 10) || 0;
+        localStorage.setItem(`salawat_${todayKey}`, String(saved + 1));
+        userData.totalSalawat = (Number(userData.totalSalawat) || 0) + 1;
+        if (typeof window.addArmyMerit === 'function') window.addArmyMerit('salawat');
+        if (typeof window.recordTreasureSalawat === 'function') window.recordTreasureSalawat();
+        if (typeof window.awardMilestoneStars === 'function') window.awardMilestoneStars('salawat', userData.totalSalawat, 100, 1);
+        if (typeof window.addXP === 'function') { var _x=window.kunXPBudget?window.kunXPBudget('salawat',10):10; if(_x>0) window.addXP(_x); }
+        if (typeof window.checkMuhammadCardCondition === 'function') window.checkMuhammadCardCondition();
     } else {
         if (!userData.zikrCounters) userData.zikrCounters = {};
-        userData.zikrCounters[selectedId] = (userData.zikrCounters[selectedId] || 0) + 1;
-        userData.totalZikrOverall = (userData.totalZikrOverall || 0) + 1;
-        addXP(1); 
-        checkZikrAchievements();
+        userData.zikrCounters[selectedId] = (Number(userData.zikrCounters[selectedId]) || 0) + 1;
+        userData.totalZikrOverall = (Number(userData.totalZikrOverall) || 0) + 1;
+        if (typeof window.addArmyMerit === 'function') window.addArmyMerit('zikr');
+        if (typeof window.recordTreasureZikr === 'function') window.recordTreasureZikr(1);
+        if (typeof window.awardMilestoneStars === 'function') window.awardMilestoneStars('zikr', userData.totalZikrOverall, 100, 1);
+        if (typeof window.addXP === 'function') { var _y=window.kunXPBudget?window.kunXPBudget('zikr',1):1; if(_y>0) window.addXP(_y); }
+        if (typeof window.checkZikrAchievements === 'function') window.checkZikrAchievements();
     }
-    saveUserData(); 
-    if (typeof renderZikr === 'function') renderZikr();
-    updateTasbihStats(); 
-    updateHomeWidgets();
+
+    if (typeof window.saveUserData === 'function') window.saveUserData();
+    if (typeof window.saveLocalBackup === 'function') window.saveLocalBackup();
+    if (typeof window.renderZikr === 'function') window.renderZikr();
+    if (typeof window.refreshZikrLiveCounters === 'function') window.refreshZikrLiveCounters();
+    if (typeof window.checkZikrAchievements === 'function') window.checkZikrAchievements();
+    updateTasbihStats();
+    if (typeof window.updateHomeWidgets === 'function') window.updateHomeWidgets();
 });
 
-document.getElementById('tasbihResetBtn')?.addEventListener('click', () => { 
-    tasbihCount = 0; 
-    document.getElementById('tasbihCount').textContent = 0; 
-});
-
-document.getElementById('tasbihSaveBtn')?.addEventListener('click', () => { 
-    saveUserData(); 
-    showNotification('✅ Прогресс сохранён!'); 
+document.addEventListener('click', (event) => {
+    if (event.target.closest('#tasbihResetBtn')) {
+        tasbihCount = 0;
+        const countEl = document.getElementById('tasbihCount');
+        if (countEl) countEl.textContent = '0';
+    }
+    if (event.target.closest('#tasbihSaveBtn')) {
+        if (typeof window.saveUserData === 'function') window.saveUserData();
+        if (typeof window.showNotification === 'function') window.showNotification('✅ Прогресс сохранён!');
+    }
 });
 
 setTimeout(() => {

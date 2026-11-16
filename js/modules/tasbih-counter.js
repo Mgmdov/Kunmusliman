@@ -67,6 +67,12 @@ function renderCounterView(count) {
     '<button class="tasbih-big-btn" onclick="tasbihIncrement()" id="tasbihBigBtn">' +
       '<div class="tasbih-btn-inner">تسبيح</div>' +
     '</button>' +
+    '<div class="tasbih-quick-add" aria-label="Быстрое добавление">' +
+      '<button class="tasbih-small-btn" onclick="tasbihIncrement(1)">+1</button>' +
+      '<button class="tasbih-small-btn" onclick="tasbihIncrement(10)">+10</button>' +
+      '<button class="tasbih-small-btn" onclick="tasbihIncrement(50)">+50</button>' +
+      '<button class="tasbih-small-btn" onclick="tasbihIncrement(100)">+100</button>' +
+    '</div>' +
     '<div class="tasbih-actions">' +
       '<button class="tasbih-small-btn" onclick="tasbihReset()">Сбросить</button>' +
       '<button class="tasbih-small-btn" onclick="tasbihSet(33)">33</button>' +
@@ -97,16 +103,38 @@ function renderBeadsView(count) {
         '<span>تسبيح</span>' +
       '</button>' +
     '</div>' +
+    '<div class="tasbih-quick-add" aria-label="Быстрое добавление">' +
+      '<button class="tasbih-small-btn" onclick="tasbihIncrement(1)">+1</button>' +
+      '<button class="tasbih-small-btn" onclick="tasbihIncrement(10)">+10</button>' +
+      '<button class="tasbih-small-btn" onclick="tasbihIncrement(50)">+50</button>' +
+      '<button class="tasbih-small-btn" onclick="tasbihIncrement(100)">+100</button>' +
+    '</div>' +
     '<div class="tasbih-actions">' +
       '<button class="tasbih-small-btn" onclick="tasbihReset()">Сбросить</button>' +
     '</div>' +
   '</div>';
 }
 
-window.tasbihIncrement = function() {
+window.tasbihIncrement = function(amount) {
+  var inc = Math.max(1, Math.min(1000, parseInt(amount, 10) || 1));
   var count = parseInt(localStorage.getItem('tasbih_count') || '0');
-  count++;
+  count += inc;
   localStorage.setItem('tasbih_count', String(count));
+  // userData объявлен в основном app.js как глобальная lexical-переменная,
+  // поэтому window.userData на части устройств был undefined и прогресс
+  // попадал только в локальный счётчик интерфейса.
+  if (typeof userData !== 'undefined' && userData) {
+    userData.totalZikrOverall = (Number(userData.totalZikrOverall) || 0) + inc;
+    if (typeof window.recordTreasureZikr === 'function') window.recordTreasureZikr(inc);
+    if (typeof window.awardMilestoneStars === 'function') window.awardMilestoneStars('zikr', userData.totalZikrOverall, 100, 1);
+    if (typeof window.addArmyMerit === 'function') window.addArmyMerit('zikr');
+    if (typeof window.addXP === 'function') { var _z=window.kunXPBudget?window.kunXPBudget('zikr',inc):inc; if(_z>0) window.addXP(_z); }
+    if (typeof window.saveUserData === 'function') window.saveUserData();
+    if (typeof window.updateHomeWidgets === 'function') window.updateHomeWidgets();
+    if (typeof window.updateTasbihStats === 'function') window.updateTasbihStats();
+    if (typeof window.renderZikr === 'function') window.renderZikr();
+    if (typeof window.checkZikrAchievements === 'function') window.checkZikrAchievements();
+  }
 
   // Обновляем счётчик
   var display = document.getElementById('tasbihCountDisplay');
@@ -132,12 +160,10 @@ window.tasbihIncrement = function() {
   updateBeadsDisplay(count);
 
   // Проверяем ежедневное задание (33+)
-  if (count >= 33 && typeof window.completeDailyTask === 'function') {
-    window.completeDailyTask('do_zikr');
-  }
+  if (typeof window.checkZikrForDailyTask === 'function') window.checkZikrForDailyTask();
 
   // Вибрация на мильстоунах
-  if (count % 33 === 0 && navigator.vibrate) {
+  if ((count % 33 < inc || count % 33 === 0) && navigator.vibrate) {
     navigator.vibrate([100, 50, 100]);
   }
 };
@@ -213,7 +239,9 @@ function playBeadSound() {
     '.tasbih-big-btn{width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,#1a4a30 0%,#0a2a18 100%);border:3px solid #5dcaa5;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 28px rgba(93,202,165,.3);transition:transform .1s,box-shadow .1s;margin:12px 0;}',
     '.tasbih-big-btn:active,.tasbih-big-btn.tasbih-pressed{transform:scale(.95);box-shadow:0 0 40px rgba(93,202,165,.6);}',
     '.tasbih-btn-inner{font-family:"Amiri",serif;font-size:28px;color:#5dcaa5;pointer-events:none;}',
-    '.tasbih-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}',
+    '.tasbih-actions,.tasbih-quick-add{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}',
+    '.tasbih-quick-add{max-width:300px;}',
+    '.tasbih-quick-add .tasbih-small-btn{min-width:58px;}',
     '.tasbih-small-btn{padding:8px 16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:20px;color:#aaa;font-size:12px;cursor:pointer;}',
 
     '.tasbih-beads-view{display:flex;flex-direction:column;align-items:center;gap:16px;}',

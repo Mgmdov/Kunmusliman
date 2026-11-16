@@ -1,0 +1,11 @@
+/* Фон приложения: ночная мечеть (images/bg/app-bg.jpg). Светлая тема остаётся без картинки. */
+body:not(.theme-light){background-color:#05080e!important}
+body:not(.theme-light)::before{
+  content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    linear-gradient(180deg,rgba(4,7,12,.06) 0%,rgba(4,7,12,.22) 55%,rgba(4,7,12,.55) 100%),
+    url('../images/bg/app-bg.jpg') center top/cover no-repeat;
+}
+/* Панели чуть прозрачные, чтобы картинка была видна, но текст читался */
+body:not(.theme-light){--p-panel:rgba(9,13,19,.52);--p-panel-2:rgba(14,19,27,.5)}
+body:not(.theme-light) .ios-card:not([style*="background"]){-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}

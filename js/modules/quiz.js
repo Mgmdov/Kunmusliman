@@ -3,7 +3,7 @@ function addProphetHonorific(text) {
     if (!text) return text;
     
     // Исключения — сподвижники с именами пророков в названии
-    const exceptions = ['Абу Муса', 'аль-Ашари', 'Мусаб', 'Муса ибн'];
+    const exceptions = ['Абу Муса', 'аль-Ашари', 'Мусаб', 'Муса ибн', 'Абу Айюб', 'ибн Худайр', 'Худайр'];
     for (let exc of exceptions) {
         if (text.includes(exc)) return text; // Не добавляем ничего
     }
@@ -16,8 +16,13 @@ function addProphetHonorific(text) {
     // Список имён пророков (мир им)
     const prophets = ['Муса', 'Иса', 'Юнус', 'Ибрахим', 'Нух', 'Давуд', 'Сулейман', 'Адам', 'Идрис', 'Худ', 'Салих', 'Лут', 'Исмаил', 'Исхак', 'Якуб', 'Юсуф', 'Айюб', 'Шуайб', 'Харун', 'Ильяс', 'Альяса', 'Закария', 'Яхья', 'Зуль-Кифль'];
     
+    // Сравниваем целые слова (допуская падежное окончание до 2 букв), а не подстроки:
+    // иначе «Худайр» и «Айюб аль-Ансари» ошибочно считаются пророками.
+    const words = text.split(/[^A-Za-zА-Яа-яЁё0-9\u2019'\-]+/).filter(Boolean);
     for (let p of prophets) {
-        if (text.includes(p)) return text + ' (1алейхи салям)';
+        if (words.some(w => w === p || (w.startsWith(p) && w.length - p.length <= 2))) {
+            return text + ' (1алейхи салям)';
+        }
     }
     
     return text;
@@ -246,12 +251,17 @@ let quizActive = false;
 let quizCorrect = 0;
 let quizWrong = 0;
 let quizSkipped = 0;
+let quizAdvanceTimer = null;
+let quizAnswerProcessing = false;
 
 function updateQuizStats() {
     if (!userData.quizStats) userData.quizStats = { correct: 0, wrong: 0, totalXP: 0 };
-    document.getElementById('quizTotalCorrect').textContent = userData.quizStats.correct;
-    document.getElementById('quizTotalWrong').textContent = userData.quizStats.wrong;
-    document.getElementById('quizTotalXP').textContent = userData.quizStats.totalXP;
+    const correctEl = document.getElementById('quizTotalCorrect');
+    const wrongEl = document.getElementById('quizTotalWrong');
+    const xpEl = document.getElementById('quizTotalXP');
+    if (correctEl) correctEl.textContent = userData.quizStats.correct || 0;
+    if (wrongEl) wrongEl.textContent = userData.quizStats.wrong || 0;
+    if (xpEl) xpEl.textContent = userData.quizStats.totalXP || 0;
 }
 
 function shuffleArray(arr) {
@@ -263,136 +273,169 @@ function shuffleArray(arr) {
 }
 
 function renderQuizQuestion() {
+    quizAnswerProcessing = false;
     const container = document.getElementById('quizContainer');
     const skipBtn = document.getElementById('skipQuestionBtn');
-    
+    const startBtn = document.getElementById('startQuizBtn');
+    if (!container) return;
+
     if (currentQuestion >= currentQuestions.length) {
-        container.innerHTML = `<div style="text-align: center; padding: 20px;">
-            <div style="font-size: 3rem; margin-bottom: 16px;">🏆</div>
-            <div style="font-size: 1.5rem; font-weight: 700; margin-bottom: 8px;">Викторина завершена!</div>
-            <div style="font-size: 1.2rem; margin-bottom: 8px;">Правильно: ${quizCorrect} / ${currentQuestions.length}</div>
-            <div style="font-size: 1.2rem; margin-bottom: 8px;">Неправильно: ${quizWrong}</div>
-            <div style="font-size: 1.2rem; margin-bottom: 16px;">Пропущено: ${quizSkipped}</div>
-            <div style="color: #34C759; font-weight: 600; font-size: 1.1rem;">+${quizScore} XP заработано!</div>
+        container.innerHTML = `<div style="text-align:center;padding:20px;">
+            <div style="font-size:3rem;margin-bottom:16px;">🏆</div>
+            <div style="font-size:1.5rem;font-weight:700;margin-bottom:8px;">Викторина завершена!</div>
+            <div style="font-size:1.2rem;margin-bottom:8px;">Правильно: ${quizCorrect} / ${currentQuestions.length}</div>
+            <div style="font-size:1.2rem;margin-bottom:8px;">Неправильно: ${quizWrong}</div>
+            <div style="font-size:1.2rem;margin-bottom:16px;">Пропущено: ${quizSkipped}</div>
+            <div style="color:#34C759;font-weight:600;font-size:1.1rem;">+${quizScore} XP заработано!</div>
         </div>`;
-        addXP(quizScore);
+        if (quizScore > 0) { var _q = (typeof window.kunXPBudget==='function') ? window.kunXPBudget('quiz', quizScore) : quizScore; if (_q > 0) addXP(_q); }
         if (!userData.quizStats) userData.quizStats = { correct: 0, wrong: 0, totalXP: 0 };
-        userData.quizStats.correct += quizCorrect;
-        userData.quizStats.wrong += quizWrong;
-        userData.quizStats.totalXP += quizScore;
+        userData.quizStats.totalXP = (userData.quizStats.totalXP || 0) + quizScore;
         saveUserData();
         quizActive = false;
-        document.getElementById('startQuizBtn').innerHTML = '<i class="fas fa-play"></i> Начать викторину (12 вопросов)';
+        if (startBtn) startBtn.innerHTML = '<i class="fas fa-play"></i> Начать викторину (12 вопросов)';
         if (skipBtn) skipBtn.style.display = 'none';
         updateQuizStats();
         checkAllAchievements();
         return;
     }
-    
+
     if (skipBtn) skipBtn.style.display = 'block';
-    
     const q = currentQuestions[currentQuestion];
-    let h = `<div style="margin-bottom: 20px;">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-            <span style="color: #8E8E93;">Вопрос ${currentQuestion + 1}/${currentQuestions.length}</span>
-            <span style="color: #FFD700;">Счёт: ${quizScore} XP</span>
+    const shuffledAnswers = shuffleArray(q.a.map((ans, i) => ({ text: ans, originalIndex: i })));
+    let h = `<div style="margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+            <span style="color:#8E8E93;">Вопрос ${currentQuestion + 1}/${currentQuestions.length}</span>
+            <span style="color:#B68B35;">Счёт: ${quizScore} XP</span>
         </div>
-        <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 16px; color: #1C1C1E;">${q.q}</div>
-        <div style="display: grid; gap: 8px;">`;
-    
-    const shuffledAnswers = [...q.a].map((ans, i) => ({ text: ans, originalIndex: i }));
-    for (let i = shuffledAnswers.length - 1; i > 0; i--) { 
-        const j = Math.floor(Math.random() * (i + 1)); 
-        [shuffledAnswers[i], shuffledAnswers[j]] = [shuffledAnswers[j], shuffledAnswers[i]]; 
-    }
-    
-    shuffledAnswers.forEach((ans) => { 
-        h += `<button class="quiz-answer ios-button secondary" data-answer="${ans.originalIndex}" style="text-align: left; padding: 14px;">${ans.text}</button>`; 
+        <div style="font-weight:600;font-size:1.1rem;margin-bottom:16px;">${q.q}</div>
+        <div style="display:grid;gap:8px;">`;
+    shuffledAnswers.forEach(ans => {
+        h += `<button type="button" class="quiz-answer ios-button secondary" data-answer="${ans.originalIndex}" style="text-align:left;padding:14px;">${ans.text}</button>`;
     });
-    
-    h += `</div></div>`; 
+    h += '</div></div>';
     container.innerHTML = h;
-    
-    document.querySelectorAll('.quiz-answer').forEach(btn => { 
-        btn.addEventListener('click', () => {
-            const answer = parseInt(btn.dataset.answer); 
-            const q = currentQuestions[currentQuestion];
-            if (answer === q.correct) { 
-                quizScore += q.xp; 
-                quizCorrect++; 
-                userData.quizStreak = (userData.quizStreak || 0) + 1;
-                showNotification(`✅ Правильно! +${q.xp} XP (Серия: ${userData.quizStreak})`);
-                // Награда за 5 правильных подряд
-                if (userData.quizStreak >= 5 && userData.quizStreak % 5 === 0) {
-                    var bonus = 50;
-                    var starsObj = userData.stars || { totalStars: 0 };
-                    starsObj.totalStars = parseInt(starsObj.totalStars || 0) + bonus;
-                    userData.stars = starsObj;
-                    if (typeof window.updateStarsDisplay === 'function') window.updateStarsDisplay();
-                    setTimeout(function() {
-                        showNotification('🌟 5 правильных подряд! +' + bonus + ' ★');
-                    }, 1200);
-                } 
-            } else { 
-                quizWrong++;
-                userData.quizStreak = 0;
-                showNotification(`❌ Неправильно. Правильный ответ: ${q.a[q.correct]}`); 
-            }
-            updateQuizStats(); 
-            currentQuestion++; 
-            renderQuizQuestion();
-        });
-    });
 }
 
-document.querySelectorAll('.quiz-tab').forEach(tab => { 
-    tab.addEventListener('click', () => {
-        document.querySelectorAll('.quiz-tab').forEach(t => { 
-            t.style.background = '#F2F2F7'; 
-            t.style.color = '#1C1C1E'; 
-        });
-        tab.style.background = '#007AFF'; 
-        tab.style.color = 'white'; 
-        currentQuizType = tab.dataset.quiz;
-        if (!quizActive) {
-            document.getElementById('quizContainer').innerHTML = `<div style="text-align: center; padding: 40px; color: #8E8E93;"><i class="fas fa-lightbulb"></i> Выберите тему и начните викторину!<br><small style="display: block; margin-top: 10px;">🎲 Каждый раз новые 12 вопросов из ${QUIZ_QUESTIONS[currentQuizType].length}+</small></div>`;
+// Делегированный обработчик: работает и после перерисовки вопроса.
+document.getElementById('quizContainer')?.addEventListener('click', (event) => {
+    const btn = event.target.closest('.quiz-answer');
+    if (!btn || !quizActive || btn.disabled || quizAnswerProcessing) return;
+    quizAnswerProcessing = true;
+    const answer = Number(btn.dataset.answer);
+    const q = currentQuestions[currentQuestion];
+    if (!q) return;
+
+    document.querySelectorAll('#quizContainer .quiz-answer').forEach(b => { b.disabled = true; });
+    const isCorrect = answer === q.correct;
+    if (!userData.quizStats) userData.quizStats = { correct: 0, wrong: 0, totalXP: 0 };
+
+    if (isCorrect) {
+        quizScore += q.xp;
+        quizCorrect++;
+        userData.quizStats.correct = (userData.quizStats.correct || 0) + 1;
+        if (typeof window.awardStars === 'function') {
+            userData.quizCorrectAnswers = (userData.quizCorrectAnswers || 0) + 1;
+            window.awardStars(1, 'Правильный ответ в викторине', 'quiz:correct:' + userData.quizCorrectAnswers);
         }
+        userData.quizStreak = (userData.quizStreak || 0) + 1;
+        btn.style.background = '#1F8F55';
+        btn.style.color = '#FFFFFF';
+        showNotification(`✅ Правильно! +${q.xp} XP (Серия: ${userData.quizStreak})`);
+        if (userData.quizStreak >= 5 && userData.quizStreak % 5 === 0) {
+            if (typeof window.awardStars === 'function') window.awardStars(5, 'Бонус за 5 правильных ответов подряд', 'quiz:streak:' + userData.quizStreak);
+            setTimeout(() => showNotification('🌟 5 правильных подряд! +5 ★'), 700);
+        }
+    } else {
+        quizWrong++;
+        userData.quizStats.wrong = (userData.quizStats.wrong || 0) + 1;
+        userData.quizStreak = 0;
+        btn.style.background = '#B3261E';
+        btn.style.color = '#FFFFFF';
+        const correctBtn = document.querySelector(`#quizContainer .quiz-answer[data-answer="${q.correct}"]`);
+        if (correctBtn) { correctBtn.style.background = '#1F8F55'; correctBtn.style.color = '#FFFFFF'; }
+        showNotification(`❌ Неправильно. Правильный ответ: ${q.a[q.correct]}`);
+    }
+    saveUserData();
+    updateQuizStats();
+    clearTimeout(quizAdvanceTimer);
+    quizAdvanceTimer = setTimeout(() => { currentQuestion++; renderQuizQuestion(); }, 650);
+});
+
+// Переключение тем сбрасывает незавершённый раунд и действительно меняет набор вопросов.
+document.querySelectorAll('.quiz-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        const category = tab.dataset.quiz;
+        if (!category || !Array.isArray(QUIZ_QUESTIONS[category]) || !QUIZ_QUESTIONS[category].length) {
+            showNotification('Для этой темы пока нет вопросов.');
+            return;
+        }
+        currentQuizType = category;
+        clearTimeout(quizAdvanceTimer);
+        quizAnswerProcessing = false;
+        quizActive = false;
+        currentQuestions = [];
+        currentQuestion = 0;
+        quizScore = 0;
+        quizCorrect = 0;
+        quizWrong = 0;
+        quizSkipped = 0;
+        document.querySelectorAll('.quiz-tab').forEach(t => {
+            const active = t === tab;
+            t.classList.toggle('active', active);
+            t.style.background = active ? '#B68B35' : '#F2F2F7';
+            t.style.color = active ? '#FFFFFF' : '#1C1C1E';
+        });
+        const startBtn = document.getElementById('startQuizBtn');
+        if (startBtn) startBtn.innerHTML = '<i class="fas fa-play"></i> Начать викторину (12 вопросов)';
+        const skipBtn = document.getElementById('skipQuestionBtn');
+        if (skipBtn) skipBtn.style.display = 'none';
+        const container = document.getElementById('quizContainer');
+        if (container) container.innerHTML = `<div style="text-align:center;padding:40px;color:#8E8E93;"><i class="fas fa-lightbulb"></i> Тема выбрана: ${tab.textContent.trim()}<br><small style="display:block;margin-top:10px;">🎲 ${QUIZ_QUESTIONS[category].length} вопросов в этой теме. Нажмите «Начать викторину».</small></div>`;
     });
 });
 
 document.getElementById('startQuizBtn')?.addEventListener('click', () => {
     const allQuestions = QUIZ_QUESTIONS[currentQuizType];
-    const shuffled = shuffleArray([...allQuestions]);
-    currentQuestions = shuffled.slice(0, 12);
-    currentQuestion = 0; 
-    quizScore = 0; 
-    quizActive = true; 
-    quizCorrect = 0; 
+    if (!Array.isArray(allQuestions) || allQuestions.length === 0) {
+        showNotification('В выбранной теме нет вопросов.');
+        return;
+    }
+    clearTimeout(quizAdvanceTimer);
+    quizAnswerProcessing = false;
+    currentQuestions = shuffleArray([...allQuestions]).slice(0, Math.min(12, allQuestions.length));
+    currentQuestion = 0;
+    quizScore = 0;
+    quizActive = true;
+    quizCorrect = 0;
     quizWrong = 0;
     quizSkipped = 0;
-    document.getElementById('startQuizBtn').innerHTML = '<i class="fas fa-spinner"></i> Идёт викторина...';
+    const startBtn = document.getElementById('startQuizBtn');
+    if (startBtn) startBtn.innerHTML = '<i class="fas fa-spinner"></i> Идёт викторина...';
     renderQuizQuestion();
 });
 
 document.getElementById('skipQuestionBtn')?.addEventListener('click', () => {
-    if (!quizActive) return;
+    if (!quizActive || quizAnswerProcessing || !currentQuestions[currentQuestion]) return;
+    quizAnswerProcessing = true;
     const q = currentQuestions[currentQuestion];
     quizSkipped++;
     userData.quizStreak = 0;
+    document.querySelectorAll('#quizContainer .quiz-answer').forEach(b => { b.disabled = true; });
     showNotification(`⏭️ Пропущено. Правильный ответ: ${q.a[q.correct]}`);
-    currentQuestion++;
-    renderQuizQuestion();
+    clearTimeout(quizAdvanceTimer);
+    quizAdvanceTimer = setTimeout(() => { currentQuestion++; renderQuizQuestion(); }, 250);
 });
 
 document.getElementById('resetQuizStatsBtn')?.addEventListener('click', () => {
     if (confirm('Сбросить всю статистику викторины?')) {
         userData.quizStats = { correct: 0, wrong: 0, totalXP: 0 };
         userData.quizStreak = 0;
-        quizSkipped = 0;
+        userData.quizCorrectAnswers = 0;
         saveUserData();
         updateQuizStats();
         showNotification('📊 Статистика викторины сброшена');
     }
 });
 
-setTimeout(() => updateQuizStats(), 300);
+setTimeout(updateQuizStats, 300);

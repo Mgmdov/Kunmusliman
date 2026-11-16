@@ -1,16 +1,19 @@
 // ========== СЕРИИ ВХОДА + ЕЖЕДНЕВНЫЕ ЗАДАНИЯ + ДОСТИЖЕНИЯ СУНДУКА ==========
 
 // ========== СЕРИИ ВХОДА ==========
+// Экономика серии входа v2: каждый день — небольшая награда (растёт до 10 ★),
+// на вехах — бонус звёзд + сундук / колесо / карта.
+window.STREAK_BASE = function (day) { return Math.min(2 + Math.floor((Math.max(1, day) - 1) / 2), 10); };
 window.STREAK_REWARDS = [
-  { day: 1,  type: 'xp',    amount: 50,  label: '50 XP' },
-  { day: 2,  type: 'xp',    amount: 100, label: '100 XP' },
-  { day: 3,  type: 'chest', amount: 1,   label: 'Деревянный сундук' },
-  { day: 4,  type: 'stars', amount: 100, label: '100 ★' },
-  { day: 5,  type: 'wheel', amount: 3,   label: '3 прокрута колеса' },
-  { day: 6,  type: 'stars', amount: 200, label: '200 ★' },
-  { day: 7,  type: 'card',  rarity: 'rare', label: 'Редкая карта' },
-  { day: 15, type: 'card',  rarity: 'legendary', label: 'Легендарная карта' },
-  { day: 30, type: 'card',  rarity: 'mythic', label: 'Мифическая карта' }
+  { day: 3,   type: 'chest', amount: 1,  bonus: 5,   label: 'Деревянный сундук' },
+  { day: 5,   type: 'wheel', amount: 3,  bonus: 0,   label: '3 прокрута колеса' },
+  { day: 7,   type: 'card',  rarity: 'rare', bonus: 10, label: 'Редкая карта' },
+  { day: 14,  type: 'stars', amount: 0,  bonus: 20,  label: 'Бонус 14 дней' },
+  { day: 15,  type: 'card',  rarity: 'legendary', bonus: 0, label: 'Легендарная карта' },
+  { day: 30,  type: 'card',  rarity: 'mythic', bonus: 50, label: 'Мифическая карта' },
+  { day: 60,  type: 'stars', amount: 0,  bonus: 100, label: 'Бонус 60 дней' },
+  { day: 100, type: 'stars', amount: 0,  bonus: 200, label: 'Бонус 100 дней' },
+  { day: 365, type: 'stars', amount: 0,  bonus: 500, label: 'Год подряд!' }
 ];
 
 function getStreakData() {
@@ -21,49 +24,82 @@ function getStreakData() {
   return window.userData.streakData;
 }
 
+// Локальная дата (полночь по часам устройства), а не UTC
+window.kunLocalDay = function (ts) {
+  var d = new Date(ts === undefined ? Date.now() : ts);
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+};
+
 window.checkAndUpdateStreak = function() {
   var data = getStreakData();
-  var today = new Date().toISOString().slice(0, 10);
-  var yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  var now = Date.now();
+  // Защита от перевода часов назад: если время «откатилось» больше чем на час — ничего не засчитываем
+  if (data.lastSeenTs && now < data.lastSeenTs - 3600000) return;
+  data.lastSeenTs = Math.max(now, data.lastSeenTs || 0);
+  var today = window.kunLocalDay(now);
+  var yesterday = window.kunLocalDay(now - 86400000);
 
-  if (data.lastDate === today) return; // уже зашёл сегодня
+  if (data.lastDate === today) { return; } // уже зашёл сегодня
+  // Защита от перевода часов вперёд: за один заход серия не может вырасти больше чем на 1,
+  // а день «из будущего» дальше чем на 2 суток от последнего захода не принимается
+  if (data.lastDate && data.lastDate > today) return;
 
   if (data.lastDate === yesterday) {
     data.streak++;
-  } else if (data.lastDate !== today) {
+  } else {
     data.streak = 1; // серия прервана
   }
 
   data.lastDate = today;
   data.claimedToday = false;
+  data.rewardPaid = false;           // награда за серию выдаётся после настоящего действия
+  data.activityBase = window.kunActivityScore();
   data.tasksCompleted = {}; // сброс ежедневных заданий
   if (typeof window.saveData === 'function') window.saveData();
 
   // Показать popup ТОЛЬКО если ещё не показывали сегодня
   var popupKey = 'streak_popup_' + today;
-  if (localStorage.getItem(popupKey)) return;
-  localStorage.setItem(popupKey, '1');
+  try { if (localStorage.getItem(popupKey)) return; localStorage.setItem(popupKey, '1'); } catch (e) {}
 
-  // Показать награду за серию
   showStreakReward(data.streak);
 };
 
-function showStreakReward(day) {
-  // Ищем точное совпадение или ближайшее меньшее для 8-14 и 16-29
-  var reward = window.STREAK_REWARDS.find(function(r) { return r.day === day; });
-  if (!reward && day > 7 && day < 15) {
-    reward = { day: day, type: 'stars', amount: 50 + day * 5, label: (50 + day * 5) + ' ★' };
-  }
-  if (!reward && day > 15 && day < 30) {
-    reward = { day: day, type: 'stars', amount: 100 + day * 5, label: (100 + day * 5) + ' ★' };
-  }
-  if (!reward && day > 30) {
-    reward = { day: day, type: 'stars', amount: 200 + day * 3, label: (200 + day * 3) + ' ★' };
-  }
-  if (!reward) return;
+// «Очки действий»: настоящая активность, а не просто открытие приложения
+window.kunActivityScore = function () {
+  var u = window.userData || {};
+  return (u.totalZikrOverall || 0) + (u.totalSalawat || 0) + 20 * (u.quranPagesRewarded || 0) + 10 * (u.quizCorrectAnswers || 0);
+};
+// Вызывается когда есть признаки реального действия
+window.kunMarkActivity = function () {
+  var d = getStreakData();
+  if (!d || d.rewardPaid || !d.lastDate || d.streak < 1) return;
+  d.rewardPaid = true;
+  payStreakReward(d.streak, d.lastDate);
+};
+setInterval(function () {
+  try {
+    var d = getStreakData();
+    if (!d || d.rewardPaid || !d.lastDate) return;
+    if (window.kunActivityScore() - (d.activityBase || 0) >= 33) window.kunMarkActivity();
+  } catch (e) {}
+}, 10000);
 
-  // Выдаём награду
-  giveStreakReward(reward);
+function payStreakReward(day, dateKey) {
+  var milestone = window.STREAK_REWARDS.find(function(r) { return r.day === day; });
+  var base = window.STREAK_BASE(day);
+  if (typeof window.awardStars === 'function') window.awardStars(base, 'Серия входа · день ' + day, 'streak:base:' + dateKey);
+  if (milestone) {
+    if (milestone.bonus && typeof window.awardStars === 'function') window.awardStars(milestone.bonus, 'Веха серии · ' + day + ' дн', 'streak:bonus:' + day + ':' + dateKey);
+    if (milestone.type !== 'stars') giveStreakReward(milestone, day, dateKey);
+  }
+}
+
+function showStreakReward(day) {
+  var milestone = window.STREAK_REWARDS.find(function(r) { return r.day === day; });
+  var base = window.STREAK_BASE(day);
+  var reward = { day: day, type: 'stars', amount: base, label: base + ' ★' + (milestone ? ' + ' + milestone.label + (milestone.bonus ? ' + ' + milestone.bonus + ' ★' : '') : '') };
+
+  // Награда НЕ выдаётся за простой вход: нужно действие (страница, азкар, 33 зикра, ответ викторины)
 
   // Показываем popup
   var overlay = document.createElement('div');
@@ -72,19 +108,21 @@ function showStreakReward(day) {
     '<div style="background:linear-gradient(180deg,#1a1408,#0a0804);border:2px solid #f4d03f;border-radius:20px;padding:28px 24px;max-width:320px;text-align:center;">' +
       '<div style="font-size:48px;margin-bottom:12px;">🔥</div>' +
       '<div style="color:#f4d03f;font-size:28px;font-weight:700;margin-bottom:4px;">День ' + day + '</div>' +
-      '<div style="color:#c0a040;font-size:13px;margin-bottom:20px;">Серия входа</div>' +
-      '<div style="background:rgba(244,208,63,0.1);border:1px solid rgba(244,208,63,0.3);border-radius:12px;padding:14px;margin-bottom:20px;">' +
+      '<div style="color:#c0a040;font-size:13px;margin-bottom:14px;">Серия входа</div>' +
+      '<div style="display:flex;justify-content:center;gap:6px;margin-bottom:16px;">' + [1,2,3,4,5,6,7].map(function(i){ var cur=((day-1)%7)+1; var on=i<=cur; return '<div style="width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;' + (on ? 'background:linear-gradient(145deg,#f4dc93,#c9a04a);color:#2a1d03;' : 'background:rgba(255,255,255,.08);color:#8a7a50;') + (i===cur?'box-shadow:0 0 0 3px rgba(244,208,63,.35);':'') + '">' + (on && i<cur ? '✓' : i) + '</div>'; }).join('') + '</div>' +
+      '<div style="background:rgba(244,208,63,0.1);border:1px solid rgba(244,208,63,0.3);border-radius:12px;padding:14px;margin-bottom:12px;">' +
         '<div style="color:#f4d03f;font-size:18px;font-weight:600;">🎁 ' + reward.label + '</div>' +
       '</div>' +
+      '<div style="color:#c9b27a;font-size:12px;line-height:1.5;margin-bottom:10px;">Награда придёт после первого действия сегодня: прочитайте страницу Корана, азкар или 33 зикра.</div>' +
       '<div style="color:#888;font-size:11px;margin-bottom:16px;">' + getNextMilestone(day) + '</div>' +
-      '<button onclick="this.parentElement.parentElement.remove()" style="background:linear-gradient(180deg,#d4a937,#8b6914);color:#1a1004;border:none;padding:12px 36px;border-radius:24px;font-size:14px;font-weight:600;cursor:pointer;">Забрать</button>' +
+      '<button onclick="this.parentElement.parentElement.remove()" style="background:linear-gradient(180deg,#d4a937,#8b6914);color:#1a1004;border:none;padding:12px 36px;border-radius:24px;font-size:14px;font-weight:600;cursor:pointer;">Понятно</button>' +
     '</div>';
   document.body.appendChild(overlay);
   overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
 }
 
 function getNextMilestone(currentDay) {
-  var milestones = [3, 5, 7, 15, 30];
+  var milestones = [3, 5, 7, 14, 15, 30, 60, 100, 365];
   for (var i = 0; i < milestones.length; i++) {
     if (currentDay < milestones[i]) {
       var reward = window.STREAK_REWARDS.find(function(r) { return r.day === milestones[i]; });
@@ -94,7 +132,8 @@ function getNextMilestone(currentDay) {
   return 'Легендарная серия! Продолжай!';
 }
 
-function giveStreakReward(reward) {
+function giveStreakReward(reward, day, dateKey) {
+  dateKey = dateKey || window.kunLocalDay();
   if (!window.userData) return;
   var starsObj = window.userData.stars || { totalStars: 0 };
 
@@ -103,16 +142,14 @@ function giveStreakReward(reward) {
       if (typeof window.awardXP === 'function') window.awardXP(reward.amount, 'Серия входа');
       break;
     case 'stars':
-      starsObj.totalStars = parseInt(starsObj.totalStars || 0) + reward.amount;
-      window.userData.stars = starsObj;
+      if (typeof window.awardStars === 'function') window.awardStars(reward.amount, 'Награда за серию входа', 'streak:login:'+day+':'+dateKey); else { starsObj.totalStars = parseInt(starsObj.totalStars || 0) + reward.amount; window.userData.stars = starsObj; }
       break;
     case 'chest':
-      starsObj.totalStars = parseInt(starsObj.totalStars || 0) + 50; // бесплатный деревянный
-      window.userData.stars = starsObj;
+      if (typeof window.awardStars === 'function') window.awardStars(50, 'Бонус сундука за серию входа', 'streak:chest:'+day+':'+dateKey); else { starsObj.totalStars = parseInt(starsObj.totalStars || 0) + 50; window.userData.stars = starsObj; }
       break;
     case 'wheel':
       // Разрешаем 3 бесплатных прокрута
-      localStorage.setItem('fath_bonus_spins', String(reward.amount));
+      try { localStorage.setItem('fath_bonus_spins', String((parseInt(localStorage.getItem('fath_bonus_spins') || '0', 10) || 0) + reward.amount)); } catch (e) {}
       break;
     case 'card':
       var pool = (window.CHEST_CARDS || []).filter(function(c) { return c.rarity === reward.rarity; });
@@ -156,14 +193,14 @@ window.completeDailyTask = function(taskId) {
 
   // Начисляем звёзды
   var starsObj = window.userData.stars || { totalStars: 0 };
-  starsObj.totalStars = parseInt(starsObj.totalStars || 0) + task.reward;
-  window.userData.stars = starsObj;
+  if (typeof window.awardStars === 'function') window.awardStars(task.reward, 'Ежедневное задание: '+task.title, 'daily-task:'+taskId+':'+window.kunLocalDay()); else { starsObj.totalStars = parseInt(starsObj.totalStars || 0) + task.reward; window.userData.stars = starsObj; }
 
   if (typeof window.updateStarsDisplay === 'function') window.updateStarsDisplay();
   if (typeof window.saveData === 'function') window.saveData();
 
   // Уведомление
   showTaskCompleteNotification(task);
+  document.dispatchEvent(new CustomEvent('kunmusliman:daily-task-completed', { detail: { taskId: taskId } }));
 };
 
 function showTaskCompleteNotification(task) {
@@ -222,11 +259,11 @@ window.renderDailyTasksWidget = function() {
 
 // ========== ДОСТИЖЕНИЯ ЗА СУНДУК ==========
 window.CHEST_ACHIEVEMENTS = [
-  { id: 'chest_10',  cards: 10, reward: 1000, label: 'Собрано 10 карт',  title: 'Начинающий коллекционер' },
-  { id: 'chest_20',  cards: 20, reward: 2000, label: 'Собрано 20 карт',  title: 'Опытный коллекционер' },
-  { id: 'chest_30',  cards: 30, reward: 2500, label: 'Собрано 30 карт',  title: 'Мастер коллекции' },
-  { id: 'chest_50',  cards: 50, reward: 5000, label: 'Собрано 50 карт',  title: 'Мастер коллекции' },
-  { id: 'chest_65',  cards: 65, reward: 10000, label: 'Все 65 карт!',  title: 'Полная коллекция' }
+  { id: 'chest_10',  cards: 10, reward: 100, label: 'Собрано 10 карт',  title: 'Начинающий коллекционер' },
+  { id: 'chest_20',  cards: 20, reward: 200, label: 'Собрано 20 карт',  title: 'Опытный коллекционер' },
+  { id: 'chest_30',  cards: 30, reward: 300, label: 'Собрано 30 карт',  title: 'Мастер коллекции' },
+  { id: 'chest_50',  cards: 50, reward: 500, label: 'Собрано 50 карт',  title: 'Мастер коллекции' },
+  { id: 'chest_65',  cards: 65, reward: 1000, label: 'Все 65 карт!',  title: 'Полная коллекция' }
 ];
 
 window.checkChestAchievements = function() {
@@ -242,8 +279,7 @@ window.checkChestAchievements = function() {
       window.userData.chestAchievements[ach.id] = Date.now();
 
       var starsObj = window.userData.stars || { totalStars: 0 };
-      starsObj.totalStars = parseInt(starsObj.totalStars || 0) + ach.reward;
-      window.userData.stars = starsObj;
+      if (typeof window.awardStars === 'function') window.awardStars(ach.reward, 'Достижение: '+ach.title, 'chest-achievement:'+ach.id); else { starsObj.totalStars = parseInt(starsObj.totalStars || 0) + ach.reward; window.userData.stars = starsObj; }
 
       if (typeof window.updateStarsDisplay === 'function') window.updateStarsDisplay();
       if (typeof window.saveData === 'function') window.saveData();
@@ -368,22 +404,15 @@ console.log('📅 Серии входа + задания + достижения 
 
 // Мост для азкаров — вызывается из azkar.js через checkDailyTasks()
 window.checkDailyTasks = function() {
-  // Когда пользователь читает азкары — засчитываем задание
-  window.completeDailyTask('read_azkar');
+  // Засчитываем азкары только после отметки всех пунктов текущего списка.
+  var checks = Array.prototype.slice.call(document.querySelectorAll('#module-azkar .azkar-check'));
+  if (checks.length && checks.every(function(cb) { return cb.checked; })) window.completeDailyTask('read_azkar');
 };
 
 // Мост для зикра — проверяем общий счётчик зикра
 window.checkZikrForDailyTask = function() {
-  if (!window.userData || !window.userData.zikrCounters) return;
-  var counters = window.userData.zikrCounters;
-  var total = 0;
-  for (var key in counters) {
-    total += parseInt(counters[key] || 0);
-  }
-  // Если суммарно 33+ зикров за сегодня
-  if (total >= 33) {
-    window.completeDailyTask('do_zikr');
-  }
+  var daily = window.userData && window.userData.treasureVault && Number(window.userData.treasureVault.dailyZikr || 0);
+  if (daily >= 33) window.completeDailyTask('do_zikr');
 };
 
 // Мост для Корана — проверяем что страница была прочитана
@@ -406,18 +435,4 @@ window.checkQuranForDailyTask = function() {
   setTimeout(tryHook, 6000);
 })();
 
-// Привязка к Корану — при перелистывании страницы
-(function hookQuran() {
-  function tryHook() {
-    var quranBtns = document.querySelectorAll('[onclick*="nextQuranPage"], [onclick*="prevQuranPage"], [onclick*="loadQuranPage"]');
-    quranBtns.forEach(function(btn) {
-      if (btn._dailyHooked) return;
-      btn._dailyHooked = true;
-      btn.addEventListener('click', function() {
-        setTimeout(window.checkQuranForDailyTask, 1000);
-      });
-    });
-  }
-  setTimeout(tryHook, 3000);
-  setTimeout(tryHook, 6000);
-})();
+

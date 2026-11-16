@@ -93,8 +93,7 @@
       localStorage.setItem(claimedKey, '1');
       if (window.userData) {
         var starsObj = window.userData.stars || { totalStars: 0 };
-        starsObj.totalStars = parseInt(starsObj.totalStars || 0) + 10;
-        window.userData.stars = starsObj;
+        if (typeof window.awardStars === 'function') window.awardStars(10, 'Выполнение задания Джума', 'juma:'+trackKey+':'+new Date().toISOString().slice(0,10)); else { starsObj.totalStars = parseInt(starsObj.totalStars || 0) + 10; window.userData.stars = starsObj; }
         if (typeof window.updateStarsDisplay === 'function') window.updateStarsDisplay();
         if (typeof window.saveData === 'function') window.saveData();
       }

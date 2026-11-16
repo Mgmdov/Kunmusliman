@@ -1,7 +1,7 @@
 {
   "name": "Muslim Tracker",
   "short_name": "Muslim",
-  "description": "Исламский трекер · Коран · Хатм · 99 Имён · Зикр · Тасбих",
+  "description": "Kunmusliman Premium · Коран · Хатм · Ибадат · Исламский календарь · Прогресс",
   "start_url": "https://mgmdov.github.io/Kunmusliman/",
   "scope": "https://mgmdov.github.io/Kunmusliman/",
   "display": "standalone",

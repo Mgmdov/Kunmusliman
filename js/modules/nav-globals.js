@@ -1,4 +1,4 @@
-let navigationHistory = [], currentScreen = 'home';
+let navigationHistory = [], navigationForward = [], currentScreen = 'home';
 
 const GITHUB_RAW = 'https://raw.githubusercontent.com/Mgmdov/Kunmusliman/main/data/';
 const APP_VERSION = '6.0.0';
@@ -183,23 +183,47 @@ async function manualSync() {
 
 setTimeout(() => { checkForUpdatesOnStart(); }, 2000);
 
-function openModule(moduleId) {
+function moduleTitle(moduleId) {
+    const titles = {
+        'khatm':'Хатм','tauba':'Тауба','names':'99 имён Аллаха','azkar':'Азкары','zikr':'Зикр и Салават','tasbih':'Тасбих','fasting':'Пост',
+        'prayer':'Намаз','juma':'Джума','achievements':'Достижения','stars':'Звёзды и задания','collection':'Коллекция','treasure-vault':'Сокровищница',
+        'quiz':'Викторина','dictionary':'Словарь','quran':'Аят дня','settings':'Настройки',
+        'pillars-iman':'Столпы Имана','pillars-islam':'Столпы Ислама','prophet-story':'Жизнь Пророка ﷺ','battles':'Исторические походы','army':'Армия',
+        'hub-quran':'Коран и Хатм','hub-worship':'Ибадат','hub-knowledge':'Знания и история','hub-progress':'Мой прогресс','hub-rewards':'Награды','hub-more':'Ещё'
+    };
+    return titles[moduleId] || moduleId;
+}
+
+function showModuleScreen(moduleId, direction) {
+    const screens = document.querySelectorAll('.module-screen');
+    screens.forEach(screen => screen.classList.remove('active', 'screen-enter-left', 'screen-enter-right'));
+    const target = document.getElementById(`module-${moduleId}`);
+    if (target) {
+        target.classList.add('active', direction === 'back' ? 'screen-enter-right' : 'screen-enter-left');
+        requestAnimationFrame(() => target.classList.remove('screen-enter-left', 'screen-enter-right'));
+    }
     document.getElementById('homeScreen').classList.add('hidden');
     document.getElementById('navBar').classList.remove('hidden');
-    document.querySelectorAll('.module-screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(`module-${moduleId}`)?.classList.add('active');
-    const titles = {
-        'khatm':'Хатм','tauba':'Тауба','names':'99 Имён','azkar':'Азкары','zikr':'Зикр','tasbih':'Тасбих','fasting':'Пост',
-        'prayer':'Намаз','juma':'Джума','achievements':'Достижения','stars':'Звёзды','collection':'Коллекция',
-        'quiz':'Викторина','dictionary':'Словарь','quran':'Аят дня','settings':'Настройки',
-        'pillars-iman':'Столпы Имана','pillars-islam':'Столпы Ислама','prophet-story':'Пророк ﷺ','battles':'Битвы'
-    };
-    document.getElementById('screenTitle').textContent = titles[moduleId] || moduleId;
-    if (navigationHistory[navigationHistory.length-1] !== moduleId) navigationHistory.push(moduleId);
+    document.getElementById('screenTitle').textContent = moduleTitle(moduleId);
     currentScreen = moduleId;
     updateTabBarActive(moduleId);
-    
-    if (moduleId === 'khatm' && typeof updateKhatmUI === 'function') updateKhatmUI();
+    // Каждый новый раздел открывается с начала, независимо от позиции в предыдущем.
+    requestAnimationFrame(() => { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); });
+}
+
+function openModule(moduleId) {
+    if (!document.getElementById(`module-${moduleId}`)) {
+        console.warn('Не найден экран модуля:', moduleId);
+        return;
+    }
+    if (currentScreen !== 'home' && currentScreen !== moduleId) navigationHistory.push(currentScreen);
+    else if (currentScreen === 'home') navigationHistory = [];
+    navigationForward = [];
+    if (navigationHistory[navigationHistory.length - 1] === moduleId) navigationHistory.pop();
+    showModuleScreen(moduleId, 'forward');
+
+
+    if (moduleId === 'khatm' && typeof updateKhatmUI === 'function') { updateKhatmUI(); if (typeof trackKhatmCompletedSurahs === 'function') trackKhatmCompletedSurahs(); }
     if (moduleId === 'tauba' && typeof updateTaubaUI === 'function') updateTaubaUI();
     if (moduleId === 'names' && typeof renderNamesOfAllah === 'function') renderNamesOfAllah();
     if (moduleId === 'azkar') { checkAndResetAzkarDate(); renderAzkar(); }
@@ -216,88 +240,82 @@ function openModule(moduleId) {
     if (moduleId === 'battles') { renderBattleContent('badr'); updateBattlesProgress(); }
 }
 
+function goBack() {
+    if (navigationHistory.length) {
+        navigationForward.push(currentScreen);
+        const prev = navigationHistory.pop();
+        showModuleScreen(prev, 'back');
+    } else {
+        goHome();
+    }
+}
+function goForward() {
+    if (!navigationForward.length) return;
+    navigationHistory.push(currentScreen);
+    const next = navigationForward.pop();
+    showModuleScreen(next, 'forward');
+}
+
 function goHome() {
     document.querySelectorAll('.module-screen').forEach(s => s.classList.remove('active'));
     document.getElementById('homeScreen').classList.remove('hidden');
     document.getElementById('navBar').classList.add('hidden');
-    navigationHistory = []; 
-    currentScreen = 'home'; 
+    navigationHistory = []; navigationForward = [];
+    currentScreen = 'home';
+    updateTabBarActive('home');
     updateHomeWidgets();
 }
 
-document.getElementById('backButton')?.addEventListener('click', () => {
-    if (navigationHistory.length > 1) { 
-        navigationHistory.pop(); 
-        const prev = navigationHistory[navigationHistory.length-1]; 
-        document.querySelectorAll('.module-screen').forEach(s => s.classList.remove('active')); 
-        document.getElementById(`module-${prev}`)?.classList.add('active'); 
-        const titles = {
-            'khatm':'Хатм','tauba':'Тауба','names':'99 Имён','azkar':'Азкары','zikr':'Зикр','tasbih':'Тасбих','fasting':'Пост',
-            'prayer':'Намаз','juma':'Джума','achievements':'Достижения','stars':'Звёзды','collection':'Коллекция',
-            'quiz':'Викторина','dictionary':'Словарь','quran':'Аят дня','settings':'Настройки',
-            'pillars-iman':'Столпы Имана','pillars-islam':'Столпы Ислама','prophet-story':'Пророк ﷺ','battles':'Битвы'
-        }; 
-        document.getElementById('screenTitle').textContent = titles[prev] || prev; 
-        currentScreen = prev; 
-    } else { 
-        goHome(); 
-    }
-});
+document.getElementById('backButton')?.addEventListener('click', goBack);
 
-document.querySelectorAll('.tab-item').forEach(tab => tab.addEventListener('click', () => { 
-    const n = tab.dataset.tab; 
-    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active')); 
-    tab.classList.add('active'); 
-    if (n === 'home') goHome(); 
-    else openModule(n); 
+document.querySelectorAll('.tab-item').forEach(tab => tab.addEventListener('click', () => {
+    const target = tab.dataset.tab;
+    if (!target) return;
+    if (target === 'home') goHome();
+    else openModule(target);
 }));
 
-function updateTabBarActive(id) { 
-    document.querySelectorAll('.tab-item').forEach(t => { 
-        t.classList.remove('active'); 
-        if (t.dataset.tab === id || (id === 'azkar' && t.dataset.tab === 'azkar')) t.classList.add('active'); 
-    }); 
+function getPrimaryTabForScreen(id) {
+    if (!id || id === 'home') return 'home';
+    if (['hub-quran','quran','khatm','coop-khatm'].includes(id)) return 'hub-quran';
+    if (id === 'azkar') return 'azkar';
+    if (id === 'collection') return 'collection';
+    if (id === 'settings') return 'settings';
+    return '';
+}
+
+function updateTabBarActive(id) {
+    const activeTab = getPrimaryTabForScreen(id);
+    document.querySelectorAll('.tab-item').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.tab === activeTab);
+    });
 }
 
 document.querySelectorAll('.icon-item[data-module]').forEach(i => i.addEventListener('click', () => openModule(i.dataset.module)));
 
-let touchStartX = 0;
-let touchStartY = 0;
+// Полноценная история переходов: свайп вправо — назад, влево — вперёд.
+let touchStartX = 0, touchStartY = 0, touchTarget = null;
 document.addEventListener('touchstart', e => {
+    if (!e.touches || !e.touches[0]) return;
     touchStartX = e.touches[0].clientX;
     touchStartY = e.touches[0].clientY;
+    touchTarget = e.target;
+}, { passive: true });
+document.addEventListener('touchend', e => {
+    if (!e.changedTouches || !e.changedTouches[0]) return;
+    if (document.getElementById('homeScreen').classList.contains('hidden') === false) return;
+    if (document.querySelector('.modal[style*="display: flex"], .fullscreen-overlay, #qrOverlay, #fathWheelOverlay, #chestSelectorOverlay, #chestOpeningOverlay')) return;
+    if (touchTarget && touchTarget.closest('input, textarea, select, button, a, [data-no-swipe], .module-tabs, .collection-tabs, .horizontal-scroll')) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
+    if (Math.abs(dx) < 75 || Math.abs(dx) < dy * 1.25) return;
+    if (dx > 0) goBack();
+    else goForward();
 }, { passive: true });
 
-document.addEventListener('touchend', e => {
-    if (!document.getElementById('homeScreen').classList.contains('hidden')) return;
-    const touchEndX = e.changedTouches[0].clientX;
-    const touchEndY = e.changedTouches[0].clientY;
-    const diffX = touchEndX - touchStartX;
-    const diffY = Math.abs(touchEndY - touchStartY);
-    
-    if (diffX > 80 && diffX > diffY) {
-        if (navigationHistory.length > 1) { 
-            navigationHistory.pop(); 
-            const prev = navigationHistory[navigationHistory.length-1]; 
-            document.querySelectorAll('.module-screen').forEach(s => s.classList.remove('active')); 
-            document.getElementById(`module-${prev}`)?.classList.add('active');
-            const titles = {
-                'khatm':'Хатм','tauba':'Тауба','names':'99 Имён','azkar':'Азкары','zikr':'Зикр','tasbih':'Тасбих','fasting':'Пост',
-                'prayer':'Намаз','juma':'Джума','achievements':'Достижения','stars':'Звёзды','collection':'Коллекция',
-                'quiz':'Викторина','dictionary':'Словарь','quran':'Аят дня','settings':'Настройки',
-                'pillars-iman':'Столпы Имана','pillars-islam':'Столпы Ислама','prophet-story':'Пророк ﷺ','battles':'Битвы'
-            }; 
-            document.getElementById('screenTitle').textContent = titles[prev] || prev; 
-            currentScreen = prev; 
-        } else { 
-            goHome(); 
-        }
-    }
-});
-
 window.closeStoryModal = () => document.getElementById('storyModal').style.display = 'none';
-window.closeAuthModal = () => { document.getElementById('authModal').style.display = 'none'; document.getElementById('authError').textContent = ''; };
-window.openAuthModal = () => document.getElementById('authModal').style.display = 'flex';
+window.closeAuthModal = () => { document.getElementById('authModal').style.display = 'none'; document.getElementById('authError').textContent = ''; document.getElementById('loginForm').style.display='block'; document.getElementById('registerForm').style.display='none'; document.getElementById('forgotPasswordForm').style.display='none'; if (!localStorage.getItem('kunmusliman_entry_choice_v1')) { const g=document.getElementById('kunEntryGate'); if(g)g.style.display='flex'; document.body.style.overflow='hidden'; } else { if(document.getElementById('kunOnboarding')?.style.display!=='flex') document.body.style.overflow=''; if(window.__kunEntryReady && document.getElementById('kunOnboarding')?.style.display!=='flex')window.dispatchEvent(new Event('kun:entry-ready')); } };
+window.openAuthModal = () => { const g=document.getElementById('kunEntryGate'); if(g)g.style.display='none'; document.getElementById('authModal').style.display = 'flex'; };
 window.showCardStory = function(id, name, emoji, story) { 
     document.getElementById('storyIcon').innerHTML = emoji; 
     document.getElementById('storyTitle').textContent = name; 
@@ -327,5 +345,5 @@ window.manualSync = manualSync;
 window.checkForUpdatesOnStart = checkForUpdatesOnStart;
 
 window.openModule = openModule; 
-window.goHome = goHome; 
+window.goHome = goHome; window.goBack = goBack; window.goForward = goForward; 
 window.updateHomeWidgets = updateHomeWidgets;

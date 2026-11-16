@@ -1,0 +1,37 @@
+/* Kunmusliman v20 — unified, compact interface polish.
+   CSS-only layer: keeps existing modules and their data/actions intact. */
+:root{--v20-radius:18px;--v20-gap:12px}
+html{scroll-behavior:smooth;scroll-padding-top:calc(64px + env(safe-area-inset-top))}
+body{overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+.app-container{width:100%;max-width:430px;margin-inline:auto;overflow-x:clip}
+.module-screen{width:100%;max-width:100%;min-width:0;box-sizing:border-box;padding:clamp(12px,3.6vw,17px);overflow-x:clip;overscroll-behavior-y:contain}
+.module-screen>*{max-width:100%;box-sizing:border-box}
+.module-screen img,.module-screen video,.module-screen canvas{max-width:100%;height:auto}
+.module-screen button,.module-screen input,.module-screen select,.module-screen textarea{max-width:100%;min-width:0;box-sizing:border-box;font:inherit}
+.module-screen .ios-card,.module-screen .card,.module-screen .widget{border-radius:var(--v20-radius)}
+.module-screen .ios-card{margin-block:10px;padding:clamp(13px,3.8vw,18px)}
+.module-screen h1,.module-screen h2,.module-screen h3{overflow-wrap:anywhere;line-height:1.3}
+.module-screen p{line-height:1.55}
+/* Consistent app header in both themes */
+.nav-bar{min-height:52px;box-sizing:border-box;background:rgba(248,248,250,.92);border-bottom:1px solid rgba(60,60,67,.12);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.nav-bar-title{font-size:16px;font-weight:700;letter-spacing:.01em}
+body.theme-dark .nav-bar{background:rgba(18,22,29,.92);border-bottom-color:rgba(255,255,255,.09)}
+body.theme-dark .nav-bar-title{color:#f2e7cf}
+/* Five-item navigation: clear hit targets and stable safe-area spacing */
+.tab-bar{width:100%;max-width:430px;box-sizing:border-box;padding:7px 8px calc(7px + env(safe-area-inset-bottom));gap:2px;background:rgba(250,250,252,.94);border-top:1px solid rgba(60,60,67,.12);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.tab-item{min-height:48px;border-radius:13px;transition:background .18s ease,color .18s ease,transform .18s ease}
+.tab-item.active{background:rgba(190,151,75,.12)}
+.tab-item .tab-label{font-weight:650;letter-spacing:-.01em}
+body.theme-dark .tab-bar{background:rgba(13,17,24,.95);border-top-color:rgba(255,255,255,.09)}
+body.theme-dark .tab-item{color:#aaa99f}
+body.theme-dark .tab-item.active{background:rgba(214,184,117,.13);color:#e7ca8d}
+/* Buttons and controls behave consistently without changing their actions */
+button,.ios-button,.icon-item,.tab-item{-webkit-user-select:none;user-select:none;touch-action:manipulation}
+button:focus-visible,.ios-button:focus-visible,.tab-item:focus-visible,.icon-item:focus-visible{outline:2px solid #c7a45f;outline-offset:2px}
+button:active,.ios-button:active{transform:scale(.985)}
+/* Prevent common flex/grid overflow on narrow iPhones */
+.module-screen [style*="display:flex"],.module-screen .row,.module-screen .flex-row{min-width:0;flex-wrap:wrap}
+.module-screen [style*="grid-template-columns"]{min-width:0}
+.module-screen .collection-grid{grid-template-columns:repeat(auto-fill,minmax(min(140px,100%),1fr));gap:10px}
+@media(max-width:360px){.tab-bar{padding-inline:5px}.tab-item{min-height:46px}.tab-item .tab-label{font-size:8px!important}.module-screen{padding:11px}.module-screen .ios-card{padding:12px;border-radius:15px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}

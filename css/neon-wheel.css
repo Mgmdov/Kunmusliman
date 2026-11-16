@@ -1,0 +1,33 @@
+/* v55 — Неоновое колесо наград (по эскизу): фиолетовый / зелёный / оранжевый / голубой */
+.neon-wheel .fath-bg{position:absolute;inset:0;background:radial-gradient(120% 80% at 50% 30%,#0b1238 0%,#05060f 55%,#010208 100%)}
+.neon-wheel .nw-grid{position:absolute;inset:0;pointer-events:none;opacity:.55;
+  background-image:
+   radial-gradient(1.5px 1.5px at 12% 20%,#2fe6ff 50%,transparent 51%),radial-gradient(1.5px 1.5px at 82% 12%,#c04bff 50%,transparent 51%),
+   radial-gradient(1.5px 1.5px at 30% 70%,#43ff6a 50%,transparent 51%),radial-gradient(1.5px 1.5px at 90% 60%,#ff8a2a 50%,transparent 51%),
+   radial-gradient(1.5px 1.5px at 55% 88%,#2fe6ff 50%,transparent 51%),radial-gradient(1.5px 1.5px at 8% 85%,#c04bff 50%,transparent 51%),
+   linear-gradient(rgba(47,230,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(192,75,255,.05) 1px,transparent 1px);
+  background-size:auto,auto,auto,auto,auto,auto,38px 38px,38px 38px;animation:nwDrift 18s linear infinite}
+@keyframes nwDrift{to{background-position:0 0,0 0,0 0,0 0,0 0,0 0,0 38px,38px 0}}
+.neon-wheel .fath-content{position:relative;z-index:2;padding-bottom:40px}
+.neon-wheel .overlay-title{color:#2fe6ff!important;text-shadow:0 0 10px rgba(47,230,255,.7);letter-spacing:.5px}
+.neon-wheel .overlay-header{background:rgba(3,5,16,.6)!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.nw-stars{width:max-content;margin:14px auto 6px;padding:6px 16px;border-radius:20px;font-weight:700;font-size:16px;color:#ffd75a;
+  border:1px solid rgba(255,215,90,.4);background:rgba(255,215,90,.08);text-shadow:0 0 8px rgba(255,215,90,.6)}
+.nw-stage{position:relative;width:min(88vw,360px);aspect-ratio:1;margin:14px auto 18px;filter:drop-shadow(0 0 22px rgba(122,60,255,.45))}
+.nw-stage.spinning{filter:drop-shadow(0 0 30px rgba(47,230,255,.7))}
+.nw-stage.win{animation:nwWin 1.4s ease-out}
+@keyframes nwWin{0%{filter:drop-shadow(0 0 60px #fff)}100%{filter:drop-shadow(0 0 22px rgba(122,60,255,.45))}}
+.nw-rotator{position:absolute;inset:0;will-change:transform}
+.nw-pointer{position:absolute;top:-12px;left:50%;width:0;height:0;transform:translateX(-50%);z-index:5;
+  border-left:13px solid transparent;border-right:13px solid transparent;border-top:26px solid #2fe6ff;filter:drop-shadow(0 0 8px #2fe6ff)}
+.nw-center{position:absolute;left:50%;top:50%;width:27%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;z-index:4;
+  display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,#06102a,#02030a);pointer-events:none}
+.nw-center span{font-family:'Amiri',serif;font-size:clamp(34px,11vw,52px);line-height:1;color:#2fe6ff;
+  text-shadow:0 0 6px #2fe6ff,0 0 18px #2fe6ff,0 0 34px #1a9bff;animation:nwPulse 2.4s ease-in-out infinite}
+@keyframes nwPulse{50%{text-shadow:0 0 10px #8ff3ff,0 0 28px #2fe6ff,0 0 52px #1a9bff}}
+.neon-wheel .fath-message{text-align:center;min-height:22px;color:#9fe9ff;font-size:14px;padding:0 20px}
+.neon-wheel .fath-actions{display:flex;justify-content:center;margin:14px 0}
+.neon-wheel .fath-btn-primary{background:linear-gradient(180deg,#2fe6ff,#7a3cff)!important;color:#02030a!important;font-weight:800;border:0;
+  padding:14px 34px;border-radius:30px;font-size:16px;box-shadow:0 0 20px rgba(47,230,255,.55)}
+.neon-wheel .fath-btn-disabled{background:rgba(255,255,255,.08)!important;color:#7a86a8!important;border:1px solid rgba(255,255,255,.12);padding:13px 28px;border-radius:30px;font-size:14px}
+@media (prefers-reduced-motion:reduce){.neon-wheel .nw-grid,.nw-center span{animation:none}}

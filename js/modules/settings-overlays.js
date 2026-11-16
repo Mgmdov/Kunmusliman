@@ -1,54 +1,39 @@
-// ========== НАСТРОЙКИ — ВАРИАНТ B ==========
+// Единая система оформления: только светлая и тёмная темы.
 window.applyTheme=function(theme){
-  document.body.classList.remove('theme-dark','theme-ramadan','theme-mosque','theme-ocean','theme-gold','theme-sakura','theme-sunset');
-  if(theme!=='light')document.body.classList.add('theme-'+theme);
+  theme = theme === 'light' ? 'light' : 'dark';
+  document.body.classList.remove('theme-light','theme-dark','theme-ramadan','theme-mosque','theme-ocean','theme-gold','theme-sakura','theme-sunset');
+  document.body.classList.add('theme-'+theme);
   localStorage.setItem('muslim_tracker_theme',theme);
+  var meta=document.querySelector('meta[name="theme-color"]');
+  if(meta)meta.setAttribute('content',theme==='dark'?'#090d0c':'#f4f5f2');
+  var btn=document.getElementById('premiumThemeToggle');
+  if(btn)btn.innerHTML=theme==='dark'?'<i class="fas fa-sun"></i><span>Светлая</span>':'<i class="fas fa-moon"></i><span>Тёмная</span>';
 };
-
+window.togglePremiumTheme=function(){
+  var current=document.body.classList.contains('theme-dark')?'dark':'light';
+  window.applyTheme(current==='dark'?'light':'dark');
+};
+(function(){
+  var saved=localStorage.getItem('muslim_tracker_theme')||'dark';
+  window.applyTheme(saved);
+})();
 window.openSettingsThemes=function(){
-  var ex=document.getElementById('settingsThemesOverlay');if(ex)ex.remove();
-  var saved=localStorage.getItem('muslim_tracker_theme')||'light';
-  var themes=[
-    {id:'light',n:'Светлая',i:'☀️',bg:'#FFFFFF',c:'#000'},
-    {id:'dark',n:'Тёмная',i:'🌙',bg:'#1C1C1E',c:'#FFD700'},
-    {id:'ramadan',n:'Рамадан',i:'🌟',bg:'linear-gradient(135deg,#1a0a2e,#0d1b2a)',c:'#FFD700'},
-    {id:'mosque',n:'Мечеть',i:'🕌',bg:'linear-gradient(135deg,#0a2f1a,#1a4a2a)',c:'#81C784'},
-    {id:'ocean',n:'Океан',i:'🌊',bg:'linear-gradient(135deg,#001f3f,#004080)',c:'#00BFFF'},
-    {id:'gold',n:'Золото',i:'👑',bg:'linear-gradient(135deg,#1a0a00,#3a2a00)',c:'#FFD700'},
-    {id:'sakura',n:'Сакура',i:'🌸',bg:'linear-gradient(135deg,#1a001a,#330033)',c:'#FFB6C1'},
-    {id:'sunset',n:'Закат',i:'🌅',bg:'linear-gradient(135deg,#2a0a00,#4a1a00)',c:'#FFA500'}
-  ];
-  var o=document.createElement('div');o.id='settingsThemesOverlay';
-  o.className='fullscreen-overlay';
-  var h='<div class="overlay-header"><button class="overlay-back-btn" onclick="document.getElementById(\'settingsThemesOverlay\').remove();">← Назад</button><span class="overlay-title">Темы</span><span style="width:60px;"></span></div>';
-  h+='<div class="overlay-body"><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">';
-  themes.forEach(function(t){
-    var active=saved===t.id;
-    h+='<div class="theme-pick-item" data-theme="'+t.id+'" style="padding:20px 16px;background:'+t.bg+';border-radius:16px;border:3px solid '+(active?'#007AFF':'transparent')+';text-align:center;cursor:pointer;"><div style="font-size:2rem;margin-bottom:8px;">'+t.i+'</div><div style="font-weight:500;color:'+t.c+';font-size:14px;">'+t.n+'</div></div>';
-  });
-  h+='</div></div>';
-  o.innerHTML=h;
+  var old=document.getElementById('settingsThemesOverlay');if(old)old.remove();
+  var saved=document.body.classList.contains('theme-dark')?'dark':'light';
+  var o=document.createElement('div');o.id='settingsThemesOverlay';o.className='fullscreen-overlay premium-theme-overlay';
+  o.innerHTML='<div class="overlay-header"><button class="overlay-back-btn" onclick="document.getElementById(\'settingsThemesOverlay\').remove()">← Назад</button><span class="overlay-title">Оформление</span><span></span></div><div class="overlay-body"><p class="premium-theme-note">Выбери оформление приложения</p><div class="premium-theme-choices"><button class="premium-theme-choice light-choice" data-theme="light"><span class="theme-preview light-preview">☀️</span><b>Светлая тема</b><small>Чистый светлый интерфейс</small></button><button class="premium-theme-choice dark-choice" data-theme="dark"><span class="theme-preview dark-preview">🌙</span><b>Тёмная тема</b><small>Графитовый фон и золото</small></button></div></div>';
   document.body.appendChild(o);
-  // Привязка — БЕЗ бага "Активна"
-  o.querySelectorAll('.theme-pick-item').forEach(function(el){
-    el.addEventListener('click',function(){
-      var theme=el.dataset.theme;
-      window.applyTheme(theme);
-      // Просто обновляем бордеры, НЕ добавляем текст
-      o.querySelectorAll('.theme-pick-item').forEach(function(x){
-        x.style.borderColor=x.dataset.theme===theme?'#007AFF':'transparent';
-      });
-    });
-  });
+  o.querySelectorAll('[data-theme]').forEach(function(b){if(b.dataset.theme===saved)b.classList.add('selected');b.addEventListener('click',function(){window.applyTheme(b.dataset.theme);o.querySelectorAll('[data-theme]').forEach(x=>x.classList.toggle('selected',x===b));});});
 };
-
 window.openSettingsData=function(){
   var ex=document.getElementById('settingsDataOverlay');if(ex)ex.remove();
-  var content=document.getElementById('settingsDataContent');
-  if(!content)return;
-  var o=document.createElement('div');o.id='settingsDataOverlay';
-  o.className='fullscreen-overlay';
-  o.innerHTML='<div class="overlay-header"><button class="overlay-back-btn" onclick="document.getElementById(\'settingsDataOverlay\').remove();">← Назад</button><span class="overlay-title">Данные</span><span style="width:60px;"></span></div><div class="overlay-body">'+content.innerHTML+'</div>';
+  var content=document.getElementById('settingsDataContent');if(!content)return;
+  var home=content.parentNode;
+  var o=document.createElement('div');o.id='settingsDataOverlay';o.className='fullscreen-overlay';
+  o.innerHTML='<div class="overlay-header"><button class="overlay-back-btn" onclick="document.getElementById(\'settingsDataOverlay\').remove()">← Назад</button><span class="overlay-title">Данные</span><span></span></div><div class="overlay-body" id="sdoBody"></div>';
   document.body.appendChild(o);
+  // переносим живой блок (а не копию), чтобы кнопки сохраняли обработчики
+  o.querySelector('#sdoBody').appendChild(content);
+  var mo=new MutationObserver(function(){if(!document.body.contains(o)){home.appendChild(content);mo.disconnect();}});
+  mo.observe(document.body,{childList:true});
 };
-console.log('⚙️ Настройки B');

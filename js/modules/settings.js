@@ -18,9 +18,10 @@ function updateAccountInfo() {
     if (currentUser && !currentUser.isAnonymous) { 
         if (statusEl) statusEl.textContent = 'Авторизован'; 
         if (emailEl) emailEl.textContent = currentUser.email || '—'; 
-        if (signOutBtn) signOutBtn.style.display = 'block'; 
+        if (signOutBtn) signOutBtn.style.display = 'block'; { const d = document.getElementById('deleteAccountBtn'); if (d) d.style.display = 'block'; } 
         if (loginBtn) loginBtn.style.display = 'none'; 
     } else { 
+        { const d = document.getElementById('deleteAccountBtn'); if (d) d.style.display = 'none'; }
         if (statusEl) statusEl.textContent = 'Гость'; 
         if (emailEl) emailEl.textContent = '—'; 
         if (signOutBtn) signOutBtn.style.display = 'none'; 
@@ -32,16 +33,25 @@ function loadSettingsUI() {
     const sel = document.getElementById('notificationInterval'); 
     if (sel && userData.settings) sel.value = userData.settings.zikrNotificationInterval || 0; 
     const hideAyahCheck = document.getElementById('hideAyahWidgetCheck');
-    if (hideAyahCheck) hideAyahCheck.checked = userData.settings?.hideAyahWidget || false;
+    // Переносим старое значение из localStorage в основной профиль настроек.
+    const legacyAyahSetting = localStorage.getItem('hide_ayah_widget');
+    if (legacyAyahSetting !== null) {
+        if (!userData.settings) userData.settings = {};
+        userData.settings.hideAyahWidget = legacyAyahSetting === 'true';
+        localStorage.removeItem('hide_ayah_widget');
+        if (typeof saveUserData === 'function') saveUserData();
+    }
+    if (hideAyahCheck) hideAyahCheck.checked = !!userData.settings?.hideAyahWidget;
+    const ayahWidget = document.getElementById('ayahWidget');
+    if (ayahWidget) ayahWidget.hidden = !!userData.settings?.hideAyahWidget;
     updateAccountInfo(); 
     loadSavedTheme(); 
     updateLastSyncTime();
 }
 
-function loadSavedTheme() { 
-    const savedTheme = localStorage.getItem('muslim_tracker_theme') || 'light'; 
-    document.body.className = `theme-${savedTheme}`; 
-    document.querySelectorAll('.theme-option').forEach(opt => opt.style.borderColor = opt.dataset.theme === savedTheme ? '#007AFF' : 'transparent'); 
+function loadSavedTheme() {
+    const savedTheme = localStorage.getItem('muslim_tracker_theme') || 'dark';
+    if (typeof window.applyTheme === 'function') window.applyTheme(savedTheme);
 }
 
 function restoreNotificationInterval() { 
@@ -54,13 +64,26 @@ function restoreNotificationInterval() {
     } 
 }
 
+// Мгновенное управление виджетом «Аят дня» с сохранением в основной профиль.
+window.toggleAyahWidget = function(shouldHide) {
+    if (!userData.settings) userData.settings = {};
+    userData.settings.hideAyahWidget = !!shouldHide;
+    localStorage.removeItem('hide_ayah_widget');
+    const ayahWidget = document.getElementById('ayahWidget');
+    if (ayahWidget) ayahWidget.hidden = !!shouldHide;
+    if (typeof saveUserData === 'function') saveUserData();
+    if (typeof showNotification === 'function') {
+        showNotification(shouldHide ? 'Аят дня скрыт с главного экрана' : 'Аят дня снова отображается');
+    }
+};
+
 function saveAllSettings() {
     if (!userData.settings) userData.settings = {};
     userData.settings.zikrNotificationInterval = parseInt(document.getElementById('notificationInterval').value);
     userData.settings.hideAyahWidget = document.getElementById('hideAyahWidgetCheck').checked;
     saveUserData();
     const ayahWidget = document.getElementById('ayahWidget');
-    if (ayahWidget) ayahWidget.style.display = userData.settings.hideAyahWidget ? 'none' : 'block';
+    if (ayahWidget) ayahWidget.hidden = !!userData.settings.hideAyahWidget;
     restoreNotificationInterval();
     showNotification('✅ Настройки сохранены!');
 }
@@ -118,43 +141,7 @@ async function restoreFromFirebase() {
     }
 }
 
-document.querySelectorAll('.theme-option').forEach(function(opt) { 
-    opt.addEventListener('click', function() { 
-        var theme = this.dataset.theme; 
-        
-        // Удаляем ВСЕ темы
-        document.body.classList.remove('theme-dark', 'theme-ramadan', 'theme-mosque', 'theme-ocean', 'theme-gold', 'theme-sakura', 'theme-sunset');
-        
-        // Добавляем нужную (если не светлая)
-        if (theme !== 'light') {
-            document.body.classList.add('theme-' + theme);
-        }
-        
-        // Сохраняем
-        localStorage.setItem('muslim_tracker_theme', theme); 
-        
-        // Обводка
-        document.querySelectorAll('.theme-option').forEach(function(o) {
-            o.style.borderColor = 'transparent'; 
-        });
-        this.style.borderColor = '#007AFF'; 
-        
-        showNotification('🎨 Тема «' + theme + '» применена!'); 
-    }); 
-});
-
-// Загрузка сохранённой темы при старте
-(function() {
-    var saved = localStorage.getItem('muslim_tracker_theme') || 'light';
-    if (saved !== 'light') {
-        document.body.classList.add('theme-' + saved);
-    }
-    document.querySelectorAll('.theme-option').forEach(function(opt) {
-        if (opt.dataset.theme === saved) {
-            opt.style.borderColor = '#007AFF';
-        }
-    });
-})();
+// Переключение тем выполняется через settings-overlays.js (только light/dark).
 
 document.getElementById('notificationInterval')?.addEventListener('change', e => { 
     if (!userData.settings) userData.settings = {}; 
@@ -176,45 +163,112 @@ document.getElementById('signOutBtnSettings')?.addEventListener('click', async (
     if (!currentUser || currentUser.isAnonymous) { showNotification('👤 Вы не вошли'); return; } 
     if (confirm('Выйти?')) { 
         await saveUserData(); 
+        localStorage.setItem('kunmusliman_entry_choice_v1', 'guest');
         await auth.signOut(); 
         currentUser = null; 
         updateAccountInfo(); 
-        await signInAnonymously(); 
         showNotification('👋 Вы вышли'); 
         updateAllUI(); 
     } 
 });
 
-document.getElementById('exportDataBtn')?.addEventListener('click', () => { 
-    const exp = { userData, specialDaysCounters, exportDate: new Date().toISOString(), version: '6.0' }; 
-    const b = new Blob([JSON.stringify(exp, null, 2)], { type: 'application/json' }); 
-    const a = document.createElement('a'); 
-    a.href = URL.createObjectURL(b); 
-    a.download = `muslim-tracker-${new Date().toISOString().split('T')[0]}.json`; 
-    a.click(); 
-    showNotification('📤 Экспортировано!'); 
+// Резервная копия v22: сохраняем данные пользователя и безопасные ключи приложения.
+const BACKUP_FORMAT = 'kunmusliman-backup';
+const BACKUP_VERSION = 2;
+const BACKUP_STORAGE_EXCLUDE = /^(firebase|firebase:|__|google\.|g_state|amp_)/i;
+
+function collectAppStorage() {
+    const values = {};
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key || BACKUP_STORAGE_EXCLUDE.test(key)) continue;
+        try { values[key] = localStorage.getItem(key); } catch (_) {}
+    }
+    return values;
+}
+
+function downloadJsonFile(payload, filename) {
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+document.getElementById('exportDataBtn')?.addEventListener('click', () => {
+    try {
+        const payload = {
+            format: BACKUP_FORMAT,
+            backupVersion: BACKUP_VERSION,
+            appVersion: '22.0',
+            exportDate: new Date().toISOString(),
+            userData: JSON.parse(JSON.stringify(userData)),
+            specialDaysCounters: typeof specialDaysCounters !== 'undefined' ? JSON.parse(JSON.stringify(specialDaysCounters)) : {},
+            appStorage: collectAppStorage()
+        };
+        downloadJsonFile(payload, `kunmusliman-backup-${new Date().toISOString().slice(0,10)}.json`);
+        localStorage.setItem('kunmusliman_last_local_backup', new Date().toISOString());
+        showNotification('Резервная копия создана');
+    } catch (err) {
+        console.error('Backup export failed:', err);
+        showNotification('Не удалось создать копию: ' + err.message);
+    }
 });
 
-document.getElementById('importDataBtn')?.addEventListener('click', () => document.getElementById('importFileInput').click());
+document.getElementById('importDataBtn')?.addEventListener('click', () => document.getElementById('importFileInput')?.click());
 
-document.getElementById('importFileInput')?.addEventListener('change', e => { 
-    const f = e.target.files[0]; if (!f) return; 
-    const r = new FileReader(); 
-    r.onload = ev => { 
-        try { 
-            const imp = JSON.parse(ev.target.result); 
-            if (imp.userData) { 
-                Object.assign(userData, imp.userData); 
-                if (imp.specialDaysCounters) Object.assign(specialDaysCounters, imp.specialDaysCounters); 
-            } else Object.assign(userData, imp); 
-            ensureFullDataStructure(); 
-            saveUserData(); 
-            showNotification('✅ Импортировано!'); 
-            setTimeout(() => updateAllUI(), 300); 
-        } catch (err) { alert('Ошибка формата'); } 
-    }; 
-    r.readAsText(f); 
-    e.target.value = ''; 
+document.getElementById('importFileInput')?.addEventListener('change', async e => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 15 * 1024 * 1024) {
+        alert('Файл слишком большой (максимум 15 МБ).'); e.target.value = ''; return;
+    }
+    try {
+        const parsed = JSON.parse(await file.text());
+        const incoming = parsed?.format === BACKUP_FORMAT ? parsed.userData : (parsed?.userData || parsed);
+        if (!incoming || typeof incoming !== 'object' || Array.isArray(incoming)) throw new Error('В файле нет корректного объекта userData.');
+        if (parsed?.format && parsed.format !== BACKUP_FORMAT) throw new Error('Неизвестный формат резервной копии.');
+        if (!confirm('Восстановить данные из файла? Текущий прогресс будет заменён. Перед восстановлением будет создана локальная страховочная копия.')) return;
+
+        // Страховочная копия текущего состояния перед любым изменением.
+        const safetyCopy = {
+            format: BACKUP_FORMAT, backupVersion: BACKUP_VERSION,
+            exportDate: new Date().toISOString(), userData: JSON.parse(JSON.stringify(userData)),
+            specialDaysCounters: typeof specialDaysCounters !== 'undefined' ? JSON.parse(JSON.stringify(specialDaysCounters)) : {},
+            appStorage: collectAppStorage()
+        };
+        downloadJsonFile(safetyCopy, `kunmusliman-before-restore-${new Date().toISOString().slice(0,10)}.json`);
+
+        Object.keys(userData).forEach(key => delete userData[key]);
+        Object.assign(userData, incoming);
+        if (parsed.specialDaysCounters && typeof specialDaysCounters !== 'undefined') {
+            Object.assign(specialDaysCounters, parsed.specialDaysCounters);
+        }
+        if (parsed.appStorage && typeof parsed.appStorage === 'object') {
+            Object.entries(parsed.appStorage).forEach(([key, value]) => {
+                if (!BACKUP_STORAGE_EXCLUDE.test(key) && typeof value === 'string') {
+                    try { localStorage.setItem(key, value); } catch (storageError) { console.warn('Skipped storage key:', key, storageError); }
+                }
+            });
+        }
+        ensureFullDataStructure();
+        await saveUserData();
+        if (typeof updateAllUI === 'function') updateAllUI();
+        if (typeof renderCollection === 'function') renderCollection();
+        if (typeof renderAchievements === 'function') renderAchievements();
+        if (typeof updateKhatmUI === 'function') updateKhatmUI();
+        showNotification('Данные восстановлены. Проверьте коллекцию и прогресс.');
+    } catch (err) {
+        console.error('Backup import failed:', err);
+        alert('Не удалось восстановить копию: ' + err.message);
+    } finally {
+        e.target.value = '';
+    }
 });
 
 document.getElementById('syncNowBtn')?.addEventListener('click', async () => { 
@@ -330,3 +384,37 @@ setTimeout(() => {
     restoreNotificationInterval(); 
     updateLastSyncTime();
 }, 300);
+
+// ===== Сообщить о баге → сразу открывает WhatsApp =====
+window.BUG_REPORT_WA = '79635890090';
+window.reportBug = function () {
+  var ver = 'v58';
+  var ud = window.userData || {};
+  var txt = 'Салам! Нашёл баг в Kunmusliman (' + ver + ').\n\nГде: \nЧто произошло: \nЧто ожидал: \n\n' +
+    'Устройство: ' + (navigator.userAgent || '').slice(0, 90) + (ud.nickname ? '\nНик: ' + ud.nickname : '');
+  var url = 'https://wa.me/' + window.BUG_REPORT_WA + '?text=' + encodeURIComponent(txt);
+  var w = null;
+  try { w = window.open(url, '_blank'); } catch (e) {}
+  if (!w) location.href = url;
+};
+
+
+// Удаление аккаунта (требование App Store 5.1.1(v)): данные в облаке + учётная запись + локальные данные
+window.deleteMyAccount = async function () {
+  const u = window._currentUser, db = window._db;
+  if (!u || u.isAnonymous) { alert('Вы не вошли в аккаунт.'); return; }
+  if (!confirm('Удалить аккаунт и все данные безвозвратно? Прогресс, рейтинг и карточки будут потеряны.')) return;
+  if (!confirm('Точно удалить? Это нельзя отменить.')) return;
+  try {
+    if (db) {
+      await Promise.all(['users', 'leaderboard'].map(c => db.collection(c).doc(u.uid).delete().catch(() => {})));
+    }
+    await u.delete();
+  } catch (e) {
+    if (e && e.code === 'auth/requires-recent-login') { alert('Для удаления нужно заново войти. Выйдите, войдите снова и повторите.'); return; }
+    alert('Не удалось удалить аккаунт: ' + ((e && e.message) || e)); return;
+  }
+  try { localStorage.clear(); sessionStorage.clear(); } catch (e) {}
+  alert('Аккаунт удалён.');
+  location.reload();
+};

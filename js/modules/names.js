@@ -21,6 +21,8 @@ const NAMES_CARDS = [
     { id: 'name90', name: '90 Имён', title: 'Приближенный', emoji: '🤲', type: 'names', rarity: 'legendary', story: '90 Имён Аллаха! Вы приближаетесь к завершению.', condition: 'names_90', conditionText: 'Выучить 90 имён' },
     { id: 'name99', name: '99 Имён', title: 'Хранитель', emoji: '👑', type: 'names', rarity: 'mythic', story: 'Все 99 Прекрасных Имён Аллаха! Вы — хранитель знаний.', condition: 'names_99', conditionText: 'Выучить все 99 имён' }
 ];
+window.NAMES_CARDS = NAMES_CARDS;
+
 
 // Добавляем карточки в общий массив, если они ещё не добавлены
 setTimeout(() => {
@@ -165,22 +167,48 @@ function renderNamesOfAllah() {
         </div>`;
     });
     c.innerHTML = h;
-    document.querySelectorAll('.name-learned-check').forEach(cb => cb.addEventListener('change', e => {
-        const num = parseInt(cb.dataset.num);
-        if (cb.checked) { 
-            if (!userData.namesLearned.includes(num)) { 
-                userData.namesLearned.push(num); 
-                addXP(20); 
-            } 
-        } else { 
-            userData.namesLearned = userData.namesLearned.filter(n => n !== num); 
-        }
-        saveUserData(); 
-        renderNamesOfAllah(); 
-        checkNamesCards(); 
-        updateHomeWidgets();
-    }));
 }
+
+// Делегированный обработчик: не теряется при перерисовке списка имён.
+// Счётчик и прогресс обновляются синхронно, до завершения сохранения в облако.
+(function bindNamesLearnedHandler() {
+    const container = document.getElementById('namesListContainer');
+    if (!container || container.dataset.learnedHandlerBound === '1') return;
+    container.dataset.learnedHandlerBound = '1';
+    container.addEventListener('change', async (event) => {
+        const cb = event.target.closest('.name-learned-check');
+        if (!cb || !container.contains(cb)) return;
+
+        const num = Number.parseInt(cb.dataset.num, 10);
+        if (!Number.isInteger(num) || num < 1 || num > 99) return;
+        if (!Array.isArray(userData.namesLearned)) userData.namesLearned = [];
+
+        if (cb.checked) {
+            if (!userData.namesLearned.includes(num)) {
+                userData.namesLearned.push(num);
+                addXP(20);
+            }
+        } else {
+            userData.namesLearned = userData.namesLearned.filter(value => value !== num);
+        }
+
+        // Немедленно отражаем новое состояние в интерфейсе.
+        const count = userData.namesLearned.length;
+        const countEl = document.getElementById('namesLearnedCount');
+        const progressEl = document.getElementById('namesProgressFill');
+        if (countEl) countEl.textContent = `${count} / 99`;
+        if (progressEl) progressEl.style.width = `${(count / 99) * 100}%`;
+        updateHomeWidgets();
+        checkNamesCards();
+        if (typeof checkAllAchievements === 'function') checkAllAchievements();
+        if (typeof renderAchievements === 'function') renderAchievements();
+
+        // Локальное сохранение выполняется синхронно внутри saveUserData;
+        // облачное сохранение может завершиться позже.
+        try { await saveUserData(); }
+        catch (error) { console.error('Не удалось сохранить изученные имена:', error); }
+    });
+})();
 
 function checkNamesCards() {
     const learned = userData.namesLearned?.length || 0;
@@ -199,14 +227,9 @@ function checkNamesCards() {
     });
     
     saveUserData();
-    
-    if (typeof updateCollectionBadge === 'function') {
-        updateCollectionBadge();
-    }
-    
-    if (typeof currentScreen !== 'undefined' && currentScreen === 'collection' && typeof renderCollection === 'function') {
-        renderCollection();
-    }
+    if (typeof updateCollectionBadge === 'function') updateCollectionBadge();
+    // Обновляем каталог и экран коллекции сразу, даже если вкладка сейчас скрыта.
+    if (typeof renderCollection === 'function') renderCollection();
 }
 
 // Функция разблокировки карточки

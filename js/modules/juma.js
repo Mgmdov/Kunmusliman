@@ -4,14 +4,14 @@ function updateJumaCheckboxesState() {
     if (isFriday) {
         if (kahfCheck) kahfCheck.disabled = false; if (khutbaCheck) khutbaCheck.disabled = false;
         if (lockedMsg) lockedMsg.style.display = 'none'; if (hint) { hint.textContent = '✅ Сегодня пятница! Отметьте выполненные дела.'; hint.style.color = '#34C759'; }
-        updateJumaButton(); document.getElementById('jumaBadge').style.display = 'inline-block';
+        updateJumaButton(); { const jb = document.getElementById('jumaBadge'); if (jb) jb.style.display = 'inline-block'; }
     } else {
         if (kahfCheck) { kahfCheck.disabled = true; kahfCheck.checked = false; } if (khutbaCheck) { khutbaCheck.disabled = true; khutbaCheck.checked = false; }
         if (lockedMsg) lockedMsg.style.display = 'block';
         const daysUntilFriday = (5 - today.getDay() + 7) % 7;
         const daysText = daysUntilFriday === 0 ? 'сегодня' : daysUntilFriday === 1 ? 'завтра' : `через ${daysUntilFriday} ${getDayWord(daysUntilFriday)}`;
         if (hint) { hint.textContent = `⏳ До пятницы осталось: ${daysText}`; hint.style.color = '#8E8E93'; }
-        if (claimBtn) claimBtn.disabled = true; document.getElementById('jumaBadge').style.display = 'none';
+        if (claimBtn) claimBtn.disabled = true; { const jb = document.getElementById('jumaBadge'); if (jb) jb.style.display = 'none'; }
     }
 }
 function getDayWord(n) { if (n % 10 === 1 && n % 100 !== 11) return 'день'; if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) return 'дня'; return 'дней'; }
@@ -24,7 +24,18 @@ function updateKhutbaForFriday() {
 }
 function checkFridayAndNotify() {
     const today = new Date();
-    if (today.getDay() === 5) { const weekKey = `juma_claimed_${getWeekNumber()}`; if (localStorage.getItem(weekKey) !== 'true') { const banner = document.createElement('div'); banner.style.cssText = `position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1C1C1E;border:3px solid #FFD700;border-radius:60px;padding:15px 25px;color:#FFD700;font-weight:bold;z-index:99999;cursor:pointer;`; banner.innerHTML = '🌟 Джума Мубарак! Забери свою карту! 🎴'; banner.onclick = () => { banner.remove(); openModule('juma'); }; document.body.appendChild(banner); setTimeout(() => banner.remove(), 10000); } }
+    // Напоминание за день до пятницы, один раз за неделю и без навязчивого повторения при каждом запуске.
+    if (today.getDay() === 4) {
+        const key = `juma_reminder_shown_${getWeekNumber()}`;
+        if (localStorage.getItem(key) !== 'true') {
+            localStorage.setItem(key, 'true');
+            const banner = document.createElement('div');
+            banner.style.cssText = 'position:fixed;top:calc(env(safe-area-inset-top) + 14px);left:12px;right:12px;max-width:520px;margin:auto;background:#1c1c1e;border:1px solid #d6b875;border-radius:18px;padding:14px 18px;color:#f2dfad;font-weight:700;z-index:99999;cursor:pointer;box-shadow:0 12px 32px rgba(0,0,0,.3);text-align:center;';
+            banner.innerHTML = '🌙 Завтра пятница — подготовьтесь к Джума';
+            banner.onclick = () => { banner.remove(); openModule('juma'); };
+            document.body.appendChild(banner); setTimeout(() => banner.remove(), 9000);
+        }
+    }
 }
 function getWeekNumber() { const now = new Date(); const start = new Date(now.getFullYear(), 0, 1); return Math.ceil((((now - start) / 86400000) + start.getDay() + 1) / 7); }
 function updateJumaButton() { const kahf = document.getElementById('jumaKahfCheck')?.checked || false; const khutba = document.getElementById('jumaKhutbaCheck')?.checked || false; const btn = document.getElementById('claimJumaCardBtn'); const today = new Date(); if (btn) btn.disabled = !(today.getDay() === 5 && kahf && khutba); }

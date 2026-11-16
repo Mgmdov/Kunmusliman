@@ -141,6 +141,7 @@
     ];
 
     const ALL_CARDS = [
+    { id: 'prophet_story', name: 'Мухаммад ﷺ', title: 'Жизнь Пророка ﷺ', emoji: '🕋', type: 'prophet', rarity: 'mythic', story: 'История жизни Пророка Мухаммада ﷺ: ранние годы, первое откровение, мекканский и мединский периоды, прощальный хадж.', condition: 'prophet_story_read', conditionText: 'Прочитать историю Пророка ﷺ' },
     { id: 's1', name: 'Абу Бакр', title: 'ас-Сиддик', emoji: '👑', type: 'sahabi', rarity: 'legendary', story: 'Первый халиф, ближайший друг Пророка ﷺ. Один из десяти обрадованных Раем.', condition: 'stars_1000', conditionText: '1000 звёзд', isJanna: true },
     { id: 's2', name: 'Умар', title: 'аль-Фарук', emoji: '⚔️', type: 'sahabi', rarity: 'legendary', story: 'Второй халиф, различающий истину. Один из десяти обрадованных Раем.', condition: 'stars_500', conditionText: '500 звёзд', isJanna: true },
     { id: 's3', name: 'Усман', title: 'Зун-Нурайн', emoji: '📖', type: 'sahabi', rarity: 'epic', story: 'Третий халиф, обладатель двух светочей. Один из десяти обрадованных Раем.', condition: 'stars_300', conditionText: '300 звёзд', isJanna: true },
@@ -188,22 +189,14 @@
 
 // ========== ИНИЦИАЛИЗАЦИЯ ALL_COLLECTION_CARDS (ТОЛЬКО ОДИН РАЗ) ==========
 function initializeAllCollectionCards() {
-    // 1. Пробуем загрузить из localStorage
-    const savedCards = localStorage.getItem('all_collection_cards');
-    if (savedCards) {
-        try {
-            const parsed = JSON.parse(savedCards);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-                console.log('📦 Загружено из localStorage:', parsed.length, 'карточек');
-                return parsed;
-            }
-        } catch (e) {
-            console.warn('Ошибка загрузки из localStorage:', e);
-        }
-    }
-    
-    // 2. Собираем все карточки из разных источников
+    // Собираем актуальный каталог из исходных модулей, затем объединяем
+    // с локальным каталогом. Это не даёт старому localStorage скрыть новые карты.
     const allCards = [...ALL_CARDS];
+    // Подтягиваем полные карточные сведения о сподвижниках из единого справочника.
+    SAHABI_DATA.forEach(s => {
+        const card = allCards.find(c => c.id === `s${s.id}`);
+        if (card) { card.name = s.fullName || s.name; card.title = s.titleMeaning || card.title; card.arabic = s.arabicTitle || ''; card.story = s.story || card.story; }
+    });
     
     // Добавляем карточки сур
     for (let i = 1; i <= 114; i++) {
@@ -228,6 +221,7 @@ function initializeAllCollectionCards() {
             id: `p${p.id}`, 
             name: p.name, 
             title: p.title, 
+            arabic: p.arabic || '',
             emoji: '🕋', 
             type: 'prophet', 
             rarity: p.id === 24 ? 'mythic' : (p.id <= 6 ? 'legendary' : 'rare'), 
@@ -238,6 +232,11 @@ function initializeAllCollectionCards() {
         });
     });
     
+    // Добавляем 65 сюжетных карточек сундуков, если модуль подключён.
+    if (Array.isArray(window.CHEST_CARDS)) {
+        window.CHEST_CARDS.forEach(card => allCards.push({ ...card, type: card.type || 'chest', emoji: card.emoji || '🃏' }));
+    }
+
     // Добавляем карточки достижений если есть ACHIEVEMENT_CARDS
     if (typeof ACHIEVEMENT_CARDS !== 'undefined') {
         Object.values(ACHIEVEMENT_CARDS).forEach(card => {
@@ -247,9 +246,16 @@ function initializeAllCollectionCards() {
         });
     }
     
-    // Удаляем дубликаты по id
-    const uniqueCards = [...new Map(allCards.map(c => [c.id, c])).values()];
-    
+    // Сохраняем неизвестные текущему каталогу пользовательские карты из localStorage,
+    // но при совпадении ID приоритет всегда у актуальных исходных данных.
+    try {
+        const saved = JSON.parse(localStorage.getItem('all_collection_cards') || '[]');
+        if (Array.isArray(saved)) saved.forEach(card => {
+            if (card && card.id && !allCards.some(current => current.id === card.id)) allCards.push(card);
+        });
+    } catch (e) { console.warn('Не удалось объединить старый каталог карточек:', e); }
+
+    const uniqueCards = [...new Map(allCards.filter(c => c && c.id).map(c => [c.id, c])).values()];
     console.log('📦 Собрано всего карточек:', uniqueCards.length);
     return uniqueCards;
 }
@@ -573,25 +579,63 @@ console.log('💡 Для добавления карточек Джума вып
     }
 }
 // ========== ФУНКЦИИ АВТОРИЗАЦИИ И СИНХРОНИЗАЦИИ ==========
-    function openAuthModal() { document.getElementById('authModal').style.display = 'flex'; }
+    const ENTRY_CHOICE_KEY = 'kunmusliman_entry_choice_v1';
+    function showEntryGate() {
+        const gate = document.getElementById('kunEntryGate');
+        if (gate) gate.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+    function hideEntryGate() {
+        const gate = document.getElementById('kunEntryGate');
+        if (gate) gate.style.display = 'none';
+        if (document.getElementById('authModal')?.style.display !== 'flex' && document.getElementById('kunOnboarding')?.style.display !== 'flex') document.body.style.overflow = '';
+    }
+    function signalEntryReady() {
+        hideEntryGate();
+        if (window.__kunEntryReady) return;
+        window.__kunEntryReady = true;
+        window.dispatchEvent(new Event('kun:entry-ready'));
+    }
+    function openAuthModal() { hideEntryGate(); document.getElementById('authModal').style.display = 'flex'; }
     function closeAuthModal() {
         document.getElementById('authModal').style.display = 'none';
         document.getElementById('authError').textContent = '';
         document.getElementById('loginForm').style.display = 'block';
         document.getElementById('registerForm').style.display = 'none';
         document.getElementById('forgotPasswordForm').style.display = 'none';
+        if (!localStorage.getItem(ENTRY_CHOICE_KEY)) showEntryGate();
+        else if (document.getElementById('kunOnboarding')?.style.display !== 'flex') document.body.style.overflow = '';
     }
-    
+    window.startKunGuestEntry = async function() {
+        localStorage.setItem(ENTRY_CHOICE_KEY, 'guest');
+        const guestBtn = document.getElementById('kunEntryGuest');
+        if (guestBtn) { guestBtn.disabled = true; guestBtn.textContent = 'Подключаем гостевой режим…'; }
+        if (currentUser?.isAnonymous) {
+            await loadUserData();
+            signalEntryReady();
+            return;
+        }
+        if (currentUser && !currentUser.isAnonymous) {
+            try { await auth.signOut(); } catch (e) { console.warn('Не удалось переключить аккаунт в гостевой режим', e); }
+            return;
+        }
+        await signInAnonymously();
+    };
+    document.getElementById('kunEntryEmail')?.addEventListener('click', openAuthModal);
+    document.getElementById('kunEntryGuest')?.addEventListener('click', () => window.startKunGuestEntry());
+
     async function signInAnonymously() {
+        localStorage.setItem(ENTRY_CHOICE_KEY, 'guest');
         try {
             loadLocalBackup();
             const result = await auth.signInAnonymously();
             currentUser = result.user;
-            closeAuthModal(); await loadUserData();
-        } catch (error) { 
-            console.error('Ошибка входа:', error); 
-            loadLocalBackup(); 
-            updateAllUI(); 
+            closeAuthModal();
+        } catch (error) {
+            console.error('Ошибка гостевого входа:', error);
+            loadLocalBackup();
+            updateAllUI();
+            signalEntryReady();
         }
     }
     
@@ -698,6 +742,7 @@ console.log('💡 Для добавления карточек Джума вып
         if (!userData.unlockedCards) userData.unlockedCards = [];
         if (!userData.unlockedCards.includes(cardId)) {
             userData.unlockedCards.push(cardId);
+            (userData.cardTimes = userData.cardTimes || {})[cardId] = Date.now();
             saveUserData();
             if (typeof renderCollection === 'function') renderCollection();
             updateCollectionBadge();
@@ -717,15 +762,19 @@ console.log('💡 Для добавления карточек Джума вып
         const nextXP = XP_LEVELS[level] || XP_LEVELS[XP_LEVELS.length - 1];
         const progress = Math.min(100, Math.max(0, ((xp - currentXP) / (nextXP - currentXP)) * 100));
         
-        document.getElementById('homeLevel').textContent = `Ур. ${level}`;
-        document.getElementById('homeXpText').textContent = `${xp} / ${nextXP} XP`;
-        document.getElementById('homeXpFill').style.width = progress + '%';
-        document.getElementById('homeTodayPages').textContent = (userData.khatm?.readPages || 0) + ' стр.';
-        document.getElementById('homeTodayZikr').textContent = userData.totalZikrOverall || 0;
-        document.getElementById('homeTodayStars').textContent = userData.stars?.totalStars || 0;
+        // Элементы главной могут отсутствовать в вёрстке (блок «Мой день» заменил часть из них),
+        // поэтому каждое обращение защищено: иначе ошибка обрывает addXP и updateAllUI.
+        const setText = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
+        setText('homeLevel', `Ур. ${level}`);
+        setText('homeXpText', `${xp} / ${nextXP} XP`);
+        const xpFill = document.getElementById('homeXpFill');
+        if (xpFill) xpFill.style.width = progress + '%';
+        setText('homeTodayPages', (userData.khatm?.readPages || 0) + ' стр.');
+        setText('homeTodayZikr', userData.totalZikrOverall || 0);
+        setText('homeTodayStars', userData.stars?.totalStars || 0);
         
         const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
-        document.getElementById('homeDayName').textContent = days[new Date().getDay()];
+        setText('homeDayName', days[new Date().getDay()]);
         
         const learned = userData.namesLearned?.length || 0;
         const namesBadge = document.getElementById('namesBadge');
@@ -744,7 +793,7 @@ console.log('💡 Для добавления карточек Джума вып
         // Скрытие/показ виджета Аят дня
         const ayahWidget = document.getElementById('ayahWidget');
         if (ayahWidget) {
-            ayahWidget.style.display = userData.settings?.hideAyahWidget ? 'none' : 'block';
+            ayahWidget.hidden = !!userData.settings?.hideAyahWidget;
         }
     }
 
@@ -768,8 +817,10 @@ console.log('💡 Для добавления карточек Джума вып
         try { 
             const r = await auth.signInWithEmailAndPassword(email, password); 
             currentUser = r.user; 
+            localStorage.setItem(ENTRY_CHOICE_KEY, 'email');
             closeAuthModal(); 
-            await loadUserData(); 
+            await loadUserData();
+            signalEntryReady(); 
         } catch (e) { 
             errorEl.textContent = 'Ошибка: ' + (e.message.includes('invalid-credential') ? 'Неверный email или пароль' : e.message);
         }
@@ -786,8 +837,10 @@ console.log('💡 Для добавления карточек Джума вып
         try { 
             const r = await auth.createUserWithEmailAndPassword(email, password); 
             currentUser = r.user;
+            localStorage.setItem(ENTRY_CHOICE_KEY, 'email');
             closeAuthModal(); 
-            await createNewUserInFirestore(); 
+            await createNewUserInFirestore();
+            signalEntryReady(); 
         } catch (e) { 
             errorEl.textContent = 'Ошибка: ' + (e.message.includes('email-already-in-use') ? 'Email уже используется' : e.message);
         }
@@ -836,16 +889,26 @@ console.log('💡 Для добавления карточек Джума вып
     });
     
     document.getElementById('continueAsGuest')?.addEventListener('click', (e) => { 
-        e.preventDefault(); 
-        closeAuthModal(); 
+        e.preventDefault();
+        window.startKunGuestEntry();
     });
     
     window.onclick = (e) => { if (e.target === authModal) closeAuthModal(); };
     
-    auth.onAuthStateChanged(async (u) => { 
-        currentUser = u; 
-        if (!u) await signInAnonymously(); 
-        else await loadUserData(); 
+    auth.onAuthStateChanged(async (u) => {
+        currentUser = u;
+        if (!u) {
+            const choice = localStorage.getItem(ENTRY_CHOICE_KEY);
+            if (choice === 'guest') { await signInAnonymously(); return; }
+            showEntryGate();
+            return;
+        }
+        if (!localStorage.getItem(ENTRY_CHOICE_KEY)) {
+            showEntryGate();
+            return;
+        }
+        await loadUserData();
+        signalEntryReady();
     });
 
     setInterval(() => saveLocalBackup(), 30000);

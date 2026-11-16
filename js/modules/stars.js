@@ -1,5 +1,5 @@
 // ========== БАЗОВЫЕ ДОСТИЖЕНИЯ (ВСЕ ТВОИ + НОВЫЕ) ==========
-const BASE_ACHIEVEMENTS = [
+let BASE_ACHIEVEMENTS = [
     // ===== ТВОИ СУЩЕСТВУЮЩИЕ =====
     { id: 'firstPage', category: 'khatm', title: '📖 Первая страница', desc: 'Прочитать 1 страницу', icon: '📖', xp: 50, check: () => (userData.khatm?.readPages || 0) >= 1, current: () => Math.min(userData.khatm?.readPages || 0, 1), target: 1 },
     { id: 'juz1', category: 'khatm', title: '📚 Первый джуз', desc: 'Прочитать 20 страниц', icon: '📚', xp: 100, check: () => (userData.khatm?.readPages || 0) >= 20, current: () => Math.min(userData.khatm?.readPages || 0, 20), target: 20 },
@@ -64,7 +64,16 @@ const BASE_ACHIEVEMENTS = [
     { id: 'level25', category: 'level', title: '👑 Элита', desc: 'Достичь 25-го уровня', icon: '👑', xp: 3000, check: () => (userData.level || 1) >= 25, current: () => Math.min(userData.level || 1, 25), target: 25 },
     { id: 'level30', category: 'level', title: '💎 Легенда', desc: 'Достичь 30-го уровня', icon: '💎', xp: 5000, check: () => (userData.level || 1) >= 30, current: () => Math.min(userData.level || 1, 30), target: 30 },
     { id: 'perfectDay', category: 'tauba', title: '💯 Идеальный день', desc: 'Отметить все 9 целей за день', icon: '💯', xp: 500, check: () => (userData.tauba?.days || []).some(d => Object.values(d.goals || {}).filter(v => v).length >= 9), current: () => (userData.tauba?.days || []).some(d => Object.values(d.goals || {}).filter(v => v).length >= 9) ? 1 : 0, target: 1 },
-    { id: 'perfectDays50', category: 'tauba', title: '🌟🌟 50 идеальных дней', desc: '50 дней со всеми целями', icon: '🌟🌟', xp: 5000, check: () => (userData.tauba?.days || []).filter(d => Object.values(d.goals || {}).filter(v => v).length >= 9).length >= 50, current: () => Math.min((userData.tauba?.days || []).filter(d => Object.values(d.goals || {}).filter(v => v).length >= 9).length, 50), target: 50 }
+    { id: 'perfectDays50', category: 'tauba', title: '🌟🌟 50 идеальных дней', desc: '50 дней со всеми целями', icon: '🌟🌟', xp: 5000, check: () => (userData.tauba?.days || []).filter(d => Object.values(d.goals || {}).filter(v => v).length >= 9).length >= 50, current: () => Math.min((userData.tauba?.days || []).filter(d => Object.values(d.goals || {}).filter(v => v).length >= 9).length, 50), target: 50 },
+
+    // ===== ПЕРВЫЕ ШАГИ: мягкое знакомство с возможностями приложения =====
+    { id: 'firstAzkar', category: 'azkar', title: '🌅 Первые азкары', desc: 'Отметить хотя бы один утренний или вечерний зикр', icon: '🌅', xp: 40, check: () => Object.values(userData.azkarChecks?.morning || {}).some(Boolean) || Object.values(userData.azkarChecks?.evening || {}).some(Boolean), current: () => (Object.values(userData.azkarChecks?.morning || {}).some(Boolean) || Object.values(userData.azkarChecks?.evening || {}).some(Boolean)) ? 1 : 0, target: 1 },
+    { id: 'firstSalawat', category: 'salawat', title: '🌹 Первый салават', desc: 'Прочитать первый салават', icon: '🌹', xp: 40, check: () => (userData.totalSalawat || 0) >= 1, current: () => Math.min(userData.totalSalawat || 0, 1), target: 1 },
+    { id: 'firstCard', category: 'collection', title: '🎴 Первая карточка', desc: 'Получить первую карточку в коллекцию', icon: '🎴', xp: 60, check: () => (userData.unlockedCards?.length || 0) + (userData.jumaCards?.length || 0) >= 1, current: () => Math.min((userData.unlockedCards?.length || 0) + (userData.jumaCards?.length || 0), 1), target: 1 },
+    { id: 'firstBattleRead', category: 'battles', title: '📚 Первое знакомство с историей', desc: 'Открыть одну историческую статью', icon: '📚', xp: 50, check: () => (userData.battlesRead?.length || 0) >= 1, current: () => Math.min(userData.battlesRead?.length || 0, 1), target: 1 },
+    { id: 'firstQuiz', category: 'quiz', title: '🧠 Первый ответ', desc: 'Дать первый правильный ответ в викторине', icon: '🧠', xp: 40, check: () => (userData.quizStats?.correct || 0) >= 1, current: () => Math.min(userData.quizStats?.correct || 0, 1), target: 1 },
+    { id: 'firstFast', category: 'fasting', title: '🌙 Первый день поста', desc: 'Отметить один день поста', icon: '🌙', xp: 50, check: () => (userData.fasting?.total || 0) >= 1, current: () => Math.min(userData.fasting?.total || 0, 1), target: 1 },
+    { id: 'steady7', category: 'level', title: '🌿 Неделя постоянства', desc: 'Сформировать серию активности 7 дней', icon: '🌿', xp: 120, check: () => getStreak() >= 7, current: () => Math.min(getStreak(), 7), target: 7 }
 ];
 
 function generateSurahAchievements() {
@@ -77,7 +86,23 @@ function generateProphetAchievements() {
     return PROPHETS_DATA.map(p => ({ id: `prophet_${p.id}`, category: 'prophet', title: p.name, desc: p.title, icon: '🕋', xp: 200, check: () => (userData.unlockedProphets || []).includes(p.id), current: () => (userData.unlockedProphets || []).includes(p.id) ? 1 : 0, target: 1 }));
 }
 
+// v55: раздел «Тауба» убран (личное дело между рабом и Аллахом — без звёзд и достижений)
+BASE_ACHIEVEMENTS = BASE_ACHIEVEMENTS.filter(a => a.category !== 'tauba');
 const ALL_ACHIEVEMENTS_FULL = [...BASE_ACHIEVEMENTS, ...generateSurahAchievements(), ...generateProphetAchievements()];
+
+// Награды в звёздах: базовое достижение — 45, сложные цели получают больше.
+const ACHIEVEMENT_STAR_REWARDS = {
+  firstPage:45, juz1:75, halfQuran:250, khatm1:700, khatm5:1800, khatm10:3500, khatm20:6000, khatm50:12000, khatm100:25000,
+  zikr100:45, zikr1000:100, zikr10000:250, zikr20000:400, zikr50000:700, zikr100000:1200, zikr500000:4000, zikr1000000:8000,
+  salawat100:45, salawat1000:150, salawat10000:500, salawat50000:1500, salawat100000:3000,
+  names10:75, names50:350, names99:1000, streak7:100, streak30:500, streak100:1500, streak365:5000,
+  battle1:75, battle3:200, battleAll:1000, stars50:45, stars100:75, stars500:150, stars1000:250, stars2500:500, stars5000:1000,
+  morningAzkar100:300, eveningAzkar100:300, fasting30:500, ramadanComplete:1000, juma10:200, juma25:500,
+  pages1000:250, pages5000:800, pages10000:1800, collection50:200, collection100:500, collection200:1200,
+  quiz10streak:150, quiz50streak:600, quiz100streak:1500, level7:100, level15:300, level25:700, level30:1200,
+  perfectDay:100, perfectDays50:1200, tasbih10000:250, tasbih50000:700, tasbih100000:1500
+};
+
 
 // ========== ВЫДАЧА КАРТОЧЕК ЗА ДОСТИЖЕНИЯ ==========
 const ACHIEVEMENT_CARDS = {
@@ -135,6 +160,19 @@ const ACHIEVEMENT_CARDS = {
     perfectDays50: { id: 'ach_perfect50', name: '50 идеальных дней', title: '50 дней со всеми целями', emoji: '🌟🌟', type: 'achievement', rarity: 'legendary', story: 'Пятьдесят идеальных дней! Вы — пример для подражания.' }
 };
 
+// Каждое достижение получает собственную коллекционную карточку.
+ALL_ACHIEVEMENTS_FULL.forEach(ach => {
+    if (!ACHIEVEMENT_CARDS[ach.id]) {
+        const reward = ACHIEVEMENT_STAR_REWARDS[ach.id] || 45;
+        const rarity = reward >= 3000 ? 'mythic' : reward >= 1000 ? 'legendary' : reward >= 300 ? 'epic' : reward >= 100 ? 'rare' : 'common';
+        ACHIEVEMENT_CARDS[ach.id] = {
+            id: 'ach_' + ach.id, name: ach.title.replace(/^[^\p{L}\p{N}]+/u, ''), title: ach.desc,
+            emoji: ach.icon || '🏆', type: 'achievement', rarity,
+            story: 'Достижение «' + ach.title.replace(/^[^\p{L}\p{N}]+/u, '') + '». ' + ach.desc + '. Эта карточка подтверждает пройденный этап вашего пути.'
+        };
+    }
+});
+
 // Добавляем карточки в общий список
 Object.values(ACHIEVEMENT_CARDS).forEach(card => {
     if (!ALL_CARDS.find(c => c.id === card.id)) {
@@ -143,45 +181,75 @@ Object.values(ACHIEVEMENT_CARDS).forEach(card => {
 });
 
 function renderAchievements() {
-    const c = document.getElementById('achievementsList'); if (!c) return;
+    const c = document.getElementById('achievementsList');
+    if (!c) return;
     const filter = document.getElementById('achievementFilter')?.value || 'all';
     const unlocked = userData.achievements || [];
     const filtered = ALL_ACHIEVEMENTS_FULL.filter(a => filter === 'all' || a.category === filter);
-    let h = '';
-    filtered.forEach(ach => {
+    const total = ALL_ACHIEVEMENTS_FULL.length;
+    const earned = ALL_ACHIEVEMENTS_FULL.filter(a => unlocked.includes(a.id)).length;
+    const percent = total ? Math.round(earned * 100 / total) : 0;
+    const overview = document.getElementById('achievementOverview');
+    if (overview) overview.innerHTML = `
+      <div class="achievement-overview-card">
+        <div class="achievement-overview-top"><span>Ваш путь</span><strong>${earned} / ${total}</strong></div>
+        <div class="achievement-progress"><span style="width:${percent}%"></span></div>
+        <div class="achievement-overview-foot"><span>${percent}% достижений открыто</span><span>🏆 ${earned} получено</span></div>
+      </div>`;
+    const CAT = { khatm:['#2e9b60','#14573a'], surah:['#3f8fe0','#1c4a82'], zikr:['#e0a63a','#8a5a12'], salawat:['#e0608a','#7e2a49'], names:['#9a6ae0','#4a2a82'], tauba:['#e07a3a','#843a12'], stars:['#f2cf4a','#946b0a'], battles:['#d9534f','#7a2220'] };
+    const rows = filtered.map(ach => {
         const isUnlocked = unlocked.includes(ach.id);
-        const current = ach.current(), target = ach.target, progress = Math.min(100, (current / target) * 100);
-        h += `<div style="background: ${isUnlocked ? '#FFF9E6' : '#F2F2F7'}; border-radius: 16px; padding: 14px; text-align: center; cursor: pointer; border: 1px solid ${isUnlocked ? '#FFD700' : '#E5E5EA'};" onclick="showAchievementStory('${ach.id}')">
-            <div style="font-size: 2rem;">${ach.icon}</div><div style="font-weight: 600; margin: 8px 0;">${ach.title}</div><div style="font-size: 0.65rem; color: #8E8E93;">${ach.desc}</div>
-            ${!isUnlocked ? `<div style="margin-top: 8px;"><div style="background: #E5E5EA; border-radius: 100px; height: 4px;"><div style="background: #007AFF; width: ${progress}%; height: 100%; border-radius: 100px;"></div></div><div style="font-size: 0.6rem; margin-top: 4px;">${current}/${target}</div></div>` : `<div style="margin-top: 8px; color: #FFD700;">✅ +${ach.xp} XP</div>`}
-        </div>`;
+        const current = Math.max(0, Number(ach.current()) || 0);
+        const target = Math.max(1, Number(ach.target) || 1);
+        return { ach, isUnlocked, current, target, progress: isUnlocked ? 100 : Math.min(100, (current / target) * 100) };
     });
-    c.innerHTML = h || '<div style="text-align:center;padding:40px;color:#8E8E93;grid-column:1/-1;">Нет достижений</div>';
+    if (filter === 'all') rows.sort((x, y) => (x.isUnlocked - y.isUnlocked) || (y.progress - x.progress));
+    let h = '';
+    rows.forEach(({ ach, isUnlocked, current, target, progress }) => {
+        const col = CAT[ach.category] || ['#8a8a92', '#3a3a40'];
+        const title = String(ach.title).replace(/^[^A-Za-zА-Яа-яЁё0-9]+/, '').trim() || ach.title;
+        const star = ACHIEVEMENT_STAR_REWARDS[ach.id] || 45;
+        const pct = Math.floor(progress);
+        h += `<article class="ach-row ${isUnlocked ? 'is-unlocked' : (pct === 0 ? 'is-new' : '')}" style="--c1:${col[0]};--c2:${col[1]}" onclick="showAchievementStory('${ach.id}')">
+            <div class="ach-badge"><span>${ach.icon}</span>${isUnlocked ? '<i class="ach-check">✓</i>' : ''}</div>
+            <div class="ach-main">
+                <div class="ach-top"><b>${title}</b><em>${isUnlocked ? 'Получено' : pct + '%'}</em></div>
+                <div class="ach-desc">${ach.desc}</div>
+                <div class="ach-bar"><span style="width:${progress}%"></span></div>
+                <div class="ach-foot"><small>${isUnlocked ? target.toLocaleString('ru-RU') : current.toLocaleString('ru-RU')} / ${target.toLocaleString('ru-RU')}</small><span class="ach-rw"><u>+${ach.xp} XP</u><u>+${star} ★</u></span></div>
+            </div>
+        </article>`;
+    });
+    c.innerHTML = h || '<div style="text-align:center;padding:32px;color:var(--text-secondary,#8E8E93);grid-column:1/-1;">В этой категории пока нет достижений</div>';
     updateAchievementsBadge();
 }
-
 function updateAchievementsBadge() { const unlocked = userData.achievements?.length || 0; const badge = document.getElementById('achievementsBadge'); if (badge) badge.textContent = unlocked; }
 
 function showAchievementStory(id) {
     const ach = ALL_ACHIEVEMENTS_FULL.find(a => a.id === id); if (!ach) return;
     const isUnlocked = (userData.achievements || []).includes(id);
+    const card = ACHIEVEMENT_CARDS[id];
     document.getElementById('storyIcon').innerHTML = ach.icon; document.getElementById('storyTitle').textContent = ach.title;
-    document.getElementById('storyText').innerHTML = isUnlocked ? `<p><strong>${ach.desc}</strong></p><p style="margin-top:15px;">✅ Открыто! +${ach.xp} XP</p>` : `<p>${ach.desc}</p><p style="margin-top:15px;color:#8E8E93;">Прогресс: ${ach.current()} / ${ach.target}</p>`;
+    const stars = ACHIEVEMENT_STAR_REWARDS[id] || 45;
+    document.getElementById('storyText').innerHTML = isUnlocked ? `<p><strong>${ach.desc}</strong></p><p style="margin-top:15px;">✅ Достижение получено · +${ach.xp} XP · +${stars} ★</p>${card ? `<button type="button" id="openAchievementCardBtn" style="margin-top:16px;padding:12px 22px;border:1px solid #d8b65a;border-radius:14px;background:linear-gradient(135deg,#8b681d,#d8b65a);color:#17120a;font-weight:700;">🎴 Открыть карточку</button>` : '<p style="margin-top:12px;color:#aaa;">Для этого достижения отдельная карточка пока не предусмотрена.</p>'}` : `<p>${ach.desc}</p><p style="margin-top:15px;color:#8E8E93;">Прогресс: ${ach.current()} / ${ach.target}</p><p style="color:#d8b65a;">Награда: ${stars} ★${card ? ' и карточка коллекции' : ''}</p>`;
     document.getElementById('storyModal').style.display = 'flex';
+    if (isUnlocked && card) setTimeout(() => { const b=document.getElementById('openAchievementCardBtn'); if(b) b.onclick=()=>{ const m=document.getElementById('storyModal'); if(m)m.style.display='none'; if(typeof window.showCardStory==='function')window.showCardStory(card.id,card.name,card.emoji,card.story); }; }, 0);
 }
+
 
 function checkAllAchievements() {
     const unlocked = userData.achievements || []; let changed = false;
     ALL_ACHIEVEMENTS_FULL.forEach(a => { 
         if (!unlocked.includes(a.id) && a.check()) { 
             userData.achievements.push(a.id); 
-            if (a.xp > 0) addXP(a.xp); 
-            showFirework(`🏆 ${a.title}!`); 
-            showNotification(`🏆 ${a.title}! +${a.xp} XP`);
-            
-            // Выдача карточки за достижение
+            if (a.xp > 0) addXP(a.xp);
+            const starReward = ACHIEVEMENT_STAR_REWARDS[a.id] || 45;
+            if (typeof window.awardStars === 'function') window.awardStars(starReward, 'Достижение: '+a.title, 'achievement:'+a.id);
+            showFirework(`🏆 ${a.title}!`);
+            showNotification(`🏆 ${a.title}! +${a.xp} XP · +${starReward} ★`);
+            // Карточка выдаётся один раз и открывается из окна достижения.
             if (ACHIEVEMENT_CARDS[a.id]) {
-                unlockCardIfNotHave(ACHIEVEMENT_CARDS[a.id].id);
+                if (typeof unlockCardIfNotHave === 'function') unlockCardIfNotHave(ACHIEVEMENT_CARDS[a.id].id);
                 showNotification(`🎴 Карточка «${ACHIEVEMENT_CARDS[a.id].name}» добавлена в коллекцию!`);
             }
             
@@ -206,21 +274,23 @@ const RANKS_FULL = [
 
 function updateStarsUI() {
     const stars = userData.stars || { totalStars: 0 }; const total = stars.totalStars || 0;
-    document.getElementById('starCountDisplay').innerHTML = `⭐ ${total}`;
+    const countEl=document.getElementById('starCountDisplay'); if(countEl) countEl.innerHTML = `⭐ ${total}`;
     let cur = RANKS_FULL[0], next = null;
     for (let i = 0; i < RANKS_FULL.length; i++) { if (total >= RANKS_FULL[i].stars) { cur = RANKS_FULL[i]; next = RANKS_FULL[i+1] || null; } }
-    document.getElementById('rankTitle').textContent = cur.title; document.getElementById('rankStars').textContent = cur.starsIcon; document.getElementById('rankDesc').innerHTML = `📖 ${cur.sahabi}`;
-    const pc = document.getElementById('rankProgressContainer');
+    const rt=document.getElementById('rankTitle'), rs=document.getElementById('rankStars'), rd=document.getElementById('rankDesc'); if(rt)rt.textContent=cur.title; if(rs)rs.textContent=cur.starsIcon; if(rd)rd.innerHTML=`📖 ${cur.sahabi}`;
+    const pc = document.getElementById('rankProgressContainer'); if(!pc){ if(typeof window.refreshStarBalances==='function')window.refreshStarBalances(); return; }
     if (next) pc.innerHTML = `<div style="background:#3A3A3C;border-radius:100px;height:6px;margin-bottom:8px;"><div style="width:${Math.min(100,(total/next.stars)*100)}%;background:#FFD700;height:100%;border-radius:100px;"></div></div><div style="display:flex;justify-content:space-between;font-size:0.7rem;"><span>⭐ ${total}</span><span>До «${next.title}»: ${next.stars-total} ⭐</span></div>`;
     else pc.innerHTML = '<div style="text-align:center;color:#FFD700;padding:10px;"><i class="fas fa-crown"></i> Максимальный ранг!</div>';
+    if(typeof window.refreshStarBalances==='function')window.refreshStarBalances();
 }
+
 
 function checkDailyTasks() {
     const today = new Date().toISOString().split('T')[0];
     const m = Object.values(userData.azkarChecks?.morning || {}).some(v => v), e = Object.values(userData.azkarChecks?.evening || {}).some(v => v);
-    const q = (userData.khatm?.readPages || 0) > 0, z = (userData.totalZikrOverall || 0) >= 100, t = (userData.tauba?.days || []).some(d => d.date === today);
+    const q = (userData.khatm?.readPages || 0) > 0, z = (userData.totalZikrOverall || 0) >= 100;
     const g = document.getElementById('dailyTasksGrid');
-    if (g) g.innerHTML = `<div style="background:${m?'#E8F5E9':'#F2F2F7'};padding:12px;border-radius:12px;display:flex;justify-content:space-between;"><span>🌅 Утренние азкары</span><span>${m?'✅':'⏳'}</span></div><div style="background:${e?'#E8F5E9':'#F2F2F7'};padding:12px;border-radius:12px;display:flex;justify-content:space-between;"><span>🌙 Вечерние азкары</span><span>${e?'✅':'⏳'}</span></div><div style="background:${q?'#E8F5E9':'#F2F2F7'};padding:12px;border-radius:12px;display:flex;justify-content:space-between;"><span>📖 1+ страница</span><span>${q?'✅':'⏳'}</span></div><div style="background:${z?'#E8F5E9':'#F2F2F7'};padding:12px;border-radius:12px;display:flex;justify-content:space-between;"><span>🔢 100+ зикров</span><span>${z?'✅':'⏳'}</span></div><div style="background:${t?'#E8F5E9':'#F2F2F7'};padding:12px;border-radius:12px;display:flex;justify-content:space-between;"><span>📝 Сохранён день</span><span>${t?'✅':'⏳'}</span></div>`;
+    if (g) g.innerHTML = `<div style="background:${m?'#E8F5E9':'#F2F2F7'};padding:12px;border-radius:12px;display:flex;justify-content:space-between;"><span>🌅 Утренние азкары</span><span>${m?'✅':'⏳'}</span></div><div style="background:${e?'#E8F5E9':'#F2F2F7'};padding:12px;border-radius:12px;display:flex;justify-content:space-between;"><span>🌙 Вечерние азкары</span><span>${e?'✅':'⏳'}</span></div><div style="background:${q?'#E8F5E9':'#F2F2F7'};padding:12px;border-radius:12px;display:flex;justify-content:space-between;"><span>📖 1+ страница</span><span>${q?'✅':'⏳'}</span></div><div style="background:${z?'#E8F5E9':'#F2F2F7'};padding:12px;border-radius:12px;display:flex;justify-content:space-between;"><span>🔢 100+ зикров</span><span>${z?'✅':'⏳'}</span></div>`;
 }
 
 function updateStreakBadges() {

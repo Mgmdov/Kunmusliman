@@ -2,7 +2,7 @@ if (!userData.fasting) userData.fasting = { days: [], total: 0 };
 if (!userData.ramadan) userData.ramadan = { year: null, days: {} };
 
 function updateFastingUI() {
-    const today = new Date().toISOString().split('T')[0];
+    const today = (window.kunLocalDay?window.kunLocalDay():new Date().toISOString().split('T')[0]);
     const fastingDays = userData.fasting?.days || [];
     const todayFast = fastingDays.find(d => d.date === today);
     const todayEmoji = document.getElementById('fastingTodayEmoji');
@@ -60,7 +60,7 @@ window.toggleRamadanDay = function(day) {
     if (userData.ramadan.days[day]) {
         addXP(50);
         if (!userData.stars) userData.stars = { totalStars: 0 };
-        userData.stars.totalStars = (userData.stars.totalStars || 0) + 2;
+        if (typeof window.awardStars === 'function') window.awardStars(2, 'День поста Рамадана', 'fasting:ramadan:'+userData.ramadan.year+':'+day);
         showNotification(`🌙 День ${day} Рамадана отмечен! +50 XP, +2 ⭐`);
     }
     
@@ -80,7 +80,7 @@ document.getElementById('completeRamadanBtn')?.addEventListener('click', () => {
     
     // Награда за завершение Рамадана
     addXP(1000);
-    userData.stars.totalStars = (userData.stars.totalStars || 0) + 50;
+    if (typeof window.awardStars === 'function') window.awardStars(50, 'Завершение Рамадана', 'fasting:ramadan-complete:'+userData.ramadan.year);
     
     // Разблокировка карточки Рамадана
     unlockCardIfNotHave('ramadan_complete');
@@ -90,12 +90,12 @@ document.getElementById('completeRamadanBtn')?.addEventListener('click', () => {
 });
 
 document.getElementById('toggleFastTodayBtn')?.addEventListener('click', () => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = (window.kunLocalDay?window.kunLocalDay():new Date().toISOString().split('T')[0]);
     if (!userData.fasting) userData.fasting = { days: [] };
     const fastingDays = userData.fasting.days || [];
     const idx = fastingDays.findIndex(d => d.date === today);
     if (idx !== -1) { fastingDays.splice(idx, 1); showNotification('Пост отменён'); }
-    else { fastingDays.push({ date: today, type: 'sunnah' }); addXP(50); if (!userData.stars) userData.stars = { totalStars: 0 }; userData.stars.totalStars = (userData.stars.totalStars || 0) + 2; showNotification('🌙 Пост отмечен! +50 XP, +2 ⭐'); }
+    else { fastingDays.push({ date: today, type: 'sunnah' }); addXP(50); if (!userData.stars) userData.stars = { totalStars: 0 }; if (typeof window.awardStars === 'function') window.awardStars(2, 'Добровольный пост', 'fasting:sunnah:'+today); showNotification('🌙 Пост отмечен! +50 XP, +2 ⭐'); }
     userData.fasting.days = fastingDays; userData.fasting.total = fastingDays.length;
     saveUserData(); updateFastingUI(); checkSahabiCards(); updateHomeWidgets();
 });

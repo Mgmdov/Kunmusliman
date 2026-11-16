@@ -180,10 +180,11 @@ function renderAzkar() {
         if (!userData.azkarChecks[time]) userData.azkarChecks[time] = {};
         userData.azkarChecks[time][idx] = cb.checked;
         if (cb.checked) { 
+            if (typeof window.addArmyMerit === 'function') window.addArmyMerit('azkar');
             addXP(5); 
-            if (!userData.stars) userData.stars = { totalStars: 0, lastClaimDate: '', unlockedRanks: [] }; 
-            userData.stars.totalStars = (userData.stars.totalStars || 0) + 1; 
-            checkSahabiCards(); 
+            if (typeof window.awardStars === 'function') window.awardStars(1, 'Прочтение азкара', 'azkar:'+time+':'+idx+':'+(new Date().toISOString().slice(0,10)));
+            else { if (!userData.stars) userData.stars = { totalStars: 0, lastClaimDate: '', unlockedRanks: [] }; userData.stars.totalStars = (userData.stars.totalStars || 0) + 1; checkSahabiCards(); }
+
         }
         saveUserData(); renderAzkar(); 
         if (typeof checkDailyTasks === 'function') checkDailyTasks();
@@ -199,8 +200,10 @@ function fetchRandomHadith() {
 
 document.querySelectorAll('.azkar-tab').forEach(tab => { 
     tab.addEventListener('click', () => {
-        document.querySelectorAll('.azkar-tab').forEach(t => { t.style.background = '#F2F2F7'; t.style.color = '#007AFF'; });
-        tab.style.background = '#007AFF'; tab.style.color = 'white';
+        document.querySelectorAll('.azkar-tab').forEach(t => {
+            t.classList.toggle('active', t === tab);
+            t.setAttribute('aria-pressed', t === tab ? 'true' : 'false');
+        });
         const tabName = tab.dataset.tab;
         document.getElementById('azkarContent').style.display = (tabName === 'morning' || tabName === 'evening') ? 'block' : 'none';
         document.getElementById('rulesContent').style.display = tabName === 'rules' ? 'block' : 'none';

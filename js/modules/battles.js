@@ -1,33 +1,75 @@
-// Переключение вкладок истории Пророка
-document.querySelectorAll('[data-prophet-tab]').forEach(tab => {
-    tab.addEventListener('click', () => {
-        document.querySelectorAll('[data-prophet-tab]').forEach(t => {
-            t.style.background = '#F2F2F7';
-            t.style.color = '#1C1C1E';
-        });
-        tab.style.background = '#007AFF';
-        tab.style.color = 'white';
-        
-        const tabName = tab.dataset.prophetTab;
-        document.querySelectorAll('.prophet-story-section').forEach(section => section.style.display = 'none');
-        if (tabName === 'early') document.getElementById('prophetEarly').style.display = 'block';
-        else if (tabName === 'revelation') document.getElementById('prophetRevelation').style.display = 'block';
-        else if (tabName === 'mecca') document.getElementById('prophetMecca').style.display = 'block';
-        else if (tabName === 'medina') document.getElementById('prophetMedina').style.display = 'block';
-        else if (tabName === 'farewell') document.getElementById('prophetFarewell').style.display = 'block';
+// Переключение разделов сиры: активной остаётся только одна вкладка.
+const prophetStoryTabs = [...document.querySelectorAll('[data-prophet-tab]')];
+const prophetStorySections = {
+    early: 'prophetEarly',
+    revelation: 'prophetRevelation',
+    mecca: 'prophetMecca',
+    medina: 'prophetMedina',
+    farewell: 'prophetFarewell'
+};
+function setProphetStoryTab(tabName) {
+    prophetStoryTabs.forEach(t => {
+        const active = t.dataset.prophetTab === tabName;
+        t.classList.toggle('active', active);
+        t.setAttribute('aria-selected', active ? 'true' : 'false');
     });
-});
+    Object.entries(prophetStorySections).forEach(([key, id]) => {
+        const section = document.getElementById(id);
+        if (section) section.style.display = key === tabName ? 'block' : 'none';
+    });
+}
+prophetStoryTabs.forEach(tab => tab.addEventListener('click', () => setProphetStoryTab(tab.dataset.prophetTab)));
 
-// Отметка о прочтении истории Пророка
-document.getElementById('markProphetStoryRead')?.addEventListener('click', () => {
-    unlockCardIfNotHave('prophet_story');
-    addXP(200);
-    showNotification('📖 История Пророка ﷺ прочитана! +200 XP');
-    showFirework('ﷺ МУХАММАД ﷺ');
-    document.getElementById('markProphetStoryRead').disabled = true;
-    document.getElementById('markProphetStoryRead').innerHTML = '<i class="fas fa-check"></i> Прочитано';
-    saveUserData();
-});
+function updateProphetStoryReadButton() {
+    const button = document.getElementById('markProphetStoryRead');
+    if (!button) return;
+    const isRead = (userData.readEducationalStories || []).includes('prophet_story');
+    button.classList.toggle('prophet-story-read', isRead);
+    button.classList.toggle('secondary', !isRead);
+    button.classList.toggle('success', isRead);
+    button.disabled = isRead;
+    button.innerHTML = isRead
+        ? '<i class="fas fa-check-circle"></i> Прочитано'
+        : '<i class="fas fa-check-circle"></i> Отметить как прочитанное';
+}
+
+// Первый клик открывает полную историю. Отметка о прочтении ставится только после
+// отдельного подтверждения внизу прочитанного материала.
+function openProphetStoryReadModal() {
+    const old = document.getElementById('prophetStoryReadOverlay');
+    if (old) old.remove();
+    const sections = Object.values(prophetStorySections).map(id => document.getElementById(id)).filter(Boolean);
+    const storyHtml = sections.map(section => `<section class="prophet-read-section">${section.innerHTML}</section>`).join('');
+    const overlay = document.createElement('div');
+    overlay.id = 'prophetStoryReadOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:10000000;background:rgba(3,8,12,.98);overflow-y:auto;padding:22px 16px 34px;box-sizing:border-box;color:#eee8d8;';
+    overlay.innerHTML = `<div style="max-width:720px;margin:0 auto;"><button type="button" class="ios-button secondary" onclick="document.getElementById('prophetStoryReadOverlay')?.remove()">← Назад</button><div style="text-align:center;margin:22px 0 18px;color:#e5c56b;letter-spacing:2px;font-size:12px;">السِّيرَة النَّبَوِيَّة</div><h2 style="text-align:center;color:#f4d77b;margin:0 0 24px;">Полная история Пророка Мухаммада ﷺ</h2><div class="prophet-read-story">${storyHtml}</div><div style="position:sticky;bottom:0;padding:16px 0 4px;background:linear-gradient(180deg,transparent,#07100d 24%);"><button type="button" id="confirmProphetStoryRead" class="ios-button" style="width:100%;background:linear-gradient(135deg,#b88a25,#f5d878);color:#171006;font-weight:700;">Я прочитал историю — получить особую карточку</button></div></div>`;
+    document.body.appendChild(overlay);
+    document.getElementById('confirmProphetStoryRead').addEventListener('click', completeProphetStoryRead);
+}
+function completeProphetStoryRead() {
+    userData.readEducationalStories ||= [];
+    if (userData.readEducationalStories.includes('prophet_story')) {
+        document.getElementById('prophetStoryReadOverlay')?.remove();
+        updateProphetStoryReadButton();
+        return;
+    }
+    userData.readEducationalStories.push('prophet_story');
+    if (typeof window.awardStars === 'function') window.awardStars(5, 'Изучение истории Пророка ﷺ', 'story:prophet:complete');
+    if (typeof addXP === 'function') addXP(200);
+    if (typeof showNotification === 'function') showNotification('История изучена. Да вознаградит вас Аллах!');
+    if (typeof showFirework === 'function') showFirework('ﷺ');
+    document.getElementById('prophetStoryReadOverlay')?.remove();
+    updateProphetStoryReadButton();
+    if (typeof saveUserData === 'function') saveUserData();
+    if (typeof renderCollection === 'function') renderCollection();
+    if (typeof checkAllAchievements === 'function') checkAllAchievements();
+}
+document.getElementById('markProphetStoryRead')?.addEventListener('click', openProphetStoryReadModal);
+
+// Восстановление выбранной вкладки и статуса прочтения после открытия приложения.
+setProphetStoryTab('early');
+setTimeout(updateProphetStoryReadButton, 350);
 
 // ========== ЛОГИКА БИТВ ==========
 let currentBattle = 'badr';
@@ -42,39 +84,57 @@ const BATTLE_CONTENT = {
     tabuk: { name: 'Поход на Табук', year: '9 г.х.', emoji: '🔥', story: '<strong>Самый тяжёлый поход в сильную жару.</strong> 30 000 мусульман выступили против Византии. Многие лицемеры уклонились под разными предлогами. Верующие жертвовали много имущества (Усман снарядил целую армию). Когда мусульмане дошли до Табука, византийцы отступили, испугавшись. Это укрепило авторитет Ислама на севере Аравии.', result: 'Без боя', ayah: '«О те, которые уверовали! Сражайтесь с неверными, которые находятся вблизи вас» (9:123)' }
 };
 
+// Связываем исторический раздел с прохождением соответствующего этапа армии.
+const CAMPAIGN_TO_BATTLE = { badr:'badr', uhud:'uhud', khandaq:'khandaq', khaybar:'khaybar', mutah:'mutah', fath:'fath', hunain:'hunain', tabuk:'tabuk', yarmouk:'yarmouk', qadisiyyah:'qadisiyyah', hattin:'hattin', aynjalut:'aynjalut' };
+function getArmyCampaignState(){try{return JSON.parse(localStorage.getItem('kun_army_v3')||'{}');}catch(_){return {};}}
+function isCampaignBattleUnlocked(battleId){const state=getArmyCampaignState();const campaignId=Object.keys(CAMPAIGN_TO_BATTLE).find(k=>CAMPAIGN_TO_BATTLE[k]===battleId);return !!campaignId && Array.isArray(state.completed) && state.completed.includes(campaignId);}
+function refreshBattleTabs(){
+  const tabs=document.querySelector('.battle-tabs');if(!tabs)return;
+  if(Array.isArray(window.ISLAMIC_BATTLES)&&window.ISLAMIC_BATTLES.length){
+    tabs.innerHTML=window.ISLAMIC_BATTLES.map(b=>{const id=b.id.replace(/^battle_/,'');const unlocked=isCampaignBattleUnlocked(id);return `<button class="battle-tab ${id===currentBattle?'active':''} ${unlocked?'':'is-locked'}" data-battle="${id}" type="button" ${unlocked?'':'disabled'} title="${unlocked?'Открыто после прохождения этапа армии':'Сначала пройдите этот этап в разделе Армия'}"><span>⚔️</span><b>${b.name.replace(/^Битва при |^Битва у |^Битва при |^Поход на |^Завоевание /,'')}</b><small>${b.year||''}</small></button>`;}).join('');
+    window.ISLAMIC_BATTLES.forEach(b=>{const id=b.id.replace(/^battle_/,'');if(!BATTLE_CONTENT[id])BATTLE_CONTENT[id]={name:b.name,year:b.year||'',emoji:'⚔️',story:b.story||'',result:'Историческое событие',ayah:b.details||''};});
+    tabs.querySelectorAll('.battle-tab').forEach(tab=>tab.addEventListener('click',()=>{if(tab.disabled)return;currentBattle=tab.dataset.battle;tabs.querySelectorAll('.battle-tab').forEach(t=>t.classList.toggle('active',t===tab));renderBattleContent(currentBattle);}));
+  }
+}
+window.openBattleHistoryFromArmy=function(campaignId){const battleId=CAMPAIGN_TO_BATTLE[campaignId];if(!battleId||!isCampaignBattleUnlocked(battleId))return;openModule('battles');currentBattle=battleId;refreshBattleTabs();const tabs=document.querySelectorAll('.battle-tab');tabs.forEach(t=>t.classList.toggle('active',t.dataset.battle===battleId));renderBattleContent(battleId);};
+document.addEventListener('army:battle-unlocked',refreshBattleTabs);
+
 function renderBattleContent(battleId) {
     const battle = BATTLE_CONTENT[battleId];
     if (!battle) return;
     
     const container = document.getElementById('battleContentContainer');
+    const unlocked = isCampaignBattleUnlocked(battleId);
     const isRead = (userData.battlesRead || []).includes(battleId);
+    const markButton = document.getElementById('markBattleReadBtn');
+    if (!unlocked) {
+        container.innerHTML = '<div class="battle-locked-notice">🔒 Сначала пройдите соответствующий этап в разделе «Армия». После прохождения здесь откроются история битвы и карточка.</div>';
+        document.getElementById('battleReadStatus').innerHTML = '<span>Событие пока закрыто в исторической кампании.</span>';
+        markButton.disabled = true;
+        document.getElementById('markBattleReadText').textContent = 'Сначала пройдите битву в Армии';
+        updateBattlesProgress();
+        return;
+    }
     
+    const battleImages = { badr: 'images/cards/badr-battle.png', uhud: 'images/cards/uhud.png', khandaq: 'images/cards/khandaq.jpg', khaybar: 'images/cards/khaybar.png' };
+    const image = battleImages[battleId];
     container.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-            <span style="font-size: 2.5rem;">${battle.emoji}</span>
-            <div>
-                <h3 style="color: #1C1C1E;">${battle.name}</h3>
-                <p style="color: #8E8E93;">${battle.year}</p>
-            </div>
-        </div>
-        <p style="line-height: 1.8; margin-bottom: 16px;">${battle.story}</p>
-        <div style="background: #FFFFFF; border-radius: 12px; padding: 12px; margin-bottom: 8px;">
-            <strong>Результат:</strong> ${battle.result}
-        </div>
-        <div style="background: #FFF9E6; border-radius: 12px; padding: 12px; font-style: italic; border-left: 4px solid #FFD700;">
-            📖 ${battle.ayah}
-        </div>
+        ${image ? `<div class="battle-art" style="background-image:linear-gradient(0deg,rgba(7,12,10,.88),rgba(7,12,10,.08)),url('${image}')"></div>` : `<div class="battle-art battle-art-fallback has-scene">${window.armySceneFor ? window.armySceneFor(battleId) : battle.emoji}</div>`}
+        <div class="battle-detail-heading"><span class="battle-detail-emoji">${battle.emoji}</span><div><h3>${battle.name}</h3><p>${battle.year}</p></div></div>
+        <div class="battle-story">${battle.story}</div>
+        <div class="battle-result"><small>ИТОГ СОБЫТИЯ</small><strong>${battle.result}</strong></div>
+        <blockquote class="battle-ayah"><span>📖</span><div>${battle.ayah}</div></blockquote>
     `;
     
     const statusEl = document.getElementById('battleReadStatus');
     if (isRead) {
-        statusEl.innerHTML = '<span style="color: #34C759;"><i class="fas fa-check-circle"></i> Вы уже прочитали эту битву</span>';
-        statusEl.style.background = '#E8F5E9';
+        statusEl.innerHTML = '<span class="battle-status-done"><i class="fas fa-check-circle"></i> Вы уже изучили это событие</span>';
+        statusEl.className = 'battle-read-status is-done';
         document.getElementById('markBattleReadText').textContent = 'Уже прочитано';
         document.getElementById('markBattleReadBtn').disabled = true;
     } else {
-        statusEl.innerHTML = '<span style="color: #8E8E93;"><i class="fas fa-book"></i> Прочитайте, чтобы получить карточку</span>';
-        statusEl.style.background = '#F2F2F7';
+        statusEl.innerHTML = '<span><i class="fas fa-book-open"></i> Изучите материал, чтобы получить карточку</span>';
+        statusEl.className = 'battle-read-status';
         document.getElementById('markBattleReadText').textContent = 'Отметить как прочитанное';
         document.getElementById('markBattleReadBtn').disabled = false;
     }
@@ -96,8 +156,7 @@ document.querySelectorAll('.battle-tab').forEach(tab => {
             t.style.background = '#F2F2F7';
             t.style.color = '#1C1C1E';
         });
-        tab.style.background = '#007AFF';
-        tab.style.color = 'white';
+        tab.classList.add('active');
         
         currentBattle = tab.dataset.battle;
         renderBattleContent(currentBattle);
@@ -105,14 +164,17 @@ document.querySelectorAll('.battle-tab').forEach(tab => {
 });
 
 document.getElementById('markBattleReadBtn')?.addEventListener('click', () => {
+    if (!isCampaignBattleUnlocked(currentBattle)) { showNotification('Сначала пройдите этот этап в разделе «Армия».'); return; }
     if (!userData.battlesRead) userData.battlesRead = [];
     if (!userData.battlesRead.includes(currentBattle)) {
         userData.battlesRead.push(currentBattle);
         
         // Выдача карточки
-        unlockCardIfNotHave(`battle_${currentBattle}`);
+        // Карточка выдаётся при прохождении этапа армии; здесь фиксируется именно прочтение истории.
+        if (typeof unlockCardIfNotHave === 'function' && !getArmyCampaignState().completed?.includes(currentBattle)) unlockCardIfNotHave(`battle_${currentBattle}`);
         
         addXP(150);
+        if (typeof window.awardStars === 'function') window.awardStars(3, 'Изучение исторического события', 'battle:'+currentBattle);
         showNotification(`⚔️ Битва «${BATTLE_CONTENT[currentBattle].name}» прочитана! +150 XP`);
         showFirework(`⚔️ ${BATTLE_CONTENT[currentBattle].name}!`);
         
@@ -125,6 +187,9 @@ document.getElementById('markBattleReadBtn')?.addEventListener('click', () => {
 // Инициализация
 setTimeout(() => {
     if (!userData.battlesRead) userData.battlesRead = [];
-    renderBattleContent('badr');
+    refreshBattleTabs();
+    const firstUnlocked = (window.ISLAMIC_BATTLES||[]).map(b=>b.id.replace(/^battle_/, '')).find(isCampaignBattleUnlocked);
+    currentBattle = firstUnlocked || 'badr';
+    renderBattleContent(currentBattle);
     updateBattlesProgress();
 }, 300);
