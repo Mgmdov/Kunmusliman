@@ -92,7 +92,7 @@ window.checkEasterEggs = function() {
         unlocked = (Object.keys(userChest).length >= 50);
         break;
       case 'first_day':
-        unlocked = true; // всегда разблокирована с первого дня
+        unlocked = false; // v60: подарок новичку отключён — новый пользователь начинает с 0 звёзд и без карточек
         break;
       case 'tasbih_1000':
         unlocked = (parseInt(localStorage.getItem('tasbih_count') || '0') >= 1000);

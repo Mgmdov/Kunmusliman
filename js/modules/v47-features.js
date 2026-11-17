@@ -29,14 +29,24 @@
 
   /* ================= Виджеты ================= */
   var W_KEY = 'kun_widgets_v1', H_KEY = 'kun_home_hide_v1';
-  function hcfg() { return Object.assign({ all: false, prayer: false, day: false, v47: false, xp: false }, lsGet(H_KEY, {})); }
+  function hcfg() { return Object.assign({ all: false, prayer: false, day: false, xp: false, next: false, coll: false }, lsGet(H_KEY, {})); }
+  /* v60: «Следующий намаз» и «Моя коллекция» скрываются по отдельности. Переносим старые настройки (общий v47 и переключатели wNext/wColl). */
+  function migrateWidgetHide() {
+    var raw = lsGet(H_KEY, {}); if (raw.mig === 2) return;
+    var w = lsGet(W_KEY, {});
+    if (raw.v47) { raw.next = true; raw.coll = true; }
+    if (w.next === false) raw.next = true;
+    if (w.coll === false) raw.coll = true;
+    delete raw.v47; raw.mig = 2; lsSet(H_KEY, raw);
+    if (w.next === false || w.coll === false) lsSet(W_KEY, Object.assign(w, { next: true, coll: true }));
+  }
   function applyHide() {
     var h = hcfg(), b = document.body; if (!b) return;
     b.classList.toggle('hw-prayer', h.all || h.prayer); b.classList.toggle('hw-day', h.all || h.day);
-    b.classList.toggle('hw-v47', h.all || h.v47); b.classList.toggle('hw-xp', h.all || h.xp);
+    b.classList.toggle('hw-next', h.all || h.next); b.classList.toggle('hw-coll', h.all || h.coll); b.classList.toggle('hw-xp', h.all || h.xp);
   }
   window.applyHomeWidgetsHide = applyHide;
-  document.addEventListener('DOMContentLoaded', applyHide); applyHide();
+  migrateWidgetHide(); document.addEventListener('DOMContentLoaded', applyHide); applyHide();
   function wcfg() { return Object.assign({ next: true, coll: true, cards: [] }, lsGet(W_KEY, {})); }
   var PRAYERS = [['Фаджр', 'homeFajr'], ['Зухр', 'homeDhuhr'], ['Аср', 'homeAsr'], ['Магриб', 'homeMaghrib'], ['Иша', 'homeIsha']];
   function prayerTimes() {
@@ -119,19 +129,16 @@
       '<label class="v47-row"><span>Скрыть «Время намаза»</span><input type="checkbox" id="hPrayer" ' + (hcfg().prayer ? 'checked' : '') + '></label>' +
       '<label class="v47-row"><span>Скрыть «Мой день»</span><input type="checkbox" id="hDay" ' + (hcfg().day ? 'checked' : '') + '></label>' +
       '<label class="v47-row"><span>Скрыть уровень и опыт</span><input type="checkbox" id="hXp" ' + (hcfg().xp ? 'checked' : '') + '></label>' +
-      '<label class="v47-row"><span>Скрыть виджеты намаза и карточек</span><input type="checkbox" id="hV47" ' + (hcfg().v47 ? 'checked' : '') + '></label>' +
-      '<label class="v47-row"><span>Следующий намаз<small>Название и время до начала</small></span><input type="checkbox" id="wNext" ' + (c.next ? 'checked' : '') + '></label>' +
-      '<label class="v47-row"><span>Коллекция карточек<small>Три выбранные карточки</small></span><input type="checkbox" id="wColl" ' + (c.coll ? 'checked' : '') + '></label>' +
+      '<label class="v47-row"><span>Скрыть «Следующий намаз»<small>Название и время до начала</small></span><input type="checkbox" id="hNext" ' + (hcfg().next ? 'checked' : '') + '></label>' +
+      '<label class="v47-row"><span>Скрыть «Мою коллекцию»<small>Виджет с тремя карточками</small></span><input type="checkbox" id="hColl" ' + (hcfg().coll ? 'checked' : '') + '></label>' +
       '<button type="button" class="v47-btn" onclick="openCardWidgetPicker()">Выбрать 3 карточки для виджета</button></div>');
     var upd = function () {
       lsSet(GLASS_KEY, { on: $('gOn').checked, blur: +$('gBlur').value, t: +$('gAlpha').value });
       $('gBlurV').textContent = $('gBlur').value; $('gAlphaV').textContent = $('gAlpha').value + '%'; applyGlass();
     };
     ['gOn', 'gBlur', 'gAlpha'].forEach(function (i) { $(i).addEventListener('input', upd); });
-    var wu = function () { lsSet(W_KEY, Object.assign(wcfg(), { next: $('wNext').checked, coll: $('wColl').checked })); renderWidgets(); };
-    ['wNext', 'wColl'].forEach(function (i) { $(i).addEventListener('change', wu); });
-    var hu = function () { lsSet(H_KEY, { all: $('hAll').checked, prayer: $('hPrayer').checked, day: $('hDay').checked, xp: $('hXp').checked, v47: $('hV47').checked }); applyHide(); };
-    ['hAll', 'hPrayer', 'hDay', 'hXp', 'hV47'].forEach(function (i) { $(i).addEventListener('change', hu); });
+        var hu = function () { lsSet(H_KEY, Object.assign(lsGet(H_KEY, {}), { all: $('hAll').checked, prayer: $('hPrayer').checked, day: $('hDay').checked, xp: $('hXp').checked, next: $('hNext').checked, coll: $('hColl').checked })); applyHide(); };
+    ['hAll', 'hPrayer', 'hDay', 'hXp', 'hNext', 'hColl'].forEach(function (i) { $(i).addEventListener('change', hu); });
   };
   window.openCardWidgetPicker = function () {
     var own = ownedCards(), sel = (wcfg().cards || []).slice(0, 3);

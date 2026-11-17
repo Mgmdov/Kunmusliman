@@ -41,7 +41,7 @@
   testBtn && testBtn.addEventListener('click', () => { const id = choice() !== 'none' ? choice() : sel.value; if (id === 'none') { say('Сначала выберите запись.'); return; } play(id); });
   stopBtn && stopBtn.addEventListener('click', stop);
 
-  // Проверка раз в 20 секунд: наступило ли время намаза (в часовом поясе выбранного места)
+  // Проверка раз в 5 секунд: наступило ли время намаза (в часовом поясе выбранного места)
   setInterval(() => {
     if (choice() === 'none' || typeof latestPrayerTimings === 'undefined' || !latestPrayerTimings) return;
     const cur = nowInTz(prayerTz);
@@ -51,5 +51,5 @@
       const stamp = new Date().toDateString() + k;
       if (toMin(t[k]) === cur && lastPlayed !== stamp) { lastPlayed = stamp; play(choice()); }
     });
-  }, 20000);
+  }, 5000);
 })();

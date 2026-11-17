@@ -384,7 +384,7 @@ body.theme-light .hub-action-icon .ic{color:#8a6410}
 .chest-card-select .chest-photo{width:100%!important}
 
 /* v53: скрытие виджетов главного экрана */
-body.hw-prayer #prayerWidget,body.hw-day .premium-day-chip,body.hw-v47 #v47Widgets,body.hw-xp .xp-bar,body.hw-xp #homeStreakBadge{display:none!important}
+body.hw-prayer #prayerWidget,body.hw-day .premium-day-chip,body.hw-next #v47Widgets .v47-next,body.hw-coll #v47Widgets .v47-coll,body.hw-xp .xp-bar,body.hw-xp #homeStreakBadge{display:none!important}
 
 /* v53: мини-плеер фонового чтения Корана */
 .qr-mini{position:fixed;left:12px;right:12px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:9000;display:flex;align-items:center;gap:6px;padding:8px 10px 8px 14px;border-radius:22px;background:rgba(20,16,10,.88);border:1px solid rgba(226,195,116,.45);box-shadow:0 10px 30px rgba(0,0,0,.5);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);color:#f5e6bf}
