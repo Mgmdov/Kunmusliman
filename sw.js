@@ -1,5 +1,5 @@
 /* Kunmusliman v39: Quran card rewards, companion stories and live worship counters. */
-const CACHE_NAME = 'kunmusliman-v58';
+const CACHE_NAME = 'kunmusliman-v59';
 const APP_SHELL = [
   './',
   './index.html',

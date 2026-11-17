@@ -35,7 +35,7 @@ function applyTimings(t, meta, label) {
 }
 
 function currentSettings() {
-  return { method: PL.$('mazhabSelect')?.value || '16', school: PL.$('asrSchoolSelect')?.value || '0' };
+  return { method: PL.$('mazhabSelect')?.value || '14', school: PL.$('asrSchoolSelect')?.value || '0' };
 }
 
 // Основной запрос: по координатам
@@ -179,6 +179,7 @@ function loadSavedLocation() {
     const saved = JSON.parse(localStorage.getItem('prayerLocation') || 'null');
     if (saved) {
       if (saved.school !== undefined && PL.$('asrSchoolSelect')) PL.$('asrSchoolSelect').value = String(saved.school);
+      if (saved.method === '16') saved.method = '14'; // раньше «ДУМ РФ» ошибочно был методом 16 (Дубай)
       if (saved.method && PL.$('mazhabSelect')) PL.$('mazhabSelect').value = saved.method;
       if (PL.$('cityInput') && saved.city && saved.city !== 'Моё местоположение') PL.$('cityInput').value = saved.city;
       if (saved.lat && saved.lng) { fetchPrayerByCoords(saved.lat, saved.lng, saved.city, saved.country); return; }
